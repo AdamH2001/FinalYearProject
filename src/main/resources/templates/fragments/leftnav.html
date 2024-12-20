@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+	crossorigin="anonymous">
+<link rel="stylesheet" href="./css/gershwin.css">
+<link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+	<div th:fragment="leftnav" th:switch="${loggedOnUser}"
+		class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-tadleydarkpurple text-tadleywhite">
+		<div th:case="null"
+			class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">
+
+			<span class="fs-5 d-none d-sm-inline">Menu</span>
+
+			<ul
+				class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+				id="menu">
+				<li class="nav-item"><a href="./"
+					class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
+						<span class="ms-1 d-none d-sm-inline">Home</span>
+				</a></li>
+				<li class="nav-item"><a href="./createUser"
+					class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
+						<span class="ms-1 d-none d-sm-inline">Create User</span>
+				</a></li>
+				<li class="nav-item"><a href="./facebookPage"
+					class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
+						<span class="ms-1 d-none d-sm-inline">Facebook Page</span>
+				</a></li>
+				<li class="nav-item"><a href="./about"
+					class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
+						<span class="ms-1 d-none d-sm-inline">About</span>
+				</a></li>
+
+			</ul>
+
+		</div>
+		<div th:case="*"
+			class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">
+
+			<span class="fs-5 d-none d-sm-inline">Menu</span>
+			<div th:switch="${loggedOnUser.isAdmin()}">
+				<div th:case="true">
+
+					<ul
+						class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+						id="menu">
+						<li class="nav-item"><a href="./calendar"
+							class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
+								<span class="ms-1 d-none d-sm-inline">Calendar</span>
+						</a></li>
+
+						<li><a href="./createEvent"
+							class="nav-link px-0 align-middle"> <i class="fs-4 bi-people"></i>
+								<span class="ms-1 d-none d-sm-inline">Create Event</span>
+						</a></li>
+						<li><a href="#" class="nav-link px-0 align-middle"> <i
+								class="fs-4 bi-people"></i> <span
+								class="ms-1 d-none d-sm-inline">Manage Event Equipment</span>
+						</a></li>
+						<li><a href="#" class="nav-link px-0 align-middle"> <i
+								class="fs-4 bi-people"></i> <span
+								class="ms-1 d-none d-sm-inline">Manage Event Refreshments</span>
+						</a></li>
+					</ul>
+					<hr>
+
+				</div>
+				<div th:case="false">
+						<form th:if="${loggedOnUser.getParentObject().getStudents().size() > 0}" action="./changeStudentField" method="post">
+						<label for="students">Student:</label>
+							<select onchange="this.form.submit()" name="students" id="students" required>
+								<option th:each="student : ${loggedOnUser.getParentObject().getStudents()}" th:value="${student.getStudentId()}" th:text="${student.getFullName()}" th:selected="${student.getStudentId() == selectedStudent.getStudentId()}">StudentName</option>
+							</select>
+						</form>
+					<ul
+						class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+						id="menu">
+						<li th:if="${loggedOnUser.getParentObject().getStudents().size() > 0}" class="nav-item"><a th:href="@{./createMedicalNote(studentId=${selectedStudent.getStudentId()})}"
+							class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
+								<span class="ms-1 d-none d-sm-inline">Add Medical Note</span>
+						</a></li>
+						<li class="nav-item"><a href="./calendar"
+							class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
+								<span class="ms-1 d-none d-sm-inline">Calendar</span>
+						</a></li>
+						<li class="nav-item"><a href="./createStudent"
+						class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
+						<span class="ms-1 d-none d-sm-inline">Add Student</span>
+						</a></li>
+						<li class="nav-item"><a href="./viewIncidents"
+						class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
+						<span class="ms-1 d-none d-sm-inline">View Incidents</span>
+						</a></li>
+						<li><a href="#submenu2" data-bs-toggle="collapse"
+							class="nav-link px-0 align-middle"> <i
+								class="fs-4 bi-speedometer2"></i> <span
+								class="ms-1 d-none d-sm-inline">Payments</span>
+						</a>
+							<ul class="collapse show nav flex-column ms-1" id="submenu2"
+								data-bs-parent="#menu">
+								<li class="w-100"><a href="./topUpBalance" class="nav-link px-0"> <span
+										class="d-none d-sm-inline">Top Up Balance</span>
+								</a></li>
+								<li><a href="./viewDeposits" class="nav-link px-0"> <span
+										class="d-none d-sm-inline">View Deposits</span>
+								</a></li>
+								<li><a href="./viewTransactions" class="nav-link px-0"> <span
+										class="d-none d-sm-inline">View Transactions</span>
+								</a></li>
+							</ul></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

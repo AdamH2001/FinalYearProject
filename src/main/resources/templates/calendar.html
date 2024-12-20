@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+	crossorigin="anonymous">
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+	crossorigin="anonymous"></script>
+<link rel="stylesheet" href="./css/gershwin.css">
+<link rel="stylesheet" href="./css/styles.css">
+<style>
+</style>
+</head>
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<div class="container-fluid">
+		<div class="row flex-nowrap">
+			<div th:replace="~{fragments/leftnav :: leftnav}"
+				class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark"></div>
+
+			<div class="col py-3">
+
+				<div style="color: red; width: 100%; text-align: center">
+					<div>
+						<b th:text="${flashMessage}">FlashMessage</b>
+					</div>
+				</div>
+
+
+				<h1 align="center" style="color: black">Calendar</h1>
+				<table>
+					<tr height=5>
+						<td class="calendarheader" width=33% style="text-align: right;">
+							<a class="prev" href="./calendarBack">&lt;&lt;&lt;</a>
+						</td>
+						<td class="calendarheader" width=33% style="text-align: center;">
+							<h2 align="center" style="color: orange">
+								<span th:text="${calendarMonth.getMonth()}"></span>
+							</h2>
+							<h2 align="center" style="color: orange">
+								<span th:text="${calendarMonth.getYear()}"></span>
+							</h2>
+						</td>
+						<td class="calendarheader" width=33% style="text-align: left;">
+							<a class="next" href="./calendarForward">&gt;&gt;&gt;</a>
+						</td>
+					</tr>
+
+					<tr>
+						<td colspan=3 style="padding: 0px; vertical-align: top;">
+							<table class="table-striped calendar">
+								<thead class="monthlyheader">
+									<tr>
+										<th width=14% scope="col">MON</th>
+										<th width=14% scope="col">TUE</th>
+										<th width=14% scope="col">WED</th>
+										<th width=14% scope="col">THU</th>
+										<th width=14% scope="col">FRI</th>
+										<th width=14% scope="col">SAT</th>
+										<th width=14% scope="col">SUN</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="i: ${calendar}" class="days">
+										<td th:each="item: ${i}" class="monthlydate">
+											<span th:text="${item?.getDate()?.getDayOfMonth()}"></span>							
+								<!--  	<div th:each="event : ${item?.getEvents()}" class="event monthevent">
+												<span th:text="${event?.getTitle()}"></span>
+											</div> -->	
+																<div th:each="event : ${item?.getEvents()}" class="dropdown">
+						<a href="#"
+							class="align-items-center text-blue text-decoration-none dropdown-toggle"
+							id="dropdownUser1" data-bs-toggle="dropdown"
+							aria-expanded="false"> 
+							<span th:text="${event?.getTitle()}"
+							class="d-none d-sm-inline mx-1"></span>
+						</a>
+						<ul th:if="${loggedOnUser.isAdmin() }" class="dropdown-menu dropdown-menu-dark text-small shadow  position-fixed"
+							aria-labelledby="dropdownUser1">
+							<li><a class="dropdown-item" th:href="@{/editEvent(eventId=${event.getEventId()})}">Edit Event</a></li>
+							<li><a class="dropdown-item" th:href="@{/viewEvent(eventId=${event.getEventId()})}">View Event</a></li>
+							<li><a class="dropdown-item" th:href="@{/cancelEvent(eventId=${event.getEventId()})}">Cancel Event</a></li>
+							<li><a class="dropdown-item" th:href="@{/takeRegister(eventId=${event.getEventId()})}">Take Register</a></li>
+							<li><a class="dropdown-item" th:href="@{/createIncident(eventId=${event.getEventId()})}">Create Incident</a></li>
+							
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+
+													<li><a class="dropdown-item" href="#"> Copy Event
+															&raquo; </a>
+														<ul
+															class="dropdown-menu dropdown-menu-dark text-small shadow dropdown-submenu">
+															<li><a class="dropdown-item" href="#">To next...
+																	&raquo; </a>
+																<ul
+																	class="dropdown-menu dropdown-submenu dropdown-menu-dark text-small shadow dropdown-submenu">
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=1(eventId=${event.getEventId()})}">Monday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=2(eventId=${event.getEventId()})}">Tuesday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=3(eventId=${event.getEventId()})}">Wednesday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=4(eventId=${event.getEventId()})}">Thursday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=5(eventId=${event.getEventId()})}">Friday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=6(eventId=${event.getEventId()})}">Saturday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=7(eventId=${event.getEventId()})}">Sunday</a></li>
+																</ul></li>
+															<li><a class="dropdown-item" href="#">To all
+																	&raquo; </a>
+																<ul
+																	class="dropdown-menu dropdown-submenu dropdown-menu-dark text-small shadow dropdown-submenu">
+																	<li><a class="dropdown-item" th:href="@{/copyEventAllWeek?next=false(eventId=${event.getEventId()})}">Weekdays
+																			this week</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEventAllWeek?next=true(eventId=${event.getEventId()})}">Weekdays
+																			next week</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEventAllMonth?next=false(eventId=${event.getEventId()})}">Weekdays
+																			this month</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEventAllMonth?next=true(eventId=${event.getEventId()})}">Weekdays
+																			next month</a></li>
+																</ul></li>
+
+
+														</ul></li>
+						</ul>
+						<ul th:if="${loggedOnUser.isParent()}" class="dropdown-menu dropdown-menu-dark text-small shadow  position-fixed"
+							aria-labelledby="dropdownUser1">
+							<li><a class="dropdown-item" th:href="@{/viewEvent(eventId=${event.getEventId()})}">View Event</a></li>
+							<li th:if="${selectedStudent} != null and ${!selectedStudent.isAttendingEvent(event)}"><a class="dropdown-item" th:href="@{/registerForEvent(eventId=${event.getEventId()})}">Register For Event</a></li>
+						 	<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(event)}"><a class="dropdown-item" th:href="@{/deregisterForEvent(eventId=${event.getEventId()})}">Deregister Event</a></li>
+							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(event)}">
+								<hr class="dropdown-divider">
+							</li>
+							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(event)}"><a class="dropdown-item" th:href="@{/editOptions(eventId=${event.getEventId()})}">Edit Options</a></li>
+					</ul>
+					</div>
+					
+					
+										</td>
+											
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</table>
+
+			</div>
+		</div>
+	</div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
+
+
+
+</body>
+</html>
