@@ -53,6 +53,8 @@ import org.thymeleaf.context.Context;
 
 // new comment
 
+// another comment
+
 @Controller
 @SessionAttributes({ "loggedOnUser", "calendarIndex", "calendarMonth", "transactionMonth", "selectedStudent", "event", "student" })
 
