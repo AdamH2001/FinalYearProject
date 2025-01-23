@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+Events This Month
+<table>
+   <th:block th:each="event : ${monthEvents}">
+      <tr>
+         <td th:text="${event.getName()}">Adam</td>
+         <td th:text="${event.getDescription()}">MU</td>
+         <td th:text="${event.getTime()}">MU</td>
+      </tr>
+   </th:block>
+</table>
+</body>
+</html>

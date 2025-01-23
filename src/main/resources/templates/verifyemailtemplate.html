@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Verify After School Club Email Address</title>
+</head>
+<body>
+<p>Dear <span th:text="${user.getFullName()}"></span>,
+<br/>
+We are pleased that you have chosen to use the After School Club.<br/>
+
+Please verify the email address associated with your account. You won't be able to use the service until your email is verified.<br/>
+
+Please click the <a th:href="${link}"> here </a>to complete the verification process.<br/>
+
+Best Regards,<br/>
+After School Club Administration Team</p>
+</body>
+</html>
