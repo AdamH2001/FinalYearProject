@@ -8,45 +8,47 @@
 	rel="stylesheet"
 	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
 	crossorigin="anonymous">
-<link rel="stylesheet" href="./css/gershwin.css">
 <link rel="stylesheet" href="./css/styles.css">
 
 </head>
 <body>
-	<div th:fragment="header" class="bg-tadleydarkpurple text-tadleywhite">
+	<div th:fragment="header" class="bg-navafterschoolclub afterschoolheader text-afterschoolwhite">
 
 
 		<div th:switch="${loggedOnUser}" class="container-fluid"
 			style="width: 100%;">
 			<div th:case="null" class="row">
-				<div class="col-sm">
-					<h1>Tadley After School Club</h1>
-				</div>
-				<div class="col-sm">
+				<div class="text-afterschoolclubmainheader col-sm-9">After School Club</div>
+				
+				<div class="col-sm-3">
 					<form class="form-inline" action="./processlogin" method="POST">
 						<div class="row mb-1">
-							<div class="col-sm-12">
-								<input type="email" name="username" placeholder="username"
+							<div class="col-sm-6">
+								<input type="email" name="username" placeholder="username" autocomplete="email"
 									class="form-control form-control-sm mr-sm-2" id="inputEmail3"
 									required>
 							</div>
+							<div class="col-sm-6">
+								<button type="submit" class="btn btn-primary">Sign in</button>
+							</div>							
 						</div>
 						<div class="row mb-1">
-							<div class="col-sm-12">
+							<div class="col-sm-6">
 								<input type="password" name=password placeholder="password"
 									class="form-control form-control-sm mr-sm-2"
 									id="inputPassword3" required>
 							</div>
+							<div class="col-sm-6">
+								<a href="./forgotPassword">Forgot password</a>
+							</div>								
 						</div>
-
-						<button type="submit" class="btn btn-primary">Sign in</button>
-						<a href="./forgotPassword">Forgot password</a>
-						<div th:switch="${flashMessage}">
-							<div class="text-warning" th:case="null">&nbsp;</div>
-							<div class="text-warning" th:case="*" th:text="${flashMessage}">
-								&nbsp;</div>
-
-						</div>
+						
+						<div class="afterschoolclubflash row mb-1 afterschoolclubleft">
+							<div class="col-sm-12" th:switch="${flashMessage}">
+								<div th:case="null">&nbsp;</div>
+								<div th:case="*" th:text="${flashMessage}">&nbsp;</div>
+							</div>							
+						</div>						
 					</form>
 				</div>
 			</div>
@@ -55,29 +57,26 @@
 			<div th:case="*" class="container-fluid" style="width: 100%;">
 
 				<div class=row>
-					<div class="row col-7">
-						<h1>Tadley After School Club</h1>
-					</div>
+					<div class="col-sm-6 text-afterschoolclubmainheader">After School Club</div>
 
-					<div th:if="${loggedOnUser.isParent()}" class="col-2 d-flex align-items-center">
+
+					<div th:if="${loggedOnUser.isParent()}" class="col-sm-2 d-flex align-items-center">
 						Balance: &nbsp;<span
 							th:text="${loggedOnUser.getParentObject().getFormattedBalance()}">0</span>
 					</div>
 
-					<div
-						th:if="${selectedStudent} != null and ${loggedOnUser.isParent()}"
-						class="col-2 d-flex align-items-center">
-						Registered Events: &nbsp;<span
-							th:text="${selectedStudent.getAttendees()?.size()}">0</span>
+					<div th:if="${selectedStudent} != null and ${loggedOnUser.isParent()}" class="col-sm-2 d-flex align-items-center"> Registered Events: &nbsp;
+						<span th:text="${selectedStudent.getAttendees()?.size()}">0</span>
 					</div>		
-					<div th:if="${loggedOnUser.isAdmin()}" class="col-2 d-flex align-items-center">
+					
+					<div th:if="${loggedOnUser.isAdmin()}" class="col-sm-2 d-flex align-items-center">
 						Admin info: &nbsp;<span>0</span>
 					</div>
-					<div th:if="${loggedOnUser.isAdmin()}" class="col-2 d-flex align-items-center">
+					<div th:if="${loggedOnUser.isAdmin()}" class="col-sm-2 d-flex align-items-center">
 						More info: &nbsp;<span>0</span>
 					</div>					
 
-					<div class="col-1 d-flex align-items-center">
+					<div class="col-sm-2 d-flex align-items-center">
 						<div class="dropdown">
 							<a href="#"
 								class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
@@ -91,7 +90,7 @@
 								aria-labelledby="dropdownUser1">
 								<li><a class="dropdown-item" href="./changePassword">Change
 										Password</a></li>
-								<li><a class="dropdown-item" href="./updateDetails">Update Details</a></li>
+								<li><a class="dropdown-item" href="./editUserDetails">Update Details</a></li>
 								<li>
 									<hr class="dropdown-divider">
 								</li>

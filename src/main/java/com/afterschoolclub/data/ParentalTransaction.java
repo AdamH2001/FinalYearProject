@@ -14,11 +14,19 @@ import lombok.ToString;
 @Setter
 @ToString
 public class ParentalTransaction {
+	
+	public enum Type {
+		DEPOSIT, 
+		WITHDRAWAL, 
+		REFUND, 
+		PAYMENT
+	}
+	
 	@Id
 	private int transactionId;
 	private int amount;
 	private LocalDateTime dateTime;
-	private String transactionType;
+	private Type transactionType;
 	private String description;
 	
 	/**
@@ -27,7 +35,7 @@ public class ParentalTransaction {
 	 * @param transactionType
 	 * @param description
 	 */
-	public ParentalTransaction(int amount, LocalDateTime dateTime, String transactionType, String description) {
+	public ParentalTransaction(int amount, LocalDateTime dateTime, Type transactionType, String description) {
 		super();
 		this.amount = amount;
 		this.dateTime = dateTime;
@@ -43,14 +51,17 @@ public class ParentalTransaction {
 	
 	public String getFormattedTransactionType() {
 		String s = "";
-		if (transactionType.equals("A")) {
+		if (transactionType == Type.PAYMENT) {
 			s = "Attendance Fee";
 		}
-		else if (transactionType.equals("D")) {
+		else if (transactionType == Type.DEPOSIT) {
 			s = "Deposit";
 		}
-		else if (transactionType.equals("R")) {
+		else if (transactionType== Type.REFUND) {
 			s = "Refund";
+		}
+		else if (transactionType== Type.WITHDRAWAL) {
+			s = "Withdrawal";
 		}
 		return s;
 	}

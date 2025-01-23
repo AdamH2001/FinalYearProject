@@ -12,18 +12,26 @@ import lombok.ToString;
 public class EventResource {
 	@Id
 	private int eventResourceId;
+		
 	AggregateReference<Resource, Integer> resourceId;
 	private int quantity;
-	private String type;
+	private boolean perAttendee;
 	
 	public EventResource() {
 		super();	
 	}
 	
+	public EventResource(AggregateReference<Resource, Integer> resourceId, int quantity, boolean perAttendee) {
+		super();	
+		this.resourceId = resourceId;
+		this.quantity = quantity;
+		this.perAttendee = perAttendee;
+	}	
+	
 	public EventResource(EventResource er) {
 		super();
 		this.resourceId = er.resourceId;
 		this.quantity = er.quantity;
-		this.type = er.type;
+		this.perAttendee = er.perAttendee;
 	}
 }

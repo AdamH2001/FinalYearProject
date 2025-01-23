@@ -13,16 +13,24 @@ import org.springframework.data.annotation.Id;
 @Setter
 @ToString
 public class MedicalNote {
+	
+	public enum Type {
+		
+		ALLERGY, HEALTH, DIET, CAREPLAN, MEDICATION, OTHER
+		
+	}
+	
+	
 	@Id
 	private int medicalNoteId;
-	private String noteType;
+	private Type noteType;
 	private String note;
 	
 	/**
 	 * @param noteType
 	 * @param note
 	 */
-	public MedicalNote(String noteType, String note) {
+	public MedicalNote(Type noteType, String note) {
 		super();
 		this.noteType = noteType;
 		this.note = note;

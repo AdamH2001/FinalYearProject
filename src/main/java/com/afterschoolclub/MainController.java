@@ -5,13 +5,19 @@ import com.afterschoolclub.data.Attendee;
 import com.afterschoolclub.data.Event;
 import com.afterschoolclub.data.Incident;
 import com.afterschoolclub.data.MedicalNote;
+import com.afterschoolclub.data.MenuGroup;
 import com.afterschoolclub.data.Parent;
 import com.afterschoolclub.data.ParentalTransaction;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.StudentClass;
 import com.afterschoolclub.data.User;
 import com.afterschoolclub.data.EventDay;
+import com.afterschoolclub.data.EventMenu;
+import com.afterschoolclub.data.EventResource;
+import com.afterschoolclub.data.Club;
+import com.afterschoolclub.data.Resource;
 import com.afterschoolclub.data.respository.ClassRepository;
+import com.afterschoolclub.data.respository.ClubRepository;
 import com.afterschoolclub.data.respository.EventRepository;
 import com.afterschoolclub.data.respository.MenuGroupRepository;
 import com.afterschoolclub.data.respository.ParentalTransactionRepository;
@@ -57,13 +63,12 @@ public class MainController {
 	private final ClassRepository classRepository;
 	private final StudentRepository studentRepository;
 	private final ParentalTransactionRepository transactionRepository;
-	
+	private final ClubRepository clubRepository;	
 
 	@Autowired
 	private EmailService mailService;
 
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
-
 	
 	/**
 	 * @param userRepository
@@ -74,7 +79,7 @@ public class MainController {
 	 */
 	public MainController(UserRepository userRepository, EventRepository eventRepository,
 			MenuGroupRepository menuGroupRepository, ResourceRepository resourceRepository,
-			ClassRepository classRepository, StudentRepository studentRepository, ParentalTransactionRepository transactionRepository) {
+			ClassRepository classRepository, StudentRepository studentRepository, ParentalTransactionRepository transactionRepository, ClubRepository clubRepository) {
 		super();
 		this.userRepository = userRepository;
 		this.eventRepository = eventRepository;
@@ -83,6 +88,9 @@ public class MainController {
 		this.classRepository = classRepository;
 		this.studentRepository = studentRepository;
 		this.transactionRepository = transactionRepository;
+		this.clubRepository = clubRepository;
+		Event.clubRepository = clubRepository;
+		Event.resourceRepository = resourceRepository;
 	}
 	
 	@GetMapping("/createStudent")
@@ -115,12 +123,14 @@ public class MainController {
 			@RequestParam(name = "consentToShare", defaultValue = "false") boolean consentToShare, Model model) {
 		Student student = new Student(firstName, surname, dateOfBirth, consentToShare);
 		student.setClassId(AggregateReference.to(className));
-		student.addMedicalNote(new MedicalNote("A",allergyNote));
-		student.addMedicalNote(new MedicalNote("H",healthNote));
-		student.addMedicalNote(new MedicalNote("D",dietNote));
-		student.addMedicalNote(new MedicalNote("C",careNote));
-		student.addMedicalNote(new MedicalNote("M",medicationNote));
-		student.addMedicalNote(new MedicalNote("O",otherNote));
+		
+		//TODO - remove these thare are just tests
+		student.addMedicalNote(new MedicalNote(MedicalNote.Type.ALLERGY,allergyNote));
+		student.addMedicalNote(new MedicalNote(MedicalNote.Type.HEALTH,healthNote));
+		student.addMedicalNote(new MedicalNote(MedicalNote.Type.DIET, dietNote));
+		student.addMedicalNote(new MedicalNote(MedicalNote.Type.CAREPLAN,careNote));
+		student.addMedicalNote(new MedicalNote(MedicalNote.Type.MEDICATION,medicationNote));
+		student.addMedicalNote(new MedicalNote(MedicalNote.Type.OTHER,otherNote));
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		Parent parent = loggedOnUser.getParentObject();
 		parent.addStudent(student);
@@ -132,8 +142,8 @@ public class MainController {
 	
 
 	@GetMapping("/createUser")
-	public String createUser(Model model) {
-		model.addAttribute("formAction","./addUser");
+	public String createUser(Model model) {		
+		model.addAttribute("action","createUser");
 		return "createuser";
 	}
 
@@ -148,20 +158,22 @@ public class MainController {
 		return "home";
 	}
 
-	@PostMapping("/addUser")
-	public String addUser(@RequestParam(name = "firstName") String firstName,
+	@PostMapping("/addNewUser")
+	public String addNewUser(@RequestParam(name = "firstName") String firstName,
 			@RequestParam(name = "surname") String surname, @RequestParam(name = "email") String email,
 			@RequestParam(name = "password") String password, @RequestParam(name = "conPassword") String conPassword,
 			@RequestParam(name = "telephoneNum") String telephoneNum, @RequestParam(name = "altContactName") String altContactName, @RequestParam (name = "altTelephoneNum") String altTelephoneNum, Model model) {
 		List<User> users = userRepository.findByEmail(email);
 		Encoder encoder = Base64.getEncoder();
 		String encodedPass = encoder.encodeToString(password.getBytes());
+		User user = new User(email, encodedPass, firstName, surname, LocalDateTime.now(), false);
+
+		Parent parent = new Parent(telephoneNum,altContactName,altTelephoneNum);
+		user.addParent(parent);
+
 		if (users.size() == 0 || users == null) {
 			if (conPassword.equals(password)) {
-				User user = new User(email, encodedPass, firstName, surname, LocalDateTime.now(), false);
 
-				Parent parent = new Parent(telephoneNum,altContactName,altTelephoneNum);
-				user.addParent(parent);
 				userRepository.save(user);
 				logger.info("Saved user{}", user);
 
@@ -169,61 +181,54 @@ public class MainController {
 
 				Context context = new Context();
 				context.setVariable("user", user);
-				String link = "http://localhost:8080/MyProject/validateEmail?userId=" + user.getUserId()
+				String link = "http://localhost:8080/AfterSchoolClub/validateEmail?userId=" + user.getUserId()
 						+ "&validationKey=" + user.getValidationKey();
 				context.setVariable("link", link);
 
 				try {
 					mailService.sendTemplateEmail(user.getEmail(), "afterschooladmin@hattonsplace.co.uk",
 							"Verify Email For Afterschool Club", "verifyemailtemplate", context);
+					model.addAttribute("flashMessage","Please verify your email address");
+
 				} catch (MessagingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
 			} else {
+				//TODO set formation
+				model.addAttribute("action","createUser");
+				model.addAttribute("flashMessage","Passwords do not match");
+				model.addAttribute("editUser",user);
+
 				return "createuser";
 			}
 		} else {
-			User existingUser = users.get(0);
-			existingUser.setPassword(encodedPass);
-			userRepository.save(existingUser);
+			model.addAttribute("flashMessage","User already exists");
+			model.addAttribute("action","createUser");			
+			model.addAttribute("editUser",user);
+			return "createuser";
 		}
 
 		return "home";
 	}
 	
-	@PostMapping("/addDetails")
-	public String addDetails(@RequestParam(name = "firstName") String firstName,
+	@PostMapping("/saveUserDetails")
+	public String saveUserDetails(@RequestParam(name = "firstName") String firstName,
 			@RequestParam(name = "surname") String surname, @RequestParam(name = "email") String email,
 			@RequestParam(name = "telephoneNum") String telephoneNum, @RequestParam(name = "altContactName") String altContactName, @RequestParam (name = "altTelephoneNum") String altTelephoneNum, Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser != null) {
-			List<User> users = userRepository.findByEmail(email);
-			if (users.size() != 0 && users != null) {
-				User user = users.get(0);
-				if (loggedOnUser.getEmail().equals(user.getEmail())) {
-					Parent loggedOnParent = loggedOnUser.getParentObject();
-					user.setFirstName(firstName);
-					user.setSurname(surname);
-					loggedOnParent.setTelephoneNum(telephoneNum);
-					loggedOnParent.setAltContactName(altContactName);
-					loggedOnParent.setAltTelephoneNum(altTelephoneNum);
-					userRepository.save(user);
-					this.setupCalendar(model);
-					model.addAttribute("flashMessage","Profile has been updated");
-					return "calendar";
-					
-				} else {
-					model.addAttribute("flashMessage","Parent must be logged in to perform this action");
-					this.setupCalendar(model);
-					return "createuser";
-				}
-			} else {
-				model.addAttribute("flashMessage","Profile does not exist");
-				this.setupCalendar(model);
-				return "calendar";
-			}
+			Parent loggedOnParent = loggedOnUser.getParentObject();
+			loggedOnUser.setFirstName(firstName);
+			loggedOnUser.setSurname(surname);
+			loggedOnParent.setTelephoneNum(telephoneNum);
+			loggedOnParent.setAltContactName(altContactName);
+			loggedOnParent.setAltTelephoneNum(altTelephoneNum);
+			userRepository.save(loggedOnUser);
+			this.setupCalendar(model);
+			model.addAttribute("flashMessage","Profile has been updated");
+			return "calendar";
 		}else {
 				model.addAttribute("flashMessage","Parent must be logged in to perform this action");
 				return "home";
@@ -245,7 +250,7 @@ public class MainController {
 				context.setVariable("user", userToValidate);
 				try {
 					mailService.sendTemplateEmail(userToValidate.getEmail(), "afterschooladmin@hattonsplace.co.uk",
-							"Email Verified For Tadley After School Club", "emailverifiedtemplate", context);
+							"Email Verified For After School Club", "emailverifiedtemplate", context);
 				} catch (MessagingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -288,11 +293,73 @@ public class MainController {
 			return "calendar";
 		}
 	}
+	
+	
+	@GetMapping("/createClub")
+	public String createClub(Model model) {
+		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		if (loggedOnUser != null) {
+			if (loggedOnUser.isAdmin()) {
+				
+						
+				return "createclub";
+			} else {
+				this.setupCalendar(model);
+				return "calendar";
+			}
+		} else {
+			return "home";
+		}
+	}
+	
+	@PostMapping("/addClub")
+	public String addClub(@RequestParam(name = "title") String title,
+			@RequestParam(name = "description") String description, 
+			@RequestParam(name = "basePrice") int basePrice, 
+			@RequestParam(name = "yearR", defaultValue="false") boolean yearRCanAttend,
+			@RequestParam(name = "year1", defaultValue="false") boolean yearOneCanAttend,
+			@RequestParam(name = "year2", defaultValue="false") boolean yearTwoCanAttend,
+			@RequestParam(name = "year3", defaultValue="false") boolean yearThreeCanAttend,
+			@RequestParam(name = "year4", defaultValue="false") boolean yearFourCanAttend,
+			@RequestParam(name = "year5", defaultValue="false") boolean yearFiveCanAttend,
+			@RequestParam(name = "year6", defaultValue="false") boolean yearSixCanAttend, Model model) {
+		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		if (loggedOnUser != null) {
+			if (loggedOnUser.isAdmin()) {
+				Club club = new Club(title, description, basePrice, yearRCanAttend, yearOneCanAttend, yearTwoCanAttend, yearThreeCanAttend, yearFourCanAttend, yearFiveCanAttend, yearSixCanAttend); 
+				clubRepository.save(club);
+				this.setupCalendar(model);
+				return "calendar";
+			}
+			else {
+				this.setupCalendar(model);
+				return "calendar";
+			}
+		}
+		else {
+			return "home";
+		}
+	}	
+	
 	@GetMapping("/createEvent")
 	public String createEvent(Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser != null) {
 			if (loggedOnUser.isAdmin()) {
+				List<Club> clubs = clubRepository.findAll();
+				model.addAttribute("clubs",clubs);
+				List<Resource> rooms = resourceRepository.findByType(Resource.Type.ROOM);
+				model.addAttribute("rooms", rooms);
+				
+				List<Resource> staff = resourceRepository.findByType(Resource.Type.STAFF);
+				model.addAttribute("staff", staff);
+
+				List<Resource> equipment = resourceRepository.findByType(Resource.Type.EQUIPMENT);
+				model.addAttribute("equipment", equipment);
+				
+				Iterable<MenuGroup> menus = menuGroupRepository.findAll();
+				model.addAttribute("menus", menus);				
+				
 				return "createevent";
 			} else {
 				this.setupCalendar(model);
@@ -304,29 +371,69 @@ public class MainController {
 	}
 
 	@PostMapping("/addEvent")
-	public String addEvent(@RequestParam(name = "title") String title,
-			@RequestParam(name = "description") String description, 
-			@RequestParam(name = "location") String location,
+	public String addEvent(@RequestParam(name = "club") int clubId,
+			@RequestParam(name = "location") int location,
 			@RequestParam(name = "startDate") LocalDate startDate,
 			@RequestParam(name = "startTime") LocalTime startTime, 
-			@RequestParam(name = "endDate") LocalDate endDate,
 			@RequestParam(name = "endTime") LocalTime endTime, 
-			@RequestParam(name = "basePrice") int basePrice,
-			@RequestParam(name = "maxAttendees") int maxAttendees, 
-			@RequestParam(name = "yearR", defaultValue="false") boolean yearRCanAttend,
-			@RequestParam(name = "year1", defaultValue="false") boolean yearOneCanAttend,
-			@RequestParam(name = "year2", defaultValue="false") boolean yearTwoCanAttend,
-			@RequestParam(name = "year3", defaultValue="false") boolean yearThreeCanAttend,
-			@RequestParam(name = "year4", defaultValue="false") boolean yearFourCanAttend,
-			@RequestParam(name = "year5", defaultValue="false") boolean yearFiveCanAttend,
-			@RequestParam(name = "year6", defaultValue="false") boolean yearSixCanAttend, Model model) {
+			@RequestParam(name = "maxAttendees") int maxAttendees,
+			@RequestParam(name = "staff") List<Integer> staff,	
+			@RequestParam(name = "menu") List<Integer> menuGroups,			
+			@RequestParam(name = "equipment") List<Integer> equipment,
+			@RequestParam(name = "equipmentQuantity") List<Integer> equipmentQuantity,
+			@RequestParam(name = "hiddenPerAttendee") List<Boolean> perAttendee,			
+			Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser != null) {
 			if (loggedOnUser.isAdmin()) {
 				LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
-				LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime);
-				Event event = new Event(title, description, location, startDateTime, endDateTime, basePrice, maxAttendees, yearRCanAttend, yearOneCanAttend, yearTwoCanAttend, yearThreeCanAttend, yearFourCanAttend, yearFiveCanAttend, yearSixCanAttend); 
+				LocalDateTime endDateTime = LocalDateTime.of(startDate, endTime);
+												
+				Event event = new Event(AggregateReference.to(clubId),  startDateTime, endDateTime, maxAttendees);
+				
+				for (Integer staffMember : staff) {
+					EventResource er = new EventResource(AggregateReference.to(staffMember), 1, false);
+					event.addResource(er);
+				}
+				
+				logger.info("Selected equipment = {}",equipment);
+				logger.info("Selected equipmentQuantity = {}",equipmentQuantity);
+				logger.info("Selected perAttendee = {}",perAttendee);
+
+				int counter = 0;
+				
+				for (Integer item : equipment) {					
+					if ( item.intValue() != 0) {
+						int quantity = equipmentQuantity.get(counter).intValue();
+						boolean bPerAttendee = perAttendee.get(counter).booleanValue();
+						
+						EventResource er = new EventResource(AggregateReference.to(item), quantity, bPerAttendee);
+						
+						logger.info("Selected perAtEventResource= {}",er);
+						event.addResource(er);
+					}
+					counter++;
+				}			
+
+				EventResource er = new EventResource(AggregateReference.to(location), 1, false);
+				event.addResource(er);
+				
+				
+				
+				for (Integer menu : menuGroups) {
+				
+					EventMenu newMenu = new EventMenu(AggregateReference.to(menu));
+					event.addEventMenu(newMenu);
+					
+				}
+				
+				
+				
 				eventRepository.save(event);
+				
+				logger.info("Selected Staff = {}",staff);
+				logger.info("Menu Group Id = {}",menuGroups);
+
 				this.setupCalendar(model);
 				return "calendar";
 			}
@@ -339,6 +446,7 @@ public class MainController {
 			return "home";
 		}
 	}
+	
 
 	@PostMapping("/processlogin")
 	public String processLogin(@RequestParam(name = "username") String username,
@@ -368,31 +476,47 @@ public class MainController {
 
 	@GetMapping("/calendarBack")
 	public String calendarBack(Model model) {
-		int num = 1;
-		Integer start = (Integer) model.getAttribute("calendarIndex");
-		if (start != null) {
-			num = start.intValue();
+		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		if (loggedOnUser != null) {			
+			int num = 0;
+			Integer start = (Integer) model.getAttribute("calendarIndex");
+			if (start != null) {
+				num = start.intValue();
+			}
+			num -= 35;
+
+			model.addAttribute("calendarIndex", Integer.valueOf(num));
+			this.setupCalendar(model);
+			return "calendar";
 		}
-		num -= 35;
-		if (num < 1) {
-			num = 1;
-		}
-		model.addAttribute("calendarIndex", Integer.valueOf(num));
-		this.setupCalendar(model);
-		return "calendar";
+		else
+		{
+			model.addAttribute("flashMessage","Must be logged out to perform this action");
+			return "home";
+		}				
 	}
 
 	@GetMapping("/calendarForward")
+
 	public String calendarForward(Model model) {
-		int num = 1;
-		Integer start = (Integer) model.getAttribute("calendarIndex");
-		if (start != null) {
-			num = start.intValue();
+		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		if (loggedOnUser != null) {			
+			int num = 0;
+			Integer start = (Integer) model.getAttribute("calendarIndex");
+			if (start != null) {
+				num = start.intValue();
+			}
+			num += 35;
+			model.addAttribute("calendarIndex", Integer.valueOf(num));
+			this.setupCalendar(model);
+			return "calendar";
+		
 		}
-		num += 35;
-		model.addAttribute("calendarIndex", Integer.valueOf(num));
-		this.setupCalendar(model);
-		return "calendar";
+		else
+		{
+			model.addAttribute("flashMessage","Must be logged out to perform this action");
+			return "home";
+		}		
 	}
 
 	@GetMapping("/")
@@ -434,7 +558,7 @@ public class MainController {
 	}
 	
 	public void setupCalendar(Model model) {
-		int num = 1;
+		int num = 0;
 		LocalDate calendarMonth = null;
 		LocalDate calendarDay = null;
 		LocalDate calendarNextMonth = null;
@@ -554,8 +678,7 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged out to perform this action");
-			this.setupCalendar(model);
-			return "calendar";
+			return "home";
 		}
 	}
 	
@@ -593,6 +716,12 @@ public class MainController {
 			if (event.isPresent()) {
 				Event eventToView = event.get();
 				model.addAttribute("eventToView",eventToView);
+				
+				List<Resource> staff = resourceRepository.findByType(Resource.Type.STAFF);
+				model.addAttribute("staff", staff);
+				
+				logger.info("Event stadd are {}", eventToView.getStaff());
+				
 				return "viewevent";
 			}
 			else {
@@ -606,6 +735,20 @@ public class MainController {
 			return "home";
 		}
 	}
+	
+	@GetMapping("/cancelEvent")
+	public String cancelEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
+		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		if (loggedOnUser != null) {			
+				eventRepository.deleteById(eventId);
+				this.setupCalendar(model);		
+				return "calendar";
+		}
+		else {
+			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			return "home";
+		}
+	}	
 	
 	@PostMapping("/changeStudentField")
 	public String changeStudentField(@RequestParam (name="students") int studentId, Model model) {
@@ -638,12 +781,12 @@ public class MainController {
 				Parent loggedOnParent = loggedOnUser.getParentObject();
 				Optional<Event> events = eventRepository.findById(eventId);
 				Event event = events.get();
-				if (loggedOnParent.getBalance() >= event.getBasePrice()) {
+				if (loggedOnParent.getBalance() >= event.getClub().getBasePrice()) {
 					Student selectedStudent = (Student) model.getAttribute("selectedStudent");
 					Attendee attendee = new Attendee(AggregateReference.to(eventId), selectedStudent.getStudentId());
 					selectedStudent.addAttendee(attendee);
-					loggedOnParent.alterBalance(-(event.getBasePrice()));
-					loggedOnParent.addTransaction(new ParentalTransaction(-(event.getBasePrice()),LocalDateTime.now(),"A",event.getTitle()));
+					loggedOnParent.alterBalance(-(event.getClub().getBasePrice()));
+					loggedOnParent.addTransaction(new ParentalTransaction(-(event.getClub().getBasePrice()),LocalDateTime.now(),ParentalTransaction.Type.PAYMENT, event.getClub().getTitle()));
 					userRepository.save(loggedOnUser);
 					model.addAttribute("flashMessage", "Registered For Event");
 					this.setupCalendar(model);
@@ -677,8 +820,8 @@ public class MainController {
 				Parent loggedOnParent = loggedOnUser.getParentObject();
 				Student selectedStudent = (Student) model.getAttribute("selectedStudent");
 				selectedStudent.deregister(eventId);
-				loggedOnParent.alterBalance(event.getBasePrice());
-				loggedOnParent.addTransaction(new ParentalTransaction(event.getBasePrice(),LocalDateTime.now(),"R",event.getTitle()));
+				loggedOnParent.alterBalance(event.getClub().getBasePrice());
+				loggedOnParent.addTransaction(new ParentalTransaction(event.getClub().getBasePrice(),LocalDateTime.now(), ParentalTransaction.Type.REFUND, event.getClub().getTitle()));
 				userRepository.save(loggedOnUser);
 				model.addAttribute("flashMessage","Deregistered For Event");
 				this.setupCalendar(model);
@@ -722,7 +865,7 @@ public class MainController {
 				userRepository.save(resetUser);
 				Context context = new Context();
 				context.setVariable("user", resetUser);
-				String link = "http://localhost:8080/MyProject/alterPassword?userId=" + resetUser.getUserId()
+				String link = "http://localhost:8080/AfterSchoolClub/alterPassword?userId=" + resetUser.getUserId()
 						+ "&validationKey=" + resetUser.getValidationKey();
 				context.setVariable("link", link);
 
@@ -1070,7 +1213,7 @@ public class MainController {
 			if (loggedOnUser.isParent()) {
 				Parent loggedOnParent = loggedOnUser.getParentObject();
 				loggedOnParent.alterBalance(100);
-				loggedOnParent.addTransaction(new ParentalTransaction(100,LocalDateTime.now(),"D","Paypal"));
+				loggedOnParent.addTransaction(new ParentalTransaction(100,LocalDateTime.now(),ParentalTransaction.Type.DEPOSIT, "Paypal"));
 				userRepository.save(loggedOnUser);
 				model.addAttribute("flashMessage","Balance has been updated");
 				this.setupCalendar(model);
@@ -1186,12 +1329,13 @@ public class MainController {
 		}
 	}
 	
-	@GetMapping("/updateDetails") // complete
-	public String updateDetails(Model model) {
+	@GetMapping("/editUserDetails") // complete
+	public String editUserDetails(Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser != null) {
 			if (loggedOnUser.isParent()) {
-				model.addAttribute("formAction","./addDetails");
+				model.addAttribute("action","updateUser");
+				model.addAttribute("editUser", loggedOnUser);
 				return "createuser";
 			} else {
 				model.addAttribute("flashMessage","Must be a parent to perform this action");

@@ -8,13 +8,12 @@
 	rel="stylesheet"
 	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
 	crossorigin="anonymous">
-<link rel="stylesheet" href="./css/gershwin.css">
 <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
 
 	<div th:fragment="leftnav" th:switch="${loggedOnUser}"
-		class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-tadleydarkpurple text-tadleywhite">
+		class="col-auto col-md-2 px-sm-2 px-0 bg-navafterschoolclub text-afterschoolwhite height maxWidth">
 		<div th:case="null"
 			class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">
 
@@ -29,17 +28,8 @@
 				</a></li>
 				<li class="nav-item"><a href="./createUser"
 					class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
-						<span class="ms-1 d-none d-sm-inline">Create User</span>
+						<span class="ms-1 d-none d-sm-inline">Register</span>
 				</a></li>
-				<li class="nav-item"><a href="./facebookPage"
-					class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
-						<span class="ms-1 d-none d-sm-inline">Facebook Page</span>
-				</a></li>
-				<li class="nav-item"><a href="./about"
-					class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
-						<span class="ms-1 d-none d-sm-inline">About</span>
-				</a></li>
-
 			</ul>
 
 		</div>
@@ -57,19 +47,30 @@
 							class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
 								<span class="ms-1 d-none d-sm-inline">Calendar</span>
 						</a></li>
-
+						<li><a href="./createClub"
+							class="nav-link px-0 align-middle"> <i class="fs-4 bi-people"></i>
+								<span class="ms-1 d-none d-sm-inline">Create Club</span>
+						</a></li>
+						<li><a href="./viewClubs"
+							class="nav-link px-0 align-middle"> <i class="fs-4 bi-people"></i>
+								<span class="ms-1 d-none d-sm-inline">View Clubs</span>
+						</a></li>						
 						<li><a href="./createEvent"
 							class="nav-link px-0 align-middle"> <i class="fs-4 bi-people"></i>
-								<span class="ms-1 d-none d-sm-inline">Create Event</span>
+								<span class="ms-1 d-none d-sm-inline">Schedule Club Event</span>
 						</a></li>
 						<li><a href="#" class="nav-link px-0 align-middle"> <i
 								class="fs-4 bi-people"></i> <span
-								class="ms-1 d-none d-sm-inline">Manage Event Equipment</span>
+								class="ms-1 d-none d-sm-inline">Manage Resources</span>
 						</a></li>
 						<li><a href="#" class="nav-link px-0 align-middle"> <i
 								class="fs-4 bi-people"></i> <span
-								class="ms-1 d-none d-sm-inline">Manage Event Refreshments</span>
+								class="ms-1 d-none d-sm-inline">Manage Refreshments</span>
 						</a></li>
+						<li><a href="#" class="nav-link px-0 align-middle"> <i
+								class="fs-4 bi-people"></i> <span
+								class="ms-1 d-none d-sm-inline">Finances</span>
+						</a></li>						
 					</ul>
 					<hr>
 
@@ -94,7 +95,7 @@
 						</a></li>
 						<li class="nav-item"><a href="./createStudent"
 						class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
-						<span class="ms-1 d-none d-sm-inline">Add Student</span>
+						<span class="ms-1 d-none d-sm-inline">Register Child</span>
 						</a></li>
 						<li class="nav-item"><a href="./viewIncidents"
 						class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
@@ -103,15 +104,12 @@
 						<li><a href="#submenu2" data-bs-toggle="collapse"
 							class="nav-link px-0 align-middle"> <i
 								class="fs-4 bi-speedometer2"></i> <span
-								class="ms-1 d-none d-sm-inline">Payments</span>
+								class="ms-1 d-none d-sm-inline">Finances</span>
 						</a>
 							<ul class="collapse show nav flex-column ms-1" id="submenu2"
 								data-bs-parent="#menu">
 								<li class="w-100"><a href="./topUpBalance" class="nav-link px-0"> <span
 										class="d-none d-sm-inline">Top Up Balance</span>
-								</a></li>
-								<li><a href="./viewDeposits" class="nav-link px-0"> <span
-										class="d-none d-sm-inline">View Deposits</span>
 								</a></li>
 								<li><a href="./viewTransactions" class="nav-link px-0"> <span
 										class="d-none d-sm-inline">View Transactions</span>

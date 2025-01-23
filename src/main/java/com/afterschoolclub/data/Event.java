@@ -1,6 +1,13 @@
 package com.afterschoolclub.data;
+
+
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+
+import com.afterschoolclub.data.respository.ClubRepository;
+import com.afterschoolclub.data.respository.ResourceRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,6 +16,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Optional;
 import java.util.Set;
 
 import lombok.Getter;
@@ -19,68 +28,59 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Event {
-
+	public static ClubRepository clubRepository = null;
+	public static ResourceRepository resourceRepository = null;
 
 	@Id
 	private int eventId;
-	private String title;
-	private String description;
-	private String location;
+		
+	AggregateReference<Club, Integer> clubId;
+	
 	private LocalDateTime startDateTime;
-	private LocalDateTime endDateTime;
-	private int basePrice;
+	private LocalDateTime endDateTime;	
 	private int maxAttendees;
-	private boolean yearRCanAttend;
-	private boolean yearOneCanAttend;
-	private boolean yearTwoCanAttend;
-	private boolean yearThreeCanAttend;
-	private boolean yearFourCanAttend;
-	private boolean yearFiveCanAttend;
-	private boolean yearSixCanAttend;
+	
 	@MappedCollection(idColumn = "event_id")
 	private Set<EventResource> eventResources = new HashSet<>();
+	
 	@MappedCollection(idColumn = "event_id")
 	private Set<Attendee> attendees = new HashSet<>();
+
+	@MappedCollection(idColumn = "event_id")
+	private Set<EventMenu> eventMenus = new HashSet<>();	
+	
+	@Transient
+	private transient Club eventClub = null; 
+	
+	@Transient
+	private transient Resource room = null;
+	
+	@Transient
+	private transient List<Resource> staff = null; 
+	
+	
 	
 	public Event() {
 		super();	
 	}
 	
 	/**
-	 * @param title
-	 * @param description
+	 *
+	 * @param clubId
 	 * @param location
 	 * @param startDateTime
 	 * @param endDateTime
-	 * @param basePrice
 	 * @param maxAttendees
-	 * @param yearRCanAttend
-	 * @param yearOneCanAttend
-	 * @param yearTwoCanAttend
-	 * @param yearThreeCanAttend
-	 * @param yearFourCanAttend
-	 * @param yearFiveCanAttend
-	 * @param yearSixCanAttend
 	 */
-	public Event(String title, String description, String location, LocalDateTime startDateTime,
-			LocalDateTime endDateTime, int basePrice, int maxAttendees, boolean yearRCanAttend,
-			boolean yearOneCanAttend, boolean yearTwoCanAttend, boolean yearThreeCanAttend, boolean yearFourCanAttend,
-			boolean yearFiveCanAttend, boolean yearSixCanAttend) {
+	
+	public Event(AggregateReference<Club, Integer> clubId, LocalDateTime startDateTime,
+			LocalDateTime endDateTime, int maxAttendees) {
 		super();
-		this.title = title;
-		this.description = description;
-		this.location = location;
+		this.clubId= clubId;		
 		this.startDateTime = startDateTime;
 		this.endDateTime = endDateTime;
-		this.basePrice = basePrice;
 		this.maxAttendees = maxAttendees;
-		this.yearRCanAttend = yearRCanAttend;
-		this.yearOneCanAttend = yearOneCanAttend;
-		this.yearTwoCanAttend = yearTwoCanAttend;
-		this.yearThreeCanAttend = yearThreeCanAttend;
-		this.yearFourCanAttend = yearFourCanAttend;
-		this.yearFiveCanAttend = yearFiveCanAttend;
-		this.yearSixCanAttend = yearSixCanAttend;
+		this.eventClub=null;
 	}
 	
 	/**
@@ -88,23 +88,23 @@ public class Event {
 	 */
 	public Event(Event e) {
 		super();
-		this.title = e.title;
-		this.description = e.description;
-		this.location = e.location;
+		this.clubId = e.clubId;				
 		this.startDateTime = e.startDateTime;
 		this.endDateTime = e.endDateTime;
-		this.basePrice = e.basePrice;
 		this.maxAttendees = e.maxAttendees;
-		this.yearRCanAttend = e.yearRCanAttend;
-		this.yearOneCanAttend = e.yearOneCanAttend;
-		this.yearTwoCanAttend = e.yearTwoCanAttend;
-		this.yearThreeCanAttend = e.yearThreeCanAttend;
-		this.yearFourCanAttend = e.yearFourCanAttend;
-		this.yearFiveCanAttend = e.yearFiveCanAttend;
-		this.yearSixCanAttend = e.yearSixCanAttend;
+		this.eventClub = e.eventClub;
+		
 		for (EventResource er : e.eventResources) {
 			this.eventResources.add(new EventResource(er));
 		}
+		
+		for (EventMenu menu : e.eventMenus) {
+			this.eventMenus.add(new EventMenu(menu));
+		}
+		
+		this.room = e.room;
+		this.eventClub = e.eventClub;
+		
 		// Don't copy attendees or incidents
 		
 		//TODO will need to copy Event_Menu when get round to that.
@@ -143,5 +143,56 @@ public class Event {
 		Collections.sort(sortedAttendees, comparator);
 		return sortedAttendees;
 	}
+
+	public Club getClub() {
+		if (this.eventClub == null) {
+			Optional<Club> clubFound = clubRepository.findById(clubId.getId());
+			if (clubFound.isPresent()) {
+				eventClub = clubFound.get();
+			}
+		}
+		return eventClub;
+		
+	}
+	
+	
+	public Resource getRoom() {
+		if (this.room == null) {
+			List<Resource> locations  = resourceRepository.findByEventIdType(eventId, Resource.Type.ROOM);
+			if (locations.size() > 0) {
+				room = locations.get(0);
+			}
+		}
+		return room;
+		
+	}
+	
+
+	public List<Resource> getStaff() {
+		if (staff == null) {
+			staff = resourceRepository.findByEventIdType(eventId, Resource.Type.STAFF);		
+		}
+		return staff;
+	}
+	
+	public boolean requiresStaff(int resourceId) {
+		boolean required = false;
+		List<Resource> requiredStaff = getStaff();
+		ListIterator<Resource> staffIterator = requiredStaff.listIterator();
+		while (staffIterator.hasNext() && !required) {
+			required = staffIterator.next().getResourceId() == resourceId;
+		}
+		return required;
+	}
+		
+	
+	public void addResource(EventResource eventResource) {
+		this.eventResources.add(eventResource);
+	}
+	
+	public void addEventMenu(EventMenu menu) {
+		this.eventMenus.add(menu);
+	}	
+		
 	
 }
