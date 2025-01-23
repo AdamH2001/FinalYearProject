@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+	crossorigin="anonymous">
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+	crossorigin="anonymous"></script>
+<link rel="stylesheet" href="./css/styles.css">
+
+</head>
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<div class="container-fluid">
+		<div class="row flex-nowrap">
+			<div th:replace="~{fragments/leftnav :: leftnav}"
+				class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark"></div>
+
+			<div class="col py-3">
+
+				<h1 align="center">View Transactions</h1>
+				<div class="container-fluid">
+					<div class="row">
+						<div class="calendarheader col-sm" style="text-align: right;">
+							<a class="prev" href="./transactionBack">&lt;&lt;&lt;</a>
+						</div>
+						<div class="calendarheader col-sm" style="text-align: center;">
+							<h2 align="center" style="color: orange">
+								<span th:text="${transactionMonth.getMonth()}"></span>
+							</h2>
+							<h2 align="center" style="color: orange">
+								<span th:text="${transactionMonth.getYear()}"></span>
+							</h2>
+						</div>
+						<div class="calendarheader col-sm" style="text-align: left;">
+							<a class="next" href="./transactionForward">&gt;&gt;&gt;</a>
+						</div>
+					</div>
+					<table>
+						<thead>
+							<tr>
+								<td style="text-align: left;"><b>Date</b></td>
+								<td style="text-align: left;"><b>Time</b></td>
+								<td style="text-align: left;"><b>Transaction Type</b></td>
+								<td style="text-align: left;"><b>Description</b></td>
+								<td style="text-align: right;"><b>Amount</b></td>
+							</tr>
+						</thead>
+						<tr>
+							<td style="text-align: left;"><b></b></td>
+							<td style="text-align: left;"><b></b></td>
+							<td style="text-align: left;"><b></b></td>
+							<td style="text-align: left;"><b>Opening Balance</b></td>
+							<td style="text-align: right;"><b
+								th:text="${openingBalance}">Amount</b></td>
+						</tr>
+
+						<tr th:each="transaction: ${transactions}">
+							<td style="text-align: left;"
+								th:text="${transaction.getDateTime().toLocalDate()}" />
+							<td style="text-align: left;"
+								th:text="${transaction.getDateTime().toLocalTime()}" />
+							<td style="text-align: left;"
+								th:text="${transaction.getFormattedTransactionType()}" />
+							<td style="text-align: left;"
+								th:text="${transaction.getDescription()}" />
+							<td style="text-align: right;"
+								th:text="${transaction.getFormattedAmount()}" />
+						</tr>
+
+						<tr>
+							<td style="text-align: left;"><b></b></td>
+							<td style="text-align: left;"><b></b></td>
+							<td style="text-align: left;"><b></b></td>
+							<td style="text-align: left;"><b>Closing Balance</b></td>
+							<td style="text-align: right;"><b
+								th:text="${closingBalance}">Amount</b></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

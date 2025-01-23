@@ -1,0 +1,272 @@
+html {
+	height: 100%;
+}
+
+body {
+	min-height: 100%;
+}
+
+.height {
+	height: 100vh;
+	min-height: 300px;
+}
+
+table {
+	width: 100%;
+}
+
+fieldset {
+	padding-left: 20px;
+	padding-bottom: 10px
+}
+
+.lighttext {
+	color: rgba(0, 0, 0, .5);
+}
+
+.navname {
+	padding-right: 20px;
+	text-align: right
+}
+
+.navcategory {
+	padding-right: 10px;
+	text-align: right
+}
+
+.navamount {
+	padding-left: 10px;
+	text-align: left
+}
+
+.monthlydate {
+	text-align: center;
+	font-weight: bold;
+	color: rgb(0, 112, 192);
+	padding: 0px;
+	vertical-align: top;
+	height: 10px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th
+	{
+	background-color: rgb(218, 227, 243);
+}
+
+.table-striped>tbody>tr:nth-child(even)>td, .table-striped>tbody>tr:nth-child(even)>th
+	{
+	background-color: rgb(180, 199, 231);
+	border: 0px;
+}
+
+.bg-custom {
+	background-color: rgb(240, 243, 249);
+}
+
+.table-striped>thead {
+	text-align: center;
+	font-weight: bold;
+	background-color: rgb(68, 114, 196);
+	color: white;
+	padding: 5px;
+}
+
+.table-striped {
+	text-align: center;
+	border: 0px;
+}
+
+.event, .reminder, .idea, .birthday, .expired, .registered, .published,
+	.cancelled, .draft {
+	text-align: left;
+	font-weight: normal;
+	font-size: 0.75em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+}
+
+.dayevent, .dayreminder, .dayidea, .daybirthday, .dayexpired {
+	text-align: center;
+	vertical-align: middle;
+	font-weight: normal;
+	font-size: 0.75em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 100%;
+	width: 100%;
+	cursor: pointer;
+}
+
+.interested {
+	font-weight: bold;
+}
+
+.dayregistered, .registered, .published {
+	background-color: white;
+}
+
+.dayevent, .event {
+	background-color: GreenYellow;
+}
+
+.daybirthday, .birthday {
+	background-color: yellow;
+	cursor: default;
+}
+
+.dayidea, .idea {
+	background-color: pink;
+}
+
+.action {
+	text-align: center;
+	font-weight: bold;
+}
+
+.dayreminder, .reminder {
+	background-color: cyan;
+}
+
+.dayexpired, .expired, .cancelled {
+	background-color: red;
+	cursor: default;
+}
+
+.daytime {
+	text-align: center;
+	font-size: 0.75em;
+	font-weight: bold;
+}
+
+.money {
+	text-align: centre;
+}
+
+.calendar {
+	table-layout: fixed;
+	height: 100%;
+}
+
+.days {
+	height: 100px;
+}
+
+.calendarheader {
+	font-size: 1.0em;
+	font-weight: bold;
+	padding: 10px
+}
+
+.nav-link, .navcategory, label {
+	font-size: 1.0em;
+}
+
+.showcontrol {
+	display: none;
+}
+
+legend {
+	font-size: 1.0em;
+	font-weight: bold;
+}
+
+h1 {
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
+h2 {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+h3 {
+	font-size: 1.0em;
+	font-weight: bold;
+}
+
+.eventcell {
+	height: 110px;
+	overflow: hidden;
+	border: 1px solid white
+}
+
+.eventcellbody {
+	height: 100%;
+	overflow: hidden
+}
+
+.emptycell {
+	height: 110px;
+	overflow: hidden;
+	background-color: white
+}
+
+.bg-navafterschoolclub {
+	background-color: RGB(36, 38, 68);
+}
+
+afterschoolheader {
+	width: 100%;
+	height: 110px
+}
+
+.afterschoolclubflash {
+	color: red; 
+	width: 100%; 
+	text-align: center;
+	font-weight: bold
+}
+
+.afterschoolclubleft {
+	text-align: left
+}
+
+.afterschoolclubcenter {
+	text-align: center
+}
+
+
+.text-afterschoolclubmainheader {
+	color: RGB(255, 255, 255);
+	font-size: 3.0em;
+	font-weight: bold;
+}
+
+.text-afterschoolclubfooter {
+	color: RGB(255, 255, 255);
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
+.maxWidth {
+	max-width: 220px;
+}
+
+.text-afterschoolwhite {
+	color: RGB(255, 255, 255);
+}
+
+.dropdown-menu li {
+	position: relative;
+}
+
+.dropdown-menu .dropdown-submenu {
+	display: none;
+	position: absolute;
+	left: 100%;
+	top: -7px;
+}
+
+.dropdown-menu .dropdown-submenu-left {
+	right: 100%;
+	left: auto;
+}
+
+.dropdown-menu>li:hover>.dropdown-submenu {
+	display: block;
+}
