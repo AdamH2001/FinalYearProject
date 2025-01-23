@@ -51,11 +51,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.thymeleaf.context.Context;
 
-// new comment
-// second comment
-
-// another comment
-
 @Controller
 @SessionAttributes({ "loggedOnUser", "calendarIndex", "calendarMonth", "transactionMonth", "selectedStudent", "event", "student" })
 
