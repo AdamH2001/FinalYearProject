@@ -574,7 +574,6 @@ public class MainController {
 				}
 			}
 		}
-		List<Event> events = eventRepository.findAll();
 		Integer start = (Integer) model.getAttribute("calendarIndex");
 		if (start != null) {
 			num = start.intValue();
@@ -587,13 +586,15 @@ public class MainController {
 		
 		calendarDay = calendarMonth.withDayOfMonth(1);
 		calendarNextMonth = calendarDay.plusMonths(1);
+		List<Event> events = eventRepository.findEventsBetweenDates(calendarDay, calendarNextMonth);
+
+		
 		int numCalendarWeeks = (calendarDay.lengthOfMonth() + calendarDay.getDayOfWeek().getValue() - 1);
 		if (numCalendarWeeks % 7 > 0)
 			numCalendarWeeks = numCalendarWeeks / 7 + 1;
 		else
 			numCalendarWeeks = numCalendarWeeks / 7;
-				
-				
+						
 			
 		/// add 1 id remainder above 
 		
