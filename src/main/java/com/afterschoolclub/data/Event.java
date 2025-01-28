@@ -10,6 +10,7 @@ import com.afterschoolclub.data.respository.ClubRepository;
 import com.afterschoolclub.data.respository.ResourceRepository;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -194,5 +195,12 @@ public class Event {
 		this.eventMenus.add(menu);
 	}	
 		
+	public String startTime() {
+		return startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));		
+	}	
+	
+	public String endTime() {
+		return endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));		
+	}		
 	
 }
