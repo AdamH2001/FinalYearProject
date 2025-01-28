@@ -48,6 +48,7 @@ fieldset {
 	height: 10px;
 	white-space: nowrap;
 	overflow: hidden;
+	border: 2px solid white;
 }
 
 .table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th
@@ -58,7 +59,7 @@ fieldset {
 .table-striped>tbody>tr:nth-child(even)>td, .table-striped>tbody>tr:nth-child(even)>th
 	{
 	background-color: rgb(180, 199, 231);
-	border: 0px;
+
 }
 
 .bg-custom {
@@ -75,7 +76,7 @@ fieldset {
 
 .table-striped {
 	text-align: center;
-	border: 0px;
+
 }
 
 .event, .reminder, .idea, .birthday, .expired, .registered, .published,
@@ -269,4 +270,9 @@ afterschoolheader {
 
 .dropdown-menu>li:hover>.dropdown-submenu {
 	display: block;
+}
+
+
+.eventTitle {
+	color: #0070c0;
 }

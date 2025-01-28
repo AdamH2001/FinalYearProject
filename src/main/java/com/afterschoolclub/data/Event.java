@@ -195,11 +195,11 @@ public class Event {
 		this.eventMenus.add(menu);
 	}	
 		
-	public String startTime() {
+	public String getStartTime() {
 		return startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));		
 	}	
 	
-	public String endTime() {
+	public String getEndTime() {
 		return endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));		
 	}		
 	

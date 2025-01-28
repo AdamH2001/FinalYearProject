@@ -378,7 +378,7 @@ public class MainController {
 			@RequestParam(name = "endTime") LocalTime endTime, 
 			@RequestParam(name = "maxAttendees") int maxAttendees,
 			@RequestParam(name = "staff") List<Integer> staff,	
-			@RequestParam(name = "menu") List<Integer> menuGroups,			
+			@RequestParam(name = "menu", required=false) List<Integer> menuGroups,			
 			@RequestParam(name = "equipment") List<Integer> equipment,
 			@RequestParam(name = "equipmentQuantity") List<Integer> equipmentQuantity,
 			@RequestParam(name = "hiddenPerAttendee") List<Boolean> perAttendee,			
@@ -419,12 +419,14 @@ public class MainController {
 				event.addResource(er);
 				
 				
-				
-				for (Integer menu : menuGroups) {
-				
-					EventMenu newMenu = new EventMenu(AggregateReference.to(menu));
-					event.addEventMenu(newMenu);
+				if (menuGroups != null)
+				{
+					for (Integer menu : menuGroups) {
 					
+						EventMenu newMenu = new EventMenu(AggregateReference.to(menu));
+						event.addEventMenu(newMenu);
+						
+					}
 				}
 				
 				
@@ -537,25 +539,6 @@ public class MainController {
 		return "allusers";
 	}
 
-	@GetMapping("/allevents")
-	public String allEvents(Model model) {
-		List<Event> events = eventRepository.findAll();
-		model.addAttribute("events", events);
-		return "allevents";
-	}
-
-	@GetMapping("/monthEvents")
-	public String monthEvents(Model model) {
-		List<Event> events = eventRepository.findAll();
-		List<Event> monthEvents = new ArrayList<>();
-		for (Event event : events) {
-			if (event.getStartDateTime().getMonth() == LocalDateTime.now().getMonth()) {
-				monthEvents.add(event);
-			}
-		}
-		model.addAttribute("monthEvents", monthEvents);
-		return "monthevents";
-	}
 	
 	public void setupCalendar(Model model) {
 		int num = 0;

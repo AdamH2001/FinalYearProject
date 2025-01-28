@@ -107,10 +107,10 @@
 					
 					<div class="row mb-2">
 						<div class="col-sm-2" align="center" >
-							<label for="staff">Menu:</label>
+							<label for="staff">Refreshments:</label>
 						</div>
 						<div class="col-sm-6">
-							<select class="form-select form-control-sm mr-sm-2" name="menu" id="menu" required multiple>
+							<select class="form-select form-control-sm mr-sm-2" name="menu" id="menu" multiple>
 								<option th:each="menu : ${menus}" th:value="${menu.getMenuGroupId()}" th:text="${menu.getName()}">Menu Name</option>
 							</select>
 						</div>

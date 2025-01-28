@@ -75,16 +75,14 @@
 									<tr th:each="i: ${calendar}" class="days">
 										<td th:each="item: ${i}" class="monthlydate">
 											<span th:text="${item?.getDate()?.getDayOfMonth()}"></span>							
-								<!--  	<div th:each="event : ${item?.getEvents()}" class="event monthevent">
-												<span th:text="${event?.getClub().getTitle()}"></span>
-											</div> -->	
+								
 																<div th:each="event : ${item?.getEvents()}" class="dropdown">
 						<a href="#"
 							class="align-items-center text-blue text-decoration-none dropdown-toggle"
 							id="dropdownUser1" data-bs-toggle="dropdown"
 							aria-expanded="false"> 
-							<span th:text="${event?.getClub().getTitle()}"
-							class="d-none d-sm-inline mx-1"></span>
+							<span th:text="${event.getStartTime() + ' ' + event.getClub().getTitle()}"
+							class="eventTitle d-none d-sm-inline mx-1"></span>
 						</a>
 						<ul th:if="${loggedOnUser.isAdmin() }" class="dropdown-menu dropdown-menu-dark text-small shadow  position-fixed"
 							aria-labelledby="dropdownUser1">
