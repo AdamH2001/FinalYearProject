@@ -7,7 +7,6 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import com.afterschoolclub.data.Event;
-import com.afterschoolclub.data.ParentalTransaction;
 
 public interface EventRepository extends CrudRepository<Event, Integer> {
 	List<Event> findAll();

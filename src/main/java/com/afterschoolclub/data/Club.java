@@ -1,19 +1,6 @@
 package com.afterschoolclub.data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.MappedCollection;
-
-import com.afterschoolclub.data.respository.ClubRepository;
-
 import org.springframework.data.relational.core.mapping.Column;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
