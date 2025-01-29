@@ -1,6 +1,10 @@
 package com.afterschoolclub;
 import jakarta.mail.MessagingException;
 
+import com.paypal.api.payments.Links;
+import com.paypal.api.payments.Payment;
+import com.paypal.base.rest.PayPalRESTException;
+
 import com.afterschoolclub.data.Attendee;
 import com.afterschoolclub.data.Event;
 import com.afterschoolclub.data.Incident;
@@ -49,6 +53,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.view.RedirectView;
 import org.thymeleaf.context.Context;
 
 @Controller
@@ -63,7 +68,11 @@ public class MainController {
 	private final ClassRepository classRepository;
 	private final StudentRepository studentRepository;
 	private final ParentalTransactionRepository transactionRepository;
-	private final ClubRepository clubRepository;	
+	private final ClubRepository clubRepository;
+	
+	@Autowired	
+    private PaypalService paypalService;
+	
 
 	@Autowired
 	private EmailService mailService;
@@ -1190,6 +1199,7 @@ public class MainController {
 		}
 	}
 	
+	/*
 	@GetMapping("/topUpBalance")
 	public String topUpBalance(Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
@@ -1211,8 +1221,28 @@ public class MainController {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
 			return "home";
 		}
-	}
+	}*/
 	
+	
+	@GetMapping("/topUpBalance")
+	public String topUpBalance(Model model) {
+		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		if (loggedOnUser != null) {
+			if (loggedOnUser.isParent()) {
+
+				return "topup";
+			} else {
+				model.addAttribute("flashMessage","Must be a parent to perform this action");
+				this.setupCalendar(model);
+				return "calendar";
+			}
+		} else {
+			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			return "home";
+		}
+	}
+		
+		
 	@GetMapping("/viewTransactions")
 	public String viewTransactions(Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
@@ -1333,4 +1363,60 @@ public class MainController {
 	}
 
 
+    @PostMapping("/paymentcreate")
+    public RedirectView createPayment(
+            @RequestParam("method") String method,
+            @RequestParam("amount") String amount,
+            @RequestParam("currency") String currency,
+            @RequestParam("description") String description
+    ) {
+        try {
+            String cancelUrl = "http://localhost:8080/AfterSchoolClub/paymentcancel";
+            String successUrl = "http://localhost:8080/AfterSchoolClub/paymentsuccess";
+            Payment payment = paypalService.createPayment(
+                    Double.valueOf(amount),
+                    currency,
+                    method,
+                    "sale",
+                    description,
+                    cancelUrl,
+                    successUrl
+            );
+
+            for (Links links: payment.getLinks()) {
+                if (links.getRel().equals("approval_url")) {
+                    return new RedirectView(links.getHref());
+                }
+            }
+        } catch (PayPalRESTException e) {
+        	logger.error("Error occurred:: ", e);
+        }
+        return new RedirectView("/paymenterror");
+    }
+
+    @GetMapping("/paymentsuccess")
+    public String paymentSuccess(
+            @RequestParam("paymentId") String paymentId,
+            @RequestParam("PayerID") String payerId
+    ) {
+        try {
+            Payment payment = paypalService.executePayment(paymentId, payerId);
+            if (payment.getState().equals("approved")) {
+                return "paymentSuccess";
+            }
+        } catch (PayPalRESTException e) {
+        	logger.error("Error occurred:: ", e);
+        }
+        return "paymentSuccess";
+    }
+
+    @GetMapping("/paymentcancel")
+    public String paymentCancel() {
+        return "paymentCancel";
+    }
+
+    @GetMapping("/paymenterror")
+    public String paymentError() {
+        return "paymentError";
+    }
 }
