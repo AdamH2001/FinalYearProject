@@ -61,7 +61,7 @@
 						<label for="staff">Staff:</label>
 					</div>
 					<div class="col-sm-6">
-						<select name="staff" id="staff" required readonly multiple>
+						<select name="staff" id="staff" required disabled multiple>
 							<option th:each="staffMember : ${staff}" th:value="${staffMember.getResourceId()}" th:text="${staffMember.getName()}" th:selected="${eventToView.requiresStaff(staffMember.getResourceId())}" >Staff Name</option>
 						</select>
 					</div>
