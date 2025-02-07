@@ -85,9 +85,9 @@
 					<ul
 						class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
 						id="menu">
-						<li th:if="${loggedOnUser.getParentObject().getStudents().size() > 0}" class="nav-item"><a th:href="@{./createMedicalNote(studentId=${selectedStudent.getStudentId()})}"
+						<li th:if="${loggedOnUser.getParentObject().getStudents().size() > 0}" class="nav-item"><a th:href="@{./updatechild(studentId=${selectedStudent.getStudentId()})}"
 							class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>
-								<span class="ms-1 d-none d-sm-inline">Add Medical Note</span>
+								<span class="ms-1 d-none d-sm-inline">Update Child Details</span>
 						</a></li>
 						<li class="nav-item"><a href="./calendar"
 							class="nav-link align-middle px-0"> <i class="fs-4 bi-house"></i>

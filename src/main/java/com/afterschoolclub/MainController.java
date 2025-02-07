@@ -3,6 +3,7 @@ import jakarta.mail.MessagingException;
 
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
+import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.PayPalRESTException;
 
 import com.afterschoolclub.data.Attendee;
@@ -33,6 +34,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.List;
@@ -1364,23 +1366,22 @@ public class MainController {
 
     @PostMapping("/paymentcreate")
     public RedirectView createPayment(
-            @RequestParam("method") String method,
             @RequestParam("amount") String amount,
-            @RequestParam("currency") String currency,
-            @RequestParam("description") String description
+            Model model
     ) {
         try {
             String cancelUrl = "http://localhost:8080/AfterSchoolClub/paymentcancel";
             String successUrl = "http://localhost:8080/AfterSchoolClub/paymentsuccess";
             Payment payment = paypalService.createPayment(
                     Double.valueOf(amount),
-                    currency,
-                    method,
+                    "GBP",
+                    "Paypal",
                     "sale",
-                    description,
+                    "AfterSchool Club TopUp",
                     cancelUrl,
                     successUrl
             );
+            
 
             for (Links links: payment.getLinks()) {
                 if (links.getRel().equals("approval_url")) {
@@ -1396,26 +1397,62 @@ public class MainController {
     @GetMapping("/paymentsuccess")
     public String paymentSuccess(
             @RequestParam("paymentId") String paymentId,
-            @RequestParam("PayerID") String payerId
+            @RequestParam("PayerID") String payerId,
+            Model model
     ) {
+    	logger.info("In Payment Success");
+    	this.setupCalendar(model);
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
-                return "paymentSuccess";
+            	String id = payment.getId();
+            	logger.info("Payment id = {} @ {}" , id, payment.getCreateTime());
+            	
+            	List <Transaction> transactions = payment.getTransactions();
+            	
+        		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+    			Parent loggedOnParent = loggedOnUser.getParentObject();
+       		
+        		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        		LocalDateTime paymentDateTime = LocalDateTime.parse(payment.getCreateTime(), formatter);
+        		
+        				
+				for (Transaction transaction : transactions) {
+					
+					String amount = transaction.getAmount().getTotal();
+					int amountInPence  = (int)Double.parseDouble(amount) * 100;
+	        		loggedOnParent.alterBalance(amountInPence);
+	        		loggedOnParent.addTransaction(new ParentalTransaction(amountInPence, paymentDateTime,ParentalTransaction.Type.DEPOSIT, "Paypal"));
+
+	        		//TODO need to add paypal reference in transaction 
+	        		
+	        		
+					logger.info("Amount = {}", amount);
+				}
+				userRepository.save(loggedOnUser);
+				
+				model.addAttribute("flashMessage","Payment Successful");
+				
             }
         } catch (PayPalRESTException e) {
+        	
+			model.addAttribute("flashMessage",e.getDetails().getMessage());
         	logger.error("Error occurred:: ", e);
+        	
         }
-        return "paymentSuccess";
+        return "calendar";
     }
 
     @GetMapping("/paymentcancel")
-    public String paymentCancel() {
-        return "paymentCancel";
+    public String paymentCancel(Model model) {
+		model.addAttribute("flashMessage","Payment Cancelled");
+		this.setupCalendar(model);
+        return "calendar";
     }
 
     @GetMapping("/paymenterror")
-    public String paymentError() {
-        return "paymentError";
-    }
+    public String paymentError(Model model) {
+		model.addAttribute("flashMessage","Payment Error");
+		this.setupCalendar(model);
+        return "calendar";    }
 }
