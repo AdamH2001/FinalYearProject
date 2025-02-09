@@ -32,6 +32,9 @@ public class User {
 	private boolean emailVerified;
 	@MappedCollection(idColumn = "user_id")
 	private Set<Parent> parent = new HashSet<>();
+	
+	@MappedCollection(idColumn = "user_id")
+	private Set<Administrator> administrator = new HashSet<>();	
 
 	/**
 	 * @param email
@@ -63,6 +66,10 @@ public class User {
 	public void addParent(Parent parent) {
 		this.parent.add(parent);
 	}
+	
+	public void addAdmnistrator(Administrator administrator) {
+		this.administrator.add(administrator);
+	}	
 
 	public boolean isParent() {
 		boolean result = false;
@@ -97,6 +104,13 @@ public class User {
 			result = (Parent) this.parent.toArray()[0];
 		return result;
 	}
+	
+	public Administrator getAdministratorObject() {
+		Administrator result = null;
+		if (this.isAdmin())
+			result = (Administrator) this.administrator.toArray()[0];
+		return result;
+	}	
 	
 	public void setValidationKey() {
 		this.validationKey = r.nextInt(999999999);

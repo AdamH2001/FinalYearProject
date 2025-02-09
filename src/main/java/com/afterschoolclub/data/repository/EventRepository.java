@@ -1,4 +1,4 @@
-package com.afterschoolclub.data.respository;
+package com.afterschoolclub.data.repository;
 
 import java.time.LocalDate;
 import java.util.List;

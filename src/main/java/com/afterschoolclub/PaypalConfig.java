@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+
 public class PaypalConfig {
 	
 	@Value("${paypal.client-id}")
@@ -19,8 +20,10 @@ public class PaypalConfig {
 	
 	@Bean
 	public APIContext apiContext() {
-			return new APIContext(clientId, clientSecret, mode);
+		return new APIContext(clientId, clientSecret, mode);
 	}
+	
+	
 	
 	
 }

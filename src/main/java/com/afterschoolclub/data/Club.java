@@ -1,5 +1,6 @@
 package com.afterschoolclub.data;
 import org.springframework.data.annotation.Id;
+
 import org.springframework.data.relational.core.mapping.Column;
 
 import lombok.Getter;
@@ -61,6 +62,41 @@ public class Club {
 		this.year4CanAttend = year4CanAttend;
 		this.year5CanAttend = year5CanAttend;
 		this.year6CanAttend = year6CanAttend;
+	}
+	
+	public boolean isEligible(Student student)
+	{
+		int yearGroup = student.getStudentClass().getYearGroup();
+		boolean result = false;
+		
+		switch (yearGroup) {
+		case 0:
+			result = this.yearRCanAttend;
+			break;
+		case 1:
+			result = this.year1CanAttend;
+			break;
+		case 2:
+			result = this.year2CanAttend;
+			break;
+		case 3:
+			result = this.year3CanAttend;
+			break;
+		case 4:
+			result = this.year4CanAttend;
+			break;
+		case 5:
+			result = this.year5CanAttend;
+			break;
+		case 6:
+			result = this.year6CanAttend;
+			break;
+					
+		default:
+			result = false;
+			
+		}
+		return result; 
 	}
 		
 }

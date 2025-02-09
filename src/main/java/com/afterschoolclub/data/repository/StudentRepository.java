@@ -1,4 +1,4 @@
-package com.afterschoolclub.data.respository;
+package com.afterschoolclub.data.repository;
  
 import java.util.List;
  

@@ -32,7 +32,7 @@
 				
 				<div class="row mb-2">					
 					<div class="col-sm-12" align="center">
-						<h1 align="center" style="color: black">Calendar</h1>
+						<h1 align="center" style="color: black">Scheduled Events</h1>
 					</div>					
 				</div>
 
@@ -76,21 +76,22 @@
 										<td th:each="item: ${i}" class="monthlydate">
 											<span th:text="${item?.getDate()?.getDayOfMonth()}"></span>							
 								
-																<div th:each="event : ${item?.getEvents()}" class="dropdown">
+																<div th:each="filteredEvent : ${item?.getFilteredEvents()}" th:class="${filteredEvent.getFilterClass()}">
+																<div class="dropdown">
 						<a href="#"
-							class="align-items-center text-blue text-decoration-none dropdown-toggle"
+							th:class="'align-items-center text-blue text-decoration-none dropdown-toggle '+${filteredEvent.getFilterClass()}"
 							id="dropdownUser1" data-bs-toggle="dropdown"
 							aria-expanded="false"> 
-							<span th:text="${event.getStartTime() + ' ' + event.getClub().getTitle()}"
+							<span th:text="${filteredEvent.getEvent().getStartTime() + ' ' + filteredEvent.getEvent().getClub().getTitle()}"
 							class="eventTitle d-none d-sm-inline mx-1"></span>
 						</a>
 						<ul th:if="${loggedOnUser.isAdmin() }" class="dropdown-menu dropdown-menu-dark text-small shadow  position-fixed"
 							aria-labelledby="dropdownUser1">
-							<li><a class="dropdown-item" th:href="@{/editEvent(eventId=${event.getEventId()})}">Edit Event</a></li>
-							<li><a class="dropdown-item" th:href="@{/viewEvent(eventId=${event.getEventId()})}">View Event</a></li>
-							<li><a class="dropdown-item" th:href="@{/cancelEvent(eventId=${event.getEventId()})}">Cancel Event</a></li>
-							<li><a class="dropdown-item" th:href="@{/takeRegister(eventId=${event.getEventId()})}">Take Register</a></li>
-							<li><a class="dropdown-item" th:href="@{/createIncident(eventId=${event.getEventId()})}">Create Incident</a></li>
+							<li><a class="dropdown-item" th:href="@{/editEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Edit Event</a></li>
+							<li><a class="dropdown-item" th:href="@{/viewEvent(eventId=${filteredEvent.getEvent().getEventId()})}">View Event</a></li>
+							<li><a class="dropdown-item" th:href="@{/cancelEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Cancel Event</a></li>
+							<li><a class="dropdown-item" th:href="@{/takeRegister(eventId=${filteredEvent.getEvent().getEventId()})}">Take Register</a></li>
+							<li><a class="dropdown-item" th:href="@{/createIncident(eventId=${filteredEvent.getEvent().getEventId()})}">Create Incident</a></li>
 							
 							<li>
 								<hr class="dropdown-divider">
@@ -104,25 +105,25 @@
 																	&raquo; </a>
 																<ul
 																	class="dropdown-menu dropdown-submenu dropdown-menu-dark text-small shadow dropdown-submenu">
-																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=1(eventId=${event.getEventId()})}">Monday</a></li>
-																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=2(eventId=${event.getEventId()})}">Tuesday</a></li>
-																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=3(eventId=${event.getEventId()})}">Wednesday</a></li>
-																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=4(eventId=${event.getEventId()})}">Thursday</a></li>
-																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=5(eventId=${event.getEventId()})}">Friday</a></li>
-																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=6(eventId=${event.getEventId()})}">Saturday</a></li>
-																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=7(eventId=${event.getEventId()})}">Sunday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=1(eventId=${filteredEvent.getEvent().getEventId()})}">Monday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=2(eventId=${filteredEvent.getEvent().getEventId()})}">Tuesday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=3(eventId=${filteredEvent.getEvent().getEventId()})}">Wednesday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=4(eventId=${filteredEvent.getEvent().getEventId()})}">Thursday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=5(eventId=${filteredEvent.getEvent().getEventId()})}">Friday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=6(eventId=${filteredEvent.getEvent().getEventId()})}">Saturday</a></li>
+																	<li><a class="dropdown-item" th:href="@{/copyEvent?day=7(eventId=${filteredEvent.getEvent().getEventId()})}">Sunday</a></li>
 																</ul></li>
 															<li><a class="dropdown-item" href="#">To all
 																	&raquo; </a>
 																<ul
 																	class="dropdown-menu dropdown-submenu dropdown-menu-dark text-small shadow dropdown-submenu">
-																	<li><a class="dropdown-item" th:href="@{/copyEventAllWeek?next=false(eventId=${event.getEventId()})}">Weekdays
+																	<li><a class="dropdown-item" th:href="@{/copyEventAllWeek?next=false(eventId=${filteredEvent.getEvent().getEventId()})}">Weekdays
 																			this week</a></li>
-																	<li><a class="dropdown-item" th:href="@{/copyEventAllWeek?next=true(eventId=${event.getEventId()})}">Weekdays
+																	<li><a class="dropdown-item" th:href="@{/copyEventAllWeek?next=true(eventId=${filteredEvent.getEvent().getEventId()})}">Weekdays
 																			next week</a></li>
-																	<li><a class="dropdown-item" th:href="@{/copyEventAllMonth?next=false(eventId=${event.getEventId()})}">Weekdays
+																	<li><a class="dropdown-item" th:href="@{/copyEventAllMonth?next=false(eventId=${filteredEvent.getEvent().getEventId()})}">Weekdays
 																			this month</a></li>
-																	<li><a class="dropdown-item" th:href="@{/copyEventAllMonth?next=true(eventId=${event.getEventId()})}">Weekdays
+																	<li><a class="dropdown-item" th:href="@{/copyEventAllMonth?next=true(eventId=${filteredEvent.getEvent().getEventId()})}">Weekdays
 																			next month</a></li>
 																</ul></li>
 
@@ -131,14 +132,15 @@
 						</ul>
 						<ul th:if="${loggedOnUser.isParent()}" class="dropdown-menu dropdown-menu-dark text-small shadow  position-fixed"
 							aria-labelledby="dropdownUser1">
-							<li><a class="dropdown-item" th:href="@{/viewEvent(eventId=${event.getEventId()})}">View Event</a></li>
-							<li th:if="${selectedStudent} != null and ${!selectedStudent.isAttendingEvent(event)}"><a class="dropdown-item" th:href="@{/registerForEvent(eventId=${event.getEventId()})}">Register For Event</a></li>
-						 	<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(event)}"><a class="dropdown-item" th:href="@{/deregisterForEvent(eventId=${event.getEventId()})}">Deregister Event</a></li>
-							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(event)}">
+							<li><a class="dropdown-item" th:href="@{/viewEvent(eventId=${filteredEvent.getEvent().getEventId()})}">View Event</a></li>
+							<li th:if="${selectedStudent} != null and ${!selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${filteredEvent.getEvent().canAttend(selectedStudent)}"><a class="dropdown-item" th:href="@{/registerForEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Register For Event</a></li>
+						 	<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().inPast()}"><a class="dropdown-item" th:href="@{/deregisterForEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Deregister Event</a></li>
+							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().inPast()}">
 								<hr class="dropdown-divider">
 							</li>
-							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(event)}"><a class="dropdown-item" th:href="@{/editOptions(eventId=${event.getEventId()})}">Edit Options</a></li>
+							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().inPast()}"><a class="dropdown-item" th:href="@{/editOptions(eventId=${filteredEvent.getEvent().getEventId()})}">Edit Options</a></li>
 					</ul>
+					</div>
 					</div>
 					
 					

@@ -14,7 +14,7 @@ import lombok.ToString;
 @ToString
 public class EventDay {
 	private LocalDate date;
-	private ArrayList<Event> events = new ArrayList<Event>();
+	private ArrayList<FilteredEvent> filteredEvents = new ArrayList<FilteredEvent>();
 	
 	/**
 	 * @param date
@@ -27,7 +27,7 @@ public class EventDay {
 	public void addAllEventsForDay(List<Event> allEvents) {
 		for (Event event : allEvents) {
 			if (event.getStartDateTime().toLocalDate().equals(this.date)) {
-				events.add(event);
+				filteredEvents.add(new FilteredEvent(event));				
 			}
 		}
 	}

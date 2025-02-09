@@ -79,8 +79,7 @@ fieldset {
 
 }
 
-.event, .reminder, .idea, .birthday, .expired, .registered, .published,
-	.cancelled, .draft {
+.event {
 	text-align: left;
 	font-weight: normal;
 	font-size: 0.75em;
@@ -109,6 +108,37 @@ fieldset {
 .dayregistered, .registered, .published {
 	background-color: white;
 }
+
+.Available {
+	background-color: blue;
+	color: white;
+}
+
+.NotAvailable {
+	background-color: red;
+	color: white;
+}
+
+.Attending {
+	background-color: green;
+	color: white;
+}
+
+.Missed {
+	background-color: black;
+	color: white;
+}
+
+.Attended {
+	background-color: purple;
+	color: white;
+}
+
+.HiddenEvent {
+	display: none;
+}
+
+
 
 .dayevent, .event {
 	background-color: GreenYellow;
@@ -274,5 +304,12 @@ afterschoolheader {
 
 
 .eventTitle {
-	color: #0070c0;
+	color: white;
+}
+
+
+
+a:link {
+  color: white;
+
 }

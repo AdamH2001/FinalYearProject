@@ -20,36 +20,108 @@
 		<div class="row flex-nowrap">
 			<div th:replace="~{fragments/leftnav :: leftnav}"
 				class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark"></div>
-				
-  		<form method="post" action="./paymentcreate" class="mt-5 card p-3">
-            <div class="mb-3">
-                <label for="method" class="form-label">Payment method</label>
-                <input id="method" type="text" class="form-control"
-                       name="method" value="Paypal" readonly>
-            </div>
-            <div class="mb-3">
-                <label for="amount" class="form-label">Amount</label>
-                <input id="amount" type="number" class="form-control"
-                       name="amount" value="10.0">
-            </div>
 
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <input id="description" type="text" class="form-control"
-                        name="description">
-            </div>
-            <div class="d-flex justify-content-center">
-                <button
-                        type="submit"
-                        class="btn btn-primary"
-                >
-                    Pay with Paypal
-                </button>
-            </div>
-        </form>
-        				
+
+			<form action="./paymentcreate" method="post"
+				style="border: 1px solid black">
+				<div class="col py-3">
+
+					<div class="row mb-2">
+						<div class="col-sm-8" align="center">
+							<h1 align="center">Top Up Balance</h1>
+						</div>
+					</div>
+					<div class="row mb-2">&nbsp;</div>
+					
+					<div class="row mb-2">
+						<div class="col-sm-4" align="center">Please select the
+							desired amount: </div>
+
+					</div>
+					<div class="row mb-2">
+						<div class="col-sm-2" align="right">
+							<label for="5pounds">£5</label>
+						</div>
+						<div class="col-sm-1">
+							<input class="form-check-input" 
+								id="5pounds" type="radio" name="amount" value=500 />
+						</div>
+						<div class="col-sm-1" align="right">
+							<label for="25pounds">£25</label>
+						</div>
+						<div class="col-sm-1">
+							<input class="form-check-input" 
+								id="25pounds" type="radio" name="amount" value=2500 />
+						</div>						
+					</div>
+					<div class="row mb-2">
+						<div class="col-sm-2" align="right">
+							<label for="10pounds">£10</label>
+						</div>
+						<div class="col-sm-1">
+							<input class="form-check-input" checked
+								id="10pounds" type="radio" name="amount" value=1000 />
+						</div>
+						<div class="col-sm-1" align="right">
+							<label for="30pounds">£30</label>
+						</div>
+						<div class="col-sm-1">
+							<input class="form-check-input" 
+								id="30pounds" type="radio" name="amount" value=3000 />
+						</div>							
+					</div>
+					<div class="row mb-2">
+						<div class="col-sm-2" align="right">
+							<label for="15pounds">£15</label>
+						</div>
+						<div class="col-sm-1">
+							<input class="form-check-input" 
+								id="15pounds" type="radio" name="amount" value=1500 />
+						</div>
+						<div class="col-sm-1" align="right">
+							<label for="40pounds">£40</label>
+						</div>
+						<div class="col-sm-1">
+							<input class="form-check-input" 
+								id="40pounds" type="radio" name="amount" value=4000 />
+						</div>							
+					</div>		
+					<div class="row mb-2">
+						<div class="col-sm-2" align="right">
+							<label for="20pounds">£20</label>
+						</div>
+						<div class="col-sm-1">
+							<input class="form-check-input" 
+								id="20pounds" type="radio" name="amount" value=2000 />
+						</div>
+						<div class="col-sm-1" align="right">
+							<label for="50pounds">£50</label>
+						</div>
+						<div class="col-sm-1">
+							<input class="form-check-input" 
+								id="50pounds" type="radio" name="amount" value=5000 />
+						</div>						
+					</div>	
+					<div class="row mb-2">&nbsp;</div>
+					
+										
+					
+					<div class="row mb-2">
+						<div class="col-sm-3" align="right">
+							<button class="btn btn-primary" name="submit">Pay with
+								Paypal</button>
+						</div>
+						<div class="col-sm-2" align="left">
+							<a href="./calendar" class="btn btn-secondary" role="button">Cancel</a>
+						</div>
+						
+					</div>
+				</div>
+			</form>
+
+
 		</div>
-		</div>
-		<div th:replace="~{fragments/footer :: footer}"></div>
+	</div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

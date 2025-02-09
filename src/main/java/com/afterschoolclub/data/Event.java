@@ -6,8 +6,8 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
-import com.afterschoolclub.data.respository.ClubRepository;
-import com.afterschoolclub.data.respository.ResourceRepository;
+import com.afterschoolclub.data.repository.ClubRepository;
+import com.afterschoolclub.data.repository.ResourceRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -59,7 +59,7 @@ public class Event {
 	@Transient
 	private transient List<Resource> staff = null; 
 	
-	
+
 	
 	public Event() {
 		super();	
@@ -118,12 +118,25 @@ public class Event {
 		Attendee result = null;
 		
 		Iterator<Attendee> attendeeIterator = attendees.iterator();
-				while (result == null && attendeeIterator.hasNext()) {
+		while (result == null && attendeeIterator.hasNext()) {
 			Attendee compare = attendeeIterator.next();
 			if (compare.getAttendeeId() == attendeeId)
 				result = compare;
 		}
-				return result;
+		return result;
+	}
+	
+	public Attendee getAttendee(Student student)
+	{
+		Attendee result = null;
+		
+		Iterator<Attendee> attendeeIterator = attendees.iterator();
+		while (result == null && attendeeIterator.hasNext()) {
+			Attendee compare = attendeeIterator.next();
+			if (compare.getStudentId() == student.getStudentId())
+				result = compare;
+		}
+		return result;
 	}
 	
 	public List<Attendee> getSortedAttendees()
@@ -176,6 +189,8 @@ public class Event {
 		return staff;
 	}
 	
+	//TODO why do we do it this way 
+	
 	public boolean requiresStaff(int resourceId) {
 		boolean required = false;
 		List<Resource> requiredStaff = getStaff();
@@ -191,6 +206,17 @@ public class Event {
 		this.eventResources.add(eventResource);
 	}
 	
+	public boolean usesResource(Resource resource) {
+		boolean result = false;
+		
+		Iterator<EventResource> erIterator = eventResources.iterator();
+		while (erIterator.hasNext() && !result) {
+			result = erIterator.next().getResourceId().getId() == resource.getResourceId();
+		}		
+		
+		return result; 
+	}
+	
 	public void addEventMenu(EventMenu menu) {
 		this.eventMenus.add(menu);
 	}	
@@ -202,5 +228,51 @@ public class Event {
 	public String getEndTime() {
 		return endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));		
 	}		
+
 	
+	
+	
+	public boolean canAttend(Student student)
+	{
+		boolean result = this.getClub().isEligible(student);
+			
+		if (this.inPast())
+			result = false;
+		
+		if (this.getMaxAttendees() <= this.getAttendees().size() && !student.isAttendingEvent(this))
+			result = false;
+		
+		return result;				
+									
+					
+	}
+	
+	public boolean inPast()
+	{
+		return this.getStartDateTime().isBefore(LocalDateTime.now());
+	}
+	
+	public boolean registered(Student student)
+	{
+		return getAttendee(student) != null;
+	}
+	
+	public boolean didAttend(Student student)
+	{
+		boolean result = false; 
+		Attendee attendee = getAttendee(student);
+		if (attendee != null)
+			result = attendee.isAttended();
+		return result;
+	}
+	
+	public int getNumberAttendees()
+	{
+		return this.getAttendees().size();		
+	}	
+	
+	public boolean isFullyBooked()
+	{
+		return this.getMaxAttendees() <= this.getNumberAttendees();
+	}		
 }

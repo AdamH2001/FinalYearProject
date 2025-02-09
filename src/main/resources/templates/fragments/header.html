@@ -59,7 +59,6 @@
 				<div class=row>
 					<div class="col-sm-6 text-afterschoolclubmainheader">After School Club</div>
 
-
 					<div th:if="${loggedOnUser.isParent()}" class="col-sm-2 d-flex align-items-center">
 						Balance: &nbsp;<span
 							th:text="${loggedOnUser.getParentObject().getFormattedBalance()}">0</span>

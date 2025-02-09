@@ -16,6 +16,6 @@ public class StudentClass {
 	@Id
 	private int classId;
 	private String name;
-	private String year_group;
+	private int yearGroup;
 
 }

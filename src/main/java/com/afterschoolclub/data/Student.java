@@ -1,14 +1,21 @@
 package com.afterschoolclub.data;
 
+import com.afterschoolclub.data.repository.ClassRepository;
+
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+
 
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
 import lombok.Getter;
@@ -16,10 +23,15 @@ import lombok.Setter;
 import lombok.ToString;
 
 
+
 @Getter
 @Setter
 @ToString
 public class Student {
+	
+	public static ClassRepository classRepository = null;
+
+	
 	@Id
 	private int studentId;
 	AggregateReference<StudentClass, Integer> classId;
@@ -33,6 +45,10 @@ public class Student {
 	@MappedCollection(idColumn = "student_id")
 	private Set<MedicalNote> medicalNotes = new HashSet<>();
 
+	
+	@Transient
+	private transient StudentClass studentClass = null;
+	
 	public Student(String firstName, String surname, LocalDate dateOfBirth, boolean consentToShare) {
 		super();
 		this.firstName = firstName;
@@ -79,5 +95,15 @@ public class Student {
 		return result;
 	}
 
-
+	public StudentClass getStudentClass() {
+		if (studentClass == null) {
+			Optional<StudentClass> classFound = classRepository.findById(this.getClassId().getId());
+			if (classFound.isPresent()) {
+				studentClass = classFound.get();
+			}
+		}
+		return studentClass;
+		
+	}
+	
 }

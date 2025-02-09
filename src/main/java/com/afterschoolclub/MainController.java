@@ -21,14 +21,15 @@ import com.afterschoolclub.data.EventMenu;
 import com.afterschoolclub.data.EventResource;
 import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Resource;
-import com.afterschoolclub.data.respository.ClassRepository;
-import com.afterschoolclub.data.respository.ClubRepository;
-import com.afterschoolclub.data.respository.EventRepository;
-import com.afterschoolclub.data.respository.MenuGroupRepository;
-import com.afterschoolclub.data.respository.ParentalTransactionRepository;
-import com.afterschoolclub.data.respository.ResourceRepository;
-import com.afterschoolclub.data.respository.StudentRepository;
-import com.afterschoolclub.data.respository.UserRepository;
+import com.afterschoolclub.data.FilteredEvent;
+import com.afterschoolclub.data.repository.ClassRepository;
+import com.afterschoolclub.data.repository.ClubRepository;
+import com.afterschoolclub.data.repository.EventRepository;
+import com.afterschoolclub.data.repository.MenuGroupRepository;
+import com.afterschoolclub.data.repository.ParentalTransactionRepository;
+import com.afterschoolclub.data.repository.ResourceRepository;
+import com.afterschoolclub.data.repository.StudentRepository;
+import com.afterschoolclub.data.repository.UserRepository;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -58,7 +59,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.thymeleaf.context.Context;
 
 @Controller
-@SessionAttributes({ "loggedOnUser", "calendarIndex", "calendarMonth", "transactionMonth", "selectedStudent", "event", "student" })
+@SessionAttributes({ "loggedOnUser", "calendarIndex", "calendarMonth", "transactionMonth", "selectedStudent", "event", "student", "available", "unavailable", "attending", "missed", "attended", "onlyMine", "adminFilter" })
 
 public class MainController {
 
@@ -77,7 +78,7 @@ public class MainController {
 
 	@Autowired
 	private EmailService mailService;
-
+	
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	
 	/**
@@ -101,6 +102,7 @@ public class MainController {
 		this.clubRepository = clubRepository;
 		Event.clubRepository = clubRepository;
 		Event.resourceRepository = resourceRepository;
+		Student.classRepository = classRepository;
 	}
 	
 	@GetMapping("/createStudent")
@@ -472,6 +474,15 @@ public class MainController {
 			if (loginUser.isPasswordValid(password)) {
 				if (loginUser.isEmailVerified()) {
 					model.addAttribute("loggedOnUser", loginUser);
+					
+					if (loginUser.isAdmin())
+					{
+						logger.info("User = {}", loginUser);
+						logger.info("Administrator = {}", loginUser.getAdministratorObject());
+						logger.info("Resource = {}", loginUser.getAdministratorObject().getResourceObject());
+						
+					}
+					
 					this.setupCalendar(model);
 					return "calendar";
 				} else {
@@ -542,19 +553,136 @@ public class MainController {
 		return "redirect:/";
 	}
 
-	@GetMapping("/allusers")
-	public String allUsers(Model model) {
-		List<User> users = userRepository.findAll();
-		model.addAttribute("users", users);
-		return "allusers";
-	}
+	public void calculateFilters(EventDay eventDay, Model model)
+	{
+		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		
 
+		if (loggedOnUser.isAdmin() ) {
+			Boolean onlyMine = (Boolean) model.getAttribute("onlyMine");
+			Integer adminFilter= (Integer) model.getAttribute("adminFilter");
+			Resource resource = loggedOnUser.getAdministratorObject().getResourceObject();
+			
+			for (FilteredEvent filteredEvent : eventDay.getFilteredEvents()) {
+				Event event = filteredEvent.getEvent();
+				if (event.usesResource(resource)) {
+					filteredEvent.setAttending(true);						
+				}
+				else {
+					if (onlyMine.booleanValue()) {
+						filteredEvent.setHidden(true);
+					}
+						
+				}	
+				switch (adminFilter.intValue()) {
+				case 1:
+					//TODO scary logic 
+					break;
+				case 2:
+					if (!event.isFullyBooked()) {
+						filteredEvent.setHidden(true);
+					}
+						
+					break;
+				case 3:
+					if (event.getNumberAttendees() != 0) {
+						filteredEvent.setHidden(true);
+					}
+					
+					break;
+				default: 
+					break;
+				}
+			}
+		} else
+		{
+			Boolean showAttending = (Boolean) model.getAttribute("attending");
+			Boolean showAvailable = (Boolean) model.getAttribute("available");
+			Boolean showUnavailable = (Boolean) model.getAttribute("unavailable");
+			Boolean showMissed = (Boolean) model.getAttribute("missed");
+			Boolean showAttended = (Boolean) model.getAttribute("attended");
+					
+			Student student= (Student) model.getAttribute("selectedStudent");
+			
+			for (FilteredEvent filteredEvent : eventDay.getFilteredEvents()) {
+				Event event = filteredEvent.getEvent();
+				
+				if (event.inPast()) {
+					if (student != null && event.didAttend(student)) {
+						filteredEvent.setAttended(true);
+						if (!showAttended.booleanValue()) {
+							filteredEvent.setHidden(true);
+						}							
+					} 
+					else if (student != null && event.registered(student)) {
+						filteredEvent.setMissed(true);
+						if (!showMissed.booleanValue()) {
+							filteredEvent.setHidden(true);
+						}						
+					}
+					else {
+						filteredEvent.setAvailable(false);
+						if (!showUnavailable.booleanValue()) {
+							filteredEvent.setHidden(true);
+						}
+					}
+				} 
+				else {
+					if (student != null && student.isAttendingEvent(event)) {
+						filteredEvent.setAttending(true);
+						if (!showAttending.booleanValue()) {
+							filteredEvent.setHidden(true);
+						}
+					}
+					else if (event.inPast() || (student != null && !event.canAttend(student))) { 
+						filteredEvent.setAvailable(false);	
+						if (!showUnavailable.booleanValue()) {
+							filteredEvent.setHidden(true);
+						}
+					}
+					else if (!showAvailable.booleanValue()) {
+						filteredEvent.setHidden(true);						
+					}
+				}								 								
+			}
+		}
+			
+	}
 	
 	public void setupCalendar(Model model) {
 		int num = 0;
 		LocalDate calendarMonth = null;
 		LocalDate calendarDay = null;
 		LocalDate calendarNextMonth = null;
+		
+		//TODO - Tidy up and move...  
+		
+		Boolean attending = (Boolean) model.getAttribute("attending");
+		Boolean available = (Boolean) model.getAttribute("available");
+		Boolean unavailable = (Boolean) model.getAttribute("unavailable");
+		Boolean missed = (Boolean) model.getAttribute("missed");
+		Boolean attended = (Boolean) model.getAttribute("attended");
+		
+		Boolean onlyMine = (Boolean) model.getAttribute("onlyMine");
+		Integer adminFilter= (Integer) model.getAttribute("adminFilter");
+		
+		if (attending == null)
+			model.addAttribute("attending", Boolean.TRUE);
+		if (available == null)
+			model.addAttribute("available", Boolean.TRUE);
+		if (unavailable == null)
+			model.addAttribute("unavailable", Boolean.TRUE);
+		if (missed == null)
+			model.addAttribute("missed", Boolean.TRUE);
+		if (attended == null)
+			model.addAttribute("attended", Boolean.TRUE);
+		
+		if (onlyMine == null)
+			model.addAttribute("onlyMine", Boolean.FALSE);
+		if (adminFilter == null)
+			model.addAttribute("adminFilter", Integer.valueOf(0));
+				
+		
 		Student student= (Student) model.getAttribute("selectedStudent");
 		logger.info("Selected Student = {}",student);
 		if (student == null) {
@@ -600,8 +728,13 @@ public class MainController {
 						&& (calendarDay.isBefore(calendarNextMonth))) {
 					EventDay eventDay = new EventDay(calendarDay);
 					eventDay.addAllEventsForDay(events);
+					this.calculateFilters(eventDay, model);
+					
 					//logger.info("eventDay={}", eventDay);
 					//logger.info("dayOfMonth={}", eventDay.getDate().getDayOfMonth());
+					
+					
+					
 					calendar[i][j] = eventDay;
 					calendarDay = calendarDay.plusDays(1);
 				} else {
@@ -695,6 +828,9 @@ public class MainController {
 		if (model.getAttribute("loggedOnUser") == null) {
 			return "home";
 		} else {
+
+
+			
 			this.setupCalendar(model);
 			return "calendar";
 
@@ -1371,18 +1507,19 @@ public class MainController {
     ) {
         try {
             String cancelUrl = "http://localhost:8080/AfterSchoolClub/paymentcancel";
-            String successUrl = "http://localhost:8080/AfterSchoolClub/paymentsuccess";
+            String successUrl = "http://localhost:8080/AfterSchoolClub/reviewpayment";
             Payment payment = paypalService.createPayment(
-                    Double.valueOf(amount),
+                    Integer.valueOf(amount),
                     "GBP",
                     "Paypal",
                     "sale",
                     "AfterSchool Club TopUp",
                     cancelUrl,
-                    successUrl
+                    successUrl,
+                    paypalService.getDefaultWebProfileId()
             );
             
-
+            
             for (Links links: payment.getLinks()) {
                 if (links.getRel().equals("approval_url")) {
                     return new RedirectView(links.getHref());
@@ -1394,65 +1531,194 @@ public class MainController {
         return new RedirectView("/paymenterror");
     }
 
-    @GetMapping("/paymentsuccess")
+    @PostMapping("/paymentsuccess")
     public String paymentSuccess(
             @RequestParam("paymentId") String paymentId,
             @RequestParam("PayerID") String payerId,
             Model model
     ) {
     	logger.info("In Payment Success");
-    	this.setupCalendar(model);
-        try {
-            Payment payment = paypalService.executePayment(paymentId, payerId);
-            if (payment.getState().equals("approved")) {
-            	String id = payment.getId();
-            	logger.info("Payment id = {} @ {}" , id, payment.getCreateTime());
-            	
-            	List <Transaction> transactions = payment.getTransactions();
-            	
-        		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
-    			Parent loggedOnParent = loggedOnUser.getParentObject();
-       		
-        		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        		LocalDateTime paymentDateTime = LocalDateTime.parse(payment.getCreateTime(), formatter);
-        		
-        				
+    	User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+    	
+    	if (loggedOnUser != null)
+    	{
+	    	this.setupCalendar(model);
+	        try {
+	            Payment payment = paypalService.executePayment(paymentId, payerId);
+	            if (payment.getState().equals("approved")) {
+	            	String id = payment.getId();
+	            	logger.info("Payment id = {} @ {}" , id, payment.getCreateTime());
+	            	
+	            	List <Transaction> transactions = payment.getTransactions();
+	            	
+	        		
+	    			Parent loggedOnParent = loggedOnUser.getParentObject();
+	       		
+	        		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	        		LocalDateTime paymentDateTime = LocalDateTime.parse(payment.getCreateTime(), formatter);
+	        		
+	        				
+					for (Transaction transaction : transactions) {
+						
+						String amount = transaction.getAmount().getTotal();
+						int amountInPence  = (int)Double.parseDouble(amount) * 100;
+		        		loggedOnParent.alterBalance(amountInPence);
+		        		loggedOnParent.addTransaction(new ParentalTransaction(amountInPence, paymentDateTime,ParentalTransaction.Type.DEPOSIT, "Paypal"));
+	
+		        		//TODO need to add paypal reference in transaction 
+		        		
+		        		
+						logger.info("Amount = {}", amount);
+					}
+					userRepository.save(loggedOnUser);
+					
+					model.addAttribute("flashMessage","Payment Successful");
+					
+	            }
+	        } catch (PayPalRESTException e) {
+	        	
+				model.addAttribute("flashMessage",e.getDetails().getMessage());
+	        	logger.error("Error occurred:: ", e);
+	        	
+	        }
+	        return "calendar";
+    	}
+    	else {
+			model.addAttribute("flashMessage","Need to be logged on to process a payment");
+    		return "home";
+    	}
+    }
+
+    @GetMapping("/reviewpayment")
+    public String reviewPayment(
+            @RequestParam("paymentId") String paymentId,
+            @RequestParam("PayerID") String payerId,
+            Model model
+    ) {
+    	logger.info("In ReviewPayment");
+    	User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+    	
+    	if (loggedOnUser != null)
+    	{
+    		try {
+
+		        Payment payment = paypalService.getPayment(paymentId);   
+				model.addAttribute("paymentId",paymentId);
+				model.addAttribute("payerId",payerId);
+				
+	
+	        	List <Transaction> transactions = payment.getTransactions();
+	        	
+	        	int amountInPence = 0;
+	    				
 				for (Transaction transaction : transactions) {
 					
 					String amount = transaction.getAmount().getTotal();
-					int amountInPence  = (int)Double.parseDouble(amount) * 100;
-	        		loggedOnParent.alterBalance(amountInPence);
-	        		loggedOnParent.addTransaction(new ParentalTransaction(amountInPence, paymentDateTime,ParentalTransaction.Type.DEPOSIT, "Paypal"));
-
-	        		//TODO need to add paypal reference in transaction 
+					amountInPence  += (int)Double.parseDouble(amount) * 100;
 	        		
-	        		
-					logger.info("Amount = {}", amount);
 				}
-				userRepository.save(loggedOnUser);
+				NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
 				
-				model.addAttribute("flashMessage","Payment Successful");
+				model.addAttribute("amount",  n.format(amountInPence / 100.0));
 				
-            }
-        } catch (PayPalRESTException e) {
-        	
-			model.addAttribute("flashMessage",e.getDetails().getMessage());
-        	logger.error("Error occurred:: ", e);
-        	
-        }
-        return "calendar";
+	        	logger.info("Amount in pence {}", amountInPence);
+	
+		        
+		        return "reviewPayment";
+    		}  catch (PayPalRESTException e) {
+	        	
+				model.addAttribute("flashMessage",e.getDetails().getMessage());
+	        	logger.error("Error occurred:: ", e);
+	        	setupCalendar(model);
+	        	return "calendar"; 	        	
+	        }
+	      
+    	}
+    	else {
+			model.addAttribute("flashMessage","Need to be logged on to process a payment");
+    		return "home";
+    	}
     }
-
+    
     @GetMapping("/paymentcancel")
     public String paymentCancel(Model model) {
 		model.addAttribute("flashMessage","Payment Cancelled");
-		this.setupCalendar(model);
-        return "calendar";
+    	User loggedOnUser = (User) model.getAttribute("loggedOnUser");    	
+    	if (loggedOnUser != null) {		
+    		this.setupCalendar(model);
+    		return "calendar";
+    	}
+    	else {			
+    		return "home";
+    	}
     }
 
     @GetMapping("/paymenterror")
     public String paymentError(Model model) {
 		model.addAttribute("flashMessage","Payment Error");
+    	User loggedOnUser = (User) model.getAttribute("loggedOnUser");    	
+    	if (loggedOnUser != null) {		
+    		this.setupCalendar(model);
+    		return "calendar";
+    	}
+    	else {			
+    		return "home";
+    	}
+    }
+    
+    @PostMapping("/updateFilters")
+    public String updateFilters(
+            @RequestParam(name="attending", required=false) Boolean attending,
+            @RequestParam(name="available", required=false) Boolean available,
+            @RequestParam(name="unavailable", required=false) Boolean unavailable,
+            @RequestParam(name="missed", required=false) Boolean missed,
+            @RequestParam(name="attended", required=false) Boolean attended,
+            
+    		Model model) 
+    {
+    	if (attending == null)
+    		model.addAttribute("attending",Boolean.FALSE);
+    	else
+    		model.addAttribute("attending",Boolean.TRUE);
+    	if (available == null)
+    		model.addAttribute("available",Boolean.FALSE);
+    	else
+    		model.addAttribute("available",Boolean.TRUE);
+    	if (unavailable == null)
+    		model.addAttribute("unavailable",Boolean.FALSE);
+    	else
+    		model.addAttribute("unavailable",Boolean.TRUE);
+    	if (missed == null)
+    		model.addAttribute("missed",Boolean.FALSE);
+    	else
+    		model.addAttribute("missed",Boolean.TRUE);
+    	if (attended == null)
+    		model.addAttribute("attended",Boolean.FALSE);
+    	else
+    		model.addAttribute("attended",Boolean.TRUE);    	
+    	
+    	
 		this.setupCalendar(model);
-        return "calendar";    }
+		return "calendar";
+    	
+    }    
+
+    @PostMapping("/updateAdminFilters")
+    public String updateAdminFilters(
+            @RequestParam(name="onlyMine", required=false) Boolean onlyMine,
+            @RequestParam(name="adminFilter") Integer adminFilter,
+    		Model model) 
+    {
+    	if (onlyMine == null)
+    		model.addAttribute("onlyMine",Boolean.FALSE);
+    	else
+    		model.addAttribute("onlyMine",Boolean.TRUE);
+    	model.addAttribute("adminFilter",adminFilter);
+    	
+		this.setupCalendar(model);
+		return "calendar";
+    	
+    }   
+    
+    
 }
