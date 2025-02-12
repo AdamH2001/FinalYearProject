@@ -72,6 +72,11 @@ public class MainController {
 	private final ParentalTransactionRepository transactionRepository;
 	private final ClubRepository clubRepository;
 	
+	private final int FILTER_ALL = 0;
+	private final int FILTER_FULLYBOOKED = 2;
+	private final int FILTER_NOATTENDEES = 3;
+
+    
 	@Autowired	
     private PaypalService paypalService;
 	
@@ -555,10 +560,12 @@ public class MainController {
 
 	public void calculateFilters(EventDay eventDay, Model model)
 	{
-		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+
+
+	    User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		
 
-		if (loggedOnUser.isAdmin() ) {
+		if (loggedOnUser.isAdmin() ) {		    
 			Boolean onlyMine = (Boolean) model.getAttribute("onlyMine");
 			Integer adminFilter= (Integer) model.getAttribute("adminFilter");
 			Resource resource = loggedOnUser.getAdministratorObject().getResourceObject();
@@ -574,17 +581,14 @@ public class MainController {
 					}
 						
 				}	
-				switch (adminFilter.intValue()) {
-				case 1:
-					//TODO scary logic 
-					break;
-				case 2:
+				switch (adminFilter.intValue()) {				
+				case FILTER_FULLYBOOKED:
 					if (!event.isFullyBooked()) {
 						filteredEvent.setHidden(true);
 					}
 						
 					break;
-				case 3:
+				case FILTER_NOATTENDEES:
 					if (event.getNumberAttendees() != 0) {
 						filteredEvent.setHidden(true);
 					}
@@ -680,7 +684,7 @@ public class MainController {
 		if (onlyMine == null)
 			model.addAttribute("onlyMine", Boolean.FALSE);
 		if (adminFilter == null)
-			model.addAttribute("adminFilter", Integer.valueOf(0));
+			model.addAttribute("adminFilter", Integer.valueOf(FILTER_ALL));
 				
 		
 		Student student= (Student) model.getAttribute("selectedStudent");
