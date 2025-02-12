@@ -1,7 +1,7 @@
 USE after_school_club2;
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE `attendee`, `Attendee_Menu_Choice`, `class`,  `club`, `event`, `Event_Menu`, `Event_Resource`, `incident`, `Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`, `parent`, `resource`, `student`, `Parental_Transaction`, `user`;
+DROP TABLE `attendee`, `Attendee_Menu_Choice`, `administrator`, `class`,  `club`, `event`, `Event_Menu`, `Event_Resource`, `incident`, `Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`, `parent`, `resource`, `student`, `Parental_Transaction`, `user`;
 SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE `User` (
@@ -186,7 +186,7 @@ ALTER TABLE `Event` ADD FOREIGN KEY (`club_id`) REFERENCES `Club` (`club_id`);
 
 ALTER TABLE `Administrator` ADD FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`);
 
-ALTER TABLE `Resource` ADD FOREIGN KEY (`resource_id`) REFERENCES `Administrator` (`resource_id`);
+ALTER TABLE `Administrator` ADD FOREIGN KEY (`resource_id`) REFERENCES `Resource` (`resource_id`);
 
 
 # Inserts
@@ -228,19 +228,22 @@ VALUES ((SELECT menu_option_id from after_school_club2.menu_option WHERE name="M
 
 
 INSERT into after_school_club2.resource(name, description, quantity, type, keywords)
-VALUES ("Mr A Hatton", "Sports Teacher", 1, "STAFF", "sport");
+VALUES ("Mr A Hatton", "Sports Teacher", 1, "STAFF", "sport"),
+ ("Mr C Hatton", "Computer Teacher", 1, "STAFF", "technology");
         
         
 INSERT into after_school_club2.user (email,password,first_name,surname,validation_key,date_requested,email_verified)
-VALUES ("adam@hattonsplace.co.uk","TWFuVXRkMDE=","Adam","Hatton","6000000",'2022-12-27',True)
-,("peterjones@hattonsplace.co.uk","TWFuVXRkMDE=","Peter","Jones","6000000",'2022-12-27',True);
+VALUES ("adam@hattonsplace.co.uk","TWFuVXRkMDE=","Adam","Hatton","6000000",'2022-12-27',True),
+("chris@hattonsplace.co.uk","TWFuVXRkMDE=","Chris","Hatton","6000000",'2022-12-27',True),
+("peterjones@hattonsplace.co.uk","TWFuVXRkMDE=","Peter","Jones","6000000",'2022-12-27',True);
 
 INSERT into after_school_club2.parent (user_id,balance,telephone_num,alt_contact_name,alt_telephone_num)
 VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Peter"),0,"012345","Smithy","1234");
 
 
 INSERT into after_school_club2.administrator (user_id,resource_id)
-VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Adam"), (SELECT resource_id from after_school_club2.resource WHERE name="Mr A Hatton"));
+VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Adam"), (SELECT resource_id from after_school_club2.resource WHERE name="Mr A Hatton")),
+ ((SELECT user_id from after_school_club2.user WHERE first_name="Chris"), (SELECT resource_id from after_school_club2.resource WHERE name="Mr C Hatton"));
 
 INSERT into after_school_club2.club(title, description, base_price, year_r_can_attend, year_1_can_attend, year_2_can_attend, year_3_can_attend, year_4_can_attend, year_5_can_attend, year_6_can_attend)
 VALUES ("Football Club", "Football Club for Year 6", 250, false, false, false, false, false, false, true );
