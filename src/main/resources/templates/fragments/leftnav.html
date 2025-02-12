@@ -102,16 +102,7 @@
 										<label for="all">All</label>
 									</div>
 								</div>		
-								
-								<div class="row mb-2">
-									<div class="col-sm-1" align="left">
-										<input class="form-check-input" id="resourceissues" th:checked="${adminFilter.intValue() == 1}" type="radio" name="adminFilter" value=1 onChange="adminFiltersForm.submit()"/>
-									</div>									
-									<div class="col-sm-1" align="left">
-										<label for="resourceissues">Resource Issues</label>
-									</div>
-								</div>									
-																
+																								
 								<div class="row mb-2">
 									<div class="col-sm-1" align="left">
 										<input class="form-check-input" id="fullybooked" th:checked="${adminFilter.intValue() == 2}" type="radio" name="adminFilter" value=2 onChange="adminFiltersForm.submit()"/>

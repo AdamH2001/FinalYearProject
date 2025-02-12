@@ -1676,30 +1676,35 @@ public class MainController {
             
     		Model model) 
     {
-    	if (attending == null)
-    		model.addAttribute("attending",Boolean.FALSE);
+    	User loggedOnUser = (User) model.getAttribute("loggedOnUser");    	
+    	if (loggedOnUser != null) {	    	
+			if (attending == null)
+				model.addAttribute("attending",Boolean.FALSE);
+			else
+				model.addAttribute("attending",Boolean.TRUE);
+			if (available == null)
+				model.addAttribute("available",Boolean.FALSE);
+			else
+				model.addAttribute("available",Boolean.TRUE);
+			if (unavailable == null)
+				model.addAttribute("unavailable",Boolean.FALSE);
+			else
+				model.addAttribute("unavailable",Boolean.TRUE);
+			if (missed == null)
+				model.addAttribute("missed",Boolean.FALSE);
+			else
+				model.addAttribute("missed",Boolean.TRUE);
+			if (attended == null)
+				model.addAttribute("attended",Boolean.FALSE);
+			else
+				model.addAttribute("attended",Boolean.TRUE);    	
+			
+			
+			this.setupCalendar(model);
+			return "calendar";
+    	}
     	else
-    		model.addAttribute("attending",Boolean.TRUE);
-    	if (available == null)
-    		model.addAttribute("available",Boolean.FALSE);
-    	else
-    		model.addAttribute("available",Boolean.TRUE);
-    	if (unavailable == null)
-    		model.addAttribute("unavailable",Boolean.FALSE);
-    	else
-    		model.addAttribute("unavailable",Boolean.TRUE);
-    	if (missed == null)
-    		model.addAttribute("missed",Boolean.FALSE);
-    	else
-    		model.addAttribute("missed",Boolean.TRUE);
-    	if (attended == null)
-    		model.addAttribute("attended",Boolean.FALSE);
-    	else
-    		model.addAttribute("attended",Boolean.TRUE);    	
-    	
-    	
-		this.setupCalendar(model);
-		return "calendar";
+    		return "home";
     	
     }    
 
@@ -1709,14 +1714,19 @@ public class MainController {
             @RequestParam(name="adminFilter") Integer adminFilter,
     		Model model) 
     {
-    	if (onlyMine == null)
-    		model.addAttribute("onlyMine",Boolean.FALSE);
+    	User loggedOnUser = (User) model.getAttribute("loggedOnUser");    	
+    	if (loggedOnUser != null) {	    	
+	    	if (onlyMine == null)
+	    		model.addAttribute("onlyMine",Boolean.FALSE);
+	    	else
+	    		model.addAttribute("onlyMine",Boolean.TRUE);
+	    	model.addAttribute("adminFilter",adminFilter);
+	    	
+			this.setupCalendar(model);
+			return "calendar";
+    	}
     	else
-    		model.addAttribute("onlyMine",Boolean.TRUE);
-    	model.addAttribute("adminFilter",adminFilter);
-    	
-		this.setupCalendar(model);
-		return "calendar";
+    		return "home";
     	
     }   
     
