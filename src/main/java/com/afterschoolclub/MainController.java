@@ -655,7 +655,7 @@ public class MainController {
 			for (FilteredEvent filteredEvent : eventDay.getFilteredEvents()) {
 				Event event = filteredEvent.getEvent();
 				
-				if (event.inPast()) {
+				if (event.endInPast()) {
 					if (student != null && event.didAttend(student)) {
 						filteredEvent.setAttended(true);
 						if (!showAttended.booleanValue()) {
@@ -682,7 +682,7 @@ public class MainController {
 							filteredEvent.setHidden(true);
 						}
 					}
-					else if (event.inPast() || (student != null && !event.canAttend(student))) { 
+					else if (event.endInPast() || (student != null && !event.canAttend(student))) { 
 						filteredEvent.setAvailable(false);	
 						if (!showUnavailable.booleanValue()) {
 							filteredEvent.setHidden(true);
@@ -1040,7 +1040,7 @@ public class MainController {
 							}
 							
 							userRepository.save(tmpUser);
-							model.addAttribute("flashMessage", "Booked Attendance");
+							model.addAttribute("flashMessage", "Booked ".concat(event.getClub().getTitle()));
 							model.addAttribute("loggedOnUser", tmpUser);
 							
 							Student selectedStudent = (Student) model.getAttribute("selectedStudent");

@@ -229,21 +229,25 @@ VALUES ((SELECT menu_option_id from after_school_club2.menu_option WHERE name="M
 
 INSERT into after_school_club2.resource(name, description, quantity, type, keywords)
 VALUES ("Mr A Hatton", "Sports Teacher", 1, "STAFF", "sport"),
- ("Mr C Hatton", "Computer Teacher", 1, "STAFF", "technology");
+ ("Mrs C Smith", "Computer Teacher", 1, "STAFF", "technology");
         
         
 INSERT into after_school_club2.user (email,password,first_name,surname,validation_key,date_requested,email_verified)
 VALUES ("adam@hattonsplace.co.uk","TWFuVXRkMDE=","Adam","Hatton","6000000",'2022-12-27',True),
-("chris@hattonsplace.co.uk","TWFuVXRkMDE=","Chris","Hatton","6000000",'2022-12-27',True),
+("chris@hattonsplace.co.uk","TWFuVXRkMDE=","Christine","Smith","6000000",'2022-12-27',True),
 ("peterjones@hattonsplace.co.uk","TWFuVXRkMDE=","Peter","Jones","6000000",'2022-12-27',True);
 
 INSERT into after_school_club2.parent (user_id, telephone_num,alt_contact_name,alt_telephone_num)
 VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Peter"),"012345","Smithy","1234");
 
-
+INSERT into after_school_club2.student (parent_id, class_id, first_name, surname, date_of_birth, health_questionnaire_completed, consent_to_share)
+VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Ruth", "Jones", "2014-01-01", "2025-01-01", true), 
+		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=0), "Jonny", "Jones", "2019-02-01", "2025-01-01", true), 
+		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Tom", "Jones", "2014-01-01", "2025-01-01", true); 
+        
 INSERT into after_school_club2.administrator (user_id,resource_id)
 VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Adam"), (SELECT resource_id from after_school_club2.resource WHERE name="Mr A Hatton")),
- ((SELECT user_id from after_school_club2.user WHERE first_name="Chris"), (SELECT resource_id from after_school_club2.resource WHERE name="Mr C Hatton"));
+ ((SELECT user_id from after_school_club2.user WHERE first_name="Christine"), (SELECT resource_id from after_school_club2.resource WHERE name="Mrs C Smith"));
 
 INSERT into after_school_club2.club(title, description, base_price, year_r_can_attend, year_1_can_attend, year_2_can_attend, year_3_can_attend, year_4_can_attend, year_5_can_attend, year_6_can_attend)
 VALUES ("Football Club", "Football Club for Year 6", 250, false, false, false, false, false, false, true );
