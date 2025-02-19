@@ -3,6 +3,8 @@ package com.afterschoolclub.data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
+import com.afterschoolclub.data.repository.ParentalTransactionRepository;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,9 +22,11 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Parent {
+	public static ParentalTransactionRepository parentalTransactionRepository = null;
+
+	
 	@Id
 	public int parentId;
-	private int balance = 0;
 	private String telephoneNum;
 	private String altContactName;
 	private String altTelephoneNum;
@@ -45,10 +49,15 @@ public class Parent {
 		return result;
 	}
 	
-	public void alterBalance(int money) {
-		this.balance += money;
-	}
-
+	public int getBalance() {
+		Integer balance = parentalTransactionRepository.getBalance(parentId);
+		int result = 0;
+		if (balance != null) {
+			result = balance.intValue();
+		}
+		return result;	
+	}	
+	
 	public void addStudent(Student student) {
 		this.students.add(student);
 	}
@@ -77,7 +86,7 @@ public class Parent {
 	
 	public String getFormattedBalance() {
 		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
-		return n.format(balance / 100.0);
+		return n.format(this.getBalance() / 100.0);
 	}
 	
 		

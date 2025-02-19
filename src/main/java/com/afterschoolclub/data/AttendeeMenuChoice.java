@@ -14,4 +14,10 @@ public class AttendeeMenuChoice {
 	@Id
 	private int attendeeMenuChoiceId;
 	AggregateReference<MenuOption, Integer> menuOptionId;
+	
+	
+	public AttendeeMenuChoice(AggregateReference<MenuOption, Integer> menuOptionId) {
+		super();
+		this.menuOptionId = menuOptionId;
+	}
 }

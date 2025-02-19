@@ -32,7 +32,7 @@
 				
 				<div class="row mb-2">					
 					<div class="col-sm-12" align="center">
-						<h1 align="center" style="color: black">Scheduled Events</h1>
+						<h1 align="center" style="color: black">Club Timetable</h1>
 					</div>					
 				</div>
 
@@ -87,11 +87,13 @@
 						</a>
 						<ul th:if="${loggedOnUser.isAdmin() }" class="dropdown-menu dropdown-menu-dark text-small shadow  position-fixed"
 							aria-labelledby="dropdownUser1">
-							<li><a class="dropdown-item" th:href="@{/editEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Edit Event</a></li>
+							<li><a class="dropdown-item" th:if="${!filteredEvent.getEvent().endInPast()}" th:href="@{/editEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Edit Event</a></li>
 							<li><a class="dropdown-item" th:href="@{/viewEvent(eventId=${filteredEvent.getEvent().getEventId()})}">View Event</a></li>
-							<li><a class="dropdown-item" th:href="@{/cancelEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Cancel Event</a></li>
-							<li><a class="dropdown-item" th:href="@{/takeRegister(eventId=${filteredEvent.getEvent().getEventId()})}">Take Register</a></li>
-							<li><a class="dropdown-item" th:href="@{/createIncident(eventId=${filteredEvent.getEvent().getEventId()})}">Create Incident</a></li>
+							<li><a class="dropdown-item" th:if="${!filteredEvent.getEvent().endInPast()}"  th:href="@{/cancelEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Cancel Event</a></li>
+							<li><a class="dropdown-item" th:if="${filteredEvent.getEvent().isNow()}"  th:href="@{/takeRegister(eventId=${filteredEvent.getEvent().getEventId()})}">Take Register</a></li>
+							<li><a class="dropdown-item" th:if="${filteredEvent.getEvent().endInPast()}"  th:href="@{/viewAttendance(eventId=${filteredEvent.getEvent().getEventId()})}">View Attendance</a></li>
+							<li><a class="dropdown-item" th:if="${!filteredEvent.getEvent().inPast()}"  th:href="@{/viewBookings(eventId=${filteredEvent.getEvent().getEventId()})}">View Bookings</a></li>
+							<li><a class="dropdown-item" th:if="${filteredEvent.getEvent().inPast()}" th:href="@{/createIncident(eventId=${filteredEvent.getEvent().getEventId()})}">Report Incident</a></li>
 							
 							<li>
 								<hr class="dropdown-divider">
@@ -133,12 +135,12 @@
 						<ul th:if="${loggedOnUser.isParent()}" class="dropdown-menu dropdown-menu-dark text-small shadow  position-fixed"
 							aria-labelledby="dropdownUser1">
 							<li><a class="dropdown-item" th:href="@{/viewEvent(eventId=${filteredEvent.getEvent().getEventId()})}">View Event</a></li>
-							<li th:if="${selectedStudent} != null and ${!selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${filteredEvent.getEvent().canAttend(selectedStudent)}"><a class="dropdown-item" th:href="@{/registerForEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Register For Event</a></li>
-						 	<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().inPast()}"><a class="dropdown-item" th:href="@{/deregisterForEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Deregister Event</a></li>
-							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().inPast()}">
+							<li th:if="${selectedStudent} != null and ${!selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${filteredEvent.getEvent().canAttend(selectedStudent)}"><a class="dropdown-item" th:href="@{/registerForEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Book Attendance</a></li>
+						 	<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().inPast()}"><a class="dropdown-item" th:href="@{/deregisterForEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Cancel Booking</a></li>
+							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().endInPast()}">
 								<hr class="dropdown-divider">
 							</li>
-							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().inPast()}"><a class="dropdown-item" th:href="@{/editOptions(eventId=${filteredEvent.getEvent().getEventId()})}">Edit Options</a></li>
+							<li th:if="${selectedStudent} != null and ${selectedStudent.isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().endInPast()}"><a class="dropdown-item" th:href="@{/editOptions(eventId=${filteredEvent.getEvent().getEventId()})}">Edit Options</a></li>
 					</ul>
 					</div>
 					</div>

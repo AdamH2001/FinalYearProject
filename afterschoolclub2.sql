@@ -40,6 +40,7 @@ CREATE TABLE `Event` (
 
 CREATE TABLE `Parental_Transaction` (
   `transaction_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `balance_type` ENUM('VOUCHER','CASH') NOT NULL,
   `amount` INT NOT NULL,
   `date_time` DATETIME NOT NULL,
   `transaction_type` ENUM('DEPOSIT','WITHDRAWAL','REFUND','PAYMENT') NOT NULL,
@@ -49,8 +50,7 @@ CREATE TABLE `Parental_Transaction` (
 
 CREATE TABLE `Parent` (
   `parent_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `user_id` INT NOT NULL,
-  `balance` INT NOT NULL,
+  `user_id` INT NOT NULL,  
   `telephone_num` VARCHAR(20) NOT NULL,
   `alt_contact_name` VARCHAR(128) NOT NULL,
   `alt_telephone_num` VARCHAR(20) NOT NULL
@@ -237,8 +237,8 @@ VALUES ("adam@hattonsplace.co.uk","TWFuVXRkMDE=","Adam","Hatton","6000000",'2022
 ("chris@hattonsplace.co.uk","TWFuVXRkMDE=","Chris","Hatton","6000000",'2022-12-27',True),
 ("peterjones@hattonsplace.co.uk","TWFuVXRkMDE=","Peter","Jones","6000000",'2022-12-27',True);
 
-INSERT into after_school_club2.parent (user_id,balance,telephone_num,alt_contact_name,alt_telephone_num)
-VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Peter"),0,"012345","Smithy","1234");
+INSERT into after_school_club2.parent (user_id, telephone_num,alt_contact_name,alt_telephone_num)
+VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Peter"),"012345","Smithy","1234");
 
 
 INSERT into after_school_club2.administrator (user_id,resource_id)

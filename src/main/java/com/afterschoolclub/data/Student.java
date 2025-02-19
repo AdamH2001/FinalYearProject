@@ -1,7 +1,6 @@
 package com.afterschoolclub.data;
 
 import com.afterschoolclub.data.repository.ClassRepository;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 
@@ -30,7 +29,6 @@ import lombok.ToString;
 public class Student {
 	
 	public static ClassRepository classRepository = null;
-
 	
 	@Id
 	private int studentId;
@@ -105,5 +103,22 @@ public class Student {
 		return studentClass;
 		
 	}
+	
+	public boolean equals(Student otherStudent) {		
+		return this.getStudentId() == otherStudent.getStudentId();		
+	}	
+	
+	public int getCostOfEvent(Event event) {
+		int totalCost = 0;				
+		totalCost += event.getClub().getBasePrice();		
+		Attendee attendee = findAttendee(event.getEventId());
+		
+		Set <AttendeeMenuChoice> menuChoices = attendee.getMenuChoices();
+		for (AttendeeMenuChoice amc: menuChoices ) {
+			totalCost +=event.getOptionCost(amc.getMenuOptionId().getId());
+		}
+		return totalCost;
+	}
+	
 	
 }

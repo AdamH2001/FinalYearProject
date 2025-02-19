@@ -12,6 +12,9 @@ public interface StudentRepository extends CrudRepository<Student, Integer> {
  
 	@Query("SELECT s.*  FROM student s , attendee a where s.student_id=a.student_id and a.event_id = :eventId")
 	List<Student> findByEventId(int eventId);
+	
 	@Query("SELECT s.*  FROM student s , attendee a where s.student_id=a.student_id and a.attendee_id = :attendeeId")	
 	List<Student> findByAttendeeId(int attendeeId);
+	
+	
 }

@@ -22,11 +22,17 @@ public class ParentalTransaction {
 		PAYMENT
 	}
 	
+	public enum BalanceType {
+		VOUCHER, 
+		CASH 
+	}	
+	
 	@Id
 	private int transactionId;
 	private int amount;
 	private LocalDateTime dateTime;
 	private Type transactionType;
+	private BalanceType balanceType;
 	private String description;
 	
 	/**
@@ -41,6 +47,7 @@ public class ParentalTransaction {
 		this.dateTime = dateTime;
 		this.transactionType = transactionType;
 		this.description = description;
+		balanceType = BalanceType.CASH;
 	}
 	
 	public String getFormattedAmount() {

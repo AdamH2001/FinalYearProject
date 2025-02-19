@@ -7,6 +7,7 @@ import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.PayPalRESTException;
 
 import com.afterschoolclub.data.Attendee;
+import com.afterschoolclub.data.AttendeeMenuChoice;
 import com.afterschoolclub.data.Event;
 import com.afterschoolclub.data.Incident;
 import com.afterschoolclub.data.MedicalNote;
@@ -20,6 +21,7 @@ import com.afterschoolclub.data.EventDay;
 import com.afterschoolclub.data.EventMenu;
 import com.afterschoolclub.data.EventResource;
 import com.afterschoolclub.data.Club;
+import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.Resource;
 import com.afterschoolclub.data.FilteredEvent;
 import com.afterschoolclub.data.repository.ClassRepository;
@@ -41,6 +43,7 @@ import java.util.Base64.Encoder;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -59,7 +62,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.thymeleaf.context.Context;
 
 @Controller
-@SessionAttributes({ "loggedOnUser", "calendarIndex", "calendarMonth", "transactionMonth", "selectedStudent", "event", "student", "available", "unavailable", "attending", "missed", "attended", "onlyMine", "adminFilter" })
+@SessionAttributes({ "loggedOnUser", "calendarIndex", "calendarMonth", "transactionMonth", "selectedStudent", "event", "student", "available", "unavailable", "attending", "missed", "attended", "onlyMine", "adminFilter", "displayHelper" })
 
 public class MainController {
 
@@ -84,6 +87,8 @@ public class MainController {
 	@Autowired
 	private EmailService mailService;
 	
+	private DisplayHelper displayHelper;
+	
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	
 	/**
@@ -107,8 +112,21 @@ public class MainController {
 		this.clubRepository = clubRepository;
 		Event.clubRepository = clubRepository;
 		Event.resourceRepository = resourceRepository;
+		Event.menuGroupRepository = menuGroupRepository;
 		Student.classRepository = classRepository;
+		Parent.parentalTransactionRepository = transactionRepository;
+		this.displayHelper = new DisplayHelper();
+		
+				
 	}
+	
+	public void setInDialogue(boolean inDialogue, Model model)
+	{
+		displayHelper.setInDialogue(inDialogue);
+		model.addAttribute("displayHelper", displayHelper);
+		return;
+	}
+	
 	
 	@GetMapping("/createStudent")
 	public String createStudent(Model model) {
@@ -117,6 +135,7 @@ public class MainController {
 			if (loggedOnUser.isParent()) {
 				List<StudentClass> classNames = classRepository.findAll();
 				model.addAttribute("classNames",classNames);
+				this.setInDialogue(true,model);
 				return "createstudent";
 			} else {
 				this.setupCalendar(model);
@@ -124,6 +143,7 @@ public class MainController {
 			}
 		} else {
 			model.addAttribute("flashMessage","Please login to add student");
+			this.setInDialogue(false,model);
 			return "home";
 		}
 	}
@@ -161,6 +181,7 @@ public class MainController {
 	@GetMapping("/createUser")
 	public String createUser(Model model) {		
 		model.addAttribute("action","createUser");
+		this.setInDialogue(true,model);
 		return "createuser";
 	}
 
@@ -172,6 +193,7 @@ public class MainController {
 		logger.info("An INFO Message");
 		logger.warn("A WARN Message");
 		logger.error("An ERROR Message");
+		this.setInDialogue(false,model);
 		return "home";
 	}
 
@@ -217,16 +239,17 @@ public class MainController {
 				model.addAttribute("action","createUser");
 				model.addAttribute("flashMessage","Passwords do not match");
 				model.addAttribute("editUser",user);
-
+				this.setInDialogue(true,model);
 				return "createuser";
 			}
 		} else {
 			model.addAttribute("flashMessage","User already exists");
 			model.addAttribute("action","createUser");			
 			model.addAttribute("editUser",user);
+			this.setInDialogue(true,model);
 			return "createuser";
 		}
-
+		this.setInDialogue(false,model);
 		return "home";
 	}
 	
@@ -248,6 +271,7 @@ public class MainController {
 			return "calendar";
 		}else {
 				model.addAttribute("flashMessage","Parent must be logged in to perform this action");
+				this.setInDialogue(false,model);
 				return "home";
 			}
 		}
@@ -276,6 +300,7 @@ public class MainController {
 
 			}
 		}
+		this.setInDialogue(false,model);
 		return "home";
 
 	}
@@ -292,15 +317,18 @@ public class MainController {
 					model.addAttribute("formAction","./updatePasswordWithKey");
 					model.addAttribute("userId",userId);
 					model.addAttribute("validationKey",validationKey);
+					this.setInDialogue(true,model);
 					return "changepassword";
 				}
 				else {
 					model.addAttribute("flashMessage","Link out of date");
+					this.setInDialogue(false,model);
 					return "home";
 				}
 			}
 			else {
 				model.addAttribute("flashMessage","Link out of date");
+				this.setInDialogue(false,model);
 				return "home";
 			}
 		}
@@ -316,15 +344,16 @@ public class MainController {
 	public String createClub(Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser != null) {
-			if (loggedOnUser.isAdmin()) {
-				
-						
+			if (loggedOnUser.isAdmin()) {				
+				this.setInDialogue(true,model);
 				return "createclub";
 			} else {
 				this.setupCalendar(model);
 				return "calendar";
 			}
 		} else {
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -341,6 +370,7 @@ public class MainController {
 			@RequestParam(name = "year5", defaultValue="false") boolean yearFiveCanAttend,
 			@RequestParam(name = "year6", defaultValue="false") boolean yearSixCanAttend, Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		this.setInDialogue(false,model);
 		if (loggedOnUser != null) {
 			if (loggedOnUser.isAdmin()) {
 				Club club = new Club(title, description, basePrice, yearRCanAttend, yearOneCanAttend, yearTwoCanAttend, yearThreeCanAttend, yearFourCanAttend, yearFiveCanAttend, yearSixCanAttend); 
@@ -354,6 +384,8 @@ public class MainController {
 			}
 		}
 		else {
+
+
 			return "home";
 		}
 	}	
@@ -376,13 +408,15 @@ public class MainController {
 				
 				Iterable<MenuGroup> menus = menuGroupRepository.findAll();
 				model.addAttribute("menus", menus);				
-				
+				this.setInDialogue(true,model);
+
 				return "createevent";
 			} else {
 				this.setupCalendar(model);
 				return "calendar";
 			}
 		} else {
+			this.setInDialogue(false,model);
 			return "home";
 		}
 	}
@@ -401,6 +435,7 @@ public class MainController {
 			@RequestParam(name = "hiddenPerAttendee") List<Boolean> perAttendee,			
 			Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		this.setInDialogue(false,model);
 		if (loggedOnUser != null) {
 			if (loggedOnUser.isAdmin()) {
 				LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
@@ -471,6 +506,7 @@ public class MainController {
 	public String processLogin(@RequestParam(name = "username") String username,
 			@RequestParam(name = "password") String password, Model model) {
 		List<User> users = userRepository.findByEmail(username);
+		this.setInDialogue(false,model);
 		if (users.size() == 0) {
 			model.addAttribute("flashMessage", "Email or Password Incorrect");
 			return "home";
@@ -520,6 +556,7 @@ public class MainController {
 		else
 		{
 			model.addAttribute("flashMessage","Must be logged out to perform this action");
+			this.setInDialogue(false,model);
 			return "home";
 		}				
 	}
@@ -527,6 +564,7 @@ public class MainController {
 	@GetMapping("/calendarForward")
 
 	public String calendarForward(Model model) {
+		this.setInDialogue(false,model);
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser != null) {			
 			int num = 0;
@@ -549,22 +587,28 @@ public class MainController {
 
 	@GetMapping("/")
 	public String home(Model model) {
-		return "home";
+		this.setInDialogue(false,model);
+	    User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+	    if (loggedOnUser == null) {
+	    	return "home";
+	    }
+	    else {
+			this.setupCalendar(model);
+			return "calendar";
+	    }
 	}
 
 	@GetMapping("/logout")
 	public String home(Model model, SessionStatus status) {
 		status.setComplete();
+		this.setInDialogue(false,model);
+		
 		return "redirect:/";
 	}
 
 	public void calculateFilters(EventDay eventDay, Model model)
 	{
-
-
 	    User loggedOnUser = (User) model.getAttribute("loggedOnUser");
-		
-
 		if (loggedOnUser.isAdmin() ) {		    
 			Boolean onlyMine = (Boolean) model.getAttribute("onlyMine");
 			Integer adminFilter= (Integer) model.getAttribute("adminFilter");
@@ -666,9 +710,14 @@ public class MainController {
 		Boolean unavailable = (Boolean) model.getAttribute("unavailable");
 		Boolean missed = (Boolean) model.getAttribute("missed");
 		Boolean attended = (Boolean) model.getAttribute("attended");
+				 
+		this.setInDialogue(false,model);
+
 		
 		Boolean onlyMine = (Boolean) model.getAttribute("onlyMine");
 		Integer adminFilter= (Integer) model.getAttribute("adminFilter");
+		
+		model.addAttribute("filtersEnabled", Boolean.TRUE);
 		
 		if (attending == null)
 			model.addAttribute("attending", Boolean.TRUE);
@@ -765,11 +814,14 @@ public class MainController {
 			else {
 				model.addAttribute("flashMessage","Passwords do not match");
 				model.addAttribute("formAction","./updatePassword");
+				this.setInDialogue(true,model);
 				return "changepassword";
 			}
 		}
 		else {
 			model.addAttribute("flashMessage","Please login to change your password");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -787,10 +839,14 @@ public class MainController {
 						user.setValidationKey();
 						userRepository.save(user);
 						model.addAttribute("flashMessage","Password has been changed");
+						this.setInDialogue(false,model);
+
 						return "home";
 					}
 					else {
 						model.addAttribute("flashMessage","Link out of date");
+						this.setInDialogue(false,model);
+
 						return "home";
 					}
 				}
@@ -799,16 +855,22 @@ public class MainController {
 					model.addAttribute("formAction","./updatePasswordWithKey");
 					model.addAttribute("userId",userId);
 					model.addAttribute("validationKey",validationKey);
+					this.setInDialogue(true,model);
+
 					return "changepassword";
 				}
 			}
 			else {
 				model.addAttribute("flashMessage","Link out of date");
+				this.setInDialogue(false,model);
+
 				return "home";
 			}
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged out to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -818,10 +880,13 @@ public class MainController {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser != null) {
 			model.addAttribute("formAction","./updatePassword");
+			this.setInDialogue(true,model);
 			return "changepassword";
 		}
 		else {
 			model.addAttribute("flashMessage","Please login to change your password");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 			
@@ -829,6 +894,8 @@ public class MainController {
 
 	@GetMapping("/calendar")
 	public String calendar(Model model) {
+		this.setInDialogue(false,model);
+
 		if (model.getAttribute("loggedOnUser") == null) {
 			return "home";
 		} else {
@@ -855,7 +922,7 @@ public class MainController {
 				model.addAttribute("staff", staff);
 				
 				logger.info("Event stadd are {}", eventToView.getStaff());
-				
+				this.setInDialogue(true,model);
 				return "viewevent";
 			}
 			else {
@@ -866,6 +933,8 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -873,6 +942,8 @@ public class MainController {
 	@GetMapping("/cancelEvent")
 	public String cancelEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		this.setInDialogue(false,model);
+
 		if (loggedOnUser != null) {			
 				eventRepository.deleteById(eventId);
 				this.setupCalendar(model);		
@@ -903,34 +974,142 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
+			return "home";
+		}
+	}
+	
+	@PostMapping("/confirmRegisterForEvent")
+	public String confirmRegisterForEvent(@RequestParam Map<String,String> allParams, Model model) {
+		
+		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		int eventId = Integer.parseInt(allParams.getOrDefault("eventId", "0"));
+		
+		if (loggedOnUser != null) {
+			if (loggedOnUser.isParent()) {
+				User tmpUser = userRepository.findById(loggedOnUser.getUserId()).get();
+				
+				Parent loggedOnParent = tmpUser.getParentObject();
+				Optional<Event> events = eventRepository.findById(eventId);
+				Event event = events.get();
+				
+				int totalCost = 0;
+				int studentCount = 0;
+				Student inEligibleStudent = null;
+				
+				Set<Student> students = loggedOnParent.getStudents();
+				for (Student student : students) {
+					int id = student.getStudentId();
+					String queryParamStudentAttending = "student-".concat(String.valueOf(id)).concat("-Attending"); 
+					if (allParams.getOrDefault(queryParamStudentAttending, "off").equals("on")) {
+						studentCount++;
+						totalCost += event.getClub().getBasePrice();
+						Attendee attendee = new Attendee(AggregateReference.to(eventId), student.getStudentId());
+						student.addAttendee(attendee);
+						if (!event.canAttend(student)) {
+							inEligibleStudent = student;
+						}
+							
+						
+						List <MenuGroup> menuGroups = event.getMenuGroups();
+						for (MenuGroup menuGroup: menuGroups) {							
+							String optionQueryParam = "student-".concat(String.valueOf(student.getStudentId())).concat("-").concat(menuGroup.getName().replace(' ', '-'));
+							String optionValue = allParams.getOrDefault(optionQueryParam, "None");
+							if (!optionValue.equals("None")) {
+								int menuOptionId = Integer.parseInt(optionValue);
+								AttendeeMenuChoice amc = new AttendeeMenuChoice(AggregateReference.to(menuOptionId));
+								attendee.addAttendeeMenuChoice(amc);
+								MenuOption menuOption = menuGroup.getMenuOption(menuOptionId);
+								totalCost += menuOption.getAdditionalCost();									
+							}														
+
+						}						
+					}
+				}				
+				if (inEligibleStudent != null) {
+					model.addAttribute("flashMessage", "Booking failed due to ".concat(inEligibleStudent.getFirstName()).concat(" being ineligible"));
+					this.setupCalendar(model);
+					return "calendar";
+				}
+				else if ((event.getNumberAttendees() + studentCount) <= event.getMaxAttendees()) {
+					if (loggedOnParent.getBalance() >= totalCost) {
+						if (studentCount > 0) {
+							if ( totalCost > 0) {
+								loggedOnParent.addTransaction(new ParentalTransaction(-totalCost,LocalDateTime.now(),ParentalTransaction.Type.PAYMENT, event.getClub().getTitle()));
+							}
+							
+							userRepository.save(tmpUser);
+							model.addAttribute("flashMessage", "Booked Attendance");
+							model.addAttribute("loggedOnUser", tmpUser);
+							
+							Student selectedStudent = (Student) model.getAttribute("selectedStudent");
+							model.addAttribute("selectedStudent", loggedOnParent.getStudentFromId(selectedStudent.getStudentId()));
+							
+						}
+						else {
+							model.addAttribute("flashMessage", "No students selected for booking.");
+						}
+						
+						this.setupCalendar(model);
+						return "calendar";
+					}
+					else {
+						model.addAttribute("flashMessage", "Not enough funds to attend this event. Please top up your account.");
+						this.setupCalendar(model);
+						return "calendar";
+					}
+				}
+				else {
+					model.addAttribute("flashMessage", "Booking failed due to maximum attendees exceeded.");
+					this.setupCalendar(model);
+					return "calendar";					
+				}
+			}
+					
+			else {
+				model.addAttribute("flashMessage","Must be a parent to perform this action");
+				this.setupCalendar(model);
+				return "calendar";
+			}
+		}
+		else {
+			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
 	
 	@GetMapping("/registerForEvent")
-	public String registerForEvent(@RequestParam (name="eventId") int eventId, Model model) {
+	public String registerForEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser != null) {
 			if (loggedOnUser.isParent()) {
-				Parent loggedOnParent = loggedOnUser.getParentObject();
-				Optional<Event> events = eventRepository.findById(eventId);
-				Event event = events.get();
-				if (loggedOnParent.getBalance() >= event.getClub().getBasePrice()) {
+				Optional<Event> event = eventRepository.findById(eventId);
+				if (event.isPresent()) {					
+					Event eventToView = event.get();
 					Student selectedStudent = (Student) model.getAttribute("selectedStudent");
-					Attendee attendee = new Attendee(AggregateReference.to(eventId), selectedStudent.getStudentId());
-					selectedStudent.addAttendee(attendee);
-					loggedOnParent.alterBalance(-(event.getClub().getBasePrice()));
-					loggedOnParent.addTransaction(new ParentalTransaction(-(event.getClub().getBasePrice()),LocalDateTime.now(),ParentalTransaction.Type.PAYMENT, event.getClub().getTitle()));
-					userRepository.save(loggedOnUser);
-					model.addAttribute("flashMessage", "Registered For Event");
-					this.setupCalendar(model);
-					return "calendar";
-				} else {
-					model.addAttribute("flashMessage", "Not enough balance to attend this event");
+
+					model.addAttribute("eventToView",eventToView);
+					model.addAttribute("selectedStudent",selectedStudent);
+					
+					List<User> staff = userRepository.findStaffByEventId(eventToView.getEventId());
+					model.addAttribute("staff", staff);
+					
+					model.addAttribute("parent", loggedOnUser.getParentObject());
+				
+					
+					logger.info("Event stadd are {}", eventToView.getStaff());
+					this.setInDialogue(true,model);
+
+					return "registerforEvent";
+				}
+				else {
+					model.addAttribute("flashMessage","Event does not exist");
 					this.setupCalendar(model);
 					return "calendar";
 				}
-				
 			}
 			else {
 				model.addAttribute("flashMessage","Must be a parent to perform this action");
@@ -940,24 +1119,32 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
 	
+	
+	
+	
 	@GetMapping("/deregisterForEvent")
 	public String deregisterForEvent(@RequestParam (name="eventId") int eventId, Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		this.setInDialogue(false,model);
+
 		if (loggedOnUser != null) {
 			if (loggedOnUser.isParent()) {
 				Optional<Event> events = eventRepository.findById(eventId);
 				Event event = events.get();
 				Parent loggedOnParent = loggedOnUser.getParentObject();
 				Student selectedStudent = (Student) model.getAttribute("selectedStudent");
+				int cost = selectedStudent.getCostOfEvent(event);
 				selectedStudent.deregister(eventId);
-				loggedOnParent.alterBalance(event.getClub().getBasePrice());
-				loggedOnParent.addTransaction(new ParentalTransaction(event.getClub().getBasePrice(),LocalDateTime.now(), ParentalTransaction.Type.REFUND, event.getClub().getTitle()));
+				
+				loggedOnParent.addTransaction(new ParentalTransaction(cost,LocalDateTime.now(), ParentalTransaction.Type.REFUND, event.getClub().getTitle()));
 				userRepository.save(loggedOnUser);
-				model.addAttribute("flashMessage","Deregistered For Event");
+				model.addAttribute("flashMessage","Cancelled Booking and Account Refunded.");
 				this.setupCalendar(model);
 				return "calendar";
 				
@@ -978,6 +1165,8 @@ public class MainController {
 	public String forgotPassword(Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser == null) {
+			this.setInDialogue(true,model);
+
 			return "forgottenpassword";
 		}
 		else {
@@ -990,6 +1179,8 @@ public class MainController {
 	@PostMapping("/resetPassword")
 	public String resetPassword(@RequestParam (name="email") String email, Model model) {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
+		this.setInDialogue(false,model);
+
 		if (loggedOnUser == null) {
 			List<User> users = userRepository.findByEmail(email);
 			if (users != null && users.size() > 0) {
@@ -1043,6 +1234,8 @@ public class MainController {
 						
 					}
 					model.addAttribute("event",event.get());
+					this.setInDialogue(true,model);
+
 					return "takeregister";
 				}
 				else {
@@ -1059,6 +1252,8 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1119,6 +1314,8 @@ public class MainController {
 			if (loggedOnUser.isParent()) {
 				Student student = loggedOnUser.getParentObject().getStudentFromId(studentId);
 				model.addAttribute("student",student);
+				this.setInDialogue(true,model);
+
 				return "createmedicalnote";
 			}
 			else {
@@ -1129,6 +1326,8 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1152,6 +1351,8 @@ public class MainController {
 						
 					}
 					model.addAttribute("event",event.get());
+					this.setInDialogue(true,model);
+
 					return "createincident";
 				}
 				else {
@@ -1169,6 +1370,8 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1211,6 +1414,8 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1273,6 +1478,8 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1336,6 +1543,8 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1370,6 +1579,7 @@ public class MainController {
 		User loggedOnUser = (User) model.getAttribute("loggedOnUser");
 		if (loggedOnUser != null) {
 			if (loggedOnUser.isParent()) {
+				this.setInDialogue(true,model);
 
 				return "topup";
 			} else {
@@ -1379,6 +1589,8 @@ public class MainController {
 			}
 		} else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1420,6 +1632,8 @@ public class MainController {
 				model.addAttribute("openingBalance",openingBalanceStr);
 				model.addAttribute("closingBalance",closingBalanceStr);
 				model.addAttribute("transactions",transactions);
+				this.setInDialogue(true,model);
+
 				return "viewtransactions";
 			} else {
 				model.addAttribute("flashMessage","Must be a parent to perform this action");
@@ -1428,6 +1642,8 @@ public class MainController {
 			}
 		} else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1446,6 +1662,8 @@ public class MainController {
 					start = start.minusMonths(1);
 				}
 				model.addAttribute("transactionMonth",start);
+				this.setInDialogue(true,model);
+
 				return "redirect:./viewTransactions";
 			} else {
 				model.addAttribute("flashMessage","Must be a parent to perform this action");
@@ -1454,6 +1672,8 @@ public class MainController {
 			}
 		} else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1472,6 +1692,8 @@ public class MainController {
 					start = start.plusMonths(1);
 				}
 				model.addAttribute("transactionMonth",start);
+				this.setInDialogue(true,model);
+
 				return "redirect:./viewTransactions";
 			} else {
 				model.addAttribute("flashMessage","Must be a parent to perform this action");
@@ -1480,6 +1702,8 @@ public class MainController {
 			}
 		} else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1491,6 +1715,8 @@ public class MainController {
 			if (loggedOnUser.isParent()) {
 				model.addAttribute("action","updateUser");
 				model.addAttribute("editUser", loggedOnUser);
+				this.setInDialogue(true,model);
+
 				return "createuser";
 			} else {
 				model.addAttribute("flashMessage","Must be a parent to perform this action");
@@ -1499,6 +1725,8 @@ public class MainController {
 			}
 		} else {
 			model.addAttribute("flashMessage","Must be logged in to perform this action");
+			this.setInDialogue(false,model);
+
 			return "home";
 		}
 	}
@@ -1566,7 +1794,7 @@ public class MainController {
 						
 						String amount = transaction.getAmount().getTotal();
 						int amountInPence  = (int)Double.parseDouble(amount) * 100;
-		        		loggedOnParent.alterBalance(amountInPence);
+		        		
 		        		loggedOnParent.addTransaction(new ParentalTransaction(amountInPence, paymentDateTime,ParentalTransaction.Type.DEPOSIT, "Paypal"));
 	
 		        		//TODO need to add paypal reference in transaction 
@@ -1589,6 +1817,8 @@ public class MainController {
     	}
     	else {
 			model.addAttribute("flashMessage","Need to be logged on to process a payment");
+			this.setInDialogue(false,model);
+
     		return "home";
     	}
     }
@@ -1626,7 +1856,8 @@ public class MainController {
 				model.addAttribute("amount",  n.format(amountInPence / 100.0));
 				
 	        	logger.info("Amount in pence {}", amountInPence);
-	
+				this.setInDialogue(true,model);
+
 		        
 		        return "reviewPayment";
     		}  catch (PayPalRESTException e) {
@@ -1640,25 +1871,30 @@ public class MainController {
     	}
     	else {
 			model.addAttribute("flashMessage","Need to be logged on to process a payment");
+			this.setInDialogue(false,model);
+
     		return "home";
     	}
     }
     
     @GetMapping("/paymentcancel")
     public String paymentCancel(Model model) {
+		this.setInDialogue(false,model);
+
 		model.addAttribute("flashMessage","Payment Cancelled");
     	User loggedOnUser = (User) model.getAttribute("loggedOnUser");    	
     	if (loggedOnUser != null) {		
     		this.setupCalendar(model);
     		return "calendar";
     	}
-    	else {			
+    	else {		
     		return "home";
     	}
     }
 
     @GetMapping("/paymenterror")
     public String paymentError(Model model) {
+		this.setInDialogue(false,model);
 		model.addAttribute("flashMessage","Payment Error");
     	User loggedOnUser = (User) model.getAttribute("loggedOnUser");    	
     	if (loggedOnUser != null) {		
@@ -1680,6 +1916,9 @@ public class MainController {
             
     		Model model) 
     {
+		this.setInDialogue(false,model);
+
+
     	User loggedOnUser = (User) model.getAttribute("loggedOnUser");    	
     	if (loggedOnUser != null) {	    	
 			if (attending == null)
@@ -1718,6 +1957,7 @@ public class MainController {
             @RequestParam(name="adminFilter") Integer adminFilter,
     		Model model) 
     {
+		this.setInDialogue(false,model);
     	User loggedOnUser = (User) model.getAttribute("loggedOnUser");    	
     	if (loggedOnUser != null) {	    	
 	    	if (onlyMine == null)

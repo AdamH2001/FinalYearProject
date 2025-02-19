@@ -42,5 +42,9 @@ public class Attendee {
 		incidents.add(incident);
 	}
 	
+	public void addAttendeeMenuChoice(AttendeeMenuChoice choice) {
+		menuChoices.add(choice);
+	}
+	
 	
 }

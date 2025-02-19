@@ -19,9 +19,9 @@
 	<div class="container-fluid height">
 		<div class="row flex-nowrap">
 			<div th:replace="~{fragments/leftnav :: leftnav}"></div>
+			<div class="container-fluid col-sm-10">
 
-			<form action="./addClub" method="post"
-				style="border: 1px solid black">
+			<form action="./addClub" method="post">
 				<div class="col py-3">
 
 					<div class="row mb-2">
@@ -78,14 +78,15 @@
 				</div>
 				<div class="row mb-2">
 					<div class="col-sm-4" align="right">
-						<a href="./calendar" class="btn btn-secondary" role="button">Cancel</a>
+						<button class="btn btn-primary" name="submit">Create</button>
 					</div>
 					<div class="col-sm-4" align="left">
-						<button class="btn btn-primary" name="submit">Submit</button>
-					</div>
+						<a href="./calendar" class="btn btn-secondary" role="button">Cancel</a>
+					</div>					
 				</div>
 			</form>
 		</div>
+</div>		
 	</div>
 	
 	<div th:replace="~{fragments/footer :: footer}"></div>

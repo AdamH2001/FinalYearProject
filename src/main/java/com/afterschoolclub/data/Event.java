@@ -7,6 +7,7 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
 import com.afterschoolclub.data.repository.ClubRepository;
+import com.afterschoolclub.data.repository.MenuGroupRepository;
 import com.afterschoolclub.data.repository.ResourceRepository;
 
 import java.time.LocalDateTime;
@@ -31,7 +32,9 @@ import lombok.ToString;
 public class Event {
 	public static ClubRepository clubRepository = null;
 	public static ResourceRepository resourceRepository = null;
+	public static MenuGroupRepository menuGroupRepository = null;
 
+	
 	@Id
 	private int eventId;
 		
@@ -58,6 +61,9 @@ public class Event {
 	
 	@Transient
 	private transient List<Resource> staff = null; 
+
+	@Transient
+	private transient List<MenuGroup> menuGroups = null; 
 	
 
 	
@@ -82,6 +88,8 @@ public class Event {
 		this.endDateTime = endDateTime;
 		this.maxAttendees = maxAttendees;
 		this.eventClub=null;
+		
+		
 	}
 	
 	/**
@@ -189,6 +197,14 @@ public class Event {
 		return staff;
 	}
 	
+	public List<MenuGroup> getMenuGroups() {
+		if (menuGroups == null) {
+			menuGroups = menuGroupRepository.findByEventId(eventId);		
+		}
+		return menuGroups;
+	}
+	
+	
 	//TODO why do we do it this way 
 	
 	public boolean requiresStaff(int resourceId) {
@@ -236,7 +252,7 @@ public class Event {
 	{
 		boolean result = this.getClub().isEligible(student);
 			
-		if (this.inPast())
+		if (this.endInPast())
 			result = false;
 		
 		if (this.getMaxAttendees() <= this.getAttendees().size() && !student.isAttendingEvent(this))
@@ -250,6 +266,16 @@ public class Event {
 	public boolean inPast()
 	{
 		return this.getStartDateTime().isBefore(LocalDateTime.now());
+	}
+	
+	public boolean endInPast()
+	{
+		return this.getEndDateTime().isBefore(LocalDateTime.now());
+	}
+	
+	public boolean isNow()
+	{
+		return this.getStartDateTime().isBefore(LocalDateTime.now()) && this.getEndDateTime().isAfter((LocalDateTime.now()));
 	}
 	
 	public boolean registered(Student student)
@@ -274,5 +300,21 @@ public class Event {
 	public boolean isFullyBooked()
 	{
 		return this.getMaxAttendees() <= this.getNumberAttendees();
-	}		
+	}
+	
+	public int getOptionCost(int optionId)
+	{
+		int optionCost = 0;
+
+		List <MenuGroup> menuGroups = getMenuGroups();
+		for (MenuGroup menuGroup: menuGroups) {											
+			MenuOption menuOption = menuGroup.getMenuOption(optionId);
+			if (menuOption != null) {					
+				optionCost = menuOption.getAdditionalCost();
+			}
+		}														
+					
+		return optionCost;
+	}
+	
 }

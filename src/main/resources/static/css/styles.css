@@ -308,8 +308,51 @@ afterschoolheader {
 }
 
 
+.formlabel {
+	font-weight: bold;
+}
 
-a:link {
-  color: white;
+
+
+.studentContainer {
+	display: none;
+	border: 1px solid;
+	border-color: rgb(222,222,222)
+}
+
+
+.nav-tabs .nav-item .nav-link {
+	 background-color: #FFF;
+	 color: #0080FF;
+	 border-color: rgb(222,222,222)
+  
+}
+
+.nav-tabs .nav-item .nav-link.active {
+	 background-color: #0080FF;
+	 color: #FFF;  
+}
+
+.nav-tabs .nav-item .nav-link.disabled {
+	background-color: rgb(200,200,200);
+	color: #FFF;  
+}
+
+.FilterCheck.disabled {
+	 background-color: transparent;
+	 color: #6c757d;   
+}
+
+.FilterRadio.disabled {
+	background-color: transparent;
+	color: #6c757d;  
+}
+
+.tab-content .tab-pane {
+  	background-color: #FFF;
+  	color: #0080FF;
+	border-color: rgb(222,222,222)
 
 }
+
+

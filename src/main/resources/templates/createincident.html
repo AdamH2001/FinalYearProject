@@ -20,12 +20,12 @@
 		<div class="row flex-nowrap">
 			<div th:replace="~{fragments/leftnav :: leftnav}"
 				class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark"></div>
-				
-				
-			<form action="./addIncident" method="post" style="border: 1px solid black">
+	<div class="container-fluid col-sm-10">
+
+			<form action="./addIncident" method="post">
 				<div class="col py-3">
 					<h1 align="center">
-						Create Incident for <span th:text="${event.getClub().getTitle()}"></span>
+						Report Incident for <span th:text="${event.getClub().getTitle()}"></span>
 					</h1>
 					<div class="row mb-2">
 						<div class="col-sm-2" align="center">
@@ -51,16 +51,18 @@
 
 				</div>
 				<div class="row mb-2">
+
 					<div class="col-sm-6" align="right">
-						<a href="./calendar" class="btn btn-secondary" role="button">Cancel</a>
-					</div>
-					<div class="col-sm-6" align="left">
 						<button class="btn btn-primary" name="submit">Submit</button>
 					</div>
+					<div class="col-sm-6" align="left">
+						<a href="./calendar" class="btn btn-secondary" role="button">Cancel</a>
+					</div>					
 				</div>
 			</form>
 		</div>
 		</div>
+</div>		
 		<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

@@ -21,13 +21,14 @@
 			<div th:replace="~{fragments/leftnav :: leftnav}"
 				class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark"></div>
 				
+			<div class="container-fluid col-sm-10">
 				
-			<form th:action="${action.equals('createUser')}? './addNewUser' : './saveUserDetails'" method="post" style="border: 1px solid black">
+			<form th:action="${action.equals('createUser')}? './addNewUser' : './saveUserDetails'" method="post">
 			<div class="col py-3">
 
 				<div class="row mb-2">
 					<div class="col-sm-6" align="right">
-						<h1 th:if="${action} == 'createUser'" align="center">Register User</h1>
+						<h1 th:if="${action} == 'createUser'" align="center">New User</h1>
 						<h1 th:if="${action} == 'updateUser'" align="center">Update Profile</h1>					
 					</div>
 				</div>
@@ -111,14 +112,16 @@
 				</div>
 				<div class="row mb-2">
 					<div class="col-sm-3" align="right">
+						<button class="btn btn-primary" name="submit">Submit</button>
+					</div>
+				
+					<div class="col-sm-3" align="left">
 						<a th:if="${action} == 'createUser'" href="./" class="btn btn-secondary" role="button">Cancel</a>
 						<a th:if="${action} == 'updateUser'" href="./calendar" class="btn btn-secondary" role="button">Cancel</a>
 					</div>
-					<div class="col-sm-3" align="left">
-						<button class="btn btn-primary" name="submit">Submit</button>
-					</div>
 				</div>
 			</form>
+		</div>
 		</div>
 		</div>
 		<div th:replace="~{fragments/footer :: footer}"></div>

@@ -1,4 +1,7 @@
 package com.afterschoolclub.data;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import org.springframework.data.annotation.Id;
 
 import org.springframework.data.relational.core.mapping.Column;
@@ -98,5 +101,67 @@ public class Club {
 		}
 		return result; 
 	}
+	
+	public String getFormattedBasePrice() {
+		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
+		return n.format(basePrice / 100.0);
+	}
+	
+	
 		
+	public String getSuitableFor()
+	{
+		String result = "";
+		if (yearRCanAttend && year1CanAttend && year2CanAttend && year3CanAttend && year4CanAttend && year5CanAttend && year6CanAttend)
+			result = "Everyone";
+		else {
+			if (yearRCanAttend) {
+				result = "Year R";
+			}			
+			if (year1CanAttend) {
+				if (result.length() > 0) {
+					result = result.concat(", ");
+				}
+				result = result.concat("Year 1");
+			}
+			if (year2CanAttend) {
+				if (result.length() > 0) {
+					result = result.concat(", ");
+				}
+				result = result.concat("Year 2");
+			}
+			if (year3CanAttend) {
+				if (result.length() > 0) {
+					result = result.concat(", ");
+				}
+				result = result.concat("Year 3");
+			}
+			if (year4CanAttend) {
+				if (result.length() > 0) {
+					result = result.concat(", ");
+				}
+				result = result.concat("Year 4");
+			}		
+			if (year5CanAttend) {
+				if (result.length() > 0) {
+					result = result.concat(", ");
+				}
+				result = result.concat("Year 5");
+			}		
+			if (year6CanAttend) {
+				if (result.length() > 0) {
+					result = result.concat(", ");
+				}
+				result = result.concat("Year 6");
+			}				
+			int index = result.lastIndexOf(", ");
+			if (index != -1) {
+				result = result.substring(0, index).concat(" and ").concat(result.substring(index+2));
+			}
+			result = result.concat(" only");
+		}
+		return result;
+		
+			
+	}	
 }

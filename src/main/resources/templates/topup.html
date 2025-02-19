@@ -21,14 +21,16 @@
 			<div th:replace="~{fragments/leftnav :: leftnav}"
 				class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark"></div>
 
+			<div class="container-fluid col-sm-10">
 
-			<form action="./paymentcreate" method="post"
-				style="border: 1px solid black">
+
+			<form action="./paymentcreate" method="post">
+			
 				<div class="col py-3">
 
 					<div class="row mb-2">
 						<div class="col-sm-8" align="center">
-							<h1 align="center">Top Up Balance</h1>
+							<h1 align="center">Add Funds</h1>
 						</div>
 					</div>
 					<div class="row mb-2">&nbsp;</div>
@@ -117,9 +119,11 @@
 						
 					</div>
 				</div>
+				
 			</form>
-
-
+		
+			</div>
+		
 		</div>
 	</div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
