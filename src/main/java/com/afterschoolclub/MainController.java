@@ -1144,7 +1144,7 @@ public class MainController {
 				
 				loggedOnParent.addTransaction(new ParentalTransaction(cost,LocalDateTime.now(), ParentalTransaction.Type.REFUND, event.getClub().getTitle()));
 				userRepository.save(loggedOnUser);
-				model.addAttribute("flashMessage","Cancelled Booking and Account Refunded.");
+				model.addAttribute("flashMessage","Cancelled booking for ".concat(selectedStudent.getFirstName()).concat(" and account refunded."));
 				this.setupCalendar(model);
 				return "calendar";
 				
