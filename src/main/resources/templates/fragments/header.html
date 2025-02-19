@@ -64,8 +64,8 @@
 							th:text="${loggedOnUser.getParentObject().getFormattedBalance()}">0</span>
 					</div>
 
-					<div th:if="${selectedStudent} != null and ${loggedOnUser.isParent()}" class="col-sm-2 d-flex align-items-center"> Sessions Booked: &nbsp;
-						<span th:text="${selectedStudent.getAttendees()?.size()}">0</span>
+					<div th:if="${selectedStudent} != null and ${loggedOnUser.isParent()}" class="col-sm-2 d-flex align-items-center"> Sessions Booked for&nbsp; <span th:text="${selectedStudent.getFirstName()+': '+selectedStudent.getAttendees()?.size()}"></span>
+						
 					</div>		
 					
 					<div th:if="${loggedOnUser.isAdmin()}" class="col-sm-2 d-flex align-items-center">
