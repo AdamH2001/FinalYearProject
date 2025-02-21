@@ -89,6 +89,8 @@ public class Parent {
 		return n.format(this.getBalance() / 100.0);
 	}
 	
-		
+	public boolean hasChildren() {
+		return this.getStudents().size() > 0;		
+	}
 		
 }

@@ -63,7 +63,7 @@ public class Student {
 	}
 	
 	public boolean isAttendingEvent(Event event) {
-		return this.findAttendee(event.getEventId()) != null;
+		return this.getAttendee(event.getEventId()) != null;
 	}
 	
 	public void addAttendee(Attendee attendee) {
@@ -75,13 +75,13 @@ public class Student {
 	}
 	
 	public void deregister(int eventId) {
-		Attendee attendee = this.findAttendee(eventId);
+		Attendee attendee = this.getAttendee(eventId);
 		if (attendee != null) {
 			attendees.remove(attendee);
 		}
 	}
 	
-	public Attendee findAttendee(int eventId) {
+	public Attendee getAttendee(int eventId) {
 		Attendee result = null;
 		Iterator<Attendee> attendeeIterator = attendees.iterator();
 		
@@ -92,6 +92,10 @@ public class Student {
 		}
 		return result;
 	}
+	
+	public Attendee getAttendee(Event event) {		
+		return getAttendee(event.getEventId());
+	}	
 
 	public StudentClass getStudentClass() {
 		if (studentClass == null) {
@@ -110,15 +114,31 @@ public class Student {
 	
 	public int getCostOfEvent(Event event) {
 		int totalCost = 0;				
-		totalCost += event.getClub().getBasePrice();		
-		Attendee attendee = findAttendee(event.getEventId());
-		
-		Set <AttendeeMenuChoice> menuChoices = attendee.getMenuChoices();
-		for (AttendeeMenuChoice amc: menuChoices ) {
-			totalCost +=event.getOptionCost(amc.getMenuOptionId().getId());
+		Attendee attendee = getAttendee(event.getEventId());
+		if (attendee != null) {
+			totalCost += event.getClub().getBasePrice();					
+			Set <AttendeeMenuChoice> menuChoices = attendee.getMenuChoices();
+			for (AttendeeMenuChoice amc: menuChoices ) {
+				totalCost +=event.getOptionCost(amc.getMenuOptionId().getId());
+			}
 		}
 		return totalCost;
 	}
 	
+	public boolean chosenMenuOptionForEvent(Event event, int menuOptionId) {
+		boolean result = false;				
+				
+		Attendee attendee = getAttendee(event.getEventId());
+		if (attendee != null) {
+			Set <AttendeeMenuChoice> menuChoices = attendee.getMenuChoices();
+			Iterator <AttendeeMenuChoice> iterator = menuChoices.iterator();
+			while (iterator.hasNext() && !result) {
+				result = iterator.next().getMenuOptionId().getId() == menuOptionId;
+			}
+		}
+		return result;		
+	}
+
+
 	
 }

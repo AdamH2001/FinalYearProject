@@ -98,11 +98,11 @@ public class User {
 	}
 	
 
-	public Parent getParentObject() {
-		Parent result = null;
+	public Parent getParent() {
+		Parent parent = null;
 		if (this.isParent())
-			result = (Parent) this.parent.toArray()[0];
-		return result;
+			parent = (Parent) this.parent.toArray()[0];
+		return parent;
 	}
 	
 	public Administrator getAdministratorObject() {

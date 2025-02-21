@@ -46,5 +46,9 @@ public class Attendee {
 		menuChoices.add(choice);
 	}
 	
+	public void clearAttendeeMenuChoices() {
+		menuChoices.clear();
+	}	
+	
 	
 }

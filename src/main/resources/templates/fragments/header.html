@@ -15,9 +15,8 @@
 	<div th:fragment="header" class="bg-navafterschoolclub afterschoolheader text-afterschoolwhite">
 
 
-		<div th:switch="${loggedOnUser}" class="container-fluid"
-			style="width: 100%;">
-			<div th:case="null" class="row">
+		<div  class="container-fluid" style="width: 100%;">
+			<div th:unless="${sessionBean.isLoggedOn()}" class="row">
 				<div class="text-afterschoolclubmainheader col-sm-9">After School Club</div>
 				
 				<div class="col-sm-3">
@@ -54,24 +53,24 @@
 			</div>
 
 
-			<div th:case="*" class="container-fluid" style="width: 100%;">
+			<div th:if="${sessionBean.isLoggedOn()}" class="container-fluid" style="width: 100%;">
 
 				<div class=row>
 					<div class="col-sm-6 text-afterschoolclubmainheader">After School Club</div>
 
-					<div th:if="${loggedOnUser.isParent()}" class="col-sm-2 d-flex align-items-center">
+					<div th:if="${sessionBean.isParentLoggedOn()}" class="col-sm-2 d-flex align-items-center">
 						Balance: &nbsp;<span
-							th:text="${loggedOnUser.getParentObject().getFormattedBalance()}">0</span>
+							th:text="${sessionBean.getLoggedOnParent().getFormattedBalance()}">0</span>
 					</div>
 
-					<div th:if="${selectedStudent} != null and ${loggedOnUser.isParent()}" class="col-sm-2 d-flex align-items-center"> Sessions Booked for&nbsp; <span th:text="${selectedStudent.getFirstName()+': '+selectedStudent.getAttendees()?.size()}"></span>
+					<div th:if="${sessionBean.getSelectedStudent()} != null and ${sessionBean.isParentLoggedOn()}" class="col-sm-2 d-flex align-items-center"> Sessions Booked for&nbsp; <span th:text="${sessionBean.getSelectedStudent().getFirstName()+': '+sessionBean.getSelectedStudent().getAttendees()?.size()}"></span>
 						
 					</div>		
 					
-					<div th:if="${loggedOnUser.isAdmin()}" class="col-sm-2 d-flex align-items-center">
+					<div th:if="${sessionBean.isAdminLoggedOn()}" class="col-sm-2 d-flex align-items-center">
 						Admin info: &nbsp;<span>0</span>
 					</div>
-					<div th:if="${loggedOnUser.isAdmin()}" class="col-sm-2 d-flex align-items-center">
+					<div th:if="${sessionBean.isAdminLoggedOn()}" class="col-sm-2 d-flex align-items-center">
 						More info: &nbsp;<span>0</span>
 					</div>					
 
@@ -82,7 +81,7 @@
 								id="dropdownUser1" data-bs-toggle="dropdown"
 								aria-expanded="false"> <img src="https://github.com/mdo.png"
 								alt="hugenerd" width="30" height="30" class="rounded-circle">
-								<span th:text="${loggedOnUser?.getFullName()}"
+								<span th:text="${sessionBean.getLoggedOnUser().getFullName()}"
 								class="d-none d-sm-inline mx-1"></span>
 							</a>
 							<ul class="dropdown-menu dropdown-menu-dark text-small shadow"

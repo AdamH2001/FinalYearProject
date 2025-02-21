@@ -317,4 +317,9 @@ public class Event {
 		return optionCost;
 	}
 	
+	public boolean hasOptions()
+	{									
+		return (eventMenus != null) && (eventMenus.size() > 0);
+	}	
+	
 }

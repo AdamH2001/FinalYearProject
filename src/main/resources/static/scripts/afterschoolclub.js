@@ -11,8 +11,23 @@ let pounds = Intl.NumberFormat('en-GB', {
 function refreshBookingSummary() {
 	
 	var hiddenTotals =  document.getElementsByClassName("hiddenTotal");
+	var hiddenOriginalTotals =  document.getElementsByClassName("hiddenOriginalTotal");
+	var viewOnly = document.getElementById("viewOnly") != null;
 	var proposedAttendees = 0;
-
+	var editingOptions = hiddenOriginalTotals.length > 0;
+	var totalOriginalCost = 0;
+	
+	for (i = 0; i<hiddenOriginalTotals.length; i++) {
+		var total = hiddenOriginalTotals[i];
+				
+		var originalCostTextId = total.id.replace("-TotalHiddenOriginalCost",  "-TotalOriginalCost");
+		var textContainer = document.getElementById(originalCostTextId);		
+		if (textContainer != null) {
+			textContainer.innerText = pounds.format(Number(total.value)/100);
+		}		
+		totalOriginalCost += Number(total.value)			
+	}	
+	
 	for (i = 0; i<hiddenTotals.length; i++) {
 		var total = hiddenTotals[i];
 		var attendingId = total.id.replace("-TotalHiddenCost",  "-Attending");
@@ -37,11 +52,13 @@ function refreshBookingSummary() {
 		}		
 	}
 	
-	if (proposedAttendees == 0) {
-		document.getElementById("submitButton").disabled=true;
-	}
-	else {
-		document.getElementById("submitButton").disabled=false;
+	if (document.getElementById("submitButton") != null) {	
+		if (proposedAttendees == 0) {
+			document.getElementById("submitButton").disabled=true;
+		}
+		else {
+			document.getElementById("submitButton").disabled=false;
+		}
 	}
 	
 	var childTotals =  document.getElementsByClassName("childTotal");
@@ -59,8 +76,16 @@ function refreshBookingSummary() {
 		var attendingControl = document.getElementById(attendingId);
 		
 		if (attendingControl.checked) {
-			option.disabled=false;	
-			option.readOnly=false;		
+			if (viewOnly) {
+				option.disabled=true;	
+				option.readOnly=true;
+			}
+			else
+			{
+				option.disabled=false;	
+				option.readOnly=false;
+				
+			}		
 			if (option.checked) {
 				var hiddenId = option.id.substring(0, option.id.indexOf("-Option")) + "-TotalHiddenCost";
 				var totalHidden = document.getElementById(hiddenId);				
@@ -90,6 +115,17 @@ function refreshBookingSummary() {
 		
 	}
 	
+	if (editingOptions) {
+		overAllTotal -= totalOriginalCost;
+		if (overAllTotal < 0) {
+			document.getElementById("totalDifferenceLabel").innerText = "Total Reduction Of:";
+			overAllTotal *= -1;			
+		}
+		else {
+			document.getElementById("totalDifferenceLabel").innerText = "Total Increase Of:";
+		}
+	}
+		
 	document.getElementById("totalCost").innerText = pounds.format(overAllTotal/100);
 	document.getElementById("totalHiddenCost").value = overAllTotal;
 	

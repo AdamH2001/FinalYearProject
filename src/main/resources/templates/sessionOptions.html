@@ -26,15 +26,22 @@
 				
 			<div class="container-fluid col-sm-10">
 				<div class="row mb-2 col-sm-12">
-						<h1 align="center">Book <span th:text="${eventToView.getClub().getTitle()}"></span></h1>
-				</div>	
+				
+						
+						<h1 th:if="${editOptions}" align="center">Update <span th:text="${eventToView.getClub().getTitle()}"></span> Options</h1>
+						<h1 th:unless="${editOptions or viewOnly}" align="center">Book <span th:text="${eventToView.getClub().getTitle()}"></span> Session</h1>
+						<h1 th:if="${viewOnly}" align="center">View <span th:text="${eventToView.getClub().getTitle()}"></span> Session</h1>
+						
+				</div>
+					
 				
 				
-			<form action="confirmRegisterForEvent" method="post">
+			<form th:action="${editOptions ? 'confirmUpdateOptionsForSession' : 'confirmRegisterForEvent'}" method="post">
 			<div class="container-fluid row col-sm-12">
 			
 				<input id="basePrice" type="hidden" name="basePrice" th:value="${eventToView.getClub().getBasePrice()}" />
 				<input id="basePrice" type="hidden" name="eventId" th:value="${eventToView.getEventId()}" />
+				<input th:if="${viewOnly}" id="viewOnly" type="hidden" name="eventId" value="${viewOnly}" />
 				
 				<div class="row mb-2">&nbsp;</div>
 								
@@ -95,8 +102,7 @@
 					<div class="col-sm-10" th:text="${eventToView.getClub().getDescription()}"> </div>
 				</div>
 				
-				<div class="row mb-2">&nbsp;</div>
-					
+				<div class="row mb-2">&nbsp;</div>					
 				
 				</div>
 				<div class="container-fluid row col-sm-12">
@@ -107,9 +113,15 @@
 							<li class="nav-item nav-item" th:each="student : ${parent.getStudents()}">
 							
 							
-							    <a th:class="${displayHelper.getStudentClass(selectedStudent, student, eventToView)+'nav-link studentTab'}" aria-current="page" th:id="${'student-'+student.getStudentId()}" th:href="${'javascript:activateStudent(&quot;student-'+ student.getStudentId()+'&quot;)'}" >
-							    	<span th:text="${student.getFullName()}"></span>&nbsp;&nbsp;<input type="checkbox" th:checked="${student.equals(selectedStudent)}" th:id="${'student-'+student.getStudentId()+'-Attending'}" th:name="${'student-'+student.getStudentId()+'-Attending'}" onChange="changedAttendance(this)"/>
+							    <a th:class="${displayHelper.getStudentClass(sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly)+'nav-link studentTab'}" aria-current="page" th:id="${'student-'+student.getStudentId()}" th:href="${'javascript:activateStudent(&quot;student-'+ student.getStudentId()+'&quot;)'}" >
+							    	<span th:text="${student.getFullName()}"></span>&nbsp;&nbsp;<input type="checkbox" th:disabled="${viewOnly or editOptions or eventToView.registered(student)}" 
+							    	th:checked="${displayHelper.checkedStudent(sessionBean.getSelectedStudent(), student, eventToView, true, viewOnly)}" th:id="${'student-'+student.getStudentId()+'-Attending'}" th:name="${'student-'+student.getStudentId()+'-Attending'}" onChange="changedAttendance(this)"/>							    	
+							    	
+							    	<input th:if="${editOptions}" type=hidden th:name="${'student-'+student.getStudentId()+'-Attending'}"  th:value="${displayHelper.hiddenCheckedStudent(sessionBean.getSelectedStudent(), student, eventToView, true, viewOnly)}">
+							    	
 							    	<input class="hiddenTotal" type="hidden" th:name="${'student-'+student.getStudentId() + '-TotalHiddenCost'}"  th:id="${'student-'+student.getStudentId() + '-TotalHiddenCost'}"/>
+							    	<input th:if="${editOptions}" class="hiddenOriginalTotal" type="hidden" th:name="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"  th:value="${student.getCostOfEvent(eventToView)}" th:id="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"/>
+							    	
 							    </a>							   					    
 							  </li>							
 							</ul>
@@ -141,7 +153,11 @@
 									<div class="col-sm-3">&nbsp;</div>
 									<div class="col-sm-1" align="left">
 										<span th:id="${'student-'+student.getStudentId() + '-OptionNone-FormattedCost'}">£0.00</span><span>&nbsp;&nbsp;&nbsp;</span>
-										<input onChange="refreshBookingSummary()" checked class="form-check-input menuOption" type="radio" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" value="None" th:id="${'student-'+student.getStudentId() + '-OptionNone'}"/>
+										<input onChange="refreshBookingSummary()"   type="radio"
+											th:checked="${displayHelper.checkedOption(menu, 0, student, eventToView, editOptions, viewOnly)}"  
+											th:disabled="${viewOnly}" th:readOnly="${viewOnly}"
+											class="form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" 
+											value="None" th:id="${'student-'+student.getStudentId() + '-OptionNone'}"/>
 										<input type="hidden" th:name="${'student-'+student.getStudentId() + '-None-Value'}" value="0"  th:id="${'student-'+student.getStudentId() + '-OptionNone-Value'}"/>
 									</div>
 								</div>
@@ -154,7 +170,11 @@
 										<div class="col-sm-3" th:text="${menuOption.getAllergyInformation()}"></div>
 										<div class="col-sm-1" align="left">
 											<span th:id="${'student-'+student.getStudentId() + '-Option' + menuOption.getMenuOptionId()+'-FormattedCost'}" th:text="${menuOption.getFormattedCost()}"></span><span>&nbsp;&nbsp;&nbsp;</span>
-											<input onChange="refreshBookingSummary()" class="form-check-input menuOption" type="radio" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" th:value="${menuOption.getMenuOptionId()}" th:id="${'student-'+student.getStudentId() + '-Option'+menuOption.getMenuOptionId()}"/>
+											<input onChange="refreshBookingSummary()"  type="radio"
+												th:checked="${displayHelper.checkedOption(menu, menuOption.getMenuOptionId(), student, eventToView, editOptions, viewOnly)}"
+												th:disabled="${viewOnly}" th:readOnly="${viewOnly}" 
+												
+												class="form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" th:value="${menuOption.getMenuOptionId()}" th:id="${'student-'+student.getStudentId() + '-Option'+menuOption.getMenuOptionId()}"/>
 											<input type="hidden" th:name="${'student-'+student.getStudentId() + '-' +menuOption.getMenuOptionId()+'-Value'}" th:value="${menuOption.getAdditionalCost()}"  th:id="${'student-'+student.getStudentId() + '-Option' + menuOption.getMenuOptionId()+'-Value'}"/>
 										</div>
 									</div>
@@ -163,12 +183,19 @@
 							</div>
 							
 					 
-							<div class="row mb-2">					
+							<div th:if="${editOptions}" class="row mb-2">					
+								<div class="col-sm-9 formlabel childTotal" align="right">Original cost for <span th:text="${student.getFullName()}"></span>:</div>					
+								<div class="col-sm-1 formlabel childTotal" align="left" th:id="${'student-'+student.getStudentId() + '-TotalOriginalCost'}"></div> 																			
+							</div>		
+							<div th:if="${editOptions}" class="row mb-2">					
+								<div class="col-sm-9 formlabel childTotal" align="right">New cost for <span th:text="${student.getFullName()}"></span>:</div>					
+								<div class="col-sm-1 formlabel childTotal" align="left" th:id="${'student-'+student.getStudentId() + '-TotalCost'}"></div> 																			
+							</div>									
+							<div th:unless="${editOptions}" class="row mb-2">					
 								<div class="col-sm-9 formlabel childTotal" align="right">Cost for <span th:text="${student.getFullName()}"></span>:</div>					
 								<div class="col-sm-1 formlabel childTotal" align="left" th:id="${'student-'+student.getStudentId() + '-TotalCost'}"></div> 
-																					
-							</div>		
-							
+																				
+							</div>								
 							
 							</div>
 
@@ -180,8 +207,9 @@
 							<div class="container-fluid col-sm-11">
 						
 								<div class="row mb-2">
-									<div class="col-sm-8" align="right"></div>					
-									<div class="col-sm-1 formlabel" align="Right" >Total Cost:</div>
+									<div class="col-sm-7" align="right"></div>					
+									<div th:if="${editOptions}" class="col-sm-2 formlabel" id="totalDifferenceLabel" align="Right" >Total Difference:</div>
+									<div th:unless="${editOptions}" class="col-sm-2 formlabel" align="Right" >Total Cost:</div>									
 									<div class="col-sm-1 formlabel" align="left" id="totalCost"></div>																		 
 								</div>
 									
@@ -190,15 +218,21 @@
 					</div>					
 				</div>
 			
-				<div class="row mb-2">
+				<div th:if="${viewOnly}" class="row mb-2">
+					<div class="col-sm-12" align="center">
+						<a href="./calendar" class="btn btn-secondary" role="button">Back</a>
+					</div>
+				</div>
+				<div th:unless="${viewOnly}" class="row mb-2">
 					<div class="col-sm-6" align="right">
-						<button id="submitButton" class="btn btn-primary" name="submit">Book <span th:text="${eventToView.getClub().getTitle()}"></span></button>
+						<button th:if="${editOptions}" id="submitButton" class="btn btn-primary" name="submit">Update Options</button>					
+						<button th:unless="${editOptions}" id="submitButton" class="btn btn-primary" name="submit">Book <span th:text="${eventToView.getClub().getTitle()}"></span></button>
 					</div>
 				
 					<div class="col-sm-6" align="left">
 						<a href="./calendar" class="btn btn-secondary" role="button">Cancel</a>
 					</div>
-				</div>
+				</div>				
 							
 							
 				

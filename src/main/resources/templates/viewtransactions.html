@@ -31,10 +31,10 @@
 						</div>
 						<div class="calendarheader col-sm" style="text-align: center;">
 							<h2 align="center" style="color: orange">
-								<span th:text="${transactionMonth.getMonth()}"></span>
+								<span th:text="${sessionBean.getTransactionStartDate().getMonth()}"></span>
 							</h2>
 							<h2 align="center" style="color: orange">
-								<span th:text="${transactionMonth.getYear()}"></span>
+								<span th:text="${sessionBean.getTransactionStartDate().getYear()}"></span>
 							</h2>
 						</div>
 						<div class="calendarheader col-sm" style="text-align: left;">
