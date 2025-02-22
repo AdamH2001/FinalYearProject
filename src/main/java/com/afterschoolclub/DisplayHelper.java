@@ -1,11 +1,15 @@
 package com.afterschoolclub;
 
 import java.util.Iterator;
+
 import java.util.Set;
 
 import com.afterschoolclub.data.Event;
-
+import com.afterschoolclub.data.Filter;
 import com.afterschoolclub.data.Student;
+import com.afterschoolclub.data.User;
+import com.afterschoolclub.data.FilteredEvent;
+
 import com.afterschoolclub.data.MenuGroupOption;
 import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.MenuGroup;
@@ -37,6 +41,12 @@ public class DisplayHelper {
 			
 	}
 	
+	public String getStudentCheckContainerClass(User user, Student selectedStudent, Student currentStudent, Event event, boolean editing, boolean viewOnly, Filter filter)
+	{
+		FilteredEvent filterEvent = new FilteredEvent(event, user, currentStudent, filter);
+		return filterEvent.getFilterClass();
+			
+	}	
 	
 	public String getStudentClass(Student selectedStudent, Student currentStudent, Event event, boolean editing, boolean viewOnly)
 	{

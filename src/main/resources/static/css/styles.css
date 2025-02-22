@@ -343,6 +343,11 @@ afterschoolheader {
 	 color: #6c757d;   
 }
 
+.nav-link.disabled {
+	 background-color: transparent;
+	 color: #6c757d;   
+}
+
 .FilterRadio.disabled {
 	background-color: transparent;
 	color: #6c757d;  
@@ -356,3 +361,57 @@ afterschoolheader {
 }
 
 
+
+.form-check-input:checked.Attending  {
+  background-color: green;
+}
+
+
+.form-check-input.Available  {
+  background-color: blue;
+}
+
+.form-check-input.NotAvailable  {
+  background-color: red;
+}
+
+
+.form-check-input.Missed  {
+  background-color: black;
+}
+
+
+.form-check-input.Attended  {
+  background-color: purple;
+}
+
+
+
+
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+ 
+
+/* Show the checkmark when checked */
+.checkContainer input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkContainer .checkmark:after {
+  left: 6px;
+  top: 3px;
+  width: 5px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  -webkit-transform: rotate(35deg);
+  -ms-transform: rotate(35deg);
+  transform: rotate(35deg);
+}

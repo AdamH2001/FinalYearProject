@@ -37,12 +37,23 @@ function refreshBookingSummary() {
 		
 		var attendingControl = document.getElementById(attendingId);
 		
-		if (attendingControl.checked) {
+		var bProposedAttendee = attendingControl.checked;
+		if (bProposedAttendee) {
+			var tabId = total.id.replace("-TotalHiddenCost",  "");
+			var tab = document.getElementById(tabId);
+
+			if (tab.classList.contains("disabled")) {
+				bProposedAttendee = false;
+			}	
+
+		}
+		if (bProposedAttendee) {						
 			proposedAttendees += 1;
+		
 			total.value = document.getElementById("basePrice").value;
 			if (container != null) {
 				container.style.color="black";
-			}
+			}		
 		}
 		else {
 			total.value = 0;

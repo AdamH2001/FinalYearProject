@@ -2,19 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-	crossorigin="anonymous">
-<script
-	src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-	integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-	crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"> </script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/styles.css"/>
+	<script src="./scripts/afterschoolclub.js"></script>	
 	
-<script src="./scripts/afterschoolclub.js"></script>	
-<link rel="stylesheet" href="./css/styles.css">
-
 </head>
 <body onLoad="refreshBookingSummary(); initialiseStudentContainers()">
 	<div th:replace="~{fragments/header :: header}"></div>
@@ -97,32 +91,85 @@
 	  				</div>	  					  					  						
 				</div>
 
-				<div class="row mb-2">
+				<div class="row mb-4">
 					<div class="col-sm-1 formlabel" align="right">Description:</div>
 					<div class="col-sm-10" th:text="${eventToView.getClub().getDescription()}"> </div>
 				</div>
 				
-				<div class="row mb-2">&nbsp;</div>					
-				
-				</div>
-				<div class="container-fluid row col-sm-12">
+					<!--  
+				<div class="container-fluid row col-sm-12">					
+						<div class="col-sm-1 formlabel" align="right">Session Key:</div>
+						<div class="col-sm-7" style="padding:0px">	
+							<div class="row mb-4">													
+								<div class="col-sm-2">	
+									<span>Attending</span>	
+							    	<input type="checkbox" disabled class="Attending form-check-input" name="key"/>										    	
+								 </div>
+								<div class="col-sm-2">	
+									<span>Available</span>	
+							    	<input type="checkbox" disabled class="Available form-check-input" name="key"/>										    	
+								 </div>
+								<div class="col-sm-2">	
+									<span>Unavailable</span>	
+							    	<input type="checkbox" disabled class="NotAvailable form-check-input" name="key"/>										    	
+								 </div>
+								<div class="col-sm-2">	
+									<span>Missed</span>	
+							    	<input type="checkbox" disabled class="Missed form-check-input" name="key"/>										    	
+								 </div>
+								<div class="col-sm-2">	
+									<span>Attended</span>	
+							    	<input type="checkbox" disabled class="Attended  form-check-input" name="key"/>										    	
+								 </div>
+							</div>	
+						 </div>													
+					</div>	
+					 -->
+					 
+					 
 					<div class="row">
 						<div class="col-sm-1 formlabel" align="right"></div>
-						<div class="col-sm-10" style="padding:0px">		
+						<div class="col-sm-10" style="padding:0px">	
+						
+														
+						
+							
 							<ul class="nav nav-tabs" >
 							<li class="nav-item nav-item" th:each="student : ${parent.getStudents()}">
 							
 							
-							    <a th:class="${displayHelper.getStudentClass(sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly)+'nav-link studentTab'}" aria-current="page" th:id="${'student-'+student.getStudentId()}" th:href="${'javascript:activateStudent(&quot;student-'+ student.getStudentId()+'&quot;)'}" >
-							    	<span th:text="${student.getFullName()}"></span>&nbsp;&nbsp;<input type="checkbox" th:disabled="${viewOnly or editOptions or eventToView.registered(student)}" 
-							    	th:checked="${displayHelper.checkedStudent(sessionBean.getSelectedStudent(), student, eventToView, true, viewOnly)}" th:id="${'student-'+student.getStudentId()+'-Attending'}" th:name="${'student-'+student.getStudentId()+'-Attending'}" onChange="changedAttendance(this)"/>							    	
+							    <a th:class="${displayHelper.getStudentClass(sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly)+'nav-link studentTab'}"
+							    	 aria-current="page" th:id="${'student-'+student.getStudentId()}" th:href="${'javascript:activateStudent(&quot;student-'+ student.getStudentId()+'&quot;)'}">
+							    	   	<span th:text="${student.getFullName()}"></span>	
+								    	<input type="checkbox" th:disabled="${viewOnly or editOptions or eventToView.registered(student)}"
+									    	th:class="${displayHelper.getStudentCheckContainerClass(sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly, sessionBean.getFilter()) + ' form-check-input'}" 
+									    	th:checked="${displayHelper.checkedStudent(sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly)}" th:id="${'student-'+student.getStudentId()+'-Attending'}" th:name="${'student-'+student.getStudentId()+'-Attending'}" onChange="changedAttendance(this)"/>										    	
+									    
+
 							    	
-							    	<input th:if="${editOptions}" type=hidden th:name="${'student-'+student.getStudentId()+'-Attending'}"  th:value="${displayHelper.hiddenCheckedStudent(sessionBean.getSelectedStudent(), student, eventToView, true, viewOnly)}">
-							    	
-							    	<input class="hiddenTotal" type="hidden" th:name="${'student-'+student.getStudentId() + '-TotalHiddenCost'}"  th:id="${'student-'+student.getStudentId() + '-TotalHiddenCost'}"/>
-							    	<input th:if="${editOptions}" class="hiddenOriginalTotal" type="hidden" th:name="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"  th:value="${student.getCostOfEvent(eventToView)}" th:id="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"/>
-							    	
-							    </a>							   					    
+								    <!-- 	<label>
+								    		<span th:class="${displayHelper.getStudentCheckContainerClass(sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly, sessionBean.getFilter())+' checkContainer'}">
+										    	<input type="checkbox" th:disabled="${viewOnly or editOptions or eventToView.registered(student)}" 
+										    	th:checked="${displayHelper.checkedStudent(sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly)}" th:id="${'student-'+student.getStudentId()+'-Attending'}" th:name="${'student-'+student.getStudentId()+'-Attending'}" onChange="changedAttendance(this)"/>
+										    	<span th:class="${displayHelper.getStudentCheckContainerClass(sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly, sessionBean.getFilter())+' checkmark'}"></span>
+										    </span>							    	
+								    	</label>
+								    	-->
+								    <!-- 								    	
+								    	<label th:class="${displayHelper.getStudentCheckContainerClass(sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly, sessionBean.getFilter())+' checkContainer'}">
+									    	<input type="checkbox" th:disabled="${viewOnly or editOptions or eventToView.registered(student)}" 
+									    	th:checked="${displayHelper.checkedStudent(sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly)}" th:id="${'student-'+student.getStudentId()+'-Attending'}" th:name="${'student-'+student.getStudentId()+'-Attending'}" onChange="changedAttendance(this)"/>
+									    	<span th:class="${displayHelper.getStudentCheckContainerClass(sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), student, eventToView, editOptions, viewOnly, sessionBean.getFilter())+' checkmark'}"></span>							    	
+								    	</label>
+								    										    								    
+								    	</span> -->						    	
+								    	
+							    							    	
+							    </a>
+						     	<input th:if="${editOptions}" type=hidden th:name="${'student-'+student.getStudentId()+'-Attending'}"  th:value="${displayHelper.hiddenCheckedStudent(sessionBean.getSelectedStudent(), student, eventToView, true, viewOnly)}">							    	
+						    	<input class="hiddenTotal" type="hidden" th:name="${'student-'+student.getStudentId() + '-TotalHiddenCost'}"  th:id="${'student-'+student.getStudentId() + '-TotalHiddenCost'}"/>
+						    	<input th:if="${editOptions}" class="hiddenOriginalTotal" type="hidden" th:name="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"  th:value="${student.getCostOfEvent(eventToView)}" th:id="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"/>
+							    							   					    
 							  </li>							
 							</ul>
 						</div>						
