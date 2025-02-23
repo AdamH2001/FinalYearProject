@@ -34,7 +34,7 @@
 			<div class="container-fluid row col-sm-12">
 			
 				<input id="basePrice" type="hidden" name="basePrice" th:value="${eventToView.getClub().getBasePrice()}" />
-				<input id="basePrice" type="hidden" name="eventId" th:value="${eventToView.getEventId()}" />
+				<input id="eventId" type="hidden" name="eventId" th:value="${eventToView.getEventId()}" />
 				<input th:if="${viewOnly}" id="viewOnly" type="hidden" name="eventId" value="${viewOnly}" />
 				
 				<div class="row mb-2">&nbsp;</div>
