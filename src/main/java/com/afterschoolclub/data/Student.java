@@ -1,6 +1,7 @@
 package com.afterschoolclub.data;
 
-import com.afterschoolclub.data.repository.ClassRepository;
+import com.afterschoolclub.data.repository.StudentRepository;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 
 import lombok.Getter;
@@ -28,7 +29,7 @@ import lombok.ToString;
 @ToString
 public class Student {
 	
-	public static ClassRepository classRepository = null;
+	public static StudentRepository repository = null;
 	
 	@Id
 	private int studentId;
@@ -46,6 +47,12 @@ public class Student {
 	
 	@Transient
 	private transient StudentClass studentClass = null;
+	
+	
+	public static List<Student> findByAttendeeId(int attendeeId) {		
+		return repository.findByAttendeeId(attendeeId);
+	}	
+	
 	
 	public Student(String firstName, String surname, LocalDate dateOfBirth, boolean consentToShare) {
 		super();
@@ -99,9 +106,9 @@ public class Student {
 
 	public StudentClass getStudentClass() {
 		if (studentClass == null) {
-			Optional<StudentClass> classFound = classRepository.findById(this.getClassId().getId());
-			if (classFound.isPresent()) {
-				studentClass = classFound.get();
+			StudentClass classFound = StudentClass.findById(this.getClassId().getId());
+			if (classFound != null) {
+				studentClass = classFound;
 			}
 		}
 		return studentClass;

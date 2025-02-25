@@ -7,7 +7,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -33,10 +32,6 @@ import com.afterschoolclub.data.ParentalTransaction;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.StudentClass;
 import com.afterschoolclub.data.User;
-import com.afterschoolclub.data.repository.ClassRepository;
-import com.afterschoolclub.data.repository.EventRepository;
-import com.afterschoolclub.data.repository.ParentalTransactionRepository;
-import com.afterschoolclub.data.repository.UserRepository;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.api.payments.Transaction;
@@ -48,18 +43,6 @@ public class ParentController {
 
 	@Autowired	
     private MainController mainController;
-	
-	@Autowired	
-    private ClassRepository classRepository;
-	
-	@Autowired	
-    private UserRepository userRepository;
-	
-    @Autowired
-    private EventRepository eventRepository;
-	
-	@Autowired	
-    private ParentalTransactionRepository parentalTransactionRepository;
 	
 	@Autowired	
     private PaypalService paypalService;
@@ -114,7 +97,7 @@ public class ParentController {
 	public String createStudent(Model model) {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {
-			List<StudentClass> classNames = classRepository.findAll();
+			Iterable<StudentClass> classNames = StudentClass.findAll();
 			model.addAttribute("classNames",classNames);
 			this.setInDialogue(true,model);
 			returnPage = "createstudent";		
@@ -146,7 +129,7 @@ public class ParentController {
 			student.addMedicalNote(new MedicalNote(MedicalNote.Type.MEDICATION,medicationNote));
 			student.addMedicalNote(new MedicalNote(MedicalNote.Type.OTHER,otherNote));
 			sessionBean.getLoggedOnParent().addStudent(student);
-			userRepository.save(sessionBean.getLoggedOnUser());
+			sessionBean.getLoggedOnUser().save();
 			model.addAttribute("flashMessage","Added New Child.");						
 			returnPage = setupCalendar(model);
 		}
@@ -184,25 +167,11 @@ public class ParentController {
 			LocalDate start = sessionBean.getTransactionStartDate();
 			LocalDate end = start.plusMonths(1);
 			Parent loggedOnParent = sessionBean.getLoggedOnParent();
-			List<ParentalTransaction> transactions = parentalTransactionRepository.getMonthlyTransactions(loggedOnParent.getParentId(),start,end);
-			Integer openingBalance = parentalTransactionRepository.getBalance(loggedOnParent.getParentId(), start);
-			String openingBalanceStr;
-			NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
-			if (openingBalance == null) {
-				openingBalanceStr = n.format(0);
-			}
-			else {
-				openingBalanceStr = n.format(openingBalance.intValue()/100.0);
-			}
-			 				 
-			Integer closingBalance = parentalTransactionRepository.getBalance(loggedOnParent.getParentId(), end);
-			String closingBalanceStr = "";
-			if (closingBalance == null) {
-				closingBalanceStr = n.format(0);
-			}
-			else {
-				closingBalanceStr = n.format(closingBalance.intValue()/100.0);
-			}
+			List<ParentalTransaction> transactions = loggedOnParent.getTransactions(start,end);
+			
+			String openingBalanceStr = loggedOnParent.getFormattedBalanceOn(start);
+			String closingBalanceStr = loggedOnParent.getFormattedBalanceOn(end);
+			
 			model.addAttribute("openingBalance",openingBalanceStr);
 			model.addAttribute("closingBalance",closingBalanceStr);
 			model.addAttribute("transactions",transactions);
@@ -240,13 +209,12 @@ public class ParentController {
 	public String deregisterForEvent(@RequestParam (name="eventId") int eventId, Model model) {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {		
-			Optional<Event> events = eventRepository.findById(eventId);
-			Event event = events.get();
+			Event event = Event.findById(eventId);								
 			Student selectedStudent = sessionBean.getSelectedStudent();
 			int cost = selectedStudent.getCostOfEvent(event);
 			selectedStudent.deregister(eventId);			
 			sessionBean.getLoggedOnParent().addTransaction(new ParentalTransaction(cost,LocalDateTime.now(), ParentalTransaction.Type.REFUND, event.getClub().getTitle()));
-			userRepository.save(sessionBean.getLoggedOnUser());			
+			sessionBean.getLoggedOnUser().save();			
 			model.addAttribute("flashMessage","Cancelled booking for ".concat(selectedStudent.getFirstName()).concat(" and account refunded."));
 			returnPage = setupCalendar(model);			
 		}
@@ -256,15 +224,14 @@ public class ParentController {
 	
 	public String setUpSessionOptions(Integer eventId, boolean editOptions, boolean viewOnly,  Model model)  {
 		String returnPage;
-		Optional<Event> event = eventRepository.findById(eventId);
-		if (event.isPresent()) {					
-			Event eventToView = event.get();
-			model.addAttribute("eventToView",eventToView);
-			List<User> staff = userRepository.findStaffByEventId(eventToView.getEventId());
+		Event event = Event.findById(eventId);
+		if (event != null) {								
+			model.addAttribute("eventToView",event);
+			List<User> staff = User.findStaffByEventId(event.getEventId());
 			model.addAttribute("staff", staff);
 			model.addAttribute("parent", sessionBean.getLoggedOnParent());
 					
-			logger.info("Event staff are {}", eventToView.getStaff());
+			logger.info("Event staff are {}", event.getStaff());
 
 			model.addAttribute("editOptions", editOptions);
 			model.addAttribute("viewOnly", viewOnly);						
@@ -371,7 +338,7 @@ public class ParentController {
 		        				        		
 						logger.info("Amount = {}", amount);
 					}
-					userRepository.save(sessionBean.getLoggedOnUser());					
+	        		sessionBean.getLoggedOnUser().save();					
 					model.addAttribute("flashMessage","Payment Successful");					
 	            }
 	        } catch (PayPalRESTException e) {	        	
@@ -472,11 +439,10 @@ public class ParentController {
 		if (returnPage == null) {	
 			int eventId = Integer.parseInt(allParams.getOrDefault("eventId", "0"));
 			
-			User tmpUser = userRepository.findById(sessionBean.getLoggedOnUser().getUserId()).get();
+			User tmpUser = User.findById(sessionBean.getLoggedOnUser().getUserId());
 			
 			Parent loggedOnParent = tmpUser.getParent();
-			Optional<Event> events = eventRepository.findById(eventId);
-			Event event = events.get();
+			Event event = Event.findById(eventId);
 			
 			int totalCost = 0;
 			int studentCount = 0;
@@ -523,7 +489,7 @@ public class ParentController {
 							loggedOnParent.addTransaction(new ParentalTransaction(-totalCost,LocalDateTime.now(),ParentalTransaction.Type.PAYMENT, event.getClub().getTitle()));
 						}
 						
-						userRepository.save(tmpUser);
+						tmpUser.save();
 						model.addAttribute("flashMessage", "Booked ".concat(event.getClub().getTitle()));
 						sessionBean.setLoggedOnUser(tmpUser);
 						
@@ -554,11 +520,11 @@ public class ParentController {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {	
 			int eventId = Integer.parseInt(allParams.getOrDefault("eventId", "0"));
-			User tmpUser = userRepository.findById(sessionBean.getLoggedOnUser().getUserId()).get();
+			User tmpUser = User.findById(sessionBean.getLoggedOnUser().getUserId());
 			
 			Parent loggedOnParent = tmpUser.getParent();
-			Optional<Event> events = eventRepository.findById(eventId);
-			Event event = events.get();
+			Event event = Event.findById(eventId);
+
 			
 			int totalCost = 0;
 			int totalOriginalCost = 0;
@@ -598,7 +564,7 @@ public class ParentController {
 				else if ( costDifference < 0) {
 					loggedOnParent.addTransaction(new ParentalTransaction(-costDifference,LocalDateTime.now(),ParentalTransaction.Type.REFUND, "Option changes for ".concat(event.getClub().getTitle())));
 				}
-				userRepository.save(tmpUser);
+				tmpUser.save();
 				
 				model.addAttribute("flashMessage", "Updated Options for ".concat(event.getClub().getTitle()));
 				sessionBean.setLoggedOnUser(tmpUser);
@@ -638,7 +604,7 @@ public class ParentController {
 			loggedOnParent.setTelephoneNum(telephoneNum);
 			loggedOnParent.setAltContactName(altContactName);
 			loggedOnParent.setAltTelephoneNum(altTelephoneNum);
-			userRepository.save(sessionBean.getLoggedOnUser());			
+			sessionBean.getLoggedOnUser().save();			
 			model.addAttribute("flashMessage","Profile has been updated");
 			returnPage = setupCalendar(model);
 		}

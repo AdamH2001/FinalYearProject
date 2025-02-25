@@ -3,9 +3,8 @@ package com.afterschoolclub.data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
-import com.afterschoolclub.data.repository.ParentalTransactionRepository;
-
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,8 +21,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Parent {
-	public static ParentalTransactionRepository parentalTransactionRepository = null;
-
 	
 	@Id
 	public int parentId;
@@ -49,14 +46,8 @@ public class Parent {
 		return result;
 	}
 	
-	public int getBalance() {
-		Integer balance = parentalTransactionRepository.getBalance(parentId);
-		int result = 0;
-		if (balance != null) {
-			result = balance.intValue();
-		}
-		return result;	
-	}	
+	
+		
 	
 	public void addStudent(Student student) {
 		this.students.add(student);
@@ -83,7 +74,25 @@ public class Parent {
 		}
 		return result;
 	}
+		
 	
+	public List<ParentalTransaction>  getTransactions(LocalDate start, LocalDate end) {
+		return ParentalTransaction.getTransactions(this, start, end);		
+	}		
+	
+	public int getBalance() {
+		return ParentalTransaction.getBalance(this);			
+	}	
+	
+	public int getBalanceOn(LocalDate date) {
+		return ParentalTransaction.getBalanceOn(this, date);			
+	}	
+	
+	
+	public String getFormattedBalanceOn(LocalDate date) {
+		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
+		return n.format(getBalanceOn(date)/100.0);		
+	}		
 	public String getFormattedBalance() {
 		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
 		return n.format(this.getBalance() / 100.0);

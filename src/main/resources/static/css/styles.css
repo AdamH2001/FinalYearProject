@@ -415,3 +415,13 @@ afterschoolheader {
   -ms-transform: rotate(35deg);
   transform: rotate(35deg);
 }
+
+
+
+
+.dropdown-item:hover>.dropdown-menu {
+	  display: block;
+	}
+
+
+

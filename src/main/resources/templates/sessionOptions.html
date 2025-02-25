@@ -19,9 +19,7 @@
 							
 				
 			<div class="container-fluid col-sm-10">
-				<div class="row mb-2 col-sm-12">
-				
-						
+				<div class="row mb-2 col-sm-12">				
 						<h1 th:if="${editOptions}" align="center">Update <span th:text="${eventToView.getClub().getTitle()}"></span> Options</h1>
 						<h1 th:unless="${editOptions or viewOnly}" align="center">Book <span th:text="${eventToView.getClub().getTitle()}"></span> Session</h1>
 						<h1 th:if="${viewOnly}" align="center">View <span th:text="${eventToView.getClub().getTitle()}"></span> Session</h1>
@@ -35,7 +33,7 @@
 			
 				<input id="basePrice" type="hidden" name="basePrice" th:value="${eventToView.getClub().getBasePrice()}" />
 				<input id="eventId" type="hidden" name="eventId" th:value="${eventToView.getEventId()}" />
-				<input th:if="${viewOnly}" id="viewOnly" type="hidden" name="eventId" value="${viewOnly}" />
+				<input th:if="${viewOnly}" id="viewOnly" type="hidden" name="viewOnly" value="${viewOnly}" />
 				
 				<div class="row mb-2">&nbsp;</div>
 								
@@ -46,7 +44,7 @@
 								<div class="col-sm-2 formlabel" align="right">Start:</div>
 			  					<div class="col-sm-3" align="left" th:text="${eventToView.getStartDateTime().toLocalDate() + ' ' + eventToView.getStartDateTime().toLocalTime()}"></div>
 			  					<div class="col-sm-2 formlabel" align="right">Location:</div>
-	  							<div class="col-sm-3" align="left" th:text="${eventToView.getRoom().getName()}"></div>		
+	  							<div class="col-sm-3" align="left" th:text="${eventToView.getLocation().getName()}"></div>		
 			  					
 			  				</div>
 			  				<div class="row mb-2">

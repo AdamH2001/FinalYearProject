@@ -3,10 +3,9 @@ package com.afterschoolclub;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +26,8 @@ import com.afterschoolclub.data.Filter;
 import com.afterschoolclub.data.Incident;
 import com.afterschoolclub.data.MenuGroup;
 import com.afterschoolclub.data.Resource;
-import com.afterschoolclub.data.Student;
-import com.afterschoolclub.data.repository.ClubRepository;
-import com.afterschoolclub.data.repository.EventRepository;
-import com.afterschoolclub.data.repository.MenuGroupRepository;
-import com.afterschoolclub.data.repository.ResourceRepository;
-import com.afterschoolclub.data.repository.StudentRepository; 
+import com.afterschoolclub.data.ResourceStatus;
+import com.afterschoolclub.data.Student; 
   
 @Controller
 @SessionAttributes({"sessionBean"})
@@ -42,22 +37,7 @@ public class AdminController {
     private MainController mainController;
 	
     private final SessionBean sessionBean;	
-    
-    @Autowired
-    private EventRepository eventRepository;
-    
-    @Autowired
-	private StudentRepository studentRepository;
-    
-    @Autowired
-	private ClubRepository clubRepository;
-    
-    @Autowired
-	private MenuGroupRepository menuGroupRepository;
-    
-    @Autowired
-	private ResourceRepository resourceRepository;    
-    
+        
 	static Logger logger = LoggerFactory.getLogger(AdminController.class);
 
 	
@@ -124,13 +104,12 @@ public class AdminController {
 			@RequestParam(name = "summary") String summary, int eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {
-			Optional<Event> eventOptional = eventRepository.findById(eventId);
-			if (eventOptional.isPresent()) {	
-				Event event = eventOptional.get();
+			Event event = Event.findById(eventId);						
+			if (event!=null) {	
 				Attendee attendee = event.getAttendee(attendeeId);
 				Incident newIncident = new Incident(AggregateReference.to(event.getEventId()), summary);
 				attendee.addIncident(newIncident);
-				eventRepository.save(event);
+				event.save();
 				model.addAttribute("flashMessage", "Incident has been added");
 			}
 			else {
@@ -147,18 +126,17 @@ public class AdminController {
 	public String createIncident(@RequestParam (name="eventId") int eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {
-			Optional<Event> event = eventRepository.findById(eventId);
-			if (event.isPresent()) {
-				for (Attendee attendee: event.get().getAttendees()) {
-					List<Student> studList = studentRepository.findByAttendeeId(attendee.getAttendeeId());
+			Event event = Event.findById(eventId);
+			if (event != null) {
+				for (Attendee attendee: event.getAttendees()) {
+					List<Student> studList = Student.findByAttendeeId(attendee.getAttendeeId());
 					
 					for (Student student: studList) {
 						logger.info("student = {}", student);
 						attendee.setStudent(student);
-					}
-					
+					}					
 				}
-				model.addAttribute("event",event.get());
+				model.addAttribute("event",event);
 				this.setInDialogue(true,model);
 				returnPage = "createincident";			
 			}
@@ -174,17 +152,17 @@ public class AdminController {
 	public String takeRegister(@RequestParam (name="eventId") int eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {				
-			Optional<Event> event = eventRepository.findById(eventId);
-			if (event.isPresent()) {
-				for (Attendee attendee: event.get().getAttendees()) {
-					List<Student> studList = studentRepository.findByAttendeeId(attendee.getAttendeeId());
+			Event event = Event.findById(eventId);
+			if (event != null) {
+				for (Attendee attendee: event.getAttendees()) {
+					List<Student> studList = Student.findByAttendeeId(attendee.getAttendeeId());
 					
 					for (Student student: studList) {
 						logger.info("student = {}", student);
 						attendee.setStudent(student);
 					}					
 				}
-				model.addAttribute("event",event.get());
+				model.addAttribute("event",event);
 				this.setInDialogue(true,model);
 				returnPage = "takeregister";
 			}
@@ -201,11 +179,9 @@ public class AdminController {
 	@PostMapping("/addRegister")
 	public String addRegister(@RequestParam Map<String,String> register, Model model) {
 		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {
-			String eventId = register.get("eventId");
-			Optional<Event> eventOptional = eventRepository.findById(Integer.parseInt(eventId));
-			if (eventOptional.isPresent()) {
-				Event event = eventOptional.get();			
+		if (returnPage == null) {			
+			Event event = Event.findById(Integer.parseInt(register.get("eventId")));
+			if (event!=null) {
 				for (Map.Entry<String, String> entry : register.entrySet()) {
 			        System.out.println(entry.getKey() + ":" + entry.getValue());
 			        if (entry.getKey().startsWith("attendee_")) {
@@ -214,7 +190,7 @@ public class AdminController {
 			        	attendee.setAttended(entry.getValue().equals("on"));
 			        }
 			    }
-				eventRepository.save(event);
+				event.save();
 				model.addAttribute("flashMessage","Recorded Register");	
 			}
 			else {
@@ -234,9 +210,9 @@ public class AdminController {
 	public String copyEvent(@RequestParam (name="day") int day, @RequestParam (name="eventId") int eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {			
-			Optional<Event> event = eventRepository.findById(eventId);
-			if (event.isPresent()) {
-				Event newEvent = new Event(event.get());
+			Event event = Event.findById(eventId);						
+			if (event!=null) {
+				Event newEvent = new Event(event);
 				LocalDateTime startDateTime = newEvent.getStartDateTime();
 				LocalDateTime endDateTime = newEvent.getEndDateTime();
 				startDateTime = startDateTime.plusDays(1);
@@ -247,7 +223,7 @@ public class AdminController {
 				}
 				newEvent.setStartDateTime(startDateTime);
 				newEvent.setEndDateTime(endDateTime);
-				eventRepository.save(newEvent);
+				newEvent.save();
 				model.addAttribute("flashMessage","Session copied");
 			}
 			else {
@@ -263,10 +239,10 @@ public class AdminController {
 	public String copyEventAllWeek(@RequestParam (name="next", defaultValue="false") boolean next, @RequestParam (name="eventId") int eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {	
-			Optional<Event> event = eventRepository.findById(eventId);
-			if (event.isPresent()) {
-				LocalDateTime startDateTime = event.get().getStartDateTime();
-				LocalDateTime endDateTime = event.get().getEndDateTime();
+			Event event = Event.findById(eventId);						
+			if (event != null) {
+				LocalDateTime startDateTime = event.getStartDateTime();
+				LocalDateTime endDateTime = event.getEndDateTime();
 		
 				if (next) {
 					startDateTime = startDateTime.plusDays(1);
@@ -285,11 +261,11 @@ public class AdminController {
 				int copiedEvents = 0;
 				while (startDateTime.getDayOfWeek().getValue() >= 1 && startDateTime.getDayOfWeek().getValue() <= 5) {
 					if (startDateTime.isAfter(LocalDateTime.now())) {
-						if (!startDateTime.equals(event.get().getStartDateTime())) {
-							Event newEvent = new Event(event.get());
+						if (!startDateTime.equals(event.getStartDateTime())) {
+							Event newEvent = new Event(event);
 							newEvent.setStartDateTime(startDateTime);
 							newEvent.setEndDateTime(endDateTime);
-							eventRepository.save(newEvent);
+							newEvent.save();
 							copiedEvents++;
 						}
 					}
@@ -311,10 +287,10 @@ public class AdminController {
 	public String copyEventAllMonth(@RequestParam (name="next", defaultValue="false") boolean next, @RequestParam (name="eventId") int eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {	
-			Optional<Event> event = eventRepository.findById(eventId);
-			if (event.isPresent()) {
-				LocalDateTime startDateTime = event.get().getStartDateTime();
-				LocalDateTime endDateTime = event.get().getEndDateTime();
+			Event event = Event.findById(eventId);						
+			if (event != null) {
+				LocalDateTime startDateTime = event.getStartDateTime();
+				LocalDateTime endDateTime = event.getEndDateTime();
 				int currentMonth = startDateTime.getMonthValue();
 				if (next) {
 					while (startDateTime.getMonthValue() == currentMonth) {
@@ -331,11 +307,11 @@ public class AdminController {
 				while (startDateTime.getMonthValue() == currentMonth) {
 					if (startDateTime.isAfter(LocalDateTime.now())) {
 						if (startDateTime.getDayOfWeek().getValue() >= 1 && startDateTime.getDayOfWeek().getValue() <= 5) {
-							if (!startDateTime.equals(event.get().getStartDateTime())) {
-								Event newEvent = new Event(event.get());
+							if (!startDateTime.equals(event.getStartDateTime())) {
+								Event newEvent = new Event(event);
 								newEvent.setStartDateTime(startDateTime);
 								newEvent.setEndDateTime(endDateTime);
-								eventRepository.save(newEvent);
+								newEvent.save();
 								copiedEvents++;
 							}
 						}
@@ -359,7 +335,7 @@ public class AdminController {
 	public String cancelEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {	
-				eventRepository.deleteById(eventId);
+				Event.deleteById(eventId);
 				model.addAttribute("flashMessage","Session cancelled.");			
 				returnPage = setupCalendar(model);						
 		}
@@ -380,13 +356,29 @@ public class AdminController {
 			@RequestParam(name = "menu", required=false) List<Integer> menuGroups,			
 			@RequestParam(name = "equipment") List<Integer> equipment,
 			@RequestParam(name = "equipmentQuantity") List<Integer> equipmentQuantity,
-			@RequestParam(name = "hiddenPerAttendee") List<Boolean> perAttendee,			
+			@RequestParam(name = "hiddenPerAttendee") List<Boolean> perAttendee,
+			@RequestParam(name = "eventId") int eventId,
+			
 			Model model) {
 		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {	
+		if (returnPage == null) {
+			Event event = null;
 			LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
-			LocalDateTime endDateTime = LocalDateTime.of(startDate, endTime);												
-			Event event = new Event(AggregateReference.to(clubId),  startDateTime, endDateTime, maxAttendees);				
+			LocalDateTime endDateTime = LocalDateTime.of(startDate, endTime);
+			
+			if (eventId != 0 ) {
+				event = Event.findById(eventId);				
+				event.clearResources();
+				event.clearMenu();
+				
+				event.setStartDateTime(startDateTime);
+				event.setEndDateTime(endDateTime);				
+				event.setMaxAttendees(maxAttendees);
+			}
+			else {
+				event = new Event(AggregateReference.to(clubId),  startDateTime, endDateTime, maxAttendees);	
+			}
+							
 			for (Integer staffMember : staff) {
 				EventResource er = new EventResource(AggregateReference.to(staffMember), 1, false);
 				event.addResource(er);
@@ -419,12 +411,34 @@ public class AdminController {
 					event.addEventMenu(newMenu);						
 				}
 			}
-			eventRepository.save(event);	
 			
-			logger.info("Selected Staff = {}",staff);
-			logger.info("Menu Group Id = {}",menuGroups);
+			List <ResourceStatus> resourceStatus = event.getResourceStatus();
+			logger.info("ResourceStatus = {}", resourceStatus);
+			boolean allResourcesOk = true;
+			Iterator<ResourceStatus> rsIterator = resourceStatus.iterator();
+			while (allResourcesOk && rsIterator.hasNext()) {
+				allResourcesOk = rsIterator.next().isSufficient();
+			}
 			
-			returnPage = setupCalendar(model);				
+			
+			if (allResourcesOk) {
+				event.save();	
+				returnPage = setupCalendar(model);
+			}
+			else {
+				model.addAttribute("editing",true);				
+				model.addAttribute("clubSession",event);								
+				model.addAttribute("clubs",Club.findAll());				
+				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
+				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
+				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+				model.addAttribute("menus", MenuGroup.findAll());
+				model.addAttribute("resourceStatus", resourceStatus);		
+				this.setInDialogue(true,model);				
+				returnPage = "createevent";				
+			}
+			
+							
 		}
 		return returnPage;
 	}
@@ -433,23 +447,43 @@ public class AdminController {
 	public String createEvent(Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {	
-			List<Club> clubs = clubRepository.findAll();
-			model.addAttribute("clubs",clubs);
-			List<Resource> rooms = resourceRepository.findByType(Resource.Type.ROOM);
-			model.addAttribute("rooms", rooms);			
-			List<Resource> staff = resourceRepository.findByType(Resource.Type.STAFF);
-			model.addAttribute("staff", staff);
-			List<Resource> equipment = resourceRepository.findByType(Resource.Type.EQUIPMENT);
-			model.addAttribute("equipment", equipment);			
-			Iterable<MenuGroup> menus = menuGroupRepository.findAll();
-			model.addAttribute("menus", menus);				
+			Event event = new Event();	
+			model.addAttribute("clubSession",event);								
+			model.addAttribute("clubs",Club.findAll());				
+			model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
+			model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
+			model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+			model.addAttribute("menus", MenuGroup.findAll());			
 			this.setInDialogue(true,model);
-
 			returnPage = "createevent";
 		} 
 		return returnPage;
 	}
 
+	@GetMapping("/editEvent")
+	public String editEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {	
+			Event event = Event.findById(eventId);			
+			if (event!=null) {
+				model.addAttribute("editing",true);				
+				model.addAttribute("clubSession",event);								
+				model.addAttribute("clubs",Club.findAll());				
+				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
+				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
+				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+				model.addAttribute("menus", MenuGroup.findAll());
+				returnPage = "createevent";
+			}
+			else {
+				model.addAttribute("flashMessage","Session does not exist");
+				this.setInDialogue(true,model);
+				returnPage = setupCalendar(model);				
+			}
+		} 
+		return returnPage;
+	}	
+	
 	@GetMapping("/createClub")
 	public String createClub(Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -475,7 +509,7 @@ public class AdminController {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {	
 			Club club = new Club(title, description, basePrice, yearRCanAttend, yearOneCanAttend, yearTwoCanAttend, yearThreeCanAttend, yearFourCanAttend, yearFiveCanAttend, yearSixCanAttend); 
-			clubRepository.save(club);			
+			club.save();			
 			model.addAttribute("flashMessage","Created Club.");			
 
 			returnPage = setupCalendar(model);
@@ -488,15 +522,15 @@ public class AdminController {
 	public String viewEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {	
-			Optional<Event> event = eventRepository.findById(eventId);
-			if (event.isPresent()) {
-				Event eventToView = event.get();
-				model.addAttribute("eventToView",eventToView);
+			Event event = Event.findById(eventId);			
+			
+			if (event != null) {				
+				model.addAttribute("eventToView",event);
 				
-				List<Resource> staff = resourceRepository.findByType(Resource.Type.STAFF);
+				List<Resource> staff = Resource.findByType(Resource.Type.STAFF);
 				model.addAttribute("staff", staff);
 				
-				logger.info("Event stadd are {}", eventToView.getStaff());
+				logger.info("Event stadd are {}", event.getStaff());
 				
 				returnPage = "viewevent";
 			}

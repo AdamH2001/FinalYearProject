@@ -6,9 +6,13 @@ import java.util.Set;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+
+import com.afterschoolclub.data.repository.UserRepository;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +23,9 @@ import lombok.ToString;
 @ToString
 public class User {
 
+	public static UserRepository repository = null;
+
+	
 	static Random r = new Random();
 
 	@Id
@@ -35,6 +42,31 @@ public class User {
 	
 	@MappedCollection(idColumn = "user_id")
 	private Set<Administrator> administrator = new HashSet<>();	
+	
+	public static User findById(int userId) {
+		Optional<User> optional = repository.findById(userId);
+		User user = null;
+		if (optional.isPresent()) {
+			user = optional.get();
+		}
+		return user;
+	}	
+	
+	public static User findByEmail(String email) {
+		List<User> users = repository.findByEmail(email);
+		User user = null;
+		if (users.size() > 0) {
+			user = users.get(0);
+		}
+		return user;
+	}		
+		
+
+	public static List<User> findStaffByEventId(int eventId) {
+		return repository.findStaffByEventId(eventId);
+		
+	}		
+	
 
 	/**
 	 * @param email
@@ -116,4 +148,8 @@ public class User {
 		this.validationKey = r.nextInt(999999999);
 	}
 
+	public void save()
+	{
+		repository.save(this);
+	}		
 }

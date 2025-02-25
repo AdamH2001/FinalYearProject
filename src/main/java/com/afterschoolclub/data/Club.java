@@ -1,10 +1,14 @@
 package com.afterschoolclub.data;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.springframework.data.annotation.Id;
 
 import org.springframework.data.relational.core.mapping.Column;
+
+import com.afterschoolclub.data.repository.ClubRepository;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +18,10 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Club {
+		
+	
+	public static ClubRepository repository = null;
+	
 	@Id
 	private int clubId;
 	private String title;
@@ -34,6 +42,19 @@ public class Club {
 	private boolean year5CanAttend;
 	@Column("year_6_can_attend")
 	private boolean year6CanAttend;
+	
+	public static List<Club> findAll() {		
+		return repository.findAll();
+	}
+	
+	public static Club findById(int eventId) {
+		Optional<Club> optional = repository.findById(eventId);
+		Club club = null;
+		if (optional.isPresent()) {
+			club = optional.get();
+		}
+		return club;
+	}	
 	
 	public Club() {
 		super();	
@@ -162,6 +183,10 @@ public class Club {
 		}
 		return result;
 		
-			
+	}	
+	
+	public void save()
+	{
+		repository.save(this);
 	}	
 }

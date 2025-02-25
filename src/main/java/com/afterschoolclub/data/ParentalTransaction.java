@@ -1,10 +1,14 @@
 package com.afterschoolclub.data;
 
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 
 import org.springframework.data.annotation.Id;
+
+import com.afterschoolclub.data.repository.ParentalTransactionRepository;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,12 +19,39 @@ import lombok.ToString;
 @ToString
 public class ParentalTransaction {
 	
+	public static ParentalTransactionRepository  repository = null;
+
+	
 	public enum Type {
 		DEPOSIT, 
 		WITHDRAWAL, 
 		REFUND, 
 		PAYMENT
 	}
+	
+	
+	public static List<ParentalTransaction>  getTransactions(Parent parent, LocalDate start, LocalDate end) {
+		return repository.getTransactions(parent.getParentId(), start, end);		
+	}		
+	
+	
+	public static int getBalanceOn(Parent parent, LocalDate start) {
+		Integer balance =  repository.getBalance(parent.getParentId(), start);
+		int result = 0;
+		if (balance != null) {
+			result = balance.intValue();
+		}
+		return result;
+	}		
+	
+	public static int getBalance(Parent parent) {
+		Integer balance =  repository.getBalance(parent.getParentId());
+		int result = 0;
+		if (balance != null) {
+			result = balance.intValue();
+		}
+		return result;
+	}			
 	
 	public enum BalanceType {
 		VOUCHER, 

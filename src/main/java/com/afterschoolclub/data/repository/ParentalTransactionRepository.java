@@ -17,7 +17,7 @@ public interface ParentalTransactionRepository extends CrudRepository<ParentalTr
 	
 	
 	@Query("SELECT * FROM parental_transaction WHERE parent_id = :parentId AND date_time >= :startDate AND date_time < :endDate ORDER BY date_time") 
-	List<ParentalTransaction> getMonthlyTransactions(int parentId, LocalDate startDate, LocalDate endDate);
+	List<ParentalTransaction> getTransactions(int parentId, LocalDate startDate, LocalDate endDate);
 }
 	
 	   
