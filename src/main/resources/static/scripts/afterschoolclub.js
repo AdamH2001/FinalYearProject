@@ -394,6 +394,8 @@ function validateEventForm(event) {
 	var maxMaxAttendees = $("#staff").val().length * 8;
 	var maxAttendees = 	$("#maxAttendees").val();
 	
+	// ensure have enough staff for attendees 
+	
 	if (maxAttendees > maxMaxAttendees) {
 		$("#validationMessage").text("Need at least one member of staff per 8 students.");
 		$("#validationContainer").show();
@@ -459,7 +461,7 @@ function setDateLimits(){
 	  
 	var start = new Date($("#startDate").val());
 	var now = new Date()
-	var sameDay = start.getDate() == now.getDate() && start.getMonth()== now.getMonth() && start.getYear()==now.getYear();
+	var isToday = start.getDate() == now.getDate() && start.getMonth()== now.getMonth() && start.getYear()==now.getYear();
 	
 	var earliestTime = new Date()
 	earliestTime.setHours(7);
@@ -472,8 +474,8 @@ function setDateLimits(){
 	var lastEndTime = new Date(lastStartTime).setMinutes(lastStartTime.getMinutes()+shortestPeriod);
 	
 	
-
-	if (sameDay) {
+	//set minimum start time 
+	if (isToday) {
 		if (now < earliestTime) {
 			$("#startTime").attr('min', formatTime(earliestTime));
 		}
@@ -485,14 +487,16 @@ function setDateLimits(){
 		$("#startTime").attr('min', formatTime(earliestTime));
 	}
 	
+	//set max end and start time 
 	$("#startTime").attr('max', formatTime(lastStartTime));
 	$("#endTime").attr('max', formatTime(lastEndTime));			   
 
-	
+	//set min time to ensure following shortest period
 	start.setHours(parseInt($("#startTime").val().substring(0,2)));
 	start.setMinutes(parseInt($("#startTime").val().substring(3,5))+shortestPeriod);	
 	$("#endTime").attr('min', formatTime(start) );		
 	
+	// set min date
 	if (now > lastStartTime) {
 		$("#startDate").attr('min', formatDate(now.setDate(now.getDate()+1)));
 	}	
