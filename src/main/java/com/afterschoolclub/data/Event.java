@@ -451,21 +451,27 @@ public class Event {
 	}	
 	
 	public List<ResourceStatus> getResourceStatus() {
-		Map<Integer, Integer> resourceRequirements = new HashMap<>();
+		Map<Integer, Integer> resourceRequirements = new HashMap<>(); //maps resourceId to quantity
 				
+		//get list map of all resourceid and quantities needed
 		for (EventResource er : eventResources) {
 			if (!resourceRequirements.containsKey(er.getResourceId().getId())) {
 				resourceRequirements.put(er.getResourceId().getId(), getRequiredResourceQuantity(er.getResourceId().getId().intValue()));
 			}
 		}
+		
+		// list of all resource objects requested
 		List <Resource> allResources = getRequiredResources();
 
 		OverlappingTimeline overlapTimeline = new OverlappingTimeline(this); 
 				
 		List<ResourceStatus> result = new ArrayList<ResourceStatus>();
 		
+		// for each type of resource requested creat a resource status
 		for (Integer resourceId : resourceRequirements.keySet()) {
-			int quantityRequested = resourceRequirements.get(resourceId);
+			
+			// find the resource object from the id
+			
 			Resource r = null;
 			Iterator<Resource> resourceIterator = allResources.iterator();
 			while (r == null && resourceIterator.hasNext()) {
@@ -475,7 +481,11 @@ public class Event {
 				}
 			}
 			
+			// determine existing demand for resource
 			int committedResource = overlapTimeline.getRequiredResourceQuantity(resourceId.intValue());			
+			int quantityRequested = resourceRequirements.get(resourceId);
+			
+			// create a resource status for each resource requested
 			result.add(new ResourceStatus(r, committedResource, quantityRequested, overlapTimeline));						
 		}
 

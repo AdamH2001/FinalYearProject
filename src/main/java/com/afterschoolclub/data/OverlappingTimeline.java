@@ -7,12 +7,12 @@ import java.util.List;
 
 public class OverlappingTimeline {
 
-	private Event originalEvent;
 	private List <TimelineEvent> timelineEvents = new ArrayList<TimelineEvent>(); 
 	
 	public enum TimelineEventType {
 		START, END
 	}
+	
 	
 	class TimelineEvent {
 		Event event;
@@ -49,13 +49,13 @@ public class OverlappingTimeline {
 		}						
 	}
 	
-	public OverlappingTimeline(Event event) {
-		this.originalEvent = event;		
-		List<Event> overlappingEvents = event.getOverlappingEvents();
+	public OverlappingTimeline(Event session) {
+		List<Event> overlappingSessions = session.getOverlappingEvents();
 		
-		for (Event e : overlappingEvents) {
-			timelineEvents.add(new TimelineEvent(e, TimelineEventType.START));
-			timelineEvents.add(new TimelineEvent(e, TimelineEventType.END));			
+		// create time-line event ordered by time of event
+		for (Event overlappingSession : overlappingSessions) {
+			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.START));
+			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.END));			
 		}
 		timelineEvents.sort(new Comparator<TimelineEvent>() {
 					public int compare(TimelineEvent tle1, TimelineEvent tle2) {
@@ -66,17 +66,18 @@ public class OverlappingTimeline {
 	}
 	
 	public int getRequiredResourceQuantity(int resourceId) {
-		int result = 0;
+		int maxResourceRequired = 0;
 		int currentRequirement = 0;
 		
+		// iterate over time-line events calculating maximum required instances of resource identified by resourceId
 		for (TimelineEvent e : timelineEvents) {
 			currentRequirement += e.getResourceQuantity(resourceId);
-			if (currentRequirement > result) {
-				result = currentRequirement;
+			if (currentRequirement > maxResourceRequired) {
+				maxResourceRequired = currentRequirement;
 			}
 		}
 		
-		return result;
+		return maxResourceRequired;
 	}
 								
 
