@@ -207,34 +207,31 @@ public class AdminController {
 	
 	
 	@GetMapping("/copyEvent")
-	public String copyEvent(@RequestParam (name="day") int day, @RequestParam (name="eventId") int eventId, Model model) {
+	public String copyEvent(@RequestParam (name="eventId") int eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {			
 			Event event = Event.findById(eventId);						
 			if (event!=null) {
-				Event newEvent = new Event(event);
-				LocalDateTime startDateTime = newEvent.getStartDateTime();
-				LocalDateTime endDateTime = newEvent.getEndDateTime();
-				startDateTime = startDateTime.plusDays(1);
-				endDateTime = endDateTime.plusDays(1);
-				while (startDateTime.getDayOfWeek().getValue() != day || startDateTime.isBefore(LocalDateTime.now())) {
-					startDateTime = startDateTime.plusDays(1);
-					endDateTime = endDateTime.plusDays(1);
-				}
-				newEvent.setStartDateTime(startDateTime);
-				newEvent.setEndDateTime(endDateTime);
-				newEvent.save();
-				model.addAttribute("flashMessage","Session copied");
+				Event newEvent = new Event(event);				
+				model.addAttribute("clubSession",newEvent);								
+				model.addAttribute("clubs",Club.findAll());				
+				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
+				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
+				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+				model.addAttribute("menus", MenuGroup.findAll());
+				returnPage = "createevent";				
 			}
 			else {
 				model.addAttribute("flashMessage","Link out of date");
+				returnPage = setupCalendar(model);
 			}
-			returnPage = setupCalendar(model);
 		}
-		return returnPage;
-			
+		return returnPage;			
 	}
 	
+	
+	
+	/*
 	@GetMapping("/copyEventAllWeek")
 	public String copyEventAllWeek(@RequestParam (name="next", defaultValue="false") boolean next, @RequestParam (name="eventId") int eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -329,7 +326,7 @@ public class AdminController {
 		}
 		return returnPage;	
 	}
-	
+	*/
 
 	@GetMapping("/cancelEvent")
 	public String cancelEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
@@ -426,7 +423,9 @@ public class AdminController {
 				returnPage = setupCalendar(model);
 			}
 			else {
-				model.addAttribute("editing",true);				
+				if (event.getEventId() != 0) {
+					model.addAttribute("editing",true);
+				}
 				model.addAttribute("clubSession",event);								
 				model.addAttribute("clubs",Club.findAll());				
 				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							

@@ -11,7 +11,7 @@
 
 
 </head>
-<body>
+<body onLoad="setDateLimits()">
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div class="container-fluid">
 		<div class="row flex-nowrap">
@@ -21,7 +21,7 @@
 			<div class="container-fluid col-sm-10">
 
 
-			<form action="./addEvent" method="post">
+			<form action="./addEvent" method="post" onSubmit="validateEventForm(event)">
 				<input id="eventId" type="hidden" name="eventId" th:value="${clubSession.getEventId()}" />
 				
 							
@@ -41,13 +41,16 @@
 						</th:block>
 					</th:block>
 					
+					<div class="afterschoolclubflash row mb-2"  style="display:none" id="validationContainer">					
+						<div class="col-sm-8"  id="validationMessage"></div>
+					</div>	
 
 					<div class="row mb-2">
 						<div class="col-sm-2" align="center">
 							<label for="club">Club:</label>
 						</div>
 						<div class="col-sm-2">
-							<select class="form-select form-control-sm mr-sm-2"  name="club" id="club" required>
+							<select class="form-select form-control-sm mr-sm-2"  name="club" id="club" required th:disabled="${clubSession.getNumberAttendees()>0}">
 								<option th:each="club : ${clubs}" th:value="${club.getClubId()}" th:text="${club.getTitle()}" th:selected="${clubSession.getClub()?.getClubId() == club.getClubId()}">Club Title</option>
 							</select>
 						</div>
@@ -91,13 +94,13 @@
 							<label for="startDate">Start Date:</label>
 						</div>
 						<div class="col-sm-2">
-							<input class="form-control form-control-sm mr-sm-2" required type="date" name="startDate" id="startDate" th:value="${clubSession.getStartDate()}"/>
+							<input class="form-control form-control-sm mr-sm-2" min="" required type="date" name="startDate" id="startDate" th:value="${clubSession.getStartDate()}" onChange="setDateLimits()"/>
 						</div>
 						<div class="col-sm-2" align="center">
 							<label for="startTime">Start Time:</label>
 						</div>
 						<div class="col-sm-2">
-							<input class="form-control form-control-sm mr-sm-2" required type="time" name="startTime" id="startTime"  th:value="${clubSession.getStartTime()}"/>
+							<input class="form-control form-control-sm mr-sm-2" min="06:00" required type="time" name="startTime" id="startTime"  th:value="${clubSession.getStartTime()}" onChange="setDateLimits()"/>
 						</div>						
 					</div>
 					
@@ -109,7 +112,7 @@
 							<label for="endTime">End Time:</label>
 						</div>
 						<div class="col-sm-2">
-							<input class="form-control form-control-sm mr-sm-2" required type="time" name="endTime" id="endTime" th:value="${clubSession.getEndTime()}"/>
+							<input class="form-control form-control-sm mr-sm-2" required type="time" name="endTime" id="endTime" th:value="${clubSession.getEndTime()}" onChange="setDateLimits()"/>
 						</div>
 					</div>
 					

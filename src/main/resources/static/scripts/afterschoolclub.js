@@ -387,3 +387,118 @@ function refreshBookingSummaryOld() {
 	
   return;
 }
+
+
+function validateEventForm(event) {
+	
+	var maxMaxAttendees = $("#staff").val().length * 8;
+	var maxAttendees = 	$("#maxAttendees").val();
+	
+	if (maxAttendees > maxMaxAttendees) {
+		$("#validationMessage").text("Need at least one member of staff per 8 students.");
+		$("#validationContainer").show();
+		event.preventDefault();		
+	}
+	
+
+
+	/*
+	start = new Date($("#startDate").val());
+	start.setHours(parseInt($("#startTime").val().substring(0,2)));
+	start.setMinutes(parseInt($("#startTime").val().substring(3,5)));
+	end = new Date($("#startDate").val());
+	end.setHours(parseInt($("#endTime").val().substring(0,2)));
+	end.setMinutes(parseInt($("#endTime").val().substring(3,5)));
+	if (start < new Date()) {
+		$("#validationMessage").text("Cannot schedule a new sesson in the past.");
+		$("#validationContainer").show();
+		event.preventDefault();
+	} else
+	{
+		if (end <= start) {			
+			$("#validationMessage").text("End Time needs to be after Start Time.");
+			$("#validationContainer").show();
+			event.preventDefault();
+		}
+	}*/
+	
+	
+	return;
+}
+
+function formatDate(date) {
+    var d = new Date(date); 
+    var month = '' + (d.getMonth() + 1);
+    var day = '' + d.getDate();
+	var year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+function formatTime(date) {
+    var d = new Date(date);
+	var hours = '' + d.getHours();
+	var mins = '' + d.getMinutes();
+        
+
+    if (hours.length < 2) 
+        hours = '0' + hours;
+    if (mins.length < 2) 
+        mins = '0' + mins;
+
+    return [hours, mins].join(':');
+}
+
+function setDateLimits(){
+	var shortestPeriod = 30;
+	  
+	var start = new Date($("#startDate").val());
+	var now = new Date()
+	var sameDay = start.getDate() == now.getDate() && start.getMonth()== now.getMonth() && start.getYear()==now.getYear();
+	
+	var earliestTime = new Date()
+	earliestTime.setHours(7);
+	earliestTime.setMinutes(0);
+
+	var lastStartTime = new Date();
+	lastStartTime.setHours(18);
+	lastStartTime.setMinutes(30);
+	
+	var lastEndTime = new Date(lastStartTime).setMinutes(lastStartTime.getMinutes()+shortestPeriod);
+	
+	
+
+	if (sameDay) {
+		if (now < earliestTime) {
+			$("#startTime").attr('min', formatTime(earliestTime));
+		}
+		else {
+			$("#startTime").attr('min', formatTime(now));
+		}
+	}
+	else{
+		$("#startTime").attr('min', formatTime(earliestTime));
+	}
+	
+	$("#startTime").attr('max', formatTime(lastStartTime));
+	$("#endTime").attr('max', formatTime(lastEndTime));			   
+
+	
+	start.setHours(parseInt($("#startTime").val().substring(0,2)));
+	start.setMinutes(parseInt($("#startTime").val().substring(3,5))+shortestPeriod);	
+	$("#endTime").attr('min', formatTime(start) );		
+	
+	if (now > lastStartTime) {
+		$("#startDate").attr('min', formatDate(now.setDate(now.getDate()+1)));
+	}	
+	else {
+		$("#startDate").attr('min', formatDate(now));
+	}   
+		
+  };
+
