@@ -3,6 +3,7 @@ package com.afterschoolclub;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,10 @@ import com.afterschoolclub.data.Event;
 import com.afterschoolclub.data.EventMenu;
 import com.afterschoolclub.data.EventResource;
 import com.afterschoolclub.data.Filter;
+import com.afterschoolclub.data.Holiday;
 import com.afterschoolclub.data.Incident;
 import com.afterschoolclub.data.MenuGroup;
+import com.afterschoolclub.data.RecurrenceSpecification;
 import com.afterschoolclub.data.Resource;
 import com.afterschoolclub.data.ResourceStatus;
 import com.afterschoolclub.data.Student; 
@@ -148,33 +151,6 @@ public class AdminController {
 		return returnPage;
 	}	
 	
-	@GetMapping("/takeRegister")
-	public String takeRegister(@RequestParam (name="eventId") int eventId, Model model) {
-		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {				
-			Event event = Event.findById(eventId);
-			if (event != null) {
-				for (Attendee attendee: event.getAttendees()) {
-					List<Student> studList = Student.findByAttendeeId(attendee.getAttendeeId());
-					
-					for (Student student: studList) {
-						logger.info("student = {}", student);
-						attendee.setStudent(student);
-					}					
-				}
-				model.addAttribute("event",event);
-				this.setInDialogue(true,model);
-				returnPage = "takeregister";
-			}
-			else {
-				model.addAttribute("flashMessage","Link out of date");
-				returnPage = setupCalendar(model);				
-			}
-		}
-		return returnPage;
-	
-			
-	}
 	
 	@PostMapping("/addRegister")
 	public String addRegister(@RequestParam Map<String,String> register, Model model) {
@@ -182,14 +158,18 @@ public class AdminController {
 		if (returnPage == null) {			
 			Event event = Event.findById(Integer.parseInt(register.get("eventId")));
 			if (event!=null) {
-				for (Map.Entry<String, String> entry : register.entrySet()) {
-			        System.out.println(entry.getKey() + ":" + entry.getValue());
-			        if (entry.getKey().startsWith("attendee_")) {
-			        	int attendeeId = Integer.parseInt(entry.getKey().substring(9));
-			        	Attendee attendee = event.getAttendee(attendeeId);
-			        	attendee.setAttended(entry.getValue().equals("on"));
-			        }
-			    }
+				for (Attendee attendee: event.getAttendees()) {
+					String value = register.get("attendee_".concat(String.valueOf(attendee.getAttendeeId())));
+					if (value.equals("Present")) {
+							attendee.setAttended(Attendee.Registration.PRESENT);
+					}
+					else if (value.equals("Absent")) {
+						attendee.setAttended(Attendee.Registration.ABSENT);
+					}
+					else {
+						attendee.setAttended(Attendee.Registration.NOTRECORDED);
+					}
+				}
 				event.save();
 				model.addAttribute("flashMessage","Recorded Register");	
 			}
@@ -212,14 +192,22 @@ public class AdminController {
 		if (returnPage == null) {			
 			Event event = Event.findById(eventId);						
 			if (event!=null) {
-				Event newEvent = new Event(event);				
+				Event newEvent = new Event(event);
+				newEvent.initialiseStartEndTimes();
+				model.addAttribute("scheduling",true);							
+				model.addAttribute("editing",false);
+				model.addAttribute("viewing",false);
+				model.addAttribute("takingRegister",false);
+				
+				
 				model.addAttribute("clubSession",newEvent);								
 				model.addAttribute("clubs",Club.findAll());				
 				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
 				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
-				returnPage = "createevent";				
+				setInDialogue(true, model);
+				returnPage = "adminsession";				
 			}
 			else {
 				model.addAttribute("flashMessage","Link out of date");
@@ -230,104 +218,6 @@ public class AdminController {
 	}
 	
 	
-	
-	/*
-	@GetMapping("/copyEventAllWeek")
-	public String copyEventAllWeek(@RequestParam (name="next", defaultValue="false") boolean next, @RequestParam (name="eventId") int eventId, Model model) {
-		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {	
-			Event event = Event.findById(eventId);						
-			if (event != null) {
-				LocalDateTime startDateTime = event.getStartDateTime();
-				LocalDateTime endDateTime = event.getEndDateTime();
-		
-				if (next) {
-					startDateTime = startDateTime.plusDays(1);
-					endDateTime = endDateTime.plusDays(1);
-					while (startDateTime.getDayOfWeek().getValue() != 1) {
-						startDateTime = startDateTime.plusDays(1);
-						endDateTime = endDateTime.plusDays(1);
-					}
-				}
-				else {
-					while (startDateTime.getDayOfWeek().getValue() != 1) {
-						startDateTime = startDateTime.minusDays(1);
-						endDateTime = endDateTime.minusDays(1);
-					}
-				}
-				int copiedEvents = 0;
-				while (startDateTime.getDayOfWeek().getValue() >= 1 && startDateTime.getDayOfWeek().getValue() <= 5) {
-					if (startDateTime.isAfter(LocalDateTime.now())) {
-						if (!startDateTime.equals(event.getStartDateTime())) {
-							Event newEvent = new Event(event);
-							newEvent.setStartDateTime(startDateTime);
-							newEvent.setEndDateTime(endDateTime);
-							newEvent.save();
-							copiedEvents++;
-						}
-					}
-					startDateTime = startDateTime.plusDays(1);
-					endDateTime = endDateTime.plusDays(1);
-				}
-				String message = "Copied " + Integer.toString(copiedEvents) + " sessions";
-				model.addAttribute("flashMessage",message);					
-			}
-			else {
-				model.addAttribute("flashMessage","Link out of date");					
-			}
-			returnPage = setupCalendar(model);
-		}
-		return returnPage;
-	}
-	
-	@GetMapping("/copyEventAllMonth")
-	public String copyEventAllMonth(@RequestParam (name="next", defaultValue="false") boolean next, @RequestParam (name="eventId") int eventId, Model model) {
-		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {	
-			Event event = Event.findById(eventId);						
-			if (event != null) {
-				LocalDateTime startDateTime = event.getStartDateTime();
-				LocalDateTime endDateTime = event.getEndDateTime();
-				int currentMonth = startDateTime.getMonthValue();
-				if (next) {
-					while (startDateTime.getMonthValue() == currentMonth) {
-						startDateTime = startDateTime.plusDays(1);
-						endDateTime = endDateTime.plusDays(1);
-					}
-					currentMonth = startDateTime.getMonthValue();						
-				}
-				else {
-					startDateTime = startDateTime.minusDays(startDateTime.getDayOfMonth()-1);
-					endDateTime = endDateTime.minusDays(startDateTime.getDayOfMonth()-1);
-				}					
-				int copiedEvents = 0;
-				while (startDateTime.getMonthValue() == currentMonth) {
-					if (startDateTime.isAfter(LocalDateTime.now())) {
-						if (startDateTime.getDayOfWeek().getValue() >= 1 && startDateTime.getDayOfWeek().getValue() <= 5) {
-							if (!startDateTime.equals(event.getStartDateTime())) {
-								Event newEvent = new Event(event);
-								newEvent.setStartDateTime(startDateTime);
-								newEvent.setEndDateTime(endDateTime);
-								newEvent.save();
-								copiedEvents++;
-							}
-						}
-					}
-					startDateTime = startDateTime.plusDays(1);
-					endDateTime = endDateTime.plusDays(1);
-				}
-				String message = "Copied " + Integer.toString(copiedEvents) + " sessions";
-				model.addAttribute("flashMessage",message);
-			}
-			else {
-				model.addAttribute("flashMessage","Link out of date");
-			}
-			returnPage = setupCalendar(model);
-		}
-		return returnPage;	
-	}
-	*/
-
 	@GetMapping("/cancelEvent")
 	public String cancelEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -346,9 +236,18 @@ public class AdminController {
 	public String addEvent(@RequestParam(name = "club") int clubId,
 			@RequestParam(name = "location") int location,
 			@RequestParam(name = "startDate") LocalDate startDate,
-			@RequestParam(name = "startTime") LocalTime startTime, 
-			@RequestParam(name = "endTime") LocalTime endTime, 
-			@RequestParam(name = "maxAttendees") int maxAttendees,
+			@RequestParam(name = "startTime") LocalTime startTime,
+			@RequestParam(name = "endTime") LocalTime endTime,
+			@RequestParam(name = "maxAttendees") int maxAttendees,			
+			@RequestParam(name = "recurringEndDate", required=false) LocalDate recurringEndDate,
+			@RequestParam(name = "MonRecurring", required=false) Boolean MonRecurring,
+			@RequestParam(name = "TueRecurring", required=false) Boolean TueRecurring,
+			@RequestParam(name = "WedRecurring", required=false) Boolean WedRecurring,
+			@RequestParam(name = "ThurRecurring", required=false) Boolean ThurRecurring,
+			@RequestParam(name = "FriRecurring", required=false) Boolean FriRecurring,
+			@RequestParam(name = "SatRecurring", required=false) Boolean SatRecurring,
+			@RequestParam(name = "SunRecurring", required=false) Boolean SunRecurring,
+			@RequestParam(name = "termTimeOnly", required=false) Boolean termTimeOnly,			 
 			@RequestParam(name = "staff") List<Integer> staff,	
 			@RequestParam(name = "menu", required=false) List<Integer> menuGroups,			
 			@RequestParam(name = "equipment") List<Integer> equipment,
@@ -359,82 +258,172 @@ public class AdminController {
 			Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {
-			Event event = null;
 			LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
 			LocalDateTime endDateTime = LocalDateTime.of(startDate, endTime);
+			List<Event> allEvents = new ArrayList<Event>();
+			RecurrenceSpecification rs = null;
 			
 			if (eventId != 0 ) {
-				event = Event.findById(eventId);				
+				Event event = Event.findById(eventId);				
 				event.clearResources();
 				event.clearMenu();
 				
 				event.setStartDateTime(startDateTime);
 				event.setEndDateTime(endDateTime);				
 				event.setMaxAttendees(maxAttendees);
+				allEvents.add(event);
 			}
 			else {
-				event = new Event(AggregateReference.to(clubId),  startDateTime, endDateTime, maxAttendees);	
-			}
-							
-			for (Integer staffMember : staff) {
-				EventResource er = new EventResource(AggregateReference.to(staffMember), 1, false);
-				event.addResource(er);
+				List<Holiday> allHolidays = Holiday.findAll();
+				Event event = new Event(AggregateReference.to(clubId),  startDateTime, endDateTime, maxAttendees);
+				allEvents.add(event);
+				
+				rs = new RecurrenceSpecification(startDateTime.toLocalDate(),  recurringEndDate, MonRecurring, TueRecurring, WedRecurring, ThurRecurring, FriRecurring, SatRecurring, SunRecurring, termTimeOnly);				
+				rs.save(); // Need to save so get set the aggregate Id for each event
+
+				event.setRecurrenceSpecification(rs);
+				
+				
+				logger.info("Recurrence Specfication Id = {}",rs.getRecurrenceSpecificationId());
+
+				
+				int copiedEvents = 0;
+				LocalDate nextDate = startDateTime.toLocalDate().plusDays(1);
+								
+				while (nextDate.compareTo(recurringEndDate) <= 0) {
+					Boolean copy; 
+					switch (nextDate.getDayOfWeek()) {
+					case MONDAY:
+						copy = MonRecurring;
+						break;
+					case TUESDAY:
+						copy = TueRecurring;
+						break;
+						
+					case WEDNESDAY:
+						copy = WedRecurring;
+						break;
+						
+					case THURSDAY:
+						copy = ThurRecurring;
+						break;
+						
+					case FRIDAY:
+						copy = FriRecurring;
+						break;
+
+					case SATURDAY:
+						copy = SatRecurring;
+						break;
+
+					case SUNDAY:
+						copy = SunRecurring;
+						break;
+
+					default:
+						copy = Boolean.FALSE;
+						break;
+					}
+					boolean isRecurringDay = (copy == null) ? false:copy.booleanValue();
+					boolean copyTermTimeOnly = (termTimeOnly == null) ? false : termTimeOnly.booleanValue();
+						
+					if (isRecurringDay && (!copyTermTimeOnly || !Holiday.isDateInHolidays(nextDate, allHolidays))) {						
+						Event newEvent = new Event(event);
+						
+						newEvent.setStartDateTime(nextDate.atTime(startDateTime.toLocalTime()));
+						newEvent.setEndDateTime(nextDate.atTime(endDateTime.toLocalTime()));
+						allEvents.add(newEvent);
+						copiedEvents++;						
+					}
+					nextDate = nextDate.plusDays(1);					
+				}								
 			}
 			
-			logger.info("Selected equipment = {}",equipment);
-			logger.info("Selected equipmentQuantity = {}",equipmentQuantity);
-			logger.info("Selected perAttendee = {}",perAttendee);
+			boolean allResourcesOk = true;
+			List <ResourceStatus> allResourceChallenges = new ArrayList<ResourceStatus>();
 
-			int counter = 0;				
-			for (Integer item : equipment) {					
-				if ( item.intValue() != 0) {
-					int quantity = equipmentQuantity.get(counter).intValue();
-					boolean bPerAttendee = perAttendee.get(counter).booleanValue();
-					
-					EventResource er = new EventResource(AggregateReference.to(item), quantity, bPerAttendee);
-					
-					logger.info("Selected perAtEventResource= {}",er);
+			
+			for (Event event: allEvents) {
+
+				for (Integer staffMember : staff) {
+					EventResource er = new EventResource(AggregateReference.to(staffMember), 1, false);
 					event.addResource(er);
 				}
-				counter++;
-			}			
-			EventResource er = new EventResource(AggregateReference.to(location), 1, false);
-			event.addResource(er);
-			if (menuGroups != null)
-			{
-				for (Integer menu : menuGroups) {
 				
-					EventMenu newMenu = new EventMenu(AggregateReference.to(menu));
-					event.addEventMenu(newMenu);						
+				logger.info("Selected equipment = {}",equipment);
+				logger.info("Selected equipmentQuantity = {}",equipmentQuantity);
+				logger.info("Selected perAttendee = {}",perAttendee);
+	
+				int counter = 0;				
+				for (Integer item : equipment) {					
+					if ( item.intValue() != 0) {
+						int quantity = equipmentQuantity.get(counter).intValue();
+						if (quantity > 0) {
+							boolean bPerAttendee = perAttendee.get(counter).booleanValue();
+							
+							EventResource er = new EventResource(AggregateReference.to(item), quantity, bPerAttendee);
+							
+							logger.info("Selected perAtEventResource= {}",er);
+							event.addResource(er);
+						}
+					}
+					counter++;
+				}			
+				EventResource er = new EventResource(AggregateReference.to(location), 1, false);
+				event.addResource(er);
+				if (menuGroups != null)
+				{
+					for (Integer menu : menuGroups) {
+					
+						EventMenu newMenu = new EventMenu(AggregateReference.to(menu));
+						event.addEventMenu(newMenu);						
+					}
 				}
-			}
-			
-			List <ResourceStatus> resourceStatus = event.getResourceStatus();
-			logger.info("ResourceStatus = {}", resourceStatus);
-			boolean allResourcesOk = true;
-			Iterator<ResourceStatus> rsIterator = resourceStatus.iterator();
-			while (allResourcesOk && rsIterator.hasNext()) {
-				allResourcesOk = rsIterator.next().isSufficient();
+				
+				List <ResourceStatus> resourceStatus = event.getResourceStatus();
+				logger.info("ResourceStatus = {}", resourceStatus);
+				Iterator<ResourceStatus> rsIterator = resourceStatus.iterator();
+				while (rsIterator.hasNext()) {
+					ResourceStatus nextStatus = rsIterator.next();
+					if (!nextStatus.isSufficient()) {
+						allResourcesOk = false;
+						allResourceChallenges.add(nextStatus);
+						
+					}		
+				}
 			}
 			
 			
 			if (allResourcesOk) {
-				event.save();	
+				Event.saveAll(allEvents);				
 				returnPage = setupCalendar(model);
 			}
 			else {
-				if (event.getEventId() != 0) {
+								
+				if (allEvents.get(0).getEventId() != 0) {
 					model.addAttribute("editing",true);
+					model.addAttribute("scheduling",false);		
+					model.addAttribute("takingRegister",false);					
+					model.addAttribute("viewing",false);					
 				}
-				model.addAttribute("clubSession",event);								
+				else {
+					model.addAttribute("scheduling",true);					
+					model.addAttribute("editing",false);
+					model.addAttribute("takingRegister",false);					
+					model.addAttribute("viewing",false);					
+					
+					rs.delete();
+				}
+					
+				model.addAttribute("clubSession",allEvents.get(0));								
 				model.addAttribute("clubs",Club.findAll());				
 				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
 				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
-				model.addAttribute("resourceStatus", resourceStatus);		
+				model.addAttribute("resourceStatus", allResourceChallenges);		
 				this.setInDialogue(true,model);				
-				returnPage = "createevent";				
+				returnPage = "adminsession";				
 			}
 			
 							
@@ -447,6 +436,11 @@ public class AdminController {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {	
 			Event event = new Event();	
+			model.addAttribute("scheduling",true);	
+			model.addAttribute("editing",false);
+			model.addAttribute("viewing",false);
+			model.addAttribute("takingRegister",false);			
+			
 			model.addAttribute("clubSession",event);								
 			model.addAttribute("clubs",Club.findAll());				
 			model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
@@ -454,7 +448,7 @@ public class AdminController {
 			model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
 			model.addAttribute("menus", MenuGroup.findAll());			
 			this.setInDialogue(true,model);
-			returnPage = "createevent";
+			returnPage = "adminsession";
 		} 
 		return returnPage;
 	}
@@ -465,14 +459,20 @@ public class AdminController {
 		if (returnPage == null) {	
 			Event event = Event.findById(eventId);			
 			if (event!=null) {
-				model.addAttribute("editing",true);				
+				model.addAttribute("editing",true);	
+				model.addAttribute("scheduling",false);					
+				model.addAttribute("viewing",false);
+				model.addAttribute("takingRegister",false);				
+				
 				model.addAttribute("clubSession",event);								
 				model.addAttribute("clubs",Club.findAll());				
 				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
 				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
-				returnPage = "createevent";
+				setInDialogue(true, model);
+				
+				returnPage = "adminsession";
 			}
 			else {
 				model.addAttribute("flashMessage","Session does not exist");
@@ -482,6 +482,68 @@ public class AdminController {
 		} 
 		return returnPage;
 	}	
+	
+	@GetMapping("/adminViewSession")
+	public String adminViewSession(@RequestParam (name="eventId") Integer eventId, Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {	
+			Event event = Event.findById(eventId);			
+			if (event!=null) {
+				model.addAttribute("viewing",true);		
+				model.addAttribute("scheduling",false);	
+				model.addAttribute("editing",false);
+				model.addAttribute("takingRegister",false);				
+								
+				model.addAttribute("clubSession",event);								
+				model.addAttribute("clubs",Club.findAll());				
+				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
+				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
+				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+				model.addAttribute("menus", MenuGroup.findAll());
+				model.addAttribute("displayHelper", new DisplayHelper());			
+				
+				returnPage = "adminsession";
+			}
+			else {
+				model.addAttribute("flashMessage","Session does not exist");
+				this.setInDialogue(true,model);
+				returnPage = setupCalendar(model);				
+			}
+		} 
+		return returnPage;
+	}	
+	
+	@GetMapping("/takeRegister")
+	public String takeRegister(@RequestParam (name="eventId") Integer eventId, Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {	
+			Event event = Event.findById(eventId);			
+			if (event!=null) {
+				model.addAttribute("viewing",true);		
+				model.addAttribute("scheduling",false);	
+				model.addAttribute("editing",false);
+				model.addAttribute("takingRegister",true);
+								
+				model.addAttribute("clubSession",event);								
+				model.addAttribute("clubs",Club.findAll());				
+				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
+				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
+				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+				model.addAttribute("menus", MenuGroup.findAll());
+				model.addAttribute("displayHelper", new DisplayHelper());			
+				setInDialogue(true, model);
+				
+				returnPage = "adminsession";
+			}
+			else {
+				model.addAttribute("flashMessage","Session does not exist");
+				this.setInDialogue(true,model);
+				returnPage = setupCalendar(model);				
+			}
+		} 
+		return returnPage;
+	}	
+	
 	
 	@GetMapping("/createClub")
 	public String createClub(Model model) {
@@ -516,29 +578,4 @@ public class AdminController {
 		return returnPage;
 
 	}	
-
-	@GetMapping("/adminViewSession")
-	public String viewEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
-		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {	
-			Event event = Event.findById(eventId);			
-			
-			if (event != null) {				
-				model.addAttribute("eventToView",event);
-				
-				List<Resource> staff = Resource.findByType(Resource.Type.STAFF);
-				model.addAttribute("staff", staff);
-				
-				logger.info("Event stadd are {}", event.getStaff());
-				
-				returnPage = "viewevent";
-			}
-			else {
-				model.addAttribute("flashMessage","Session does not exist");
-				this.setInDialogue(true,model);
-				returnPage = setupCalendar(model);				
-			}
-		}
-		return returnPage;
-	}
 }

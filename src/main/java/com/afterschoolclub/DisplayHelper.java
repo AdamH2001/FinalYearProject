@@ -109,7 +109,34 @@ public class DisplayHelper {
 		return result;
 	}
 	
-
+	
+	public String getOptionText(MenuGroup menuGroup, Student student, Event event)
+	{
+		boolean foundOption = false;
+		String optionText = "None";
+		
+		
+		Set<MenuGroupOption> mgos = menuGroup.getMenuGroupOptions();
+		
+		Iterator<MenuGroupOption> mgoIterator = mgos.iterator();
+		while (mgoIterator.hasNext() && !foundOption) {
+			MenuGroupOption mgo = mgoIterator.next();
+			Set<MenuOption> menuOptions = mgo.getMenuOptions();	
+			Iterator<MenuOption> iterator = menuOptions.iterator();
+			while (iterator.hasNext() && !foundOption) {
+				MenuOption mo = iterator.next();
+				foundOption = student.chosenMenuOptionForEvent(event, mo.getMenuOptionId());
+				if (foundOption) {
+					optionText = mo.getName();
+				}
+			}		
+		}
+			
+			
+		return optionText;
+	}
+	
+	
 	
 			
 }

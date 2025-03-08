@@ -11,12 +11,9 @@
 </head>
 <body>
 
-	<div th:fragment="leftnav"
-		class="col-auto col-md-2 px-sm-2 px-0 bg-navafterschoolclub text-afterschoolwhite height maxWidth">
-		<div th:unless="${sessionBean.isLoggedOn()}"
-			class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">
-			<ul
-				class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+	<div th:fragment="leftnav" class="container afterschoolheader text-afterschoolwhite" style="position:fixed">
+		<div id="leftnav" th:unless="${sessionBean.isLoggedOn()}" class="leftnav row col-sm-2 bg-navafterschoolclub d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">
+			<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
 				id="menu">
 				<li class="nav-item"><a href="./"
 					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> <i class="fs-4 bi-house"></i>
@@ -32,15 +29,11 @@
 					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> <i class="fs-4 bi-house"></i>
 						<span class="ms-1 d-none d-sm-inline">New User</span>
 				</a></li>
-				
-				<li class="nav-item"><a href="javascript:new bootstrap.Modal(document.getElementById('myModal'), {}).show()"
-					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> <i class="fs-4 bi-house"></i>
-						<span class="ms-1 d-none d-sm-inline">New Modal User</span>
-				</a></li>				
+						
 				
 			</ul>
 		</div>
-		<div th:if="${sessionBean.isLoggedOn()}" class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">			
+		<div id="leftnav" th:if="${sessionBean.isLoggedOn()}" class="leftnav row col-sm-2 bg-navafterschoolclub height d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">			
 			<div>
 				<div th:if="${sessionBean.isAdminLoggedOn()}">
 
@@ -90,7 +83,7 @@
 								<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">						
 									<li class="nav-item">
 										<a href="javascript:adminFiltersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-											<input class="Attending form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isOnlyMineFilter()}" name="onlyMine" th:disabled="${sessionBean.isInDialogue()}" id="attending" onChange="adminFiltersForm.submit()"/>									
+											<input class="Attending Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isOnlyMineFilter()}" name="onlyMine" th:disabled="${sessionBean.isInDialogue()}" id="attending" onChange="adminFiltersForm.submit()"/>									
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="attending">Only Mine</label>
 										</a>
 									</li>
@@ -174,35 +167,35 @@
 								<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="Attending form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAttending()}" th:disabled="${sessionBean.isInDialogue()}" name="attending"  id="attending" onChange="filtersForm.submit()"/>
+										<input class="Attending Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAttending()}" th:disabled="${sessionBean.isInDialogue()}" name="attending"  id="attending" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()} ? 'disabled FilterCheck' : 'FilterCheck'" for="attending">Attending</label>
 										</a>
 									</li>
 									
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="Available form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAvailable()}" th:disabled="${sessionBean.isInDialogue()}" name="available" id="available" onChange="filtersForm.submit()"/>
+										<input class="Available Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAvailable()}" th:disabled="${sessionBean.isInDialogue()}" name="available" id="available" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="available">Available</label>
 										</a>
 									</li>
 														
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="NotAvailable form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingUnavailable()}" th:disabled="${sessionBean.isInDialogue()}" name="unavailable" id="unavailable" onChange="filtersForm.submit()"/>
+										<input class="NotAvailable Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingUnavailable()}" th:disabled="${sessionBean.isInDialogue()}" name="unavailable" id="unavailable" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="unavailable">Unavailable</label>
 										</a>
 									</li>
 									
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="Missed form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingMissed()}" th:disabled="${sessionBean.isInDialogue()}" name="missed" id="missed" onChange="filtersForm.submit()"/>
+										<input class="Missed Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingMissed()}" th:disabled="${sessionBean.isInDialogue()}" name="missed" id="missed" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="missed">Missed</label>
 										</a>
 									</li>
 									
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="Attended form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAttended()}"  th:disabled="${sessionBean.isInDialogue()}" name="attended" id="attended" onChange="filtersForm.submit()"/>
+										<input class="Attended Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAttended()}"  th:disabled="${sessionBean.isInDialogue()}" name="attended" id="attended" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="attended">Attended</label>
 										</a>
 									</li>									

@@ -1,7 +1,7 @@
 package com.afterschoolclub.data;
 
 import java.util.HashSet;
-
+import java.util.List;
 import java.util.Set;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.Id;
@@ -16,15 +16,24 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Attendee {
+	
+	public enum Registration {
+		ABSENT, 
+		PRESENT, 
+		NOTRECORDED 		
+	}	
+	
 	@Id
 	private int attendeeId;
 	AggregateReference<Event, Integer> eventId;
 	private int studentId;
-	private boolean attended = false;
+	private Registration attended = Registration.NOTRECORDED;
 	@MappedCollection(idColumn = "attendee_id")
 	private Set<Incident> incidents = new HashSet<>();
 	@MappedCollection(idColumn = "attendee_id")
 	private Set<AttendeeMenuChoice> menuChoices = new HashSet<>();
+	
+    @ToString.Exclude
 	@Transient
 	private transient Student student;
 	
@@ -50,5 +59,21 @@ public class Attendee {
 		menuChoices.clear();
 	}	
 	
+	public Student  getStudent() {
+		if (student == null) {
+			List<Student> studList = Student.findByAttendeeId(this.getAttendeeId());
+			student = studList.get(0);				
+		}
+		return student;
+		
+	}		
 	
+	public boolean didAttend() {
+		return attended == Registration.PRESENT;
+	}
+
+	
+	public boolean wasAbsent() {
+		return attended == Registration.ABSENT;
+	}
 }

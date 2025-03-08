@@ -6,16 +6,16 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"> </script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
-	<link rel="stylesheet" href="./css/styles.css"/>
+	<link rel="stylesheet" href="./css/styles.css"/>	
+	<script src="./scripts/afterschoolclub.js"></script>		
 </head>
 <body>
 	<div th:replace="~{fragments/header :: header}"></div>
-	<div class="container-fluid">
-		<div class="row flex-nowrap">
-			<div th:replace="~{fragments/leftnav :: leftnav}"
-				class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark"></div>
-				
-			<div class="container-fluid col-sm-10">
+	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
+
+	
+	<div id="main" class="main container-flex no-margin ">
 				
 			<form action="./addStudent" method="post">
 			<div class="col py-3">
@@ -139,8 +139,6 @@
 				</div>
 			</form>
 		</div>
-		</div>
-		</div>
-		<div th:replace="~{fragments/footer :: footer}"></div>
+
 </body>
 </html>

@@ -1,7 +1,7 @@
 USE after_school_club2;
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE `attendee`, `Attendee_Menu_Choice`, `administrator`, `class`,  `club`, `event`, `Event_Menu`, `Event_Resource`, `incident`, `Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`, `parent`, `resource`, `student`, `Parental_Transaction`, `user`;
+DROP TABLE `attendee`, `Attendee_Menu_Choice`, `Holiday`, `Recurrence_Specification`, `administrator`, `class`,  `club`, `event`, `Event_Menu`, `Event_Resource`, `incident`, `Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`, `parent`, `resource`, `student`, `Parental_Transaction`, `user`;
 SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE `User` (
@@ -30,12 +30,35 @@ CREATE TABLE `Club` (
   `year_6_can_attend` BOOLEAN NOT NULL
 );
 
+CREATE TABLE `Recurrence_Specification` (
+  `recurrence_specification_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `start_date` DATE NOT NULL,
+  `end_date` DATE NOT NULL,
+  `occurs_monday` BOOLEAN NOT NULL,
+  `occurs_tuesday` BOOLEAN NOT NULL,
+  `occurs_wednesday` BOOLEAN NOT NULL,
+  `occurs_thursday` BOOLEAN NOT NULL,
+  `occurs_friday` BOOLEAN NOT NULL,
+  `occurs_saturday` BOOLEAN NOT NULL,
+  `occurs_sunday` BOOLEAN NOT NULL,
+  `term_time_only` BOOLEAN NOT NULL
+);
+
 CREATE TABLE `Event` (
   `event_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `recurrence_specification_id` INT,
   `club_id` INT NOT NULL,
   `start_date_time` DATETIME NOT NULL,
   `end_date_time` DATETIME NOT NULL,
+  `administrator_notes` VARCHAR(1024),
+  `parent_notes` VARCHAR(1024),
   `max_attendees` INT
+);
+
+CREATE TABLE `Holiday` (
+  `holiday_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `start_date` DATE,
+  `end_date` DATE
 );
 
 CREATE TABLE `Parental_Transaction` (
@@ -71,7 +94,7 @@ CREATE TABLE `Attendee` (
   `attendee_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `event_id` INT NOT NULL,
   `student_id` INT NOT NULL,
-  `attended` BOOLEAN
+  `attended` ENUM('ABSENT','PRESENT','NOTRECORDED') NOT NULL
 );
 
 CREATE TABLE `Incident` (
@@ -188,6 +211,7 @@ ALTER TABLE `Administrator` ADD FOREIGN KEY (`user_id`) REFERENCES `User` (`user
 
 ALTER TABLE `Administrator` ADD FOREIGN KEY (`resource_id`) REFERENCES `Resource` (`resource_id`);
 
+ALTER TABLE `Event` ADD FOREIGN KEY (`recurrence_specification_id`) REFERENCES `Recurrence_Specification` (`recurrence_specification_id`);
 
 # Inserts
 INSERT into after_school_club2.class (name,year_group)
@@ -275,3 +299,16 @@ VALUES ("Football", "Regular sized football", 10, "Equipment", "sport football b
         ("Guitar", "guitar", 3, "Equipment", "guitar music"),
         ("Recorder", "recorder", 10, "Equipment", "record music");
         
+INSERT into after_school_club2.holiday(start_date, end_date) 
+	VALUES ("2025-4-7", "2025-4-21"), 
+			("2025-5-26", "2025-5-30"), 
+            ("2025-7-23", "2025-9-2"), 
+            ("2025-10-27", "2025-10-31"), 
+            ("2025-12-22", "2026-1-2"), 
+            ("2026-2-16", "2026-2-20"), 
+            ("2026-3-30", "2026-4-10"), 
+            ("2026-5-25", "2026-5-29"), 
+            ("2026-7-23", "2026-8-31");
+            
+            
+            

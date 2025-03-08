@@ -58,6 +58,18 @@ public class Event {
 		return event;
 	}	
 	
+	public static List<Event>  findRecurringEvents(int recurringId) {
+		return repository.findByReccurenceSpecificationId(recurringId);		
+		
+	}	
+		
+	
+	public static void saveAll(List<Event> allEvents) {
+		repository.saveAll(allEvents);
+		
+	}	
+	
+	
 	public static void deleteById(int eventId) {
 		repository.deleteById(eventId);		
 	}		
@@ -68,10 +80,17 @@ public class Event {
 	private int eventId;
 		
 	AggregateReference<Club, Integer> clubId;
+	AggregateReference<RecurrenceSpecification, Integer> recurrenceSpecificationId;
+	
 	
 	private LocalDateTime startDateTime;
 	private LocalDateTime endDateTime;	
 	private int maxAttendees;
+	
+	
+	private String parentNotes="";
+
+	private String administratorNotes="";
 	
 	@MappedCollection(idColumn = "event_id")
 	private Set<EventResource> eventResources = new HashSet<>();
@@ -84,6 +103,9 @@ public class Event {
 	
 	@Transient
 	private transient Club eventClub = null; 
+
+	@Transient
+	private transient RecurrenceSpecification recurrenceSpecification = null; 	
 	
 	@Transient
 	private transient List<MenuGroup> menuGroups = null; 
@@ -94,17 +116,26 @@ public class Event {
 
 	
 	public Event() {
-		super();	
+		super();			
+		this.clubId= null;
+		this.maxAttendees = 10;	
+		initialiseStartEndTimes();
+	}
+
+	public void setRecurrenceSpecification(RecurrenceSpecification rs) {
+		this.recurrenceSpecification = rs;
+		recurrenceSpecificationId = AggregateReference.to(rs.getRecurrenceSpecificationId());
+	}
+	
+	
+	public void initialiseStartEndTimes() {
 		LocalDateTime tomorrow =LocalDateTime.now().plusDays(1); 
 		LocalTime startTime = LocalTime.of(15, 30);
 		LocalTime endTime = LocalTime.of(17, 0);
-		
-		this.clubId= null;
 		this.startDateTime = LocalDateTime.of(tomorrow.toLocalDate(), startTime);
 		this.endDateTime = LocalDateTime.of(tomorrow.toLocalDate(), endTime);;
-		this.maxAttendees = 10;		
 	}
-
+	
 	
 	
 	/**
@@ -123,7 +154,12 @@ public class Event {
 		this.startDateTime = startDateTime;
 		this.endDateTime = endDateTime;
 		this.maxAttendees = maxAttendees;
-		this.eventClub=null;		
+		this.eventClub=null;	
+		this.parentNotes = "";
+		this.administratorNotes = "";
+				
+		
+		
 	}
 	
 	/**
@@ -147,9 +183,13 @@ public class Event {
 		
 		this.eventClub = e.eventClub;
 		
+		this.recurrenceSpecificationId = e.getRecurrenceSpecificationId();
+		this.recurrenceSpecification = e.getRecurrenceSpecification();
+		this.parentNotes = e.parentNotes;
+		this.administratorNotes = e.administratorNotes;
+		
 		// Don't copy attendees or incidents
 		
-		//TODO will need to copy Event_Menu when get round to that.
 		
 		
 	}
@@ -209,6 +249,21 @@ public class Event {
 			eventClub = Club.findById(clubId.getId());
 		}
 		return eventClub;
+		
+	}
+	
+	public RecurrenceSpecification getRecurrenceSpecification() {
+		if (this.recurrenceSpecification == null && recurrenceSpecificationId != null) {
+			recurrenceSpecification = RecurrenceSpecification.findById(recurrenceSpecificationId.getId());
+		}
+		else if (recurrenceSpecification == null) 			
+		{
+			recurrenceSpecification = new RecurrenceSpecification();
+			recurrenceSpecification.setStartDate(startDateTime.toLocalDate());
+			recurrenceSpecification.setEndDate(startDateTime.toLocalDate());
+			
+		}
+		return recurrenceSpecification;
 		
 	}
 	
@@ -389,7 +444,7 @@ public class Event {
 		boolean result = false; 
 		Attendee attendee = getAttendee(student);
 		if (attendee != null)
-			result = attendee.isAttended();
+			result = attendee.didAttend();
 		return result;
 	}
 	
@@ -519,7 +574,9 @@ public class Event {
 		return result; 
 	}
 	
-
+	public boolean isRecurring() {
+		return startDateTime.toLocalDate() != getRecurrenceSpecification().getEndDate(); 
+	}
 	
 	
 }

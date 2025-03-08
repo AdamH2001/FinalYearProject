@@ -7,15 +7,15 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"> </script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="./css/styles.css"/>
+	<script src="./scripts/afterschoolclub.js"></script>		
 </head>
 <body>
 	<div th:replace="~{fragments/header :: header}"></div>
-	<div class="container-fluid">
-		<div class="row flex-nowrap">
-			<div th:replace="~{fragments/leftnav :: leftnav}"
-				class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark"></div>
-				
-			<div class="container-fluid col-sm-10">
+	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
+
+	
+	<div id="main" class="main container-flex no-margin ">
 				
 			<form th:action="${action.equals('createUser')}? './addNewUser' : './saveUserDetails'" class="mainform" method="post">
 			<div class="col py-3">
@@ -79,7 +79,7 @@
 						<label for="telephoneNum">Telephone Number:</label>
 					</div>
 					<div class="col-sm-4">						
-						<input th:value="${editUser != null}? ${editUser.getParentObject().getTelephoneNum()}:''" class="form-control form-control-sm mr-sm-2" required
+						<input th:value="${editUser != null}? ${editUser.getParent().getTelephoneNum()}:''" class="form-control form-control-sm mr-sm-2" required
 							type="text" name="telephoneNum" id="telephoneNum" />
 					</div>
 				</div>
@@ -88,7 +88,7 @@
 						<label for="altContactName">Alt Emergency Contact Full Name:</label>
 					</div>
 					<div class="col-sm-4">
-						<input th:value="${editUser != null}? ${editUser.getParentObject().getAltContactName()}:''" class="form-control form-control-sm mr-sm-2" required
+						<input th:value="${editUser != null}? ${editUser.getParent().getAltContactName()}:''" class="form-control form-control-sm mr-sm-2" required
 							type="text" name="altContactName" id="altContactName" />
 					</div>
 				</div>
@@ -97,7 +97,7 @@
 						<label for="altTelephoneNum">Alt Emergency Contact Telephone Number:</label>
 					</div>
 					<div class="col-sm-4">						
-						<input th:value="${editUser != null}? ${editUser.getParentObject().getAltTelephoneNum()}:''" class="form-control form-control-sm mr-sm-2" required
+						<input th:value="${editUser != null}? ${editUser.getParent().getAltTelephoneNum()}:''" class="form-control form-control-sm mr-sm-2" required
 							type="text" name="altTelephoneNum" id="altTelephoneNum" />
 					</div>
 				</div>
@@ -117,8 +117,6 @@
 			</form>
 		
 		</div>
-		</div>
-		</div>
-		<div th:replace="~{fragments/footer :: footer}"></div>
+
 </body>
 </html>

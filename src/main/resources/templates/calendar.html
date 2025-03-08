@@ -9,19 +9,15 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"> </script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="./css/styles.css"/>
-	<script src="./scripts/afterschoolclub.js"></script>	
-	
-<style>
-</style>
+	<script src="./scripts/afterschoolclub.js"></script>		
 </head>
 <body>
 	<div th:replace="~{fragments/header :: header}"></div>
-	<div class="container-fluid">
-		<div class="row flex-nowrap">
-			<div th:replace="~{fragments/leftnav :: leftnav}"
-				class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark"></div>
+	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
 
-			<div class="col py-3">
+	
+	<div id="main" class="main container-flex no-margin ">
 				
 				<div class="afterschoolclubflash row mb-2">
 					<div class="col-sm-12" th:text="${flashMessage}">FlashMessage</div>
@@ -36,17 +32,14 @@
 				<div class="row mb-2">
 					<div class="col-sm-12" align="center">
 									
-				<table>
+				<table id="calendarTable">
 					<tr height=5>
 						<td class="calendarheader" width=33% style="text-align: right;">
 							<a class="prev" href="./calendarBack">&lt;&lt;&lt;</a>
 						</td>
 						<td class="calendarheader" width=33% style="text-align: center;">
 							<h2 align="center" style="color: orange">
-								<span th:text="${sessionBean.getTimetableStartDate().getMonth()}"></span>
-							</h2>
-							<h2 align="center" style="color: orange">
-								<span th:text="${sessionBean.getTimetableStartDate().getYear()}"></span>
+								<span th:text="${sessionBean.getTimetableStartDate().getMonth() + ' ' + sessionBean.getTimetableStartDate().getYear()}"></span>
 							</h2>
 						</td>
 						<td class="calendarheader" width=33% style="text-align: left;">
@@ -73,7 +66,7 @@
 										<td th:each="item: ${i}" class="monthlydate">
 											<span th:text="${item?.getDate()?.getDayOfMonth()}"></span>															
 												<div th:each="filteredEvent : ${item?.getFilteredEvents()}" th:class="${filteredEvent.getFilterClass()}">
-												<div class="dropdown">
+												<div class="dropdown" style="position:initial">
 													<a href="#"
 														th:class="'align-items-center text-blue text-decoration-none dropdown-toggle '+${filteredEvent.getFilterClass()}"
 														id="dropdownUser1" data-bs-toggle="dropdown"
@@ -81,21 +74,20 @@
 														<span th:text="${filteredEvent.getEvent().getStartTime() + ' ' + filteredEvent.getEvent().getClub().getTitle()}"
 														class="eventTitle d-none d-sm-inline mx-1"></span>
 													</a>
-													<ul th:if="${sessionBean.isAdminLoggedOn() }" class="dropdown-menu dropdown-menu-dark text-small shadow  position-fixed"
-														aria-labelledby="dropdownUser1">
+													<ul th:if="${sessionBean.isAdminLoggedOn() }" class="dropdown-menu dropdown-menu-dark text-small shadow "
+														aria-labelledby="dropdownUser1" style="z-index:99999">
 														<li><a class="dropdown-item" th:if="${!filteredEvent.getEvent().endInPast()}" th:href="@{/editEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Edit Session</a></li>
 														<li><a class="dropdown-item" th:href="@{/adminViewSession(eventId=${filteredEvent.getEvent().getEventId()})}">View Session</a></li>
 														<li><a class="dropdown-item" th:href="@{/copyEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Copy Session</a></li>							
 														<li><a class="dropdown-item" th:if="${!filteredEvent.getEvent().endInPast()}"  th:href="@{/cancelEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Cancel Session</a></li>
-														<li><hr/></li>
+														<li th:if="${filteredEvent.getEvent().isNow()} or ${filteredEvent.getEvent().endInPast()} or ${filteredEvent.getEvent().inPast()}" ><hr/></li>
 														<li><a class="dropdown-item" th:if="${filteredEvent.getEvent().isNow()}"  th:href="@{/takeRegister(eventId=${filteredEvent.getEvent().getEventId()})}">Take Register</a></li>
 														<li><a class="dropdown-item" th:if="${filteredEvent.getEvent().endInPast()}"  th:href="@{/viewAttendance(eventId=${filteredEvent.getEvent().getEventId()})}">View Attendance</a></li>
-														<li><a class="dropdown-item" th:if="${!filteredEvent.getEvent().inPast()}"  th:href="@{/viewBookings(eventId=${filteredEvent.getEvent().getEventId()})}">View Bookings</a></li>
 														<li><a class="dropdown-item" th:if="${filteredEvent.getEvent().inPast()}" th:href="@{/createIncident(eventId=${filteredEvent.getEvent().getEventId()})}">Report Incident</a></li>
 							
 													</ul>
-													<ul th:if="${sessionBean.isParentLoggedOn()}" class="dropdown-menu dropdown-menu-dark text-small shadow  position-fixed"
-														aria-labelledby="dropdownUser1">
+													<ul th:if="${sessionBean.isParentLoggedOn()}" class="dropdown-menu dropdown-menu-dark text-small shadow "
+														aria-labelledby="dropdownUser1" style="z-index:99999">
 														<li><a class="dropdown-item" th:href="@{/parentViewSession(eventId=${filteredEvent.getEvent().getEventId()})}">View Session</a></li>
 														<li th:if="${sessionBean.getSelectedStudent()} != null and ${!sessionBean.getSelectedStudent().isAttendingEvent(filteredEvent.getEvent())} and ${filteredEvent.getEvent().canAttend(sessionBean.getSelectedStudent())}"><a class="dropdown-item" th:href="@{/registerForEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Book Attendance</a></li>
 													 	<li th:if="${sessionBean.getSelectedStudent()} != null and ${sessionBean.getSelectedStudent().isAttendingEvent(filteredEvent.getEvent())} and ${!filteredEvent.getEvent().inPast()}"><a class="dropdown-item" th:href="@{/deregisterForEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Cancel Booking</a></li>
@@ -113,12 +105,12 @@
 						</td>
 					</tr>
 				</table>
+			<div class="spacer">&nbsp;</div>
+				
 			</div>
 			</div>
 			</div>
-		</div>
-	</div>
-	<div th:replace="~{fragments/footer :: footer}"></div>
+		
 
 
 </body>

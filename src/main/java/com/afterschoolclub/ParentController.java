@@ -4,6 +4,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -226,14 +227,20 @@ public class ParentController {
 		String returnPage;
 		Event event = Event.findById(eventId);
 		if (event != null) {								
-			model.addAttribute("eventToView",event);
+			model.addAttribute("clubSession",event);
 			List<User> staff = User.findStaffByEventId(event.getEventId());
 			model.addAttribute("staff", staff);
 			model.addAttribute("parent", sessionBean.getLoggedOnParent());
+			
+			
+			
+			List<Event> recurringEvents = Event.findRecurringEvents(event.getRecurrenceSpecificationId().getId());
 					
 			logger.info("Event staff are {}", event.getStaff());
 
 			model.addAttribute("editOptions", editOptions);
+			model.addAttribute("recurringEvents", recurringEvents);
+			
 			model.addAttribute("viewOnly", viewOnly);						
 			model.addAttribute("displayHelper", new DisplayHelper());			
 			this.setInDialogue(true,model);
@@ -432,83 +439,179 @@ public class ParentController {
 	}	
 	
 	
-	
 	@PostMapping("/confirmRegisterForEvent")
-	public String confirmRegisterForEvent(@RequestParam Map<String,String> allParams, Model model) {
+	public String confirmRegisterForEvent(@RequestParam Map<String, String> allParams,
+			@RequestParam(name = "MonRecurring", required = false) Boolean MonRecurring,
+			@RequestParam(name = "TueRecurring", required = false) Boolean TueRecurring,
+			@RequestParam(name = "WedRecurring", required = false) Boolean WedRecurring,
+			@RequestParam(name = "ThurRecurring", required = false) Boolean ThurRecurring,
+			@RequestParam(name = "FriRecurring", required = false) Boolean FriRecurring,
+			@RequestParam(name = "SatRecurring", required = false) Boolean SatRecurring,
+			@RequestParam(name = "SunRecurring", required = false) Boolean SunRecurring,
+			@RequestParam(name = "termTimeOnly", required = false) Boolean termTimeOnly,
+			@RequestParam(name = "bookingEndDate", required = false) LocalDate bookingEndDate,
+
+			Model model) {
+
 		String returnPage = validateIsParent(model);
-		if (returnPage == null) {	
+		if (returnPage == null) {
 			int eventId = Integer.parseInt(allParams.getOrDefault("eventId", "0"));
-			
+
 			User tmpUser = User.findById(sessionBean.getLoggedOnUser().getUserId());
-			
+
 			Parent loggedOnParent = tmpUser.getParent();
 			Event event = Event.findById(eventId);
-			
+
+			boolean recurringBooking = event.getStartDateTime().toLocalDate().compareTo(bookingEndDate) != 0;
+
+			List<Event> allEvents = null;
+
+			if (recurringBooking) {
+				allEvents = Event.findRecurringEvents(event.getRecurrenceSpecificationId().getId());
+			} else {
+				allEvents = new ArrayList<Event>();
+				allEvents.add(event);
+			}
+
 			int totalCost = 0;
-			int studentCount = 0;
-			Student inEligibleStudent = null;
-			
+
 			Set<Student> students = loggedOnParent.getStudents();
+
+			List <Student> bookedStudents = new ArrayList<Student>();
+			List<String> allErrorMessages = new ArrayList<String>();
+
+			
+			int sessionCount = 0;
+			
+			
 			for (Student student : students) {
 				int id = student.getStudentId();
-				String queryParamStudentAttending = "student-".concat(String.valueOf(id)).concat("-Attending"); 
+				String queryParamStudentAttending = "student-".concat(String.valueOf(id))
+						.concat("-Attending");
 				if (allParams.getOrDefault(queryParamStudentAttending, "off").equals("on")) {
-					studentCount++;
-					totalCost += event.getClub().getBasePrice();
-					Attendee attendee = new Attendee(AggregateReference.to(eventId), student.getStudentId());
-					student.addAttendee(attendee);
-					if (!event.canAttend(student)) {
-						inEligibleStudent = student;
-					}
-						
-					
-					List <MenuGroup> menuGroups = event.getMenuGroups();
-					for (MenuGroup menuGroup: menuGroups) {							
-						String optionQueryParam = "student-".concat(String.valueOf(student.getStudentId())).concat("-").concat(menuGroup.getName().replace(' ', '-'));
-						String optionValue = allParams.getOrDefault(optionQueryParam, "None");
-						if (!optionValue.equals("None")) {
-							int menuOptionId = Integer.parseInt(optionValue);
-							AttendeeMenuChoice amc = new AttendeeMenuChoice(AggregateReference.to(menuOptionId));
-							attendee.addAttendeeMenuChoice(amc);
-							MenuOption menuOption = menuGroup.getMenuOption(menuOptionId);
-							totalCost += menuOption.getAdditionalCost();									
-						}														
-
-					}						
+					bookedStudents.add(student);
 				}
-			}				
-			if (inEligibleStudent != null) {
-				model.addAttribute("flashMessage", "Booking failed due to ".concat(inEligibleStudent.getFirstName()).concat(" being ineligible"));
-				return setupCalendar(model);
-				
 			}
-			else if ((event.getNumberAttendees() + studentCount) <= event.getMaxAttendees()) {
-				if (loggedOnParent.getBalance() >= totalCost) {
-					if (studentCount > 0) {
-						if ( totalCost > 0) {
-							loggedOnParent.addTransaction(new ParentalTransaction(-totalCost,LocalDateTime.now(),ParentalTransaction.Type.PAYMENT, event.getClub().getTitle()));
-						}
-						
-						tmpUser.save();
-						model.addAttribute("flashMessage", "Booked ".concat(event.getClub().getTitle()));
-						sessionBean.setLoggedOnUser(tmpUser);
-						
-						Student selectedStudent = sessionBean.getSelectedStudent();
-						sessionBean.setSelectedStudent(loggedOnParent.getStudentFromId(selectedStudent.getStudentId()));
-						
-					}
-					else {
-						model.addAttribute("flashMessage", "No students selected for booking.");
-					}
-				}
-				else {
-					model.addAttribute("flashMessage", "Not enough funds to attend this session. Please top up your account.");
-				}
+			
+			
+			if (bookedStudents.size() == 0) {
+				allErrorMessages.add("No students selected for booking.");	
 			}
 			else {
-				model.addAttribute("flashMessage", "Booking failed due to maximum attendees exceeded.");
+				for (Event specificEvent : allEvents) {
+					boolean tryToBook = !recurringBooking 
+							|| (specificEvent.getStartDateTime().isAfter(LocalDateTime.now())
+							&& !specificEvent.getStartDateTime().toLocalDate().isAfter(bookingEndDate) 
+							&& specificEvent.getStartDateTime().compareTo(event.getStartDateTime()) >=0);
+	
+					if (tryToBook && recurringBooking) {
+						switch (specificEvent.getStartDateTime().getDayOfWeek()) {
+						case MONDAY:
+							tryToBook = (MonRecurring == null) ? false : MonRecurring.booleanValue();
+							break;
+						case TUESDAY:
+							tryToBook = (TueRecurring == null) ? false : TueRecurring.booleanValue();
+							break;
+						case WEDNESDAY:
+							tryToBook = (WedRecurring == null) ? false : WedRecurring.booleanValue();
+							break;
+						case THURSDAY:
+							tryToBook = (ThurRecurring == null) ? false : ThurRecurring.booleanValue();
+							break;
+						case FRIDAY:
+							tryToBook = (FriRecurring == null) ? false : FriRecurring.booleanValue();
+							break;
+						case SATURDAY:
+							tryToBook = (SatRecurring == null) ? false : SatRecurring.booleanValue();
+							break;
+						case SUNDAY:
+							tryToBook = (SunRecurring == null) ? false : SunRecurring.booleanValue();
+							break;
+						default:
+							tryToBook = false;
+							break;
+						}
+					}
+	
+					if (tryToBook) {
+						sessionCount++;
+						for (Student student : bookedStudents) {
+							if (!specificEvent.canAttend(student)) {
+								allErrorMessages.add("Booking failed due to ".concat(student.getFirstName())
+										.concat(" being ineligible"));
+							}
+							else if (!student.isAttendingEvent(specificEvent)) {
+								totalCost += specificEvent.getClub().getBasePrice();
+								Attendee attendee = new Attendee(AggregateReference.to(specificEvent.getEventId()),
+										student.getStudentId());
+								student.addAttendee(attendee);
+
+								List<MenuGroup> menuGroups = specificEvent.getMenuGroups();
+								for (MenuGroup menuGroup : menuGroups) {
+									String optionQueryParam = "student-".concat(String.valueOf(student.getStudentId()))
+											.concat("-").concat(menuGroup.getName().replace(' ', '-'));
+									String optionValue = allParams.getOrDefault(optionQueryParam, "None");
+									if (!optionValue.equals("None")) {
+										int menuOptionId = Integer.parseInt(optionValue);
+										AttendeeMenuChoice amc = new AttendeeMenuChoice(
+												AggregateReference.to(menuOptionId));
+										attendee.addAttendeeMenuChoice(amc);
+										MenuOption menuOption = menuGroup.getMenuOption(menuOptionId);
+										totalCost += menuOption.getAdditionalCost();
+									}
+								}	
+							}
+							else {
+								String message = String.format("Booking failed due to %s already attending session on %s.", student.getFirstName(), specificEvent.getStartDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));								
+								allErrorMessages.add(message);
+							}
+						}
+						if ((specificEvent.getNumberAttendees() + bookedStudents.size()) > specificEvent.getMaxAttendees()) {
+							allErrorMessages.add("Booking failed due to maximum attendees exceeded for session on "
+									.concat(specificEvent.getStartDate()));
+						}
+					}
+				}
 			}
-			returnPage = setupCalendar(model);
+
+			if (loggedOnParent.getBalance() < totalCost) {
+				allErrorMessages.add("Not enough funds to attend this session. Please top up your account.");
+			}
+
+			if (allErrorMessages.size() == 0) {
+				if (totalCost > 0) {
+					loggedOnParent.addTransaction(new ParentalTransaction(-totalCost, LocalDateTime.now(),
+							ParentalTransaction.Type.PAYMENT, event.getClub().getTitle()));
+				}
+
+				tmpUser.save();
+				String studentNames = "";
+				int i = 0;			
+				for (Student student : bookedStudents) {
+					i++;							
+					studentNames += student.getFirstName();
+					
+					if (i == (bookedStudents.size() - 1)) {
+						studentNames += " and ";
+					}
+					else if (i != bookedStudents.size()) {
+						studentNames += ",";
+					}											
+				}				
+				
+				String message = String.format("Booked %d session(s) at %s for %s", sessionCount, event.getClub().getTitle(), studentNames); 
+						
+				model.addAttribute("flashMessage", message);
+				sessionBean.setLoggedOnUser(tmpUser);
+
+				Student selectedStudent = sessionBean.getSelectedStudent();
+				sessionBean.setSelectedStudent(loggedOnParent.getStudentFromId(selectedStudent.getStudentId()));
+				returnPage = setupCalendar(model);
+			} else {
+				model.addAttribute("flashMessages", allErrorMessages);
+				returnPage = setUpSessionOptions(eventId, false, false, model);
+			}
+
 		}
 		return returnPage;
 

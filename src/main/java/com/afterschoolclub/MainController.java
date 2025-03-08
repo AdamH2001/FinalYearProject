@@ -1,6 +1,7 @@
 package com.afterschoolclub;
 import jakarta.mail.MessagingException;
 
+
 import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Event;
 import com.afterschoolclub.data.Parent;
@@ -10,12 +11,17 @@ import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.StudentClass;
 import com.afterschoolclub.data.User;
 import com.afterschoolclub.data.EventDay;
+import com.afterschoolclub.data.Holiday;
 import com.afterschoolclub.data.MenuGroup;
+import com.afterschoolclub.data.RecurrenceSpecification;
+
 import com.afterschoolclub.data.repository.ClassRepository;
 import com.afterschoolclub.data.repository.ClubRepository;
 import com.afterschoolclub.data.repository.EventRepository;
+import com.afterschoolclub.data.repository.HolidayRepository;
 import com.afterschoolclub.data.repository.MenuGroupRepository;
 import com.afterschoolclub.data.repository.ParentalTransactionRepository;
+import com.afterschoolclub.data.repository.RecurrenceSpecificationRepository;
 import com.afterschoolclub.data.repository.ResourceRepository;
 import com.afterschoolclub.data.repository.StudentRepository;
 import com.afterschoolclub.data.repository.UserRepository;
@@ -59,7 +65,8 @@ public class MainController {
 	 */
 	public MainController(UserRepository userRepository, EventRepository eventRepository,
 			MenuGroupRepository menuGroupRepository, ResourceRepository resourceRepository,
-			ClassRepository classRepository, StudentRepository studentRepository, ParentalTransactionRepository transactionRepository, ClubRepository clubRepository, SessionBean sessionBean) {
+			ClassRepository classRepository, StudentRepository studentRepository, ParentalTransactionRepository transactionRepository, 
+			ClubRepository clubRepository, RecurrenceSpecificationRepository recurrenceSpecificationRepository, HolidayRepository holidayRepository, SessionBean sessionBean) {
 		super();		
 		Club.repository = clubRepository;
 		Event.repository = eventRepository;
@@ -69,6 +76,8 @@ public class MainController {
 		ParentalTransaction.repository = transactionRepository;
 		User.repository = userRepository;
 		StudentClass.repository = classRepository;
+		RecurrenceSpecification.repository = recurrenceSpecificationRepository;
+		Holiday.repository = holidayRepository;
 		
         this.sessionBean = sessionBean;
 		
@@ -262,6 +271,7 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage", "Already logged on.");
+			returnPage = setupCalendar(model);			
 		}
 		return returnPage;
 	}

@@ -5,9 +5,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
 public class OverlappingTimeline {
 
 	private List <TimelineEvent> timelineEvents = new ArrayList<TimelineEvent>(); 
+	private Event originalSession;
 	
 	public enum TimelineEventType {
 		START, END
@@ -50,6 +58,8 @@ public class OverlappingTimeline {
 	}
 	
 	public OverlappingTimeline(Event session) {
+		originalSession = session; 
+		
 		List<Event> overlappingSessions = session.getOverlappingEvents();
 		
 		// create time-line event ordered by time of event

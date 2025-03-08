@@ -1,6 +1,3 @@
-/**
- * 
- */
 
 let pounds = Intl.NumberFormat('en-GB', {
     style: 'currency',
@@ -89,13 +86,86 @@ function refreshBookingSummary() {
 			$("#totalDifferenceLabel").text("Total Increase Of:");
 		}
 	}
+	else {
+		$("#numberSessions")[0].innerText = numberRecurringSessions();
+		$("#totalCostForAllSessions")[0].innerText = pounds.format(overAllTotal * numberRecurringSessions() /100);		
+	}
+	
 	
 	// Update overall total cost 	
 	$("#totalCost")[0].innerText = pounds.format(overAllTotal/100);
 	$("#totalHiddenCost")[0].value = overAllTotal;
 	
+	
+	
+	
+	if (($("#startDate").val() == $("#bookingEndDate").val())) {
+		$(".recurSpecifier").prop("disabled", true);
+		$(".recurSpecifier").css("color", "grey");
+	//	$(".recurSpecifier").prop("checked", false);
+	}
+	else {
+		$(".recurSpecifier").prop("disabled", false);
+		$(".recurSpecifier").css("color", "black");
+	}
+		
   return;
 }
+
+
+function numberRecurringSessions()
+{
+	var numBookings = 0;
+	if (($("#startDate").val() == $("#bookingEndDate").val())) {
+			numBookings = 1;
+	}
+	else {
+		startDate = new Date($("#startDate").val());
+		endDate = new Date($("#bookingEndDate").val());
+			
+
+		$("input[name='recurringEvent']").each(function() {
+			thisDate = new Date(this.value);
+			if (thisDate >= startDate && thisDate <= endDate) {
+					
+				switch (thisDate.getDay()) {
+					case 0: if ($("#SunRecurring")[0].checked) {
+									numBookings++;		
+							}
+							break;
+					case 1: if ($("#MonRecurring")[0].checked) {
+									numBookings++;		
+							}
+							break;
+					case 2: if ($("#TueRecurring")[0].checked) {
+									numBookings++;		
+							}
+							break;
+					case 3: if ($("#WedRecurring")[0].checked) {
+									numBookings++;		
+							}
+							break;
+					case 4: if ($("#ThurRecurring")[0].checked) {
+									numBookings++;		
+							}
+							break;
+					case 5: if ($("#FriRecurring")[0].checked) {
+									numBookings++;		
+							}
+							break;
+					case 6: if ($("#SatRecurring")[0].checked) {
+									numBookings++;		
+							}
+							break;
+					default: 
+							break;															
+				}
+			}
+		})
+	}
+	return numBookings;
+}
+
 
 function changedAttendance(element) {
 	refreshBookingSummary();
@@ -123,6 +193,14 @@ function activateStudent(elementId) {
 	initialiseStudentContainers()	
 	return;
 }
+
+
+function copyPerAttendee() {
+	$('input[name="hiddenPerAttendee').each(function(i, obj) {
+			obj.value = $('input[name="perAttendee')[i].checked;
+		});
+}
+
 
 /*
 $(function () {
@@ -156,6 +234,31 @@ $(".mm.dropdown-item.dropdown-toggle").on("click", function() {
 });	
 
 */
+
+function updateRegisterButtons(button) {	
+	if (button.classList.contains("RegisterPresentButton")) {
+		button.classList.remove("Absent");		
+		button.classList.add("Present");
+		
+		
+		
+		$("#" + button.id.replace("PresentButton", "attendee")).val("Present");
+
+		
+		$("#" + button.id.replace("PresentButton", "AbsentButton"))[0].classList.remove("Absent");
+		$("#" + button.id.replace("PresentButton", "AbsentButton"))[0].classList.add("Present");		
+			
+	}
+	else {
+		button.classList.remove("Present");
+		button.classList.add("Absent");
+		
+		$("#" + button.id.replace("AbsentButton", "attendee")).val("Absent");
+		$("#" + button.id.replace("AbsentButton", "PresentButton"))[0].classList.remove("Present");
+		$("#" + button.id.replace("AbsentButton", "PresentButton"))[0].classList.add("Absent");																	
+	}	
+	return false;
+}
 
 function addRow(button) {
 			
@@ -252,141 +355,24 @@ function initialiseStudentContainersOld() {
 }
 
 
-
-function refreshBookingSummaryOld() {
+function validateBookingForm(event) {
 	
-	var hiddenTotals =  document.getElementsByClassName("hiddenTotal");
-	var hiddenOriginalTotals =  document.getElementsByClassName("hiddenOriginalTotal");
-	var viewOnly = document.getElementById("viewOnly") != null;
-	var proposedAttendees = 0;
-	var editingOptions = hiddenOriginalTotals.length > 0;
-	var totalOriginalCost = 0;
-	
-	for (i = 0; i<hiddenOriginalTotals.length; i++) {
-		var total = hiddenOriginalTotals[i];
-				
-		var originalCostTextId = total.id.replace("-TotalHiddenOriginalCost",  "-TotalOriginalCost");
-		var textContainer = document.getElementById(originalCostTextId);		
-		if (textContainer != null) {
-			textContainer.innerText = pounds.format(Number(total.value)/100);
-		}		
-		totalOriginalCost += Number(total.value)			
-	}	
-	
-	for (i = 0; i<hiddenTotals.length; i++) {
-		var total = hiddenTotals[i];
-		var attendingId = total.id.replace("-TotalHiddenCost",  "-Attending");
-		var containerId = total.id.replace("-TotalHiddenCost",  "-Container");
-		var container = document.getElementById(containerId);
 
-		
-		var attendingControl = document.getElementById(attendingId);
-		
-		var bProposedAttendee = attendingControl.checked;
-		if (bProposedAttendee) {
-			var tabId = total.id.replace("-TotalHiddenCost",  "");
-			var tab = document.getElementById(tabId);
-
-			if (tab.classList.contains("disabled")) {
-				bProposedAttendee = false;
-			}	
-
-		}
-		if (bProposedAttendee) {						
-			proposedAttendees += 1;
-		
-			total.value = document.getElementById("basePrice").value;
-			if (container != null) {
-				container.style.color="black";
-			}		
-		}
-		else {
-			total.value = 0;
-			if (container != null) {			
-				container.style.color="lightgray";
-			}
-		}		
-	}
+	// ensure if have specified a recurring end date that have also selected a recurring pattern
 	
-	if (document.getElementById("submitButton") != null) {	
-		if (proposedAttendees == 0) {
-			document.getElementById("submitButton").disabled=true;
-		}
-		else {
-			document.getElementById("submitButton").disabled=false;
-		}
-	}
-	
-	var childTotals =  document.getElementsByClassName("childTotal");
-
-	for (i = 0; i<childTotals.length; i++) {
-		childTotals[i].style.color="black"
-	}
-		
-	var menuOptions =  document.getElementsByClassName("menuOption");
-
-	
-	for (i = 0; i<menuOptions.length; i++) {
-		var option = menuOptions[i];
-		var attendingId = option.id.substring(0, option.id.indexOf("-Option")) + "-Attending";
-		var attendingControl = document.getElementById(attendingId);
-		
-		if (attendingControl.checked) {
-			if (viewOnly) {
-				option.disabled=true;	
-				option.readOnly=true;
-			}
-			else
-			{
-				option.disabled=false;	
-				option.readOnly=false;
-				
-			}		
-			if (option.checked) {
-				var hiddenId = option.id.substring(0, option.id.indexOf("-Option")) + "-TotalHiddenCost";
-				var totalHidden = document.getElementById(hiddenId);				
-				var optionValue = document.getElementById(option.id + "-Value").value;						
-				totalHidden.value = Number(totalHidden.value) + Number(optionValue);
-				
-			}
-		}
-		else {
-			option.disabled=true;
-			option.readOnly=true;
-			//option.checked=false;
-		}
+	start = new Date($("#startDate").val());	
+	bookingEndDate = new Date($("#bookingEndDate").val());
+	if (start != bookingEndDate) {
+		if (!($("#MonRecurring")[0].checked || $("#TueRecurring")[0].checked || $("#WedRecurring")[0].checked || $("#ThurRecurring")[0].checked || $("#FriRecurring")[0].checked || $("#SatRecurring")[0].checked || $("#SunRecurring")[0].checked)) {
+			$("#validationMessage").text("Need to specify a recurring pattern.");
+			$("#validationContainer").show();
+			event.preventDefault();		
 			
-	}
-
-	var overAllTotal = 0;
-	for (i = 0; i<hiddenTotals.length; i++) {
-		var total = hiddenTotals[i];
-		var textId = total.id.replace("-TotalHiddenCost", "-TotalCost");		
-		var textContainer = document.getElementById(textId);
-		
-		if (textContainer != null) {
-			textContainer.innerText = pounds.format(Number(total.value)/100);
 		}
-		overAllTotal += Number(total.value);
-		
-	}
-	
-	if (editingOptions) {
-		overAllTotal -= totalOriginalCost;
-		if (overAllTotal < 0) {
-			document.getElementById("totalDifferenceLabel").innerText = "Total Reduction Of:";
-			overAllTotal *= -1;			
-		}
-		else {
-			document.getElementById("totalDifferenceLabel").innerText = "Total Increase Of:";
-		}
-	}
-		
-	document.getElementById("totalCost").innerText = pounds.format(overAllTotal/100);
-	document.getElementById("totalHiddenCost").value = overAllTotal;
-	
-  return;
+	}		
+	return;
 }
+
 
 
 function validateEventForm(event) {
@@ -402,31 +388,23 @@ function validateEventForm(event) {
 		event.preventDefault();		
 	}
 	
-
-
-	/*
-	start = new Date($("#startDate").val());
-	start.setHours(parseInt($("#startTime").val().substring(0,2)));
-	start.setMinutes(parseInt($("#startTime").val().substring(3,5)));
-	end = new Date($("#startDate").val());
-	end.setHours(parseInt($("#endTime").val().substring(0,2)));
-	end.setMinutes(parseInt($("#endTime").val().substring(3,5)));
-	if (start < new Date()) {
-		$("#validationMessage").text("Cannot schedule a new sesson in the past.");
-		$("#validationContainer").show();
-		event.preventDefault();
-	} else
-	{
-		if (end <= start) {			
-			$("#validationMessage").text("End Time needs to be after Start Time.");
+	// ensure if have specified a recurring end date that have also selected a recurring pattern
+	
+	start = new Date($("#startDate").val());	
+	recurringEndDate = new Date($("#recurringEndDate").val());
+	if (start != recurringEndDate) {
+		if (!($("#MonRecurring")[0].checked || $("#TueRecurring")[0].checked || $("#WedRecurring")[0].checked || $("#ThurRecurring")[0].checked || $("#FriRecurring")[0].checked || $("#SatRecurring")[0].checked || $("#SunRecurring")[0].checked)) {
+			$("#validationMessage").text("Need to specify a recurring pattern.");
 			$("#validationContainer").show();
-			event.preventDefault();
+			event.preventDefault();		
+			
 		}
-	}*/
-	
-	
+	}		
 	return;
 }
+
+
+// Return the date formatted in a structure  in a format that can be used to set control value or min or max.
 
 function formatDate(date) {
     var d = new Date(date); 
@@ -441,6 +419,8 @@ function formatDate(date) {
 
     return [year, month, day].join('-');
 }
+
+// Return the time formatted in a structure that can be used to set control value or min or max.
 
 function formatTime(date) {
     var d = new Date(date);
@@ -457,52 +437,120 @@ function formatTime(date) {
 }
 
 function setDateLimits(){
-	var shortestPeriod = 30;
-	  
-	var start = new Date($("#startDate").val());
-	var now = new Date()
-	var isToday = start.getDate() == now.getDate() && start.getMonth()== now.getMonth() && start.getYear()==now.getYear();
 	
-	var earliestTime = new Date()
-	earliestTime.setHours(7);
-	earliestTime.setMinutes(0);
-
-	var lastStartTime = new Date();
-	lastStartTime.setHours(18);
-	lastStartTime.setMinutes(30);
+	if ($("#viewing").length==0) {
+		var shortestPeriod = 30;
+		  
+		var start = new Date($("#startDate").val());
+		var now = new Date()
+		var isToday = start.getDate() == now.getDate() && start.getMonth()== now.getMonth() && start.getYear()==now.getYear();
+		
+		var earliestTime = new Date()
+		earliestTime.setHours(7);
+		earliestTime.setMinutes(0);
 	
-	var lastEndTime = new Date(lastStartTime).setMinutes(lastStartTime.getMinutes()+shortestPeriod);
-	
-	
-	//set minimum start time 
-	if (isToday) {
-		if (now < earliestTime) {
+		var lastStartTime = new Date();
+		lastStartTime.setHours(18);
+		lastStartTime.setMinutes(30);
+		
+		var lastEndTime = new Date(lastStartTime).setMinutes(lastStartTime.getMinutes()+shortestPeriod);
+		
+		
+		//set minimum start time 
+		if (isToday) {
+			if (now < earliestTime) {
+				$("#startTime").attr('min', formatTime(earliestTime));
+			}
+			else {
+				$("#startTime").attr('min', formatTime(now));
+			}
+		}
+		else{
 			$("#startTime").attr('min', formatTime(earliestTime));
 		}
+		
+		//set max end and start time 
+		$("#startTime").attr('max', formatTime(lastStartTime));
+		$("#endTime").attr('max', formatTime(lastEndTime));			   
+	
+		//set min time to ensure following shortest period
+		start.setHours(parseInt($("#startTime").val().substring(0,2)));
+		start.setMinutes(parseInt($("#startTime").val().substring(3,5))+shortestPeriod);	
+		$("#endTime").attr('min', formatTime(start) );		
+		
+		// set min date
+		if (now > lastStartTime) {
+			$("#startDate").attr('min', formatDate(now.setDate(now.getDate()+1)));
+		}	
 		else {
-			$("#startTime").attr('min', formatTime(now));
+			$("#startDate").attr('min', formatDate(now));
+		}   
+		
+		$("#recurringEndDate").attr('min', $("#startDate").val());
+		
+		// Set maximum year to end of academic year
+		year = start.getYear()+1900;
+		if (start.getMonth() >=8) {
+			year++;
+		}
+		$("#recurringEndDate").attr('max', year+'-08-31');
+		
+		
+		if ($("#recurringEndDate").val() == "") {
+			$("#recurringEndDate").val($("#startDate").val());
+		}
+		else {
+			start = new Date($("#startDate").val());
+			recurEnd = new Date($("#recurringEndDate").val()); 
+		
+			if (recurEnd < start) {
+				$("#recurringEndDate").val($("#startDate").val());
+			}
+		}
+		if (($("#startDate").val() == $("#recurringEndDate").val())) {
+			$(".recurSpecifier").prop("disabled", true);
+			$(".recurSpecifier").css("color", "grey");
+			$(".recurSpecifier").prop("checked", false);
+		}
+		else {
+			$(".recurSpecifier").prop("disabled", false);
+			$(".recurSpecifier").css("color", "black");
 		}
 	}
-	else{
-		$("#startTime").attr('min', formatTime(earliestTime));
-	}
 	
-	//set max end and start time 
-	$("#startTime").attr('max', formatTime(lastStartTime));
-	$("#endTime").attr('max', formatTime(lastEndTime));			   
-
-	//set min time to ensure following shortest period
-	start.setHours(parseInt($("#startTime").val().substring(0,2)));
-	start.setMinutes(parseInt($("#startTime").val().substring(3,5))+shortestPeriod);	
-	$("#endTime").attr('min', formatTime(start) );		
-	
-	// set min date
-	if (now > lastStartTime) {
-		$("#startDate").attr('min', formatDate(now.setDate(now.getDate()+1)));
-	}	
-	else {
-		$("#startDate").attr('min', formatDate(now));
-	}   
 		
   };
 
+
+
+  function marginHeader() {
+
+	if (document.body.scrollHeight > document.body.clientHeight)
+		offset = 45;
+	else	
+		offset = 30; 
+
+  $("#main").width(window.innerWidth  - $("#leftnav").outerWidth() - offset);	
+  //$("#main").width(window.innerWidth -   $("#main").offset().left - 30);	  
+
+  
+  $("#leftnav").height(window.innerHeight - $("#header").outerHeight() - $("#footer").outerHeight() );	
+
+  $("#main").css({top: $("#header").outerHeight(), left: $("#leftnav").outerWidth()});
+  $("#leftnav").css({top: $("#header").outerHeight()});	
+  $(".main").show();
+   newPaddingHeight =  $("#footer").outerHeight() - $(".spacer").outerHeight() + parseFloat($(".spacer").css("padding-bottom").replace("px", ""))
+  $(".spacer").css("padding-bottom",  newPaddingHeight);
+  if ( $("#calendarTable")> 0)  
+  	$("#calendarTable").height(window.innerHeight -   $("#calendarTable").offset().top - $("#footer").outerHeight()- 15);	  
+  	  
+
+  }
+
+  window.addEventListener('resize', function(event) {
+    marginHeader()
+  }, true);
+
+  $(window).on('load', function(){
+     marginHeader();
+  });
