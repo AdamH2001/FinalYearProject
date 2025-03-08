@@ -38,7 +38,6 @@ public class SessionBean {
     		
 	
     public SessionBean() {
-        System.out.println("SessionScopeBean Constructor Called");
         this.reset();
     }
     

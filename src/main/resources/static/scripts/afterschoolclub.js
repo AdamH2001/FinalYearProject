@@ -362,7 +362,7 @@ function validateBookingForm(event) {
 	
 	start = new Date($("#startDate").val());	
 	bookingEndDate = new Date($("#bookingEndDate").val());
-	if (start != bookingEndDate) {
+	if (+start != +bookingEndDate) {
 		if (!($("#MonRecurring")[0].checked || $("#TueRecurring")[0].checked || $("#WedRecurring")[0].checked || $("#ThurRecurring")[0].checked || $("#FriRecurring")[0].checked || $("#SatRecurring")[0].checked || $("#SunRecurring")[0].checked)) {
 			$("#validationMessage").text("Need to specify a recurring pattern.");
 			$("#validationContainer").show();
@@ -392,7 +392,7 @@ function validateEventForm(event) {
 	
 	start = new Date($("#startDate").val());	
 	recurringEndDate = new Date($("#recurringEndDate").val());
-	if (start != recurringEndDate) {
+	if (+start != +recurringEndDate) {
 		if (!($("#MonRecurring")[0].checked || $("#TueRecurring")[0].checked || $("#WedRecurring")[0].checked || $("#ThurRecurring")[0].checked || $("#FriRecurring")[0].checked || $("#SatRecurring")[0].checked || $("#SunRecurring")[0].checked)) {
 			$("#validationMessage").text("Need to specify a recurring pattern.");
 			$("#validationContainer").show();
@@ -442,8 +442,8 @@ function setDateLimits(){
 		var shortestPeriod = 30;
 		  
 		var start = new Date($("#startDate").val());
-		var now = new Date()
-		var isToday = start.getDate() == now.getDate() && start.getMonth()== now.getMonth() && start.getYear()==now.getYear();
+		var now = new Date();
+		var isToday = +start == +now;
 		
 		var earliestTime = new Date()
 		earliestTime.setHours(7);
