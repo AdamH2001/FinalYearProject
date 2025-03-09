@@ -212,6 +212,42 @@
 							</fieldset>							
 						</div>																							
 					</div>									
+						
+					<div class="row mb-2">
+						<div class="col-sm-1" align="right">
+							<label for="startDate">Notes:</label>
+						</div>
+						<div class="col-sm-10">			
+							<fieldset class="form-group border p-3">			
+								<div class="container-fluid no-margin">
+									<div class="row mb-2">		
+								
+										<div class="col-sm-6" align="left">
+											<label for="parentNotes">For Parent:</label>
+																	
+										</div>		
+										<div class="col-sm-6" align="left">
+											<label for="organiserNotes">For Organiser:</label>																
+										</div>		
+									</div>
+								<div class="row mb-2">		
+								
+										<div class="col-sm-6">
+											<textarea class="form-control form-control-sm mr-sm-2"  th:text="${clubSession.getParentNotes()}" rows=5 th:readOnly="${viewing}"  name="parentNotes" id="parentNotes" ></textarea>
+																			
+										</div>		
+										<div class="col-sm-6">
+											<textarea class="form-control form-control-sm mr-sm-2"  th:text="${clubSession.getAdministratorNotes()}" rows=5  th:readOnly="${viewing}"  name="organiserNotes" id="organiserNotes"> </textarea>
+										</div>		
+									</div>
+								</div>
+							</fieldset>
+						</div>
+					</div>
+										
+										
+										
+																
 										
 					<div class="row mb-2" th:if="${clubSession.getMenuGroups().size()>0} or ${editing} or ${scheduling}">
 						<div class="col-sm-1" align="right" >

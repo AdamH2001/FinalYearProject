@@ -209,6 +209,7 @@ public class Event {
 			if (compare.getAttendeeId() == attendeeId)
 				result = compare;
 		}
+		
 		return result;
 	}
 	
@@ -396,6 +397,16 @@ public class Event {
 		return endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));		
 	}		
 
+	
+	public String getDisplayStartDate() {
+		return startDateTime.format(DateTimeFormatter.ofPattern("dd/MM/YYYY"));		
+	}	
+	
+	public String getDisplayEndDate() {
+		return endDateTime.format(DateTimeFormatter.ofPattern("dd/MM/YYYY"));		
+	}	
+
+	
 	public String getStartDate() {
 		return startDateTime.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));		
 	}	

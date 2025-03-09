@@ -146,6 +146,8 @@ public class Student {
 		return result;		
 	}
 
-
+	public String getIdAsString() {
+		return String.valueOf(getStudentId());
+	}
 	
 }

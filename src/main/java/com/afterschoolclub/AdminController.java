@@ -123,6 +123,16 @@ public class AdminController {
 		return returnPage;
 	}    
 	
+	
+	@PostMapping("/manageResources")
+	public String manageResources(Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {			
+			returnPage = "manageResources";					
+		}
+		return returnPage;
+	}    	
+	
 
 	
 	@GetMapping("/createIncident")
@@ -254,7 +264,8 @@ public class AdminController {
 			@RequestParam(name = "equipmentQuantity") List<Integer> equipmentQuantity,
 			@RequestParam(name = "hiddenPerAttendee") List<Boolean> perAttendee,
 			@RequestParam(name = "eventId") int eventId,
-			
+			@RequestParam(name = "parentNotes") String parentNotes,
+			@RequestParam(name = "organiserNotes") String organiserNotes,			
 			Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {
@@ -271,11 +282,16 @@ public class AdminController {
 				event.setStartDateTime(startDateTime);
 				event.setEndDateTime(endDateTime);				
 				event.setMaxAttendees(maxAttendees);
+				event.setParentNotes(parentNotes);
+				event.setAdministratorNotes(organiserNotes);
 				allEvents.add(event);
 			}
 			else {
 				List<Holiday> allHolidays = Holiday.findAll();
 				Event event = new Event(AggregateReference.to(clubId),  startDateTime, endDateTime, maxAttendees);
+				event.setParentNotes(parentNotes);
+				event.setAdministratorNotes(organiserNotes);
+
 				allEvents.add(event);
 				
 				rs = new RecurrenceSpecification(startDateTime.toLocalDate(),  recurringEndDate, MonRecurring, TueRecurring, WedRecurring, ThurRecurring, FriRecurring, SatRecurring, SunRecurring, termTimeOnly);				

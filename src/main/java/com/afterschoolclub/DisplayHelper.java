@@ -68,7 +68,7 @@ public class DisplayHelper {
 		return result;
 			
 	}
-	
+	/*
 	public boolean checkedStudent(Student selectedStudent, Student currentStudent, Event event, boolean editing, boolean viewOnly)
 	{
 		return 	(!viewOnly && !editing && selectedStudent.equals(currentStudent)) || event.registered(currentStudent);
@@ -81,7 +81,7 @@ public class DisplayHelper {
 		if (checkedStudent(selectedStudent, currentStudent, event, editing, viewOnly))
 			result = "on";
 		return result;			
-	}
+	} */
 	
 	
 	public boolean checkedOption(MenuGroup menuGroup, int menuOptionId, Student student, Event event, boolean editing, boolean viewOnly)
