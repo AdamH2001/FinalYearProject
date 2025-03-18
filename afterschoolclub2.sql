@@ -111,7 +111,7 @@ CREATE TABLE `Resource` (
   `name` VARCHAR(64) NOT NULL,
   `description` VARCHAR(256) NOT NULL,
   `quantity` INT NOT NULL,
-  `type` ENUM('ROOM','STAFF','EQUIPMENT') NOT NULL,
+  `type` ENUM('LOCATION','STAFF','EQUIPMENT') NOT NULL,
   `state` ENUM('ACTIVE','INACTIVE') NOT NULL,
   `capacity` INT NOT NULL,
   `keywords` VARCHAR(256) NOT NULL,
@@ -275,13 +275,13 @@ INSERT into after_school_club2.club(title, description, base_price, year_r_can_a
 VALUES ("Football Club", "Football Club for Year 6", 250, false, false, false, false, false, false, true );
 	
 INSERT into after_school_club2.resource(name, description, quantity, type, keywords, state, capacity)
-VALUES ("Football Pitch 1", "Left hand football pitch at the back of the main building", 1, "ROOM", "sport football", 'ACTIVE', 20),
-	("Football Pitch 2", "Right hand football pitch at the back of the main building", 1, "ROOM", "sport football", 'ACTIVE', 30),
-	("Canteen", "Main canteen", 1, "ROOM", "food",  'ACTIVE', 100),
-    ("Music Room", "Room linked to assembly hall", 1, "ROOM", "music classroom", 'ACTIVE', 15),
-    ("Classroom 1", "First classroom off the main corridor", 1, "ROOM", "classroom", 'ACTIVE', 30),
-    ("Sports Hall", "The gym", 1, "ROOM", "classroom",  'ACTIVE', 50),
-    ("Classroom 2", "Second classroom off the main corridor", 1, "ROOM", "classroom", 'ACTIVE', 30);
+VALUES ("Football Pitch 1", "Left hand football pitch at the back of the main building", 1, "LOCATION", "sport football", 'ACTIVE', 20),
+	("Football Pitch 2", "Right hand football pitch at the back of the main building", 1, "LOCATION", "sport football", 'ACTIVE', 30),
+	("Canteen", "Main canteen", 1, "LOCATION", "food",  'ACTIVE', 100),
+    ("Music Room", "Room linked to assembly hall", 1, "LOCATION", "music classroom", 'ACTIVE', 15),
+    ("Classroom 1", "First classroom off the main corridor", 1, "LOCATION", "classroom", 'ACTIVE', 30),
+    ("Sports Hall", "The gym", 1, "LOCATION", "classroom",  'ACTIVE', 50),
+    ("Classroom 2", "Second classroom off the main corridor", 1, "LOCATION", "classroom", 'ACTIVE', 30);
     
 
               
