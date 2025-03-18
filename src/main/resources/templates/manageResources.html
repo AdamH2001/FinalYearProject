@@ -470,25 +470,25 @@ function addNewStaff(event) {
 			$("#" + type + "NewRow")[0].insertAdjacentHTML("beforeBegin", outerHTML);
 			
 			newRow = $("."+type+ "TemplateRow")[1];
-			newRow.id ="row-" + data.userId;
+			newRow.id ="row-u" + data.userId;
 			newRow.classList.add("filterrow");
 			newRow.classList.remove(type+ "TemplateRow");
 			
 			// Copy value from input fields to new row
-			$("#row-"+data.userId).find("#title")[0].innerHTML=data.title;
-			$("#row-"+data.userId).find("#firstName")[0].innerHTML=data.firstName;
-			$("#row-"+data.userId).find("#surname")[0].innerHTML=data.surname;
-			$("#row-"+data.userId).find("#email")[0].innerHTML=data.email;
-			$("#row-"+data.userId).find("#telephoneNum")[0].innerHTML=data.telephoneNum;
-			$("#row-"+data.userId).find("#description")[0].innerHTML=data.description;
-			$("#row-"+data.userId).find("#keywords")[0].innerHTML=data.keywords;
-			$("#row-"+data.userId).find("#capacity")[0].innerHTML=data.capacity;
+			$("#row-u"+data.userId).find("#title")[0].innerHTML=data.title;
+			$("#row-u"+data.userId).find("#firstName")[0].innerHTML=data.firstName;
+			$("#row-u"+data.userId).find("#surname")[0].innerHTML=data.surname;
+			$("#row-u"+data.userId).find("#email")[0].innerHTML=data.email;
+			$("#row-u"+data.userId).find("#telephoneNum")[0].innerHTML=data.telephoneNum;
+			$("#row-u"+data.userId).find("#description")[0].innerHTML=data.description;
+			$("#row-u"+data.userId).find("#keywords")[0].innerHTML=data.keywords;
+			$("#row-u"+data.userId).find("#capacity")[0].innerHTML=data.capacity;
 			
 			
-			undoButton = $("#row-"+data.userId).find("#newUndo")[0]; 
+			undoButton = $("#row-u"+data.userId).find("#newUndo")[0]; 
 			undoButton.id ="undo-u" + data.userId;
 			
-			deleteButton = $("#row-"+data.userId).find("#newDelete")[0];
+			deleteButton = $("#row-u"+data.userId).find("#newDelete")[0];
 			deleteButton.id = "delete-" + data.userId;
 			$("#"+deleteButton.id).show();
 			
@@ -498,9 +498,9 @@ function addNewStaff(event) {
 			setUpEditHandlersForType('staff');
 			
 			//Clear input fields			
-			$(".staffInput").val();
+			$(".staffInput").val("");
 			
-			$("#row-"+data.userId).show();			
+			$("#row-u"+data.userId).show();			
 			showValidationMessage("Successfully recorded staff member ");
 			
 		},
@@ -567,7 +567,7 @@ function insertEditControl(parent) {
         var preEditText = input.parentElement.getAttribute('data-text');
         var origText = input.parentElement.getAttribute('orig-data');
 
-        var current_text = parent.value;
+        var current_text = this.value;
         
 
         
@@ -906,7 +906,7 @@ function postDataAndDisplay(data, type) {
 			setUpEditHandlersForType(type);
 			
 			//Clear input fields			
-			$("." + type + "input").val("");			
+			$("." + type + "Input").val("");			
 			$("#row-"+data.resourceId).show();			
 			showValidationMessage("Successfully recorded new " + type);
 			
