@@ -132,7 +132,7 @@ public class AdminController {
 		if (returnPage == null) {	
 			Resource.cleanUpInactiveResources();			
 			List<Resource> allEquipment = Resource.findActiveByType(Type.EQUIPMENT);
-			List<Resource> allLocations = Resource.findActiveByType(Type.ROOM);
+			List<Resource> allLocations = Resource.findActiveByType(Type.LOCATION);
 			List<User> allStaff = User.findActiveStaff();
 			model.addAttribute("allEquipment",allEquipment);
 			model.addAttribute("allLocations",allLocations);
@@ -221,7 +221,7 @@ public class AdminController {
 				
 				model.addAttribute("clubSession",newEvent);								
 				model.addAttribute("clubs",Club.findAll());				
-				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
@@ -450,7 +450,7 @@ public class AdminController {
 					
 				model.addAttribute("clubSession",allEvents.get(0));								
 				model.addAttribute("clubs",Club.findAll());				
-				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
@@ -476,7 +476,7 @@ public class AdminController {
 			
 			model.addAttribute("clubSession",event);								
 			model.addAttribute("clubs",Club.findAll());				
-			model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+			model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 			model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 			model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 			model.addAttribute("menus", MenuGroup.findAll());			
@@ -499,7 +499,7 @@ public class AdminController {
 				
 				model.addAttribute("clubSession",event);								
 				model.addAttribute("clubs",Club.findAll());				
-				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
@@ -533,7 +533,7 @@ public class AdminController {
 								
 				model.addAttribute("clubSession",event);								
 				model.addAttribute("clubs",Club.findAll());				
-				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
+				model.addAttribute("locations", Resource.findByType(Resource.Type.LOCATION));							
 				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
@@ -563,7 +563,7 @@ public class AdminController {
 								
 				model.addAttribute("clubSession",event);								
 				model.addAttribute("clubs",Club.findAll());				
-				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());

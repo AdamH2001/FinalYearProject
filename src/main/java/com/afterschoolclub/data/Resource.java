@@ -23,7 +23,7 @@ public class Resource {
 
 	
 	public enum Type {
-		ROOM, STAFF, EQUIPMENT
+		LOCATION, STAFF, EQUIPMENT
 	}
 	
 	public enum State {

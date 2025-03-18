@@ -10,7 +10,7 @@
 <script src="./scripts/afterschoolclub.js" type="text/javascript"></script>	
 </head>
 
-<body onLoad="setUpEditHandlers()">
+<body onLoad="setUpEditHandlers();">
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
@@ -70,24 +70,24 @@
 								
 								
 								<div class="row mb-2 equipmentTemplateRow" style="display:none">
-									<div style="padding-left:0px" id="name" class="col-sm-2 editable" orig-data="" edittype="text">Name</div>
-									<div style="padding-left:0px" id="description" class="col-sm-4 editable" orig-data="" edittype="textarea">Description</div>						
-									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable" orig-data="" edittype="text">Keywords</div>
-									<div style="padding-left:0px" id="quantity"  class="col-sm-1 editable" orig-data="" edittype="number" align=center>Quantity</div>						
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable equipment" orig-data="" edittype="text">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable equipment" orig-data="" edittype="textarea">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable equipment" orig-data="" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="quantity"  class="col-sm-1 editable equipment" orig-data="" edittype="number" align=center>Quantity</div>						
 									<div style="padding-left:0px" id="delete" class="col-sm-1">
 										<button class="btn btn-secondary deleteButton"  type="button" id="newDelete" onclick="deleteResource(this, 'equipment')">-</button>
-										<button class="btn btn-secondary undoButton"  type="button" id="newUndo" onclick="undoResourceChanges(this, 'equipment')" style="display:none">&#x238C;</button>
+										<button class="btn btn-secondary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none">&#x238C;</button>
 									</div>												
 								</div>
 								
 								<div class="row mb-2 filterrow" th:each="resource : ${allEquipment}" th:id="${'row-' + resource.getResourceId()}">
-									<div style="padding-left:0px" id="name" class="col-sm-2 editable" th:orig-data="${resource.getName()}" th:text="${resource.getName()}" edittype="text">Name</div>
-									<div style="padding-left:0px" id="description" class="col-sm-4 editable" th:orig-data="${resource.getDescription()}" th:text="${resource.getDescription()}" edittype="textarea">Description</div>						
-									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable" th:orig-data="${resource.getKeywords()}" th:text="${resource.getKeywords()}" edittype="text">Keywords</div>
-									<div style="padding-left:0px" id="quantity" class="col-sm-1 editable" th:orig-data="${resource.getQuantity()}" th:text="${resource.getQuantity()}" edittype="number" align=center>Quantity</div>						
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable equipment" th:orig-data="${resource.getName()}" th:text="${resource.getName()}" edittype="text">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable equipment" th:orig-data="${resource.getDescription()}" th:text="${resource.getDescription()}" edittype="textarea">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable equipment" th:orig-data="${resource.getKeywords()}" th:text="${resource.getKeywords()}" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="quantity" class="col-sm-1 editable equipment" th:orig-data="${resource.getQuantity()}" th:text="${resource.getQuantity()}" edittype="number" align=center>Quantity</div>						
 									<div style="padding-left:0px" class="col-sm-1">
 										<button class="btn btn-secondary deleteButton"  type="button" th:id="${'delete-' + resource.getResourceId()}" onclick="deleteResource(this, 'equipment')">-</button>
-										<button class="btn btn-secondary undoButton"  type="button" th:id="${'undo-' + resource.getResourceId()}" onclick="undoResourceChanges(this, 'equipment')" style="display:none">&#x238C;</button>
+										<button class="btn btn-secondary undoButton"  type="button" th:id="${'undo-' + resource.getResourceId()}" onclick="undoChanges(this)" style="display:none">&#x238C;</button>
 									</div>												
 								</div>
 								
@@ -127,40 +127,40 @@
 								
 								
 								<div class="row mb-2 staffTemplateRow" style="display:none">
-									<div style="padding-left:0px" id="image" class="col-sm-1 editable" orig-data="" edittype="file">
-												<img width="30" height="30" class="rounded-circle"></div>
+									<div style="padding-left:0px" id="image" class="col-sm-1 editable staff" orig-data="" edittype="file">
+												<img width="30" height="30" class="rounded-circle"/></div>
 								
-									<div style="padding-left:0px" id="title" class="col-sm-1 editable" orig-data="" edittype="text">Title</div>
-									<div style="padding-left:0px" id="firstName" class="col-sm-1 editable" orig-data="" edittype="text">First Name</div>
-									<div style="padding-left:0px" id="surname" class="col-sm-1 editable" orig-data="" edittype="text">Surname</div>
-									<div style="padding-left:0px" id="email" class="col-sm-2 editable" orig-data="" edittype="email">email</div>
-									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable" orig-data="" edittype="text">Telephone Number</div>
-									<div style="padding-left:0px" id="description" class="col-sm-2 editable" orig-data="" edittype="textarea">Description</div>
-									<div style="padding-left:0px" id="keywords" class="col-sm-1 editable" orig-data="" edittype="textarea">Keywords</div>
-									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable" orig-data="" edittype="number">Keywords</div>
+									<div style="padding-left:0px" id="title" class="col-sm-1 editable staff" orig-data="" edittype="text">Title</div>
+									<div style="padding-left:0px" id="firstName" class="col-sm-1 editable staff" orig-data="" edittype="text">First Name</div>
+									<div style="padding-left:0px" id="surname" class="col-sm-1 editable staff" orig-data="" edittype="text">Surname</div>
+									<div style="padding-left:0px" id="email" class="col-sm-2 editable staff" orig-data="" edittype="email">email</div>
+									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable staff" orig-data="" edittype="text">Telephone Number</div>
+									<div style="padding-left:0px" id="description" class="col-sm-2 editable staff" orig-data="" edittype="textarea">Description</div>
+									<div style="padding-left:0px" id="keywords" class="col-sm-1 editable staff" orig-data="" edittype="textarea">Keywords</div>
+									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable staff" orig-data="" edittype="number">Capacity</div>
 					
 									<div style="padding-left:0px" class="col-sm-1">
 										<button class="btn btn-secondary deleteButton"  type="button" id="newDelete" onclick="deleteStaff(this)">-</button>
-										<button class="btn btn-secondary undoButton"  type="button" id="newUndo" onclick="undoStaff(this)" style="display:none">&#x238C;</button>
+										<button class="btn btn-secondary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none">&#x238C;</button>
 									</div>		
 								</div>
 								
-								<div class="row mb-2 filterrow" th:each="staff : ${allStaff}" th:id="${'row-' + staff.getUserId()}">
-									<div style="padding-left:0px" id="image" class="col-sm-1 editable" th:orig-data="${staff.getImageURL()}" edittype="file">
-												<img th:src="${staff.getImageURL()}" th:alt="${staff.getFullName()}" width="30" height="30" class="rounded-circle"></div>
+								<div class="row mb-2 filterrow" th:each="staff : ${allStaff}" th:id="${'row-u' + staff.getUserId()}">
+									<div style="padding-left:0px" id="image" class="col-sm-1 editable staff" th:orig-data="${staff.getImageURL()}" edittype="file">
+												<img th:src="${staff.getImageURL()}" th:alt="${staff.getFullName()}" width="30" height="30" class="rounded-circle"/></div>
 								
-									<div style="padding-left:0px" id="title" class="col-sm-1 editable" th:orig-data="${staff.getTitle()}" th:text="${staff.getTitle()}" edittype="text">Title</div>
-									<div style="padding-left:0px" id="firstName" class="col-sm-1 editable" th:orig-data="${staff.getFirstName()}" th:text="${staff.getFirstName()}" edittype="text">First Name</div>
-									<div style="padding-left:0px" id="surname" class="col-sm-1 editable" th:orig-data="${staff.getSurname()}" th:text="${staff.getSurname()}" edittype="text">Surname</div>
-									<div style="padding-left:0px" id="email" class="col-sm-2 editable" th:orig-data="${staff.getEmail()}" th:text="${staff.getEmail()}" edittype="email">email</div>
-									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable" th:orig-data="${staff.getTelephoneNum()}" th:text="${staff.getTelephoneNum()}" edittype="text">Telephone Number</div>
-									<div style="padding-left:0px" id="description" class="col-sm-2 editable" th:orig-data="${staff.getResourceObject().getDescription()}" th:text="${staff.getResourceObject().getDescription()}" edittype="textarea">Description</div>
-									<div style="padding-left:0px" id="keywords" class="col-sm-1 editable" th:orig-data="${staff.getResourceObject().getKeywords()}" th:text="${staff.getResourceObject().getKeywords()}" edittype="textarea">Keywords</div>
-									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable" th:orig-data="${staff.getResourceObject().getCapacity()}" th:text="${staff.getResourceObject().getCapacity()}" edittype="number">Keywords</div>
+									<div style="padding-left:0px" id="title" class="col-sm-1 editable staff" th:orig-data="${staff.getTitle()}" th:text="${staff.getTitle()}" edittype="text">Title</div>
+									<div style="padding-left:0px" id="firstName" class="col-sm-1 editable staff" th:orig-data="${staff.getFirstName()}" th:text="${staff.getFirstName()}" edittype="text">First Name</div>
+									<div style="padding-left:0px" id="surname" class="col-sm-1 editable staff" th:orig-data="${staff.getSurname()}" th:text="${staff.getSurname()}" edittype="text">Surname</div>
+									<div style="padding-left:0px" id="email" class="col-sm-2 editable staff" th:orig-data="${staff.getEmail()}" th:text="${staff.getEmail()}" edittype="email">email</div>
+									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable staff" th:orig-data="${staff.getTelephoneNum()}" th:text="${staff.getTelephoneNum()}" edittype="text">Telephone Number</div>
+									<div style="padding-left:0px" id="description" class="col-sm-2 editable staff" th:orig-data="${staff.getResourceObject().getDescription()}" th:text="${staff.getResourceObject().getDescription()}" edittype="textarea">Description</div>
+									<div style="padding-left:0px" id="keywords" class="col-sm-1 editable staff" th:orig-data="${staff.getResourceObject().getKeywords()}" th:text="${staff.getResourceObject().getKeywords()}" edittype="textarea">Keywords</div>
+									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable staff" th:orig-data="${staff.getResourceObject().getCapacity()}" th:text="${staff.getResourceObject().getCapacity()}" edittype="number">Capacity</div>
 					
 									<div style="padding-left:0px" class="col-sm-1">
 										<button class="btn btn-secondary deleteButton"  type="button" th:id="${'delete-' + staff.getUserId()}" onclick="deleteStaff(this)">-</button>
-										<button class="btn btn-secondary undoButton"  type="button" th:id="${'undo-' + staff.getUserId()}" onclick="undoStaff(this)" style="display:none">&#x238C;</button>
+										<button class="btn btn-secondary undoButton"  type="button" th:id="${'undo-u' + staff.getUserId()}" onclick="undoChanges(this)" style="display:none">&#x238C;</button>
 									</div>												
 								</div>
 								
@@ -171,8 +171,8 @@
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffSurname" type="text" required /></div>
 										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffEmail" type="email" required /></div>
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffTelephoneNum" type="tel" required /></div>
-										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffDescription" type="textarea" required /></div>
-										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffKeywords" type="textarea" required /></div>
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffDescription" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffKeywords" type="text" required /></div>
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number"><input class="form-control staffInput" name="staffCapacity" min=0 type="number" required /></div>									
 										<div style="padding-left:0px" class="col-sm-1"><button class="btn btn-primary" type="submit" >+</button></div>
 								</div>	
@@ -200,24 +200,24 @@
 								
 								
 								<div class="row mb-2 locationTemplateRow" style="display:none">
-									<div style="padding-left:0px" id="name" class="col-sm-2 editable" orig-data="" edittype="text">Name</div>
-									<div style="padding-left:0px" id="description" class="col-sm-4 editable" orig-data="" edittype="textarea">Description</div>						
-									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable" orig-data="" edittype="text">Keywords</div>
-									<div style="padding-left:0px" id="capacity"  class="col-sm-1 editable" orig-data="" edittype="number" align=center>Capacity</div>						
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable location" orig-data="" edittype="text">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable location" orig-data="" edittype="textarea">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable location" orig-data="" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="capacity"  class="col-sm-1 editable location" orig-data="" edittype="number" align=center>Capacity</div>						
 									<div style="padding-left:0px" id="delete" class="col-sm-1">
 										<button class="btn btn-secondary deleteButton"  type="button" id="newDelete" onclick="deleteResource(this, 'location')">-</button>
-										<button class="btn btn-secondary undoButton"  type="button" id="newUndo" onclick="undoResourceChanges(this, 'location')" style="display:none">&#x238C;</button>
+										<button class="btn btn-secondary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none">&#x238C;</button>
 									</div>												
 								</div>
 								
 								<div class="row mb-2 filterrow" th:each="location : ${allLocations}" th:id="${'row-' + location.getResourceId()}">
-									<div style="padding-left:0px" id="name" class="col-sm-2 editable" th:orig-data="${location.getName()}" th:text="${location.getName()}" edittype="text">Name</div>
-									<div style="padding-left:0px" id="description" class="col-sm-4 editable" th:orig-data="${location.getDescription()}" th:text="${location.getDescription()}" edittype="textarea">Description</div>						
-									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable" th:orig-data="${location.getKeywords()}" th:text="${location.getKeywords()}" edittype="text">Keywords</div>
-									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable" th:orig-data="${location.getCapacity()}" th:text="${location.getCapacity()}" edittype="number" align=center>Capacity</div>						
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable location" th:orig-data="${location.getName()}" th:text="${location.getName()}" edittype="text">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable location" th:orig-data="${location.getDescription()}" th:text="${location.getDescription()}" edittype="textarea">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable location" th:orig-data="${location.getKeywords()}" th:text="${location.getKeywords()}" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable location" th:orig-data="${location.getCapacity()}" th:text="${location.getCapacity()}" edittype="number" align=center>Capacity</div>						
 									<div style="padding-left:0px" class="col-sm-1">
 										<button class="btn btn-secondary deleteButton"  type="button" th:id="${'delete-' + location.getResourceId()}" onclick="deleteResource(this, 'location')">-</button>
-										<button class="btn btn-secondary undoButton"  type="button" th:id="${'undo-' + location.getResourceId()}" onclick="undoResourceChanges(this, 'location')" style="display:none">&#x238C;</button>
+										<button class="btn btn-secondary undoButton"  type="button" th:id="${'undo-' + location.getResourceId()}" onclick="undoChanges(this)" style="display:none">&#x238C;</button>
 									</div>												
 								</div>
 								
@@ -250,55 +250,69 @@
 	
 <script>
 
-
-function undoResourceChanges(button, type) {
-	resourceId=button.id.replace("undo-", "");
-	$("#row-" + resourceId).find(".editable").each(function() {
-		this.innerHTML = this.getAttribute('orig-data');
-		this.style.removeProperty("background-color");		
+function getDataFromRow(id) {
+	var data = {};
+	$("#row-" + id).find(".editable").each(function() {
+		data[this.id] = this.innerText;			
 	});
-
-	var data;
-	if (type=="equipment") {
-		data = {
-				"description": $("#row-" + resourceId).find("#description")[0].innerText,
-				"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
-				"name": $("#row-" + resourceId).find("#name")[0].innerText,
-				"quantity": $("#row-" + resourceId).find("#quantity")[0].innerText,
-				"type": "EQUIPMENT",
-				"resourceId": resourceId
-			}
+	data["state"] = "ACTIVE";
+	var isLocation = $("#locationList").find("#row-"+id).length > 0;
+	if (isLocation) {
+		data["quantity"] = "1";
+		data["type"] = "LOCATION";
+		data["resourceId"] = id;				
+		data["url"] = "./api/resources/" + id;
 	}
 	else {
-		data = {
-				"description": $("#row-" + resourceId).find("#description")[0].innerText,
-				"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
-				"name": $("#row-" + resourceId).find("#name")[0].innerText,
-				"capacity": $("#row-" + resourceId).find("#capacity")[0].innerText,
-				"quantity": "1",
-				"type": "ROOM",
-				"resourceId": resourceId
-			}		
-	}
-		
+		var isEquipment = $("#equipmentList").find("#row-"+id).length > 0;
+		if (isEquipment) {
+			data["type"] = "EQUIPMENT";
+			data["resourceId"] = id;				
+			data["url"] = "./api/resources/" + id;
+		}
+		else {			
+			data["type"] = "STAFF";
+			data["userId"] = id.substring(1);				
+			data["url"] = "./api/staff/" + id.substring(1);
+		}
+	}	
+	return data;
+}
+
+
+
+function undoChanges(button) {
+	resourceId=button.id.replace("undo-", "");
+	$("#row-" + resourceId).find(".editable").each(function() {
+		if (this.getAttribute("editType") != "file") {
+			this.innerHTML = this.getAttribute("orig-data");
+			this.style.removeProperty("background-color");
+		}
+		else {
+			innerHTML = "<img src='" + this.getAttribute("orig-data") + "' width='30' height='30' class='rounded-circle'/>";
+			this.innerHTML = innerHTML;
+		}
+	});
+
+	var data = getDataFromRow(resourceId);
 			
 	$.ajax({
-		url:"./api/resources/" + resourceId,
+		url: data.url,
 		method:"PUT",
 	    dataType : "json",
 	    contentType: "application/json; charset=utf-8",
 		data: JSON.stringify(data), 
-		success: function(data,  textStatus, jqXHR){
+		success: function(updatedData,  textStatus, jqXHR){
 			console.log("PUT");
-			console.log(data);
-			showValidationMessage("Successfully undone changes to equipment");
+			console.log(updatedData);
+			showValidationMessage("Successfully undone changes to " + data.type.toLowerCase());
 			$("#undo-"+resourceId).hide();					
 		},
 		
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log("PUT ERROR");
 			console.log(jqXHR);
-			showValidationMessage("Failed to update equipment");
+			showValidationMessage("Failed to update " + data.type.toLowerCase());
 		}
 	});
 		
@@ -416,7 +430,7 @@ function addNewLocation(event) {
 			"name": $("input[name='locationName']").val(),
 			"capacity": $("input[name='locationCapacity']").val(),
 			"quantity": "1",
-			"type": "ROOM",
+			"type": "LOCATION",
 		}		
 	postDataAndDisplay(data, "location");
 	
@@ -472,7 +486,7 @@ function addNewStaff(event) {
 			
 			
 			undoButton = $("#row-"+data.userId).find("#newUndo")[0]; 
-			undoButton.id ="undo-" + data.userId;
+			undoButton.id ="undo-u" + data.userId;
 			
 			deleteButton = $("#row-"+data.userId).find("#newDelete")[0];
 			deleteButton.id = "delete-" + data.userId;
@@ -481,10 +495,10 @@ function addNewStaff(event) {
 				
 			
 			//TODO more efficiently
-			setUpEditHandlers();
+			setUpEditHandlersForType('staff');
 			
 			//Clear input fields			
-			$(".staffInput").val("");
+			$(".staffInput").val();
 			
 			$("#row-"+data.userId).show();			
 			showValidationMessage("Successfully recorded staff member ");
@@ -523,7 +537,116 @@ $(document).ready(function(){
 });
 
 
+function insertEditControl(parent) {
+	parent.setAttribute('data-clicked', 'yes');
+    parent.setAttribute('data-text', parent.innerHTML);
+    editType =  parent.getAttribute('edittype')
+    var input = null;
+    
+    if (editType == "textarea") {
+    	input = document.createElement('textarea');
+    }
+    else {
+    	input = document.createElement('input');
+    	input.setAttribute('type',editType);
+    }
+
+    
+    
+    input.classList.add("form-control");
+    input.value = parent.innerHTML;
+    input.style.width = parent.offsetWidth - (parent.clientLeft * 2) - 5 + "px";
+    input.style.height = parent.offsetHeight - (parent.clientTop * 2) + "px";
+    input.style.border = "0px";
+    input.style.fontFamily = "inherit";
+    input.style.fontSize = "inherit";
+    input.style.backgroundColor = "LightGoldenRodYellow";
+
+    input.onblur = function() {
+        var td = input.parentElement;
+        var preEditText = input.parentElement.getAttribute('data-text');
+        var origText = input.parentElement.getAttribute('orig-data');
+
+        var current_text = parent.value;
+        
+
+        
+        if (preEditText != current_text) {
+            //there are changes; save to geojson
+
+            td.removeAttribute('data-clicked');
+            td.removeAttribute('data-text');
+            
+            
+            
+            
+            if (origText != current_text) {
+            		                
+                putDataAndDisplay(td.parentElement.id.replace("row-", ""), td)
+            }
+            else {
+            	td.style.removeProperty("background-color");	              
+            	rowId = "#" + td.parentElement.id;
+            	
+            	if ($(rowId).find("#name")[0].innerHTML == $(rowId).find("#name")[0].getAttribute("orig-data") &&
+            		$(rowId).find("#description")[0].innerHTML == $(rowId).find("#description")[0].getAttribute("orig-data") &&
+            		$(rowId).find("#quantity")[0].innerHTML == $(rowId).find("#quantity")[0].getAttribute("orig-data") &&
+            		$(rowId).find("#keywords")[0].innerHTML == $(rowId).find("#keywords")[0].getAttribute("orig-data")) {
+            		$(rowId).find("#button").hide(); 	
+            	}	                
+            }
+            	
+            
+            console.log(preEditText + ' is changed to ' + current_text);
+        } else {
+            td.removeAttribute('data-clicked');
+            td.removeAttribute('data-text');
+            td.innerHTML = preEditText;
+            console.log('no changes');
+        }
+    }
+    input.onkeydown = function() {
+        if (event.key == "Enter") {
+            this.blur();
+			event.preventDefault();		
+
+        } 
+        else if (event.key == "Escape") {
+        	console.log("Recieved Escape Key");
+            var td = input.parentElement;
+            input.value= input.parentElement.getAttribute('data-text');
+            this.blur();                
+        }
+    }
+    parent.innerHTML = '';
+    parent.append(input);
+    parent.firstElementChild.select();   
+    return input;
+}
+
+
+function setUpEditHandlersForType(type) {
+	var cells = $("div.editable."+type);
+	for (var i = 0; i < cells.length; i++) {
+	    cells[i].onclick = function(){
+	        if (!this.hasAttribute('data-clicked')) {
+		        input = insertEditControl(this);
+	        }
+	    }
+	}
+	
+}
+
+	
+
 function setUpEditHandlers() {
+	setUpEditHandlersForType('equipment');
+	setUpEditHandlersForType('location');
+	setUpEditHandlersForType('staff');
+	return;
+}
+
+function setUpStaffEditHandlers() {
 	var cells = $("div.editable")
 	for (var i = 0; i < cells.length; i++) {
 	    cells[i].onclick = function(){
@@ -580,8 +703,6 @@ function setUpEditHandlers() {
 	                else {
 	                	td.style.removeProperty("background-color");	              
 	                	rowId = "#" + td.parentElement.id;
-	                	buttonId = "#" + td.parentElement.id.replace("row-", "undo-");
-	                	otherChanges = false;
 	                	
 	                	if ($(rowId).find("#name")[0].innerHTML == $(rowId).find("#name")[0].getAttribute("orig-data") &&
 	                		$(rowId).find("#description")[0].innerHTML == $(rowId).find("#description")[0].getAttribute("orig-data") &&
@@ -619,6 +740,9 @@ function setUpEditHandlers() {
 	    }
 	}
 }
+
+
+
 
 function fetchDataAndDisplay() {
 	$.ajax({
@@ -672,58 +796,13 @@ function undoDataAndDisplay(resourceId) {
 
 function putDataAndDisplay(resourceId, parentCell) {	
 	
-	var isLocation = $("#locationList").find("#row-"+resourceId).length > 0;
-	if (isLocation) {
-		data = {
-				"description": $("#row-" + resourceId).find("#description")[0].innerText,
-				"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
-				"name": $("#row-" + resourceId).find("#name")[0].innerText,
-				"capacity": $("#row-" + resourceId).find("#capacity")[0].innerText,
-				"quantity": "1",
-				"type": "ROOM",
-				"resourceId": resourceId
-			}			
-	}
-	else {
-		data = {
-				"description": $("#row-" + resourceId).find("#description")[0].innerText,
-				"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
-				"name": $("#row-" + resourceId).find("#name")[0].innerText,
-				"quantity": $("#row-" + resourceId).find("#quantity")[0].innerText,
-				"type": "EQUIPMENT",
-				"resourceId": resourceId
-			}	
-	}
+	
+	var data = getDataFromRow(resourceId);	
+	data[parentCell.id] = parentCell.children[0].value;
 			
 	
-	
-	switch (parentCell.id) {
-		case "description": 
-			data.description = parentCell.children[0].value;
-			break;
-		case "keywords": 
-			data.keywords= parentCell.children[0].value;
-			break;
-	
-		case "name": 
-			data.name = parentCell.children[0].value;
-			break;
-	
-		case "quantity": 
-			data.quantity = parentCell.children[0].value;
-			break;
-		case "capacity": 
-			data.capacity = parentCell.children[0].value;
-			break;			
-		default:
-			console.error("missing property name " + parentCell.id);
-			break;
-	}
-
-		
-	
 	$.ajax({
-		url:"./api/resources/" + resourceId,
+		url: data.url,
 		method:"GET", 
 		success: function(origResource){
 			console.log("GET");
@@ -740,32 +819,22 @@ function putDataAndDisplay(resourceId, parentCell) {
 				}
 				
 				$.ajax({
-					url:"./api/resources/" + resourceId,
+					url: data.url,
 					method:"PUT",
 				    dataType : "json",
 				    contentType: "application/json; charset=utf-8",
 					data: JSON.stringify(data), 
-					success: function(data,  textStatus, jqXHR){
+					success: function(updatedData,  textStatus, jqXHR){
 						console.log("PUT");
-						console.log(data);
-						if (isLocation) {
-							showValidationMessage("Successfully updated location");
-						}
-						else {
-							showValidationMessage("Successfully updated equipment");
-						}
+						console.log(updatedData);
+						showValidationMessage("Successfully updated " + data.type.toLowerCase());						
 						$("#undo-"+resourceId).show();					
 					},
 					
 					error: function(jqXHR, textStatus, errorThrown) {
 						console.log("PUT ERROR");						
 						console.log(jqXHR);
-						if (isLocation) {
-							showValidationMessage("Failed to update location");
-						}
-						else {
-							showValidationMessage("Failed to update equipment");
-						}
+						showValidationMessage("Failed to update " + data.type.toLowerCase());						
 					}
 				});								
 			}
@@ -834,10 +903,10 @@ function postDataAndDisplay(data, type) {
 				
 			
 			//TODO more efficiently
-			setUpEditHandlers();
+			setUpEditHandlersForType(type);
 			
 			//Clear input fields			
-			$("" + type + "input']").val("");			
+			$("." + type + "input").val("");			
 			$("#row-"+data.resourceId).show();			
 			showValidationMessage("Successfully recorded new " + type);
 			
@@ -852,45 +921,13 @@ function postDataAndDisplay(data, type) {
 	});
 }
 
-function deleteDataAndDisplay(resourceId, type) {
-	
-	$.ajax({
-		url:"./api/resources/" +resourceId,
-		method:"DELETE",
-		success: function(data,  textStatus, jqXHR){
-			console.log("DELETE");
-			console.log(data);
-			id = this.url.substr(this.url.lastIndexOf("/")+1);
-			$("#row-"+id)[0].outerHTML="";
-			if (type == "equipment") {
-				showValidationMessage("Equipment Deleted");
-			}
-			else {
-				showValidationMessage("Location Deleted");
-			}
 
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log("DELETE ERROR");
-			console.log(jqXHR);
-			if (type == "equipment") {
-				showValidationMessage("Failed to delete equipment");
-			}
-			else {
-				showValidationMessage("Failed to delete location");
-			}
-		}
-	});
-}
 
 function showValidationMessage(message)
 {
 	$("#validationMessage")[0].innerText = message;
 	$(".afterschoolclubflash").show()	
 }
-
-fetchDataAndDisplay();
-
 
 
 </script>
@@ -911,7 +948,6 @@ function activateResourceTab(tabId)
 	$(".resourcePane").hide();
 	
 	$("#" + tabId.replace("Tab", "List")).show();
-	
 	
 	
 	

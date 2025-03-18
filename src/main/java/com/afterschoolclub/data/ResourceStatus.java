@@ -57,7 +57,7 @@ public class ResourceStatus {
 					result = String.format("Staff member %s is no longer available. Please choose alternative.", resource.getName(), date);
 				}
 				break;
-			case ROOM:
+			case LOCATION:
 				if (resource.isActive()) {
 					result = String.format("Location %s is already booked on %s. Please choose alternative.", resource.getName(), date);	
 				}

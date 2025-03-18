@@ -279,20 +279,20 @@ public class Event {
 	
 	
 	public Resource getLocation() {
-		Resource room = null;
+		Resource location = null;
 		List <Resource> allResources = getRequiredResources();
 		Iterator<Resource> resourceIterator = allResources.iterator();
-		while (room == null & resourceIterator.hasNext()) {
+		while (location == null & resourceIterator.hasNext()) {
 			Resource r = resourceIterator.next();
 			Iterator<EventResource> erIterator = eventResources.iterator();
-			while (room == null & erIterator.hasNext()) {
+			while (location == null & erIterator.hasNext()) {
 				EventResource er = erIterator.next();
-				if (er.getResourceId().getId().intValue() == r.getResourceId() && r.getType() == Resource.Type.ROOM) {
-					room = r;
+				if (er.getResourceId().getId().intValue() == r.getResourceId() && r.getType() == Resource.Type.LOCATION) {
+					location = r;
 				}				
 			}
 		}			
-		return room;		
+		return location;		
 	}
 	
 	public List<Resource> getRequiredResources() {
