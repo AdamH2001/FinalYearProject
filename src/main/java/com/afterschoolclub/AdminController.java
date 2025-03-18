@@ -137,6 +137,7 @@ public class AdminController {
 			model.addAttribute("allEquipment",allEquipment);
 			model.addAttribute("allLocations",allLocations);
 			model.addAttribute("allStaff",allStaff);
+			this.setInDialogue(true,model);							
 			returnPage = "manageResources";					
 		}
 		return returnPage;
@@ -538,7 +539,7 @@ public class AdminController {
 				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
 				model.addAttribute("displayHelper", new DisplayHelper());			
-				
+				model.addAttribute("resourceStatus", event.getResourceStatus());		
 				returnPage = "adminsession";
 			}
 			else {

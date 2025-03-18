@@ -383,7 +383,7 @@ function deleteStaff(button) {
 						console.log("DELETE");
 						console.log(data);
 						id = this.url.substr(this.url.lastIndexOf("/")+1);
-						$("#row-"+id)[0].outerHTML="";
+						$("#row-u"+id)[0].outerHTML="";
 						showValidationMessage("Staff member Deleted");
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
