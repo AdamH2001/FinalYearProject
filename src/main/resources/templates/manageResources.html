@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" type="text/javascript"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" type="text/javascript"> </script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="./css/styles.css"/>
+<script src="./scripts/afterschoolclub.js" type="text/javascript"></script>	
+</head>
+
+<body onLoad="setUpEditHandlers()">
+	<div th:replace="~{fragments/header :: header}"></div>
+	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
+
+	
+	<div id="main" class="main container-flex no-margin ">
+
+
+				<div class="row mb-2">
+					<div class="col-sm-12" align="center">
+						<h1 align="center">Manage Resources</h1>
+					</div>
+				</div>
+				
+				<div class="afterschoolclubflash row mb-2"  style="display: none" id="validationContainer">					
+					<div class="col-sm-12"  id="validationMessage"></div>
+				</div>	
+								
+				<div class="row mb-2">				
+					<div class="col-sm-12">
+						<input class="form-control" id="filter" type="text" placeholder="Search..">
+					</div>
+					
+				</div>
+								
+				<div class="row mb">		
+					
+					<div class="col-sm-12">	
+						<ul class="nav nav-tabs" >				
+							<li class="nav-item nav-item">											
+							    <a class="nav-link resourceTab active" aria-current="page" id="equipmentTab" href="javascript:activateResourceTab('equipmentTab')">Equipment</a>						     								   					  
+							</li>		
+							<li class="nav-item nav-item">											
+							    <a class="nav-link resourceTab" aria-current="page" id="staffTab" href="javascript:activateResourceTab('staffTab')">Staff</a>						     								   					  
+							</li>	
+							<li class="nav-item nav-item">											
+							    <a class="nav-link resourceTab" aria-current="page" id="locationTab" href="javascript:activateResourceTab('locationTab')">Location</a>						     								   					  
+							</li>	
+						</ul>
+					</div>
+				</div>			  
+				
+				<div id="equipmentList" class="row mb-2 flex-nowrap resourcePane">
+										<form action="./updateResource" onSubmit="addNewEquipment(event)" name="form" method="post"  >
+				
+					<div class="col-sm-12">
+					
+					
+						<fieldset class="form-group border p-3">			
+							<div  class="container-fluid no-margin">
+								<div class="row mb-2">				
+									<div style="padding-left:0px" class="col-sm-2"><b>Name</b></div>
+									<div style="padding-left:0px" class="col-sm-4"><b>Description</b></div>					
+									<div style="padding-left:0px" class="col-sm-4"><b>Keywords</b></div>
+									<div style="padding-left:0px" class="col-sm-1" align=center><b>Quantity</b></div>
+								</div>
+								
+								
+								<div class="row mb-2 equipmentTemplateRow" style="display:none">
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable" orig-data="" edittype="text">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable" orig-data="" edittype="textarea">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable" orig-data="" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="quantity"  class="col-sm-1 editable" orig-data="" edittype="number" align=center>Quantity</div>						
+									<div style="padding-left:0px" id="delete" class="col-sm-1">
+										<button class="btn btn-secondary deleteButton"  type="button" id="newDelete" onclick="deleteResource(this, 'equipment')">-</button>
+										<button class="btn btn-secondary undoButton"  type="button" id="newUndo" onclick="undoResourceChanges(this, 'equipment')" style="display:none">&#x238C;</button>
+									</div>												
+								</div>
+								
+								<div class="row mb-2 filterrow" th:each="resource : ${allEquipment}" th:id="${'row-' + resource.getResourceId()}">
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable" th:orig-data="${resource.getName()}" th:text="${resource.getName()}" edittype="text">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable" th:orig-data="${resource.getDescription()}" th:text="${resource.getDescription()}" edittype="textarea">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable" th:orig-data="${resource.getKeywords()}" th:text="${resource.getKeywords()}" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="quantity" class="col-sm-1 editable" th:orig-data="${resource.getQuantity()}" th:text="${resource.getQuantity()}" edittype="number" align=center>Quantity</div>						
+									<div style="padding-left:0px" class="col-sm-1">
+										<button class="btn btn-secondary deleteButton"  type="button" th:id="${'delete-' + resource.getResourceId()}" onclick="deleteResource(this, 'equipment')">-</button>
+										<button class="btn btn-secondary undoButton"  type="button" th:id="${'undo-' + resource.getResourceId()}" onclick="undoResourceChanges(this, 'equipment')" style="display:none">&#x238C;</button>
+									</div>												
+								</div>
+								
+								<div class="row mb-2" id="equipmentNewRow">
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"><input class="form-control equipmentInput" name="equipmentName" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control equipmentInput" name="equipmentDescription" type="text" required /></div>							
+										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control equipmentInput" name="equipmentKeywords" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number"><input class="form-control equipmentInput" min=0 name="equipmentQuantity" type="number" required /></div>							
+										<div style="padding-left:0px" class="col-sm-1"><button class="btn btn-primary" type="submit" >+</button></div>
+								</div>	
+							</div>	
+						</fieldset>
+								
+					</div>	
+						</form>
+					
+				</div>
+				
+				<div id="staffList" class="row mb-2 resourcePane flex-nowrap" style="display:none">		
+													<form action="./updateResource" onSubmit="addNewStaff(event)" name="form" method="post"  >
+							
+					<div class="col-sm-12">
+					
+						<fieldset class="form-group border p-3">			
+							<div  class="container-fluid no-margin">
+								<div class="row mb-2">
+									<div style="padding-left:0px" class="col-sm-1"><b>Image</b></div>				
+									<div style="padding-left:0px" class="col-sm-1"><b>Title</b></div>
+									<div style="padding-left:0px" class="col-sm-1"><b>First Name</b></div>					
+									<div style="padding-left:0px" class="col-sm-1"><b>Surname</b></div>
+									<div style="padding-left:0px" class="col-sm-2"><b>Email</b></div>
+									<div style="padding-left:0px" class="col-sm-1"><b>Contact Number</b></div>
+									<div style="padding-left:0px" class="col-sm-2"><b>Description</b></div>
+									<div style="padding-left:0px" class="col-sm-1"><b>Keywords</b></div>
+									<div style="padding-left:0px" class="col-sm-1"><b>#Students</b></div>																	
+								</div>
+								
+								
+								<div class="row mb-2 staffTemplateRow" style="display:none">
+									<div style="padding-left:0px" id="image" class="col-sm-1 editable" orig-data="" edittype="file">
+												<img width="30" height="30" class="rounded-circle"></div>
+								
+									<div style="padding-left:0px" id="title" class="col-sm-1 editable" orig-data="" edittype="text">Title</div>
+									<div style="padding-left:0px" id="firstName" class="col-sm-1 editable" orig-data="" edittype="text">First Name</div>
+									<div style="padding-left:0px" id="surname" class="col-sm-1 editable" orig-data="" edittype="text">Surname</div>
+									<div style="padding-left:0px" id="email" class="col-sm-2 editable" orig-data="" edittype="email">email</div>
+									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable" orig-data="" edittype="text">Telephone Number</div>
+									<div style="padding-left:0px" id="description" class="col-sm-2 editable" orig-data="" edittype="textarea">Description</div>
+									<div style="padding-left:0px" id="keywords" class="col-sm-1 editable" orig-data="" edittype="textarea">Keywords</div>
+									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable" orig-data="" edittype="number">Keywords</div>
+					
+									<div style="padding-left:0px" class="col-sm-1">
+										<button class="btn btn-secondary deleteButton"  type="button" id="newDelete" onclick="deleteStaff(this)">-</button>
+										<button class="btn btn-secondary undoButton"  type="button" id="newUndo" onclick="undoStaff(this)" style="display:none">&#x238C;</button>
+									</div>		
+								</div>
+								
+								<div class="row mb-2 filterrow" th:each="staff : ${allStaff}" th:id="${'row-' + staff.getUserId()}">
+									<div style="padding-left:0px" id="image" class="col-sm-1 editable" th:orig-data="${staff.getImageURL()}" edittype="file">
+												<img th:src="${staff.getImageURL()}" th:alt="${staff.getFullName()}" width="30" height="30" class="rounded-circle"></div>
+								
+									<div style="padding-left:0px" id="title" class="col-sm-1 editable" th:orig-data="${staff.getTitle()}" th:text="${staff.getTitle()}" edittype="text">Title</div>
+									<div style="padding-left:0px" id="firstName" class="col-sm-1 editable" th:orig-data="${staff.getFirstName()}" th:text="${staff.getFirstName()}" edittype="text">First Name</div>
+									<div style="padding-left:0px" id="surname" class="col-sm-1 editable" th:orig-data="${staff.getSurname()}" th:text="${staff.getSurname()}" edittype="text">Surname</div>
+									<div style="padding-left:0px" id="email" class="col-sm-2 editable" th:orig-data="${staff.getEmail()}" th:text="${staff.getEmail()}" edittype="email">email</div>
+									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable" th:orig-data="${staff.getTelephoneNum()}" th:text="${staff.getTelephoneNum()}" edittype="text">Telephone Number</div>
+									<div style="padding-left:0px" id="description" class="col-sm-2 editable" th:orig-data="${staff.getResourceObject().getDescription()}" th:text="${staff.getResourceObject().getDescription()}" edittype="textarea">Description</div>
+									<div style="padding-left:0px" id="keywords" class="col-sm-1 editable" th:orig-data="${staff.getResourceObject().getKeywords()}" th:text="${staff.getResourceObject().getKeywords()}" edittype="textarea">Keywords</div>
+									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable" th:orig-data="${staff.getResourceObject().getCapacity()}" th:text="${staff.getResourceObject().getCapacity()}" edittype="number">Keywords</div>
+					
+									<div style="padding-left:0px" class="col-sm-1">
+										<button class="btn btn-secondary deleteButton"  type="button" th:id="${'delete-' + staff.getUserId()}" onclick="deleteStaff(this)">-</button>
+										<button class="btn btn-secondary undoButton"  type="button" th:id="${'undo-' + staff.getUserId()}" onclick="undoStaff(this)" style="display:none">&#x238C;</button>
+									</div>												
+								</div>
+								
+								<div class="row mb-2" id="staffNewRow">
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="file"><input class="form-control staffInput" name="staffProfilePic" type="file" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffTitle" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffFirstName" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffSurname" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffEmail" type="email" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffTelephoneNum" type="tel" required /></div>
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffDescription" type="textarea" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffKeywords" type="textarea" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number"><input class="form-control staffInput" name="staffCapacity" min=0 type="number" required /></div>									
+										<div style="padding-left:0px" class="col-sm-1"><button class="btn btn-primary" type="submit" >+</button></div>
+								</div>	
+							</div>	
+						</fieldset>	
+							
+					</div>	
+						</form>
+					
+				</div>		
+				
+				<div id="locationList" class="row mb-2 flex-nowrap resourcePane" style="display:none">
+									<form action="./updateResource" onSubmit="addNewLocation(event)" name="form" method="post"  >
+				
+					<div class="col-sm-12">
+					
+						<fieldset class="form-group border p-3">			
+							<div  class="container-fluid no-margin">
+								<div class="row mb-2">				
+									<div style="padding-left:0px" class="col-sm-2"><b>Location Name</b></div>
+									<div style="padding-left:0px" class="col-sm-4"><b>Description</b></div>					
+									<div style="padding-left:0px" class="col-sm-4"><b>Keywords</b></div>
+									<div style="padding-left:0px" class="col-sm-1" align=center><b>Capacity</b></div>
+								</div>
+								
+								
+								<div class="row mb-2 locationTemplateRow" style="display:none">
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable" orig-data="" edittype="text">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable" orig-data="" edittype="textarea">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable" orig-data="" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="capacity"  class="col-sm-1 editable" orig-data="" edittype="number" align=center>Capacity</div>						
+									<div style="padding-left:0px" id="delete" class="col-sm-1">
+										<button class="btn btn-secondary deleteButton"  type="button" id="newDelete" onclick="deleteResource(this, 'location')">-</button>
+										<button class="btn btn-secondary undoButton"  type="button" id="newUndo" onclick="undoResourceChanges(this, 'location')" style="display:none">&#x238C;</button>
+									</div>												
+								</div>
+								
+								<div class="row mb-2 filterrow" th:each="location : ${allLocations}" th:id="${'row-' + location.getResourceId()}">
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable" th:orig-data="${location.getName()}" th:text="${location.getName()}" edittype="text">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable" th:orig-data="${location.getDescription()}" th:text="${location.getDescription()}" edittype="textarea">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable" th:orig-data="${location.getKeywords()}" th:text="${location.getKeywords()}" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable" th:orig-data="${location.getCapacity()}" th:text="${location.getCapacity()}" edittype="number" align=center>Capacity</div>						
+									<div style="padding-left:0px" class="col-sm-1">
+										<button class="btn btn-secondary deleteButton"  type="button" th:id="${'delete-' + location.getResourceId()}" onclick="deleteResource(this, 'location')">-</button>
+										<button class="btn btn-secondary undoButton"  type="button" th:id="${'undo-' + location.getResourceId()}" onclick="undoResourceChanges(this, 'location')" style="display:none">&#x238C;</button>
+									</div>												
+								</div>
+								
+								<div class="row mb-2" id="locationNewRow">
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"><input class="form-control locationInput" name="locationName" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control locationInput" name="locationDescription" type="text" required /></div>							
+										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control locationInput" name="locationKeywords" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number"><input class="form-control locationInput" min=0 name="locationCapacity" type="number" required /></div>							
+										<div style="padding-left:0px" class="col-sm-1"><button class="btn btn-primary" type="submit" >+</button></div>
+								</div>	
+							</div>	
+						</fieldset>
+								
+					</div>	
+					</form>
+					
+				</div>								
+				
+
+			<div class="row mb-2">	
+				<div class="col-sm-12" align="center">
+					<a href="./calendar" class="btn btn-secondary" role="button" >Back</a>
+				</div>				
+			</div>						
+			<div class="spacer">&nbsp;</div>
+			
+			
+
+	</div>
+	
+<script>
+
+
+function undoResourceChanges(button, type) {
+	resourceId=button.id.replace("undo-", "");
+	$("#row-" + resourceId).find(".editable").each(function() {
+		this.innerHTML = this.getAttribute('orig-data');
+		this.style.removeProperty("background-color");		
+	});
+
+	var data;
+	if (type=="equipment") {
+		data = {
+				"description": $("#row-" + resourceId).find("#description")[0].innerText,
+				"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
+				"name": $("#row-" + resourceId).find("#name")[0].innerText,
+				"quantity": $("#row-" + resourceId).find("#quantity")[0].innerText,
+				"type": "EQUIPMENT",
+				"resourceId": resourceId
+			}
+	}
+	else {
+		data = {
+				"description": $("#row-" + resourceId).find("#description")[0].innerText,
+				"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
+				"name": $("#row-" + resourceId).find("#name")[0].innerText,
+				"capacity": $("#row-" + resourceId).find("#capacity")[0].innerText,
+				"quantity": "1",
+				"type": "ROOM",
+				"resourceId": resourceId
+			}		
+	}
+		
+			
+	$.ajax({
+		url:"./api/resources/" + resourceId,
+		method:"PUT",
+	    dataType : "json",
+	    contentType: "application/json; charset=utf-8",
+		data: JSON.stringify(data), 
+		success: function(data,  textStatus, jqXHR){
+			console.log("PUT");
+			console.log(data);
+			showValidationMessage("Successfully undone changes to equipment");
+			$("#undo-"+resourceId).hide();					
+		},
+		
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("PUT ERROR");
+			console.log(jqXHR);
+			showValidationMessage("Failed to update equipment");
+		}
+	});
+		
+}
+
+
+function deleteResource(button, type) {	
+	id=button.id.replace("delete-", "");
+
+	$.ajax({
+		url:"./api/resources/" + id,
+		method:"GET", 
+		success: function(data){
+			console.log("GET");
+			console.log(data);
+			shouldDelete = true;
+			if (data.maxDemand > 0) {
+				message = type.toUpperCase().substring(0,1) + type.substring(1) + " required to support already scheduled sessions. \n Do you really want to delete?"; 
+				shouldDelete = confirm(message);
+			}
+			if (shouldDelete) {				
+				$.ajax({
+					url:"./api/resources/" +id,
+					method:"DELETE",
+					success: function(data,  textStatus, jqXHR){
+						console.log("DELETE");
+						console.log(data);
+						id = this.url.substr(this.url.lastIndexOf("/")+1);
+						$("#row-"+id)[0].outerHTML="";	
+						message = type.toUpperCase().substring(0,1) + type.substring(1) + " deleted."; 						
+						showValidationMessage(message);						
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						console.log("DELETE ERROR");
+						console.log(jqXHR);						 					
+						showValidationMessage("Failed to delete " + type);						
+					}
+				});																
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("GET ERROR");
+			console.log(jqXHR);
+			
+		}
+	});	
+	return;		
+}
+
+function deleteStaff(button) {	
+	id=button.id.replace("delete-", "");
+
+	$.ajax({
+		url:"./api/staff/" + id,
+		method:"GET", 
+		success: function(data){
+			console.log("GET");
+			console.log(data);
+			shouldDelete = true;
+			if (data.maxDemand > 0) {				
+				shouldDelete = confirm("Staff member required to support already scheduled sessions. \n Do you really want to delete?");				
+			}
+			if (shouldDelete) {								
+				$.ajax({
+					url:"./api/staff/" +id,
+					method:"DELETE",
+					success: function(data,  textStatus, jqXHR){
+						console.log("DELETE");
+						console.log(data);
+						id = this.url.substr(this.url.lastIndexOf("/")+1);
+						$("#row-"+id)[0].outerHTML="";
+						showValidationMessage("Staff member Deleted");
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						console.log("DELETE ERROR");
+						console.log(jqXHR);
+						showValidationMessage("Failed to delete staff member");
+
+					}
+				});
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("GET ERROR");
+			console.log(jqXHR);
+			
+		}
+	});	
+	return;		
+}
+
+
+
+function addNewEquipment(event) {
+	event.preventDefault();		
+	
+	data = {
+			"description": $("input[name='equipmentDescription']").val(),
+			"keywords": $("input[name='equipmentKeywords']").val(),
+			"name": $("input[name='equipmentName']").val(),
+			"quantity": $("input[name='equipmentQuantity']").val(),
+			"type": "EQUIPMENT",
+		}		
+	postDataAndDisplay(data, "equipment");
+	
+}
+
+
+function addNewLocation(event) {
+	event.preventDefault();		
+	
+	data = {
+			"description": $("input[name='locationDescription']").val(),
+			"keywords": $("input[name='locationKeywords']").val(),
+			"name": $("input[name='locationName']").val(),
+			"capacity": $("input[name='locationCapacity']").val(),
+			"quantity": "1",
+			"type": "ROOM",
+		}		
+	postDataAndDisplay(data, "location");
+	
+}
+
+function addNewStaff(event) {
+	event.preventDefault();		
+	
+	staff = {
+			"title": $("input[name='staffTitle']").val(),
+			"firstName": $("input[name='staffFirstName']").val(),
+			"surname": $("input[name='staffSurname']").val(),
+			"email": $("input[name='staffEmail']").val(),
+			"telephoneNum": $("input[name='staffTelephoneNum']").val(),
+			"description": $("input[name='staffDescription']").val(),
+			"keywords": $("input[name='staffKeywords']").val(),
+			"capacity": $("input[name='staffCapacity']").val(),
+			"state": "ACTIVE",
+			"type": "STAFF",
+		}		
+	
+	$.ajax({
+		url:"./api/staff",
+		method:"POST",
+	    dataType : "json",
+	    contentType: "application/json; charset=utf-8",
+		data: JSON.stringify(staff),
+
+		success: function(data,  textStatus, jqXHR){
+			console.log("POST");
+			console.log(data);
+			type="staff";
+			
+			outerHTML = $("."+type+ "TemplateRow")[0].outerHTML;
+			
+			
+			$("#" + type + "NewRow")[0].insertAdjacentHTML("beforeBegin", outerHTML);
+			
+			newRow = $("."+type+ "TemplateRow")[1];
+			newRow.id ="row-" + data.userId;
+			newRow.classList.add("filterrow");
+			newRow.classList.remove(type+ "TemplateRow");
+			
+			// Copy value from input fields to new row
+			$("#row-"+data.userId).find("#title")[0].innerHTML=data.title;
+			$("#row-"+data.userId).find("#firstName")[0].innerHTML=data.firstName;
+			$("#row-"+data.userId).find("#surname")[0].innerHTML=data.surname;
+			$("#row-"+data.userId).find("#email")[0].innerHTML=data.email;
+			$("#row-"+data.userId).find("#telephoneNum")[0].innerHTML=data.telephoneNum;
+			$("#row-"+data.userId).find("#description")[0].innerHTML=data.description;
+			$("#row-"+data.userId).find("#keywords")[0].innerHTML=data.keywords;
+			$("#row-"+data.userId).find("#capacity")[0].innerHTML=data.capacity;
+			
+			
+			undoButton = $("#row-"+data.userId).find("#newUndo")[0]; 
+			undoButton.id ="undo-" + data.userId;
+			
+			deleteButton = $("#row-"+data.userId).find("#newDelete")[0];
+			deleteButton.id = "delete-" + data.userId;
+			$("#"+deleteButton.id).show();
+			
+				
+			
+			//TODO more efficiently
+			setUpEditHandlers();
+			
+			//Clear input fields			
+			$(".staffInput").val("");
+			
+			$("#row-"+data.userId).show();			
+			showValidationMessage("Successfully recorded staff member ");
+			
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("POST ERROR");
+			console.log(jqXHR);
+			showValidationMessage("Failed to save new staff member");
+
+			
+		}
+	});	
+	
+
+	
+}
+
+
+
+$(document).ready(function(){
+  $("#filter").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#equipmentList").find(".filterrow").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+    $("#staffList").find(".filterrow").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    $("#locationList").find(".filterrow").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    
+    
+  });
+});
+
+
+function setUpEditHandlers() {
+	var cells = $("div.editable")
+	for (var i = 0; i < cells.length; i++) {
+	    cells[i].onclick = function(){
+	        //console.log('clicked');
+	        if (this.hasAttribute('data-clicked')) {
+	            return;
+	        }
+	        this.setAttribute('data-clicked', 'yes');
+	        this.setAttribute('data-text', this.innerHTML);
+	        editType =  this.getAttribute('edittype')
+	        var input = null;
+	        
+	        if (editType == "textarea") {
+	        	input = document.createElement('textarea');
+	        }
+	        else {
+	        	input = document.createElement('input');
+	        	input.setAttribute('type',editType);
+	        }
+	
+	        
+	        
+	        input.classList.add("form-control");
+	        input.value = this.innerHTML;
+	        input.style.width = this.offsetWidth - (this.clientLeft * 2) - 5 + "px";
+	        input.style.height = this.offsetHeight - (this.clientTop * 2) + "px";
+	        input.style.border = "0px";
+	        input.style.fontFamily = "inherit";
+	        input.style.fontSize = "inherit";
+	        input.style.backgroundColor = "LightGoldenRodYellow";
+	
+	        input.onblur = function() {
+	            var td = input.parentElement;
+	            var preEditText = input.parentElement.getAttribute('data-text');
+	            var origText = input.parentElement.getAttribute('orig-data');
+
+	            var current_text = this.value;
+	            
+	
+	            
+	            if (preEditText != current_text) {
+	                //there are changes; save to geojson
+	
+	                td.removeAttribute('data-clicked');
+	                td.removeAttribute('data-text');
+	                
+	                
+	                
+	                
+	                if (origText != current_text) {
+	                		                
+		                putDataAndDisplay(td.parentElement.id.replace("row-", ""), td)
+	                }
+	                else {
+	                	td.style.removeProperty("background-color");	              
+	                	rowId = "#" + td.parentElement.id;
+	                	buttonId = "#" + td.parentElement.id.replace("row-", "undo-");
+	                	otherChanges = false;
+	                	
+	                	if ($(rowId).find("#name")[0].innerHTML == $(rowId).find("#name")[0].getAttribute("orig-data") &&
+	                		$(rowId).find("#description")[0].innerHTML == $(rowId).find("#description")[0].getAttribute("orig-data") &&
+	                		$(rowId).find("#quantity")[0].innerHTML == $(rowId).find("#quantity")[0].getAttribute("orig-data") &&
+	                		$(rowId).find("#keywords")[0].innerHTML == $(rowId).find("#keywords")[0].getAttribute("orig-data")) {
+	                		$(rowId).find("#button").hide(); 	
+	                	}	                
+	                }
+	                	
+	                
+	                console.log(preEditText + ' is changed to ' + current_text);
+	            } else {
+	                td.removeAttribute('data-clicked');
+	                td.removeAttribute('data-text');
+	                td.innerHTML = preEditText;
+	                console.log('no changes');
+	            }
+	        }
+	        input.onkeydown = function() {
+	            if (event.key == "Enter") {
+	                this.blur();
+	    			event.preventDefault();		
+
+	            } 
+	            else if (event.key == "Escape") {
+	            	console.log("Recieved Escape Key");
+	                var td = input.parentElement;
+	                input.value= input.parentElement.getAttribute('data-text');
+	                this.blur();                
+	            }
+	        }
+	        this.innerHTML = '';
+	        this.append(input);
+	        this.firstElementChild.select();
+	    }
+	}
+}
+
+function fetchDataAndDisplay() {
+	$.ajax({
+		url:"./api/resources",
+		method:"GET", 
+		success: function(data){
+			console.log("GET");
+			console.log(data);
+			
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("GET ERROR");
+			console.log(jqXHR);
+			
+		}
+	});	
+}
+
+function undoDataAndDisplay(resourceId) {
+	
+	data = {
+			"description": $("#row-" + resourceId).find("#description")[0].innerText,
+			"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
+			"name": $("#row-" + resourceId).find("#name")[0].innerText,
+			"quantity": $("#row-" + resourceId).find("#quantity")[0].innerText,
+			"type": "EQUIPMENT",
+			"resourceId": resourceId
+		}
+	
+	$.ajax({
+		url:"./api/resources/" + resourceId,
+		method:"PUT",
+	    dataType : "json",
+	    contentType: "application/json; charset=utf-8",
+		data: JSON.stringify(data), 
+		success: function(data,  textStatus, jqXHR){
+			console.log("PUT");
+			console.log(data);
+			showValidationMessage("Successfully updated equipment");
+		},
+		
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("PUT ERROR");
+			console.log(jqXHR);
+			showValidationMessage("Failed to update equipment");
+		}
+	});
+}
+
+
+
+function putDataAndDisplay(resourceId, parentCell) {	
+	
+	var isLocation = $("#locationList").find("#row-"+resourceId).length > 0;
+	if (isLocation) {
+		data = {
+				"description": $("#row-" + resourceId).find("#description")[0].innerText,
+				"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
+				"name": $("#row-" + resourceId).find("#name")[0].innerText,
+				"capacity": $("#row-" + resourceId).find("#capacity")[0].innerText,
+				"quantity": "1",
+				"type": "ROOM",
+				"resourceId": resourceId
+			}			
+	}
+	else {
+		data = {
+				"description": $("#row-" + resourceId).find("#description")[0].innerText,
+				"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
+				"name": $("#row-" + resourceId).find("#name")[0].innerText,
+				"quantity": $("#row-" + resourceId).find("#quantity")[0].innerText,
+				"type": "EQUIPMENT",
+				"resourceId": resourceId
+			}	
+	}
+			
+	
+	
+	switch (parentCell.id) {
+		case "description": 
+			data.description = parentCell.children[0].value;
+			break;
+		case "keywords": 
+			data.keywords= parentCell.children[0].value;
+			break;
+	
+		case "name": 
+			data.name = parentCell.children[0].value;
+			break;
+	
+		case "quantity": 
+			data.quantity = parentCell.children[0].value;
+			break;
+		case "capacity": 
+			data.capacity = parentCell.children[0].value;
+			break;			
+		default:
+			console.error("missing property name " + parentCell.id);
+			break;
+	}
+
+		
+	
+	$.ajax({
+		url:"./api/resources/" + resourceId,
+		method:"GET", 
+		success: function(origResource){
+			console.log("GET");
+			console.log(origResource);
+			shouldEdit = true;
+			if (origResource.maxDemand > data.quantity) {
+				shouldEdit = confirm("Existing demand is greater than new quantity. \n Are you sure you want to update?");				  
+			}
+			if (shouldEdit) {
+				if (parentCell != null) {
+					parentCell.setAttribute("latest-data", parentCell.children[0].value);				
+					parentCell.innerHTML = parentCell.children[0].value;
+					parentCell.style.backgroundColor="LightGoldenRodYellow";
+				}
+				
+				$.ajax({
+					url:"./api/resources/" + resourceId,
+					method:"PUT",
+				    dataType : "json",
+				    contentType: "application/json; charset=utf-8",
+					data: JSON.stringify(data), 
+					success: function(data,  textStatus, jqXHR){
+						console.log("PUT");
+						console.log(data);
+						if (isLocation) {
+							showValidationMessage("Successfully updated location");
+						}
+						else {
+							showValidationMessage("Successfully updated equipment");
+						}
+						$("#undo-"+resourceId).show();					
+					},
+					
+					error: function(jqXHR, textStatus, errorThrown) {
+						console.log("PUT ERROR");						
+						console.log(jqXHR);
+						if (isLocation) {
+							showValidationMessage("Failed to update location");
+						}
+						else {
+							showValidationMessage("Failed to update equipment");
+						}
+					}
+				});								
+			}
+			else {
+				origValue = parentCell.getAttribute("latest-data");
+				if (origValue == null) {
+					origValue = parentCell.getAttribute('orig-data');
+				}
+				parentCell.innerHTML = origValue;
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("GET ERROR");
+			console.log(jqXHR);
+			
+		}
+	});	
+	
+	
+
+}
+
+function postDataAndDisplay(data, type) {
+
+	
+	$.ajax({
+		url:"./api/resources",
+		method:"POST",
+	    dataType : "json",
+	    contentType: "application/json; charset=utf-8",
+		data: JSON.stringify(data),
+
+		success: function(data,  textStatus, jqXHR){
+			console.log("POST");
+			console.log(data);
+			
+			outerHTML = $("."+type+ "TemplateRow")[0].outerHTML;
+			
+			
+			$("#" + type + "NewRow")[0].insertAdjacentHTML("beforeBegin", outerHTML);
+			
+			newRow = $("."+type+ "TemplateRow")[1];
+			newRow.id ="row-" + data.resourceId;
+			newRow.classList.add("filterrow");
+			newRow.classList.remove(type+ "TemplateRow");
+			
+			// Copy value from input fields to new row
+			$("#row-"+data.resourceId).find("#name")[0].innerHTML=data.name;
+			$("#row-"+data.resourceId).find("#description")[0].innerHTML=data.description;
+			$("#row-"+data.resourceId).find("#keywords")[0].innerHTML=data.keywords;
+			if (type =="equipment") {
+				$("#row-"+data.resourceId).find("#quantity")[0].innerHTML=data.quantity;
+			}
+			else {
+				$("#row-"+data.resourceId).find("#capacity")[0].innerHTML=data.capacity;
+			}
+			
+			
+			undoButton = $("#row-"+data.resourceId).find("#newUndo")[0]; 
+			undoButton.id ="undo-" + data.resourceId;
+			
+			deleteButton = $("#row-"+data.resourceId).find("#newDelete")[0];
+			deleteButton.id = "delete-" + data.resourceId;
+			$("#"+deleteButton.id).show();
+			
+				
+			
+			//TODO more efficiently
+			setUpEditHandlers();
+			
+			//Clear input fields			
+			$("" + type + "input']").val("");			
+			$("#row-"+data.resourceId).show();			
+			showValidationMessage("Successfully recorded new " + type);
+			
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("POST ERROR");
+			console.log(jqXHR);
+			showValidationMessage("Failed to record new " + type);
+
+			
+		}
+	});
+}
+
+function deleteDataAndDisplay(resourceId, type) {
+	
+	$.ajax({
+		url:"./api/resources/" +resourceId,
+		method:"DELETE",
+		success: function(data,  textStatus, jqXHR){
+			console.log("DELETE");
+			console.log(data);
+			id = this.url.substr(this.url.lastIndexOf("/")+1);
+			$("#row-"+id)[0].outerHTML="";
+			if (type == "equipment") {
+				showValidationMessage("Equipment Deleted");
+			}
+			else {
+				showValidationMessage("Location Deleted");
+			}
+
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("DELETE ERROR");
+			console.log(jqXHR);
+			if (type == "equipment") {
+				showValidationMessage("Failed to delete equipment");
+			}
+			else {
+				showValidationMessage("Failed to delete location");
+			}
+		}
+	});
+}
+
+function showValidationMessage(message)
+{
+	$("#validationMessage")[0].innerText = message;
+	$(".afterschoolclubflash").show()	
+}
+
+fetchDataAndDisplay();
+
+
+
+</script>
+
+
+
+<script>
+
+
+function activateResourceTab(tabId)
+{	
+	$(".resourceTab").each(function() {
+		this.classList.remove("active");			
+	});
+
+	$("#"+tabId)[0].classList.add("active");
+	
+	$(".resourcePane").hide();
+	
+	$("#" + tabId.replace("Tab", "List")).show();
+	
+	
+	
+	
+}
+
+
+</script>
+	
+</body>
+</html>

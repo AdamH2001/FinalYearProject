@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Iterator;
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -33,5 +36,16 @@ public class EventResource {
 		this.resourceId = er.resourceId;
 		this.quantity = er.quantity;
 		this.perAttendee = er.perAttendee;
+	}
+	
+	public boolean isActive() {
+		boolean result = false;
+		List<Resource> allActiveResources = Resource.findAllActive();
+		Iterator<Resource> itr = allActiveResources.iterator();
+		while (!result && itr.hasNext()) {
+			Resource nextResource = itr.next();
+			result = nextResource.getResourceId() == resourceId.getId().intValue();
+		}
+		return result;
 	}
 }

@@ -119,6 +119,12 @@ fieldset {
 	color: white;
 }
 
+.InsufficientResources {
+	background-color: transparent;
+	color: red;
+	display: contents;
+}
+
 .Attending {
 	background-color: green;
 	color: white;

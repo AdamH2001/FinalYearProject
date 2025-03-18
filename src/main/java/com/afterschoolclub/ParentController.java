@@ -770,7 +770,7 @@ public class ParentController {
 			Parent loggedOnParent = sessionBean.getLoggedOnParent();
 			sessionBean.getLoggedOnUser().setFirstName(firstName);
 			sessionBean.getLoggedOnUser().setSurname(surname);
-			loggedOnParent.setTelephoneNum(telephoneNum);
+			sessionBean.getLoggedOnUser().setTelephoneNum(telephoneNum);
 			loggedOnParent.setAltContactName(altContactName);
 			loggedOnParent.setAltTelephoneNum(altTelephoneNum);
 			sessionBean.getLoggedOnUser().save();			

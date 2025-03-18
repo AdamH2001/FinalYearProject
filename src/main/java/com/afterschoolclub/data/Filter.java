@@ -14,7 +14,8 @@ public class Filter {
 	public enum AdminFilter {
 		ALL, 
 		FULLYBOOKED, 
-		NOATTENDEES;
+		NOATTENDEES, 
+		INSUFFICIENTRESOURCES;
 	
 	    public static AdminFilter valueOf(int adminFilter) {
 	    	AdminFilter result;	    	
@@ -28,6 +29,9 @@ public class Filter {
 		    	case 3: 
 		    		result = AdminFilter.NOATTENDEES;
 		    		break;
+		    	case 4: 
+		    		result = AdminFilter.INSUFFICIENTRESOURCES;
+		    		break;		    		
 		    	default:
 		    		result = AdminFilter.ALL;
 		    		break;
@@ -47,6 +51,9 @@ public class Filter {
 		    	case NOATTENDEES: 
 		    		result = 3;
 		    		break;
+		    	case INSUFFICIENTRESOURCES: 
+		    		result = 4;
+		    		break;		    		
 		    	default:
 		    		result = 1;
 		    		break;
@@ -55,7 +62,7 @@ public class Filter {
 	    }	    
 			
 	}		
-    private boolean onlyMineFilter = false;
+    private boolean onlyMineFilter = false;    
     private AdminFilter adminFilter = AdminFilter.ALL;
     
     private boolean displayingAttending = true;

@@ -79,7 +79,7 @@
 						<label for="telephoneNum">Telephone Number:</label>
 					</div>
 					<div class="col-sm-4">						
-						<input th:value="${editUser != null}? ${editUser.getParent().getTelephoneNum()}:''" class="form-control form-control-sm mr-sm-2" required
+						<input th:value="${editUser != null}? ${editUser.getTelephoneNum()}:''" class="form-control form-control-sm mr-sm-2" required
 							type="text" name="telephoneNum" id="telephoneNum" />
 					</div>
 				</div>

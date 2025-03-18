@@ -29,8 +29,10 @@ import com.afterschoolclub.data.Incident;
 import com.afterschoolclub.data.MenuGroup;
 import com.afterschoolclub.data.RecurrenceSpecification;
 import com.afterschoolclub.data.Resource;
+import com.afterschoolclub.data.Resource.Type;
 import com.afterschoolclub.data.ResourceStatus;
-import com.afterschoolclub.data.Student; 
+import com.afterschoolclub.data.Student;
+import com.afterschoolclub.data.User; 
   
 @Controller
 @SessionAttributes({"sessionBean"})
@@ -124,10 +126,17 @@ public class AdminController {
 	}    
 	
 	
-	@PostMapping("/manageResources")
+	@GetMapping("/manageResources")
 	public String manageResources(Model model) {
 		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {			
+		if (returnPage == null) {	
+			Resource.cleanUpInactiveResources();			
+			List<Resource> allEquipment = Resource.findActiveByType(Type.EQUIPMENT);
+			List<Resource> allLocations = Resource.findActiveByType(Type.ROOM);
+			List<User> allStaff = User.findActiveStaff();
+			model.addAttribute("allEquipment",allEquipment);
+			model.addAttribute("allLocations",allLocations);
+			model.addAttribute("allStaff",allStaff);
 			returnPage = "manageResources";					
 		}
 		return returnPage;
@@ -212,9 +221,9 @@ public class AdminController {
 				
 				model.addAttribute("clubSession",newEvent);								
 				model.addAttribute("clubs",Club.findAll());				
-				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
-				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
-				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
+				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
 				setInDialogue(true, model);
 				returnPage = "adminsession";				
@@ -292,21 +301,26 @@ public class AdminController {
 				event.setParentNotes(parentNotes);
 				event.setAdministratorNotes(organiserNotes);
 
-				allEvents.add(event);
+				
+				
 				
 				rs = new RecurrenceSpecification(startDateTime.toLocalDate(),  recurringEndDate, MonRecurring, TueRecurring, WedRecurring, ThurRecurring, FriRecurring, SatRecurring, SunRecurring, termTimeOnly);				
 				rs.save(); // Need to save so get set the aggregate Id for each event
 
 				event.setRecurrenceSpecification(rs);
 				
+				if (!event.isRecurring()) {
+					allEvents.add(event);
+				}			
+				
 				
 				logger.info("Recurrence Specfication Id = {}",rs.getRecurrenceSpecificationId());
 
 				
 				int copiedEvents = 0;
-				LocalDate nextDate = startDateTime.toLocalDate().plusDays(1);
+				LocalDate nextDate = startDateTime.toLocalDate(); //.plusDays(1);
 								
-				while (nextDate.compareTo(recurringEndDate) <= 0) {
+				while (event.isRecurring() && nextDate.compareTo(recurringEndDate) <= 0) {
 					Boolean copy; 
 					switch (nextDate.getDayOfWeek()) {
 					case MONDAY:
@@ -397,11 +411,14 @@ public class AdminController {
 				}
 				
 				List <ResourceStatus> resourceStatus = event.getResourceStatus();
+				
+				
+				
 				logger.info("ResourceStatus = {}", resourceStatus);
 				Iterator<ResourceStatus> rsIterator = resourceStatus.iterator();
 				while (rsIterator.hasNext()) {
 					ResourceStatus nextStatus = rsIterator.next();
-					if (!nextStatus.isSufficient()) {
+					if (!nextStatus.isSufficient()) {																	
 						allResourcesOk = false;
 						allResourceChallenges.add(nextStatus);
 						
@@ -433,9 +450,9 @@ public class AdminController {
 					
 				model.addAttribute("clubSession",allEvents.get(0));								
 				model.addAttribute("clubs",Club.findAll());				
-				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
-				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
-				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
+				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
 				model.addAttribute("resourceStatus", allResourceChallenges);		
 				this.setInDialogue(true,model);				
@@ -459,9 +476,9 @@ public class AdminController {
 			
 			model.addAttribute("clubSession",event);								
 			model.addAttribute("clubs",Club.findAll());				
-			model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
-			model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
-			model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+			model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+			model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
+			model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 			model.addAttribute("menus", MenuGroup.findAll());			
 			this.setInDialogue(true,model);
 			returnPage = "adminsession";
@@ -482,10 +499,14 @@ public class AdminController {
 				
 				model.addAttribute("clubSession",event);								
 				model.addAttribute("clubs",Club.findAll());				
-				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
-				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
-				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
+				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
+				
+				
+				model.addAttribute("resourceStatus", event.getResourceStatus());		
+
 				setInDialogue(true, model);
 				
 				returnPage = "adminsession";
@@ -542,9 +563,9 @@ public class AdminController {
 								
 				model.addAttribute("clubSession",event);								
 				model.addAttribute("clubs",Club.findAll());				
-				model.addAttribute("locations", Resource.findByType(Resource.Type.ROOM));							
-				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
-				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
+				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.ROOM));							
+				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
+				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
 				model.addAttribute("displayHelper", new DisplayHelper());			
 				setInDialogue(true, model);

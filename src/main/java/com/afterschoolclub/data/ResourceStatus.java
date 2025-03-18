@@ -27,7 +27,7 @@ public class ResourceStatus {
 	
 	public boolean isSufficient()
 	{
-		return (committedDemand+ eventDemand) <= resource.getQuantity();
+		return getTotalDemand() <= resource.getQuantity();
 	}
 	
 	public String getMessage()
@@ -37,18 +37,34 @@ public class ResourceStatus {
 		if (!isSufficient()) {
 			switch (resource.getType()) {
 			case EQUIPMENT:
-				if (resource.getQuantity() <= committedDemand) {
-					result = String.format("Requested %d %s on %s but none available.", eventDemand, resource.getName().toLowerCase(), date);
+				if (resource.isActive()) {
+					if (resource.getQuantity() <= committedDemand) {
+						result = String.format("Requested %d %s on %s but none available. Please choose alternative.", eventDemand, resource.getName().toLowerCase(), date);
+					}
+					else {
+						result = String.format("Requested %d %s on %s but only %d available. Please choose alternative.", eventDemand, resource.getName().toLowerCase(), date, resource.getQuantity() - committedDemand);	
+					}								
 				}
 				else {
-					result = String.format("Requested %d %s on %s but only %d available.", eventDemand, resource.getName().toLowerCase(), date, resource.getQuantity() - committedDemand);	
-				}								
+					result = String.format("Requested %d %s but equipment is no longer available. Please choose alternative.", eventDemand, resource.getName());
+				}
 				break;
 			case STAFF:
-				result = String.format("Staff member %s is already booked on %s.", resource.getName(), date);				
+				if (resource.isActive()) {				
+					result = String.format("Staff member %s is already booked on %s. Please choose alternative.", resource.getName(), date);
+				}
+				else {
+					result = String.format("Staff member %s is no longer available. Please choose alternative.", resource.getName(), date);
+				}
 				break;
 			case ROOM:
-				result = String.format("Location %s is already booked on %s.", resource.getName(), date);				
+				if (resource.isActive()) {
+					result = String.format("Location %s is already booked on %s. Please choose alternative.", resource.getName(), date);	
+				}
+				else {
+					result = String.format("Location %s is no longer available. Please choose alternative.", resource.getName());
+				}
+								
 				break;
 			default:
 				result = "Resource misconfiguration error.";
@@ -60,5 +76,8 @@ public class ResourceStatus {
 		return result;	
 	}
 	
+	public int getTotalDemand() {
+		return committedDemand + eventDemand;
+	}
 
 }

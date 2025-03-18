@@ -70,7 +70,7 @@ public class MainController {
 		super();		
 		Club.repository = clubRepository;
 		Event.repository = eventRepository;
-		Resource.resourceRepository = resourceRepository;
+		Resource.repostiory = resourceRepository;
 		MenuGroup.repository = menuGroupRepository;
 		Student.repository = studentRepository;
 		ParentalTransaction.repository = transactionRepository;
@@ -125,7 +125,8 @@ public class MainController {
 	}
 
 	@PostMapping("/addNewUser")
-	public String addNewUser(@RequestParam(name = "firstName") String firstName,
+	public String addNewUser(@RequestParam(name = "firstName") String title,
+			@RequestParam(name = "firstName") String firstName,
 			@RequestParam(name = "surname") String surname, @RequestParam(name = "email") String email,
 			@RequestParam(name = "password") String password, @RequestParam(name = "conPassword") String conPassword,
 			@RequestParam(name = "telephoneNum") String telephoneNum, @RequestParam(name = "altContactName") String altContactName, @RequestParam (name = "altTelephoneNum") String altTelephoneNum, Model model) {
@@ -138,8 +139,8 @@ public class MainController {
 		
 		Encoder encoder = Base64.getEncoder();
 		String encodedPass = encoder.encodeToString(password.getBytes());		
-		User user = new User(email, encodedPass, firstName, surname, LocalDateTime.now(), false);
-		Parent parent = new Parent(telephoneNum,altContactName,altTelephoneNum);
+		User user = new User(email, encodedPass, title, firstName, surname, telephoneNum, LocalDateTime.now(), false);
+		Parent parent = new Parent(altContactName,altTelephoneNum);
 		user.addParent(parent);	
 		
 		if (existingUser == null) {

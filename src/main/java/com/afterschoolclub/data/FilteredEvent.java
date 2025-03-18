@@ -30,7 +30,7 @@ public class FilteredEvent {
 		
 		
 		if (user.isAdmin() ) {		    
-			Resource resource = user.getAdministratorObject().getResourceObject();
+			Resource resource = user.getResourceObject();
 			
 			if (event.usesResource(resource)) {
 				setAttending(true);						
@@ -53,6 +53,11 @@ public class FilteredEvent {
 						setHidden(true);
 					}					
 					break;
+				case INSUFFICIENTRESOURCES:
+					if (event.hasSufficientResources()) {
+						setHidden(true);
+					}					
+					break;					
 				default: 
 					break;
 			}			

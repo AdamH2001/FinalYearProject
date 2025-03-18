@@ -21,6 +21,14 @@
 	
 	<div id="main" class="main container-flex no-margin ">
 			<div class="row col-sm-12">
+			<form action="./api/uploads/images" method="post" enctype="multipart/form-data">
+			
+				<input type="file" name="file" id="profilePic" />
+			</form>
+			</div>
+	
+			<div class="row col-sm-12">
+
 				<h1>A News Item</h1>
 				<p>Starmer's visit to the White House comes a day before
 					Ukrainian President Volodymyr Zelensky visits DC to sign an
@@ -81,6 +89,74 @@
 			<div class="spacer">&nbsp;</div>
 		</div>
 		
+<SCRIPT>	
+
+
+$(document).ready(function () {
+	   $('#profilePic').on('change', function () {
+	      var data = new FormData();
+	      var files = $("#profilePic").get(0).files;
+	      // Add the uploaded image content to the form data collection
+	      if (files.length > 0) {
+	           data.append("file", files[0]);
+	           data.append("id", "42");
+
+	      }
+
+	      // Make Ajax request with the contentType = false, and procesDate = false
+	      var ajaxRequest = $.ajax({
+	           type: "POST",
+	           url: "./api/uploads/images",
+	           contentType: false,
+	           processData: false,
+	           data: data
+	           });
+
+	      ajaxRequest.done(function (xhr, textStatus) {
+	                    // Do other operation
+	             });
+	   });
+	});
+
+
+
+
+
+
+
+
+
+/*
+
+
+
+
+	const input = document.getElementById('profilePic');
+	
+	// This will upload the file after having read it
+	const upload = (file) => {
+	  fetch('./api/uploads/images', { // Your POST endpoint
+	    method: 'POST',
+	    body: file // This is your file object
+	  }).then(
+	    response => response.json() // if the response is a JSON object
+	  ).then(
+	    success => console.log(success) // Handle the success response object
+	  ).catch(
+	    error => console.log(error) // Handle the error response object
+	  );
+	};
+	
+	// Event handler executed when a file is selected
+	const onSelectFile = () => upload(input.files[0]);
+	
+	// Add a listener on your input
+	// It will be triggered when a file will be selected
+	input.addEventListener('change', onSelectFile, false);
+	*/
+	
+</SCRIPT>
+
 		
 </body>
 </html>

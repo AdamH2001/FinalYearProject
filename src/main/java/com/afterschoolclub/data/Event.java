@@ -48,6 +48,15 @@ public class Event {
 		return repository.findEventsBetweenDates(dayStart, nextDay);
 	}
 		
+	public static  List<Event> findByResourceId(int resourceId) {
+		return repository.findByResourceId(resourceId);
+	}		
+	
+	
+	public static  List<Event> findByFutureDemandOnResourceId(int resourceId) {
+		return repository.findByFutureDemandOnResourceId(resourceId);
+	}	
+	
 	
 	public static Event findById(int eventId) {
 		Optional<Event> optional = repository.findById(eventId);
@@ -488,8 +497,9 @@ public class Event {
 	{									
 		return (eventMenus != null) && (eventMenus.size() > 0);
 	}	
+
 	
-	public List<EventResource> getEquipmentEventResources() {
+	public List<EventResource> getActiveEquipmentEventResources() {
 		List<Resource> equipment = getEquipment();
 		List <EventResource> result = new ArrayList<EventResource>();
 		Set<EventResource> allResources = getEventResources();
@@ -501,7 +511,7 @@ public class Event {
 			boolean isEquipment = false;
 			while (!isEquipment && equipmentIterator.hasNext() ) {
 				Resource resource = equipmentIterator.next();
-				isEquipment = resource.getResourceId() == resourceId;
+				isEquipment = resource.getResourceId() == resourceId && resource.isActive();
 			}
 				
 			if (isEquipment) {
@@ -511,6 +521,7 @@ public class Event {
 		
 		return result;
 	}
+	
 	
 	public List<Event> getOverlappingEvents() {
 		return repository.findOverlappingEvents(getEventId(), getStartDateTime(), getEndDateTime());		
@@ -557,6 +568,20 @@ public class Event {
 
 		return result; 
 	}		
+	
+	public boolean hasSufficientResources() {
+		boolean result = true;
+		if (!endInPast()) {
+			List<ResourceStatus> resourceStatus = getResourceStatus();
+			Iterator<ResourceStatus> itr = resourceStatus.iterator();
+			while (result && itr.hasNext()) {
+				ResourceStatus nextResource = itr.next();
+				result = nextResource.isSufficient();
+			}						
+		}
+		return result; 
+	}
+	
 		
 	public void clearResources() {
 		eventResources = new HashSet<>();		
@@ -586,7 +611,7 @@ public class Event {
 	}
 	
 	public boolean isRecurring() {
-		return startDateTime.toLocalDate() != getRecurrenceSpecification().getEndDate(); 
+		return startDateTime.toLocalDate().compareTo(getRecurrenceSpecification().getEndDate()) !=0; 
 	}
 	
 	

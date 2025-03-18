@@ -71,9 +71,30 @@ public class OverlappingTimeline {
 					public int compare(TimelineEvent tle1, TimelineEvent tle2) {
 						return tle1.getTime().compareTo(tle2.getTime());
 					}
-				});
+				}); 
 		return;		
 	}
+	
+	
+	public OverlappingTimeline(Resource resource) {
+		
+		List<Event> overlappingSessions = Event.findByFutureDemandOnResourceId(resource.getResourceId());
+		
+		
+		// create time-line event ordered by time of event
+		for (Event overlappingSession : overlappingSessions) {
+			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.START));
+			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.END));			
+		}
+		timelineEvents.sort(new Comparator<TimelineEvent>() {
+					public int compare(TimelineEvent tle1, TimelineEvent tle2) {
+						return tle1.getTime().compareTo(tle2.getTime());
+					}
+				}); 
+		return;		
+	}
+	
+	
 	
 	public int getRequiredResourceQuantity(int resourceId) {
 		int maxResourceRequired = 0;

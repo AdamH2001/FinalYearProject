@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
+import com.afterschoolclub.data.Resource.State;
 import com.afterschoolclub.data.repository.UserRepository;
 
 import lombok.Getter;
@@ -34,14 +35,18 @@ public class User {
 	private String password;
 	private String firstName;
 	private String surname;
+	private String title;
+	private String telephoneNum;
 	private int validationKey = r.nextInt(999999999);
 	private LocalDateTime dateRequested;
 	private boolean emailVerified;
-	@MappedCollection(idColumn = "user_id")
-	private Set<Parent> parent = new HashSet<>();
 	
 	@MappedCollection(idColumn = "user_id")
-	private Set<Administrator> administrator = new HashSet<>();	
+	private Set<Resource> resources = new HashSet<>();
+	
+	
+	@MappedCollection(idColumn = "user_id")
+	private Set<Parent> parent = new HashSet<>();	
 	
 	public static User findById(int userId) {
 		Optional<User> optional = repository.findById(userId);
@@ -50,7 +55,12 @@ public class User {
 			user = optional.get();
 		}
 		return user;
+		
+		
 	}	
+	
+	
+	
 	
 	public static User findByEmail(String email) {
 		List<User> users = repository.findByEmail(email);
@@ -67,6 +77,41 @@ public class User {
 		
 	}		
 	
+	public static List<User> findStaff() {
+		return repository.findStaff();		
+	}			
+	
+	public static List<User> findStaffByState(Resource.State state) {
+		return repository.findStaffByState(state);		
+	}			
+	
+	public static List<User> findActiveStaff() {
+		return repository.findStaffByState(State.ACTIVE);		
+	}			
+		
+	
+	
+	public void update() {
+		repository.updateUser(userId, firstName, surname, email, title, telephoneNum, password, validationKey, dateRequested, emailVerified);
+	}
+	
+	public Resource getResourceObject() {
+		Resource result = null;
+		result = (Resource) this.resources.toArray()[0];
+		return result;
+	}
+
+	
+	public void addResource(Resource resource) {
+		this.resources.add(resource);
+	}
+	
+	
+	public String getImageURL() {
+	
+		return "https://github.com/mdo.png";
+	}
+	
 
 	/**
 	 * @param email
@@ -77,16 +122,23 @@ public class User {
 	 * @param dateRequested
 	 * @param emailVerified
 	 */
-	public User(String email, String password, String firstName, String surname, 
+	public User(String email, String password, String title, String firstName, String surname, String telephoneNum,
 			LocalDateTime dateRequested, boolean emailVerified) {
 		super();
 		this.email = email;
 		this.password = password;
 		this.firstName = firstName;
 		this.surname = surname;
+		this.telephoneNum = telephoneNum;
+		this.title = title; 
 		this.dateRequested = dateRequested;
 		this.emailVerified = emailVerified;
 	}
+	
+	public User() {		
+		super();
+	}
+	
 
 	/**
 	 * @return the full name
@@ -99,9 +151,6 @@ public class User {
 		this.parent.add(parent);
 	}
 	
-	public void addAdmnistrator(Administrator administrator) {
-		this.administrator.add(administrator);
-	}	
 
 	public boolean isParent() {
 		boolean result = false;
@@ -137,16 +186,13 @@ public class User {
 		return parent;
 	}
 	
-	public Administrator getAdministratorObject() {
-		Administrator result = null;
-		if (this.isAdmin())
-			result = (Administrator) this.administrator.toArray()[0];
-		return result;
-	}	
+
 	
 	public void setValidationKey() {
 		this.validationKey = r.nextInt(999999999);
 	}
+	
+
 
 	public void save()
 	{

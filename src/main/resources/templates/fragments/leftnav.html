@@ -34,8 +34,8 @@
 			</ul>
 		</div>
 		<div id="leftnav" th:if="${sessionBean.isLoggedOn()}" class="leftnav row col-sm-2 bg-navafterschoolclub height d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">			
-			<div>
-				<div th:if="${sessionBean.isAdminLoggedOn()}">
+			
+				<div th:if="${sessionBean.isAdminLoggedOn()}" style="padding:0px">
 
 					<ul	class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
 						id="menu">
@@ -110,12 +110,20 @@
 										<input class="form-check-input" id="nobookings" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 3}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=3 onChange="adminFiltersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterRadio' : 'FilterRadio'" for="nobookings">No Bookings</label>
 										</a>
-									</li>									
+									</li>		
+									
+									<li class="nav-item">
+										<a href="javascript:adminFiltersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
+										<input class="form-check-input" id="insufficientResources" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 4}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=4 onChange="adminFiltersForm.submit()"/>
+											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterRadio' : 'FilterRadio'" for="insufficientResources">Insufficient Resources</label>
+										</a>
+									</li>	
+									
 								</ul>									
 						</form>
 					</div>
 				</div>
-				<div th:if="${sessionBean.isParentLoggedOn()}">
+				<div th:if="${sessionBean.isParentLoggedOn()}" style="padding:0px">
 						<form th:if="${sessionBean.getLoggedOnParent().hasChildren()}" action="./changeStudentField" method="post">
 						<label for="students">Child:</label>
 							<select onchange="this.form.submit()" name="students" id="students" required>
@@ -204,7 +212,7 @@
 						</form>
 					
 				</div>
-			</div>
+			
 		</div>
 	</div>
 </body>

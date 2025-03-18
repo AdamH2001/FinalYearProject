@@ -24,7 +24,6 @@ public class Parent {
 	
 	@Id
 	public int parentId;
-	private String telephoneNum;
 	private String altContactName;
 	private String altTelephoneNum;
 	@MappedCollection(idColumn = "parent_id")
@@ -32,9 +31,8 @@ public class Parent {
 	@MappedCollection(idColumn = "parent_id")
 	private Set<ParentalTransaction> transactions = new HashSet<>();
 
-	public Parent(String telephoneNum, String altContactName, String altTelephoneNum) {
-		super();
-		this.telephoneNum = telephoneNum;
+	public Parent(String altContactName, String altTelephoneNum) {
+		super();		
 		this.altContactName = altContactName;
 		this.altTelephoneNum = altTelephoneNum;
 	}
