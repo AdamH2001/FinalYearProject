@@ -22,7 +22,8 @@ CREATE TABLE `User` (
 CREATE TABLE `Club` (
   `club_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(64) NOT NULL,
-  `description` VARCHAR(1024),
+  `description` VARCHAR(1024) NOT NULL,
+  `keywords` VARCHAR(256) NOT NULL,
   `base_price` INT NOT NULL,
   `year_r_can_attend` BOOLEAN NOT NULL,
   `year_1_can_attend` BOOLEAN NOT NULL,
@@ -276,8 +277,8 @@ VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num
         
 
 
-INSERT into after_school_club2.club(title, description, base_price, year_r_can_attend, year_1_can_attend, year_2_can_attend, year_3_can_attend, year_4_can_attend, year_5_can_attend, year_6_can_attend)
-VALUES ("Football Club", "Football Club for Year 6", 250, false, false, false, false, false, false, true );
+INSERT into after_school_club2.club(title, description, base_price, year_r_can_attend, year_1_can_attend, year_2_can_attend, year_3_can_attend, year_4_can_attend, year_5_can_attend, year_6_can_attend, keywords)
+VALUES ("Football Club", "Football Club for Year 6", 250, false, false, false, false, false, false, true, "Sport, Football, Soccer");
 	
 INSERT into after_school_club2.resource(name, description, quantity, type, keywords, state, capacity)
 VALUES ("Football Pitch 1", "Left hand football pitch at the back of the main building", 1, "LOCATION", "sport football", 'ACTIVE', 20),
