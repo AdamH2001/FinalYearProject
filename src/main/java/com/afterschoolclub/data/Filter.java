@@ -71,6 +71,8 @@ public class Filter {
     private boolean displayingMissed = true;
     private boolean displayingAttended = true;
     
+    private int filterClubId = 0;
+    
     public int getAdminFilterAsInt() {
     	return AdminFilter.valueOf(adminFilter);
     }    

@@ -1,4 +1,4 @@
-package com.afterschoolclub;
+package com.afterschoolclub.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.data.Attendee;
 import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Event;
@@ -27,10 +28,14 @@ import com.afterschoolclub.data.Filter;
 import com.afterschoolclub.data.Holiday;
 import com.afterschoolclub.data.Incident;
 import com.afterschoolclub.data.MenuGroup;
+import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.RecurrenceSpecification;
 import com.afterschoolclub.data.Resource;
 import com.afterschoolclub.data.Resource.Type;
+import com.afterschoolclub.service.ClubPicService;
+import com.afterschoolclub.service.DisplayHelperService;
 import com.afterschoolclub.data.ResourceStatus;
+import com.afterschoolclub.data.State;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.User; 
   
@@ -38,6 +43,13 @@ import com.afterschoolclub.data.User;
 @SessionAttributes({"sessionBean"})
 public class AdminController {
 
+	
+	@Autowired	
+    private DisplayHelperService displayHelper;
+	
+	@Autowired
+    private ClubPicService clubPicService;
+	
 	@Autowired	
     private MainController mainController;
 	
@@ -89,6 +101,7 @@ public class AdminController {
     public String updateAdminFilters(
             @RequestParam(name="onlyMine", required=false) Boolean onlyMine,
             @RequestParam(name="adminFilter") Integer adminFilter,
+            @RequestParam(name="filterClub", required=true) int filterClub,            
     		Model model) 
     {
 		String returnPage = validateIsAdmin(model);
@@ -96,6 +109,7 @@ public class AdminController {
 			setInDialogue(false,model);
 			sessionBean.getFilter().setOnlyMineFilter(onlyMine!=null);
 			sessionBean.getFilter().setAdminFilter(Filter.AdminFilter.valueOf(adminFilter));
+    		sessionBean.getFilter().setFilterClubId(filterClub);
 			
 				    		    
 			returnPage = setupCalendar(model);
@@ -143,6 +157,23 @@ public class AdminController {
 		return returnPage;
 	}    	
 	
+	
+	@GetMapping("/manageRefreshments")
+	public String manageRefreshments(Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {	
+			Resource.cleanUpInactiveResources();			
+			Iterable<MenuOption> allMenuOptions = MenuOption.findByState(State.ACTIVE);
+			model.addAttribute("allMenuOptions",allMenuOptions);
+
+			Iterable<MenuGroup> allMenuGroups = MenuGroup.findByState(State.ACTIVE);
+			model.addAttribute("allMenuGroups",allMenuGroups);
+			
+			this.setInDialogue(true,model);							
+			returnPage = "manageRefreshments";					
+		}
+		return returnPage;
+	}    		
 
 	
 	@GetMapping("/createIncident")
@@ -225,7 +256,7 @@ public class AdminController {
 				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
-				model.addAttribute("menus", MenuGroup.findAll());
+				model.addAttribute("menus", MenuGroup.findByState(State.ACTIVE));
 				setInDialogue(true, model);
 				returnPage = "adminsession";				
 			}
@@ -480,7 +511,7 @@ public class AdminController {
 			model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 			model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 			model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
-			model.addAttribute("menus", MenuGroup.findAll());			
+			model.addAttribute("menus", MenuGroup.findByState(State.ACTIVE));			
 			this.setInDialogue(true,model);
 			returnPage = "adminsession";
 		} 
@@ -503,7 +534,7 @@ public class AdminController {
 				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
-				model.addAttribute("menus", MenuGroup.findAll());
+				model.addAttribute("menus", MenuGroup.findByState(State.ACTIVE));			
 				
 				
 				model.addAttribute("resourceStatus", event.getResourceStatus());		
@@ -538,7 +569,7 @@ public class AdminController {
 				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
-				model.addAttribute("displayHelper", new DisplayHelper());			
+				model.addAttribute("displayHelper", displayHelper);			
 				model.addAttribute("resourceStatus", event.getResourceStatus());		
 				returnPage = "adminsession";
 			}
@@ -568,7 +599,7 @@ public class AdminController {
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
-				model.addAttribute("displayHelper", new DisplayHelper());			
+				model.addAttribute("displayHelper", displayHelper);			
 				setInDialogue(true, model);
 				
 				returnPage = "adminsession";
@@ -586,16 +617,38 @@ public class AdminController {
 	@GetMapping("/createClub")
 	public String createClub(Model model) {
 		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {					
+		if (returnPage == null) {		
+			Club club = new Club();
+			model.addAttribute("club", club);
+			model.addAttribute("isEditing", false);						
 			this.setInDialogue(true,model);
 			returnPage = "createclub";
 		}
 		return returnPage;
 	}
 	
+	
+	@GetMapping("/editClub")
+	public String editClub(@RequestParam(name = "clubId") int clubId, Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {		
+			Club club = Club.findById(clubId);
+			model.addAttribute("club", club);	
+			model.addAttribute("isEditing", true);						
+			this.setInDialogue(true,model);
+			returnPage = "createclub";
+		}
+		return returnPage;
+	}
+	
+	
+	
 	@PostMapping("/addClub")
-	public String addClub(@RequestParam(name = "title") String title,
-			@RequestParam(name = "description") String description, 
+	public String addClub(
+			@RequestParam(name = "clubId") int clubId,
+			@RequestParam(name = "title") String title,
+			@RequestParam(name = "description") String description,
+			@RequestParam(name = "keywords") String keywords,
 			@RequestParam(name = "basePrice") int basePrice, 
 			@RequestParam(name = "yearR", defaultValue="false") boolean yearRCanAttend,
 			@RequestParam(name = "year1", defaultValue="false") boolean yearOneCanAttend,
@@ -606,10 +659,33 @@ public class AdminController {
 			@RequestParam(name = "year6", defaultValue="false") boolean yearSixCanAttend, Model model) {		
 		this.setInDialogue(false,model);
 		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {	
-			Club club = new Club(title, description, basePrice, yearRCanAttend, yearOneCanAttend, yearTwoCanAttend, yearThreeCanAttend, yearFourCanAttend, yearFiveCanAttend, yearSixCanAttend); 
-			club.save();			
-			model.addAttribute("flashMessage","Created Club.");			
+		if (returnPage == null) {
+			Club club;
+			if (clubId == 0) {
+				club = new Club(title, description, basePrice, yearRCanAttend, yearOneCanAttend, yearTwoCanAttend, yearThreeCanAttend, yearFourCanAttend, yearFiveCanAttend, yearSixCanAttend, keywords);
+				club.save();
+				model.addAttribute("flashMessage","Created Club.");
+			}
+			else {
+				club = Club.findById(clubId);
+				club.setTitle(title);
+				club.setDescription(description);
+				club.setBasePrice(basePrice);
+				club.setYearRCanAttend(yearRCanAttend);
+				club.setYear1CanAttend(yearOneCanAttend);
+				club.setYear2CanAttend(yearTwoCanAttend);
+				club.setYear3CanAttend(yearThreeCanAttend);
+				club.setYear4CanAttend(yearFourCanAttend);
+				club.setYear5CanAttend(yearFiveCanAttend);
+				club.setYear6CanAttend(yearSixCanAttend);
+				club.setKeywords(keywords);
+				club.save();
+				model.addAttribute("flashMessage","Updated Club.");	
+			}
+			clubPicService.renameImage(sessionBean.getLoggedOnUser(), club);
+			
+			
+						
 
 			returnPage = setupCalendar(model);
 		}

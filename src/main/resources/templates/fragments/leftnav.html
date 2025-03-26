@@ -8,32 +8,50 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"> </script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="./css/styles.css"/>
+	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>
+	
 </head>
 <body>
 
-	<div th:fragment="leftnav" class="container afterschoolheader text-afterschoolwhite" style="position:fixed">
-		<div id="leftnav" th:unless="${sessionBean.isLoggedOn()}" class="leftnav row col-sm-2 bg-navafterschoolclub d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">
+	<div th:fragment="leftnav" class="d-flex flex-column text-afterschoolwhite p-0 m-0"  style="position:fixed; width: 210px">
+		<div id="leftnav" th:unless="${sessionBean.isLoggedOn()}" class="leftnav row col-sm-12 bg-navafterschoolclub height d-flex flex-column align-items-center align-items-sm-start text-white min-vh-90">
+				<div style="padding:0px">
+		
 			<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
 				id="menu">
 				<li class="nav-item"><a href="./"
 					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> <i class="fs-4 bi-house"></i>
-						<span class="ms-1 d-none d-sm-inline">Home</span>
+						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-home"></i>Home</span>
 				</a></li>
 				
 				<li><a href="./viewClubs"
 					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-						<span class="ms-1 d-none d-sm-inline">View Clubs</span>
-				</a></li>						
-				
+						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-table-tennis-paddle-ball"></i>View Clubs</span>
+				</a></li>			
+				<li class="nav-item"><a href="./calendar"
+					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
+						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-calendar-days"></i>Club Timetable</span>
+				</a></li>
+		
 				<li class="nav-item"><a href="./createUser"
 					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> <i class="fs-4 bi-house"></i>
-						<span class="ms-1 d-none d-sm-inline">New User</span>
+						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-user-plus"></i>New User</span>
 				</a></li>
 						
 				
 			</ul>
+			<hr th:if="${sessionBean.isCalendarView()}">		
+			<form th:if="${sessionBean.isCalendarView()}" id="unknownUserFiltersForm" action="./updateFilters" method="post">
+					<label class="asc-filterlabel" for="filterClub">Filter:</label>		
+					<select onchange="this.form.submit()" name="filterClub"  required>
+						<option value="0" th:selected="${sessionBean.getFilter().getFilterClubId()==0}">All Clubs</option>
+					
+						<option th:each="club: ${sessionBean.findAllClubs()}" th:value="${club.getClubId()}" th:text="${club.getTitle()}" th:selected="${club.getClubId() == sessionBean.getFilter().getFilterClubId()}">ClubName</option>
+					</select>
+			</form>	
+			</div>
 		</div>
-		<div id="leftnav" th:if="${sessionBean.isLoggedOn()}" class="leftnav row col-sm-2 bg-navafterschoolclub height d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-90">			
+		<div id="leftnav" th:if="${sessionBean.isLoggedOn()}" class="leftnav row col-sm-12 bg-navafterschoolclub height d-flex flex-column align-items-center align-items-sm-start text-white min-vh-90">			
 			
 				<div th:if="${sessionBean.isAdminLoggedOn()}" style="padding:0px">
 
@@ -42,79 +60,85 @@
 
 						<li><a href="./createClub"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
-								<span class="ms-1 d-none d-sm-inline">Create Club</span>
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-square-plus"></i>Create Club</span>
 						</a></li>
 						<li><a href="./viewClubs"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-								<span class="ms-1 d-none d-sm-inline">View Clubs</span>
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-table-tennis-paddle-ball"></i>View Clubs</span>
 						</a></li>				
 									
 										
 						<li><a href="./createEvent"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-								<span class="ms-1 d-none d-sm-inline">Schedule Club Session</span>
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-calendar-plus"></i>
+								 Schedule  Session</span>
 						</a></li>
 										
 						<li class="nav-item"><a href="./calendar"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
-								<span class="ms-1 d-none d-sm-inline">Club Timetable</span>
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-calendar-days"></i>
+								Club Timetable</span>
 						</a></li>
 
 					
 
 						<li><a href="./manageResources" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
-							<span class="ms-1 d-none d-sm-inline">Manage Resources</span>
+							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-list-check"></i>Resources</span>
 						</a></li>
-						<li><a href="#" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-							<span class="ms-1 d-none d-sm-inline">Manage Refreshments</span>
-						</a></li>
-						
-						
+						<li><a href="./manageRefreshments" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
+							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-utensils"></i>Refreshments</span>
+						</a></li>												
 						<li><a href="#" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
-							<span class="ms-1 d-none d-sm-inline">Finance Reports</span>
+							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-money-bill-trend-up"></i>Finance Reports</span>
 						</a></li>						
 					</ul>
-					<hr>		
-						<div class="container-fluid col-sm-12" style="padding:0px">
+					<hr th:if="${sessionBean.isCalendarView()}">		
+						<div th:if="${sessionBean.isCalendarView()}" class="container-fluid col-sm-12" style="padding:0px">
 						
 						
 						<form id="adminFiltersForm" action="./updateAdminFilters" method="post">
-								<div class="row mb-2"><b>Filters:</b></div>
+								<label class="asc-filterlabel" for="filterClub">Filter:</label>
+				
+								<select onchange="this.form.submit()" name="filterClub"  required>
+									<option value="0" th:selected="${sessionBean.getFilter().getFilterClubId()==0}">All Clubs</option>
+								
+									<option th:each="club: ${sessionBean.findAllClubs()}" th:value="${club.getClubId()}" th:text="${club.getTitle()}" th:selected="${club.getClubId() == sessionBean.getFilter().getFilterClubId()}">ClubName</option>
+								</select>
 								<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">						
 									<li class="nav-item">
 										<a href="javascript:adminFiltersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-											<input class="Attending Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isOnlyMineFilter()}" name="onlyMine" th:disabled="${sessionBean.isInDialogue()}" id="attending" onChange="adminFiltersForm.submit()"/>									
+											<input class="Attending Key asc-filter form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isOnlyMineFilter()}" name="onlyMine" th:disabled="${sessionBean.isInDialogue()}" id="attending" onChange="adminFiltersForm.submit()"/>									
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="attending">Only Mine</label>
 										</a>
 									</li>
 								</ul>		
 																																		<hr>				
 								
-								<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">						
+								<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"  id="menu">						
 									<li class="nav-item">
 										<a href="javascript:adminFiltersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="form-check-input" id="all" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 1}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=0 onChange="adminFiltersForm.submit()"/>
+										<input class="asc-filter form-check-input" id="all" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 1}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=0 onChange="adminFiltersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterRadio' : 'FilterRadio'" for="all">All</label>
 										</a>
 									</li>
 									
 									<li class="nav-item">
 										<a href="javascript:adminFiltersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="form-check-input" id="fullybooked" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 2}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=2 onChange="adminFiltersForm.submit()"/>
+										<input class="asc-filter form-check-input" id="fullybooked" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 2}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=2 onChange="adminFiltersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterRadio' : 'FilterRadio'" for="fullybooked">Fully Booked</label>
 										</a>
 									</li>
 									
 									<li class="nav-item">
 										<a href="javascript:adminFiltersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="form-check-input" id="nobookings" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 3}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=3 onChange="adminFiltersForm.submit()"/>
+										<input class="asc-filter form-check-input" id="nobookings" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 3}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=3 onChange="adminFiltersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterRadio' : 'FilterRadio'" for="nobookings">No Bookings</label>
 										</a>
 									</li>		
 									
 									<li class="nav-item">
 										<a href="javascript:adminFiltersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="form-check-input" id="insufficientResources" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 4}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=4 onChange="adminFiltersForm.submit()"/>
+										<input class="asc-filter form-check-input" id="insufficientResources" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 4}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=4 onChange="adminFiltersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterRadio' : 'FilterRadio'" for="insufficientResources">Insufficient Resources</label>
 										</a>
 									</li>	
@@ -124,86 +148,94 @@
 					</div>
 				</div>
 				<div th:if="${sessionBean.isParentLoggedOn()}" style="padding:0px">
-						<form th:if="${sessionBean.getLoggedOnParent().hasChildren()}" action="./changeStudentField" method="post">
-						<label for="students">Child:</label>
-							<select onchange="this.form.submit()" name="students" id="students" required>
-								<option th:each="student : ${sessionBean.getLoggedOnParent().getStudents()}" th:value="${student.getStudentId()}" th:text="${student.getFullName()}" th:selected="${student.getStudentId() == sessionBean.getSelectedStudent().getStudentId()}">StudentName</option>
-							</select>
-						</form>
+					<form th:if="${sessionBean.getLoggedOnParent().hasChildren()}" action="./changeStudentField" method="post">
+					<label class="asc-filterlabel"  for="students">Child:</label>
+						<select onchange="this.form.submit()" name="students" id="students" required>
+							<option th:each="student : ${sessionBean.getLoggedOnParent().getStudents()}" th:value="${student.getStudentId()}" th:text="${student.getFullName()}" th:selected="${student.getStudentId() == sessionBean.getSelectedStudent().getStudentId()}">StudentName</option>
+						</select>
+					</form>
 					<ul
 						class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
-						id="menu">
+						id="menu" >
 						
 						<li class="nav-item"><a href="./createStudent"
 						th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-						<span class="ms-1 d-none d-sm-inline">Add New Child</span>
+						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-user-plus"></i>Add New Child</span>
 						</a></li>
 												
-						<li th:if="${sessionBean.getLoggedOnParent().hasChildren()}" class="nav-item"><a th:href="@{./updatechild(studentId=${sessionBean.getSelectedStudent().getStudentId()})}"
+						<li th:if="${sessionBean.getLoggedOnParent().hasChildren()}" class="nav-item"><a th:href="@{./editStudent(studentId=${sessionBean.getSelectedStudent().getStudentId()})}"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-								<span class="ms-1 d-none d-sm-inline">Update <span th:text="${sessionBean.getSelectedStudent().getFirstName()}"></span>'s Details</span>
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-pencil"></i>Update Details</span>
 						</a></li>
 						<li th:if="${sessionBean.getLoggedOnParent().hasChildren()}" class="nav-item"><a href="./viewIncidents"
 						th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
-						<span class="ms-1 d-none d-sm-inline">Incidents Involving <span th:text="${sessionBean.getSelectedStudent().getFirstName()}"></span></span>
+						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-person-falling-burst"></i>Incidents</span>
 						</a></li>					
 						
 						<li class="nav-item"><a href="./calendar"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-								<span class="ms-1 d-none d-sm-inline">Club Timetable</span>
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-calendar-days"></i>Club Timetable</span>
 						</a></li>
 						
 						<li><a href="./viewClubs"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-								<span class="ms-1 d-none d-sm-inline">View Clubs</span>
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-table-tennis-paddle-ball"></i>View Clubs</span>
 						</a></li>								
 							
 						<li class="nav-item"><a href="./viewTransactions"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-								<span class="ms-1 d-none d-sm-inline">Account Statement</span>
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-file-invoice-dollar"></i>Account Statement</span>
 						</a></li>
 						
 						<li class="nav-item"><a href="./topUpBalance"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-								<span class="ms-1 d-none d-sm-inline">Add Funds</span>
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-hand-holding-dollar"></i>Add Funds</span>
 						</a></li>								
 					</ul>
-					<hr>				
-						<form id="filtersForm" action="./updateFilters" method="post">
-								<div class="row mb-2"><b>Filters:</b></div>
+					<hr th:if="${sessionBean.isCalendarView()}">				
+						<form th:if="${sessionBean.isCalendarView()}" id="filtersForm" action="./updateFilters" method="post">
+								<label class="asc-filterlabel" for="filterClub">Filter:</label>
+				
+								<select onchange="this.form.submit()" name="filterClub"  required>
+									<option value="0" th:selected="${sessionBean.getFilter().getFilterClubId()==0}">All Clubs</option>
+								
+									<option th:each="club: ${sessionBean.findAllClubs()}" th:value="${club.getClubId()}" th:text="${club.getTitle()}" th:selected="${club.getClubId() == sessionBean.getFilter().getFilterClubId()}">ClubName</option>
+								</select>
+									
+								
 												
 								<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="Attending Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAttending()}" th:disabled="${sessionBean.isInDialogue()}" name="attending"  id="attending" onChange="filtersForm.submit()"/>
+										<input class="Attending Key asc-filter form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAttending()}" th:disabled="${sessionBean.isInDialogue()}" name="attending"  id="attending" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()} ? 'disabled FilterCheck' : 'FilterCheck'" for="attending">Attending</label>
 										</a>
 									</li>
 									
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="Available Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAvailable()}" th:disabled="${sessionBean.isInDialogue()}" name="available" id="available" onChange="filtersForm.submit()"/>
+										<input class="Available Key asc-filter form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAvailable()}" th:disabled="${sessionBean.isInDialogue()}" name="available" id="available" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="available">Available</label>
 										</a>
 									</li>
 														
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="NotAvailable Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingUnavailable()}" th:disabled="${sessionBean.isInDialogue()}" name="unavailable" id="unavailable" onChange="filtersForm.submit()"/>
+										<input class="NotAvailable Key asc-filter form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingUnavailable()}" th:disabled="${sessionBean.isInDialogue()}" name="unavailable" id="unavailable" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="unavailable">Unavailable</label>
 										</a>
 									</li>
 									
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="Missed Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingMissed()}" th:disabled="${sessionBean.isInDialogue()}" name="missed" id="missed" onChange="filtersForm.submit()"/>
+										<input class="Missed Key asc-filter form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingMissed()}" th:disabled="${sessionBean.isInDialogue()}" name="missed" id="missed" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="missed">Missed</label>
 										</a>
 									</li>
 									
 									<li class="nav-item">
 										<a href="javascript:filtersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-										<input class="Attended Key form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAttended()}"  th:disabled="${sessionBean.isInDialogue()}" name="attended" id="attended" onChange="filtersForm.submit()"/>
+										<input class="Attended Key asc-filter form-check-input" type="checkbox" th:checked="${sessionBean.getFilter().isDisplayingAttended()}"  th:disabled="${sessionBean.isInDialogue()}" name="attended" id="attended" onChange="filtersForm.submit()"/>
 											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterCheck' : 'FilterCheck'" for="attended">Attended</label>
 										</a>
 									</li>									

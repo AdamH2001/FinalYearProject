@@ -12,8 +12,11 @@ public interface ParentalTransactionRepository extends CrudRepository<ParentalTr
 	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE parent_id = :parentId AND date_time < :date")
 	Integer getBalance(int parentId, LocalDate date);
 	
-	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE parent_id = :parentId")
+	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE parent_id = :parentId and balance_type='CASH'")
 	Integer getBalance(int parentId);
+	
+	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE parent_id = :parentId and balance_type='VOUCHER'")
+	Integer getVoucherBalance(int parentId);	
 	
 	
 	@Query("SELECT * FROM parental_transaction WHERE parent_id = :parentId AND date_time >= :startDate AND date_time < :endDate ORDER BY date_time") 

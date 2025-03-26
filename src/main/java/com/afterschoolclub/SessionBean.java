@@ -3,12 +3,14 @@ package com.afterschoolclub;
 import com.afterschoolclub.data.Parent;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.User;
+import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Filter;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -35,7 +37,7 @@ public class SessionBean {
     
     private LocalDate timetableStartDate = LocalDate.now().minusDays(LocalDate.now().getDayOfMonth()-1);;
     private LocalDate transactionStartDate = LocalDate.now().minusDays(LocalDate.now().getDayOfMonth()-1);
-    		
+    private boolean calendarView = false;	
 	
     public SessionBean() {
         this.reset();
@@ -76,6 +78,15 @@ public class SessionBean {
     		selectedStudent = getLoggedOnParent().getFirstStudent(); 
     	}
     	return selectedStudent;
+    }
+    
+    public List<Club> findAllClubs() {
+    	return Club.findAll();
+    }
+    
+    public void setInDialogue(boolean filterValue) {
+    	inDialogue = filterValue;
+    	calendarView = false;
     }
 }
 

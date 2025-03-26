@@ -28,8 +28,10 @@ public class FilteredEvent {
 		this.user = user;
 		this.student = student;
 		
-		
-		if (user.isAdmin() ) {		    
+		if (filter.getFilterClubId() != 0 && event.getClub().getClubId() != filter.getFilterClubId()) {
+			setHidden(true);
+		} 
+		else if (user != null && user.isAdmin() ) {		    
 			Resource resource = user.getResourceObject();
 			
 			if (event.usesResource(resource)) {
@@ -61,8 +63,9 @@ public class FilteredEvent {
 				default: 
 					break;
 			}			
-		} else
-		{			
+		} 
+		else if (user != null)
+		{		
 			if (event.endInPast()) {
 				if (student != null && event.didAttend(student)) {
 					setAttended(true);
@@ -90,9 +93,9 @@ public class FilteredEvent {
 						setHidden(true);
 					}
 				}
-				else if (event.endInPast() || (student != null && !event.canAttend(student))) { 
+				else if (student != null && !event.canAttend(student)) { 
 					setAvailable(false);	
-					if (!filter.isDisplayingAvailable()) {
+					if (!filter.isDisplayingUnavailable()) {
 						setHidden(true);
 					}
 				}

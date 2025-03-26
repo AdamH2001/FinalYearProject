@@ -22,7 +22,7 @@ CREATE TABLE `User` (
 CREATE TABLE `Club` (
   `club_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(64) NOT NULL,
-  `description` VARCHAR(256),
+  `description` VARCHAR(1024),
   `base_price` INT NOT NULL,
   `year_r_can_attend` BOOLEAN NOT NULL,
   `year_1_can_attend` BOOLEAN NOT NULL,
@@ -30,7 +30,8 @@ CREATE TABLE `Club` (
   `year_3_can_attend` BOOLEAN NOT NULL,
   `year_4_can_attend` BOOLEAN NOT NULL,
   `year_5_can_attend` BOOLEAN NOT NULL,
-  `year_6_can_attend` BOOLEAN NOT NULL
+  `year_6_can_attend` BOOLEAN NOT NULL,
+  `state` ENUM('ACTIVE','INACTIVE') NOT NULL  
 );
 
 CREATE TABLE `Recurrence_Specification` (
@@ -70,7 +71,7 @@ CREATE TABLE `Parental_Transaction` (
   `amount` INT NOT NULL,
   `date_time` DATETIME NOT NULL,
   `transaction_type` ENUM('DEPOSIT','WITHDRAWAL','REFUND','PAYMENT') NOT NULL,
-  `description` VARCHAR(256) NOT NULL,
+  `description` VARCHAR(1024) NOT NULL,
   `parent_id` INT NOT NULL
 );
 
@@ -109,7 +110,7 @@ CREATE TABLE `Incident` (
 CREATE TABLE `Resource` (
   `resource_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(64) NOT NULL,
-  `description` VARCHAR(256) NOT NULL,
+  `description` VARCHAR(1024) NOT NULL,
   `quantity` INT NOT NULL,
   `type` ENUM('LOCATION','STAFF','EQUIPMENT') NOT NULL,
   `state` ENUM('ACTIVE','INACTIVE') NOT NULL,
@@ -129,14 +130,16 @@ CREATE TABLE `Event_Resource` (
 CREATE TABLE `Menu_Option` (
   `menu_option_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(64) NOT NULL,
-  `description` VARCHAR(256) NOT NULL,
+  `description` VARCHAR(1024) NOT NULL,
   `additional_cost` INT NOT NULL,
-  `allergy_information` VARCHAR(1024)
+  `allergy_information` VARCHAR(1024),
+  `state` ENUM('ACTIVE','INACTIVE') NOT NULL  
 );
 
 CREATE TABLE `Menu_Group` (
   `menu_group_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(64) NOT NULL
+  `name` VARCHAR(64) NOT NULL,
+  `state` ENUM('ACTIVE','INACTIVE') NOT NULL  
 );
 
 CREATE TABLE `Class` (
@@ -155,7 +158,9 @@ CREATE TABLE `Medical_Note` (
 CREATE TABLE `Menu_Group_Option` (
   `menu_group_option_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `menu_option_id` INT NOT NULL,
-  `menu_group_id` INT NOT NULL
+  `menu_group_id` INT NOT NULL,
+  `state` ENUM('ACTIVE','INACTIVE') NOT NULL  
+
 );
 
 CREATE TABLE `Event_Menu` (
@@ -167,7 +172,7 @@ CREATE TABLE `Event_Menu` (
 CREATE TABLE `Attendee_Menu_Choice` (
   `attendee_menu_choice_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `attendee_id` INT NOT NULL,
-  `menu_option_id` INT NOT NULL
+  `menu_group_option_id` INT NOT NULL
 );
 
 
@@ -203,7 +208,7 @@ ALTER TABLE `Event_Menu` ADD FOREIGN KEY (`menu_group_id`) REFERENCES `Menu_Grou
 
 ALTER TABLE `Attendee_Menu_Choice` ADD FOREIGN KEY (`attendee_id`) REFERENCES `Attendee` (`attendee_id`);
 
-ALTER TABLE `Attendee_Menu_Choice` ADD FOREIGN KEY (`menu_option_id`) REFERENCES `Menu_Option` (`menu_option_id`);
+ALTER TABLE `Attendee_Menu_Choice` ADD FOREIGN KEY (`menu_group_option_id`) REFERENCES `Menu_Group_Option` (`menu_group_option_id`);
 
 ALTER TABLE `Event` ADD FOREIGN KEY (`club_id`) REFERENCES `Club` (`club_id`);
 

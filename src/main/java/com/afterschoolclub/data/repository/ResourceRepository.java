@@ -1,12 +1,12 @@
 package com.afterschoolclub.data.repository;
 
 import java.util.List;
+import com.afterschoolclub.data.State;
 
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import com.afterschoolclub.data.Resource;
-
 public interface ResourceRepository extends CrudRepository<Resource, Integer> {
 
 
@@ -20,8 +20,8 @@ public interface ResourceRepository extends CrudRepository<Resource, Integer> {
 	List<Resource> findByEventIdType(int eventId, Resource.Type type);	
 	
 	@Query("SELECT *  FROM resource where state=:state and type=:type order by name")
-	List<Resource> findByTypeAndState(Resource.Type type, Resource.State state);
+	List<Resource> findByTypeAndState(Resource.Type type, State state);
 	
 	@Query("SELECT *  FROM resource where state=:state order by name")
-	List<Resource> findByState(Resource.State state);		
+	List<Resource> findByState(State state);		
 }

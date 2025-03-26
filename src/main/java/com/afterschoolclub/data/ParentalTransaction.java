@@ -53,6 +53,17 @@ public class ParentalTransaction {
 		return result;
 	}			
 	
+	public static int getVoucherBalance(Parent parent) {
+		Integer balance =  repository.getVoucherBalance(parent.getParentId());
+		int result = 0;
+		if (balance != null) {
+			result = balance.intValue();
+		}
+		return result;
+	}	
+	
+	
+	
 	public enum BalanceType {
 		VOUCHER, 
 		CASH 

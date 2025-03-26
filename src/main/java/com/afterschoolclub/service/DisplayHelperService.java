@@ -1,8 +1,6 @@
-package com.afterschoolclub;
+package com.afterschoolclub.service;
 
-import java.util.Iterator;
-
-import java.util.Set;
+import org.springframework.stereotype.Service;
 
 import com.afterschoolclub.data.Event;
 import com.afterschoolclub.data.Filter;
@@ -10,19 +8,12 @@ import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.User;
 import com.afterschoolclub.data.FilteredEvent;
 
-import com.afterschoolclub.data.MenuGroupOption;
 import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.MenuGroup;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
-
-@Getter
-@Setter
-@ToString
-public class DisplayHelper {
+@Service
+public class DisplayHelperService {
 
 	
 	public String getStudentClass(Student selectedStudent, Student currentStudent, Event event, boolean viewOnly)
@@ -83,7 +74,7 @@ public class DisplayHelper {
 		return result;			
 	} */
 	
-	
+	/*
 	public boolean checkedOption(MenuGroup menuGroup, int menuOptionId, Student student, Event event, boolean editing, boolean viewOnly)
 	{
 		boolean result = false; 
@@ -107,8 +98,24 @@ public class DisplayHelper {
 			result = student.chosenMenuOptionForEvent(event, menuOptionId);
 		}
 		return result;
+	}*/
+	
+	
+	public boolean checkedOption(MenuGroup menuGroup, int menuOptionId, Student student, Event event, boolean editing, boolean viewOnly)
+	{
+		boolean result;
+		MenuOption menuOption = menuGroup.getChosenMenuOption(student, event);
+		if (menuOption != null) {
+			result = menuOption.getMenuOptionId() == menuOptionId;
+		}
+		else {
+			result = menuOptionId==0;
+		}		
+		return result;		
 	}
 	
+	
+	/*
 	
 	public String getOptionText(MenuGroup menuGroup, Student student, Event event)
 	{
@@ -117,9 +124,11 @@ public class DisplayHelper {
 		
 		
 		Set<MenuGroupOption> mgos = menuGroup.getMenuGroupOptions();
-		
 		Iterator<MenuGroupOption> mgoIterator = mgos.iterator();
+		
+		
 		while (mgoIterator.hasNext() && !foundOption) {
+			
 			MenuGroupOption mgo = mgoIterator.next();
 			Set<MenuOption> menuOptions = mgo.getMenuOptions();	
 			Iterator<MenuOption> iterator = menuOptions.iterator();
@@ -135,8 +144,18 @@ public class DisplayHelper {
 			
 		return optionText;
 	}
+	*/
 	
-	
+	public String getOptionText(MenuGroup menuGroup, Student student, Event event)
+	{
+		MenuOption menuOption = menuGroup.getChosenMenuOption(student, event);		
+		
+		String optionText = "None";
+		if (menuOption != null) {
+			optionText = menuOption.getName();
+		}
+		return optionText;
+	}	
 	
 			
 }

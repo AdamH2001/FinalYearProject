@@ -5,6 +5,7 @@ import com.afterschoolclub.data.repository.RecurrenceSpecificationRepository;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 import lombok.Getter;
@@ -31,6 +32,10 @@ public class RecurrenceSpecification {
 		}
 		return recurrenceSpecification;
 	}	
+	
+	public static List<RecurrenceSpecification> findRegularByClubId(int clubId) {
+		return repository.findRegularByClubId(clubId);
+	}		
 	
 	
 	@Id
@@ -85,6 +90,73 @@ public class RecurrenceSpecification {
 		this.occursSunday = occursSunday == null ? false : occursSunday.booleanValue();
 		this.termTimeOnly = termTimeOnly == null ? false : termTimeOnly.booleanValue();
 	}
+	
+	public String getRegularDaysDisplay() {
+		String result = "";
+
+		if (occursMonday && occursTuesday && occursWednesday && occursThursday && occursFriday && occursSaturday && occursSunday) {
+			result = "Everyday";
+		} else {
+			if (occursMonday && occursTuesday && occursWednesday && occursThursday && occursFriday) {
+				result = "Every weekday";
+			}
+			else {
+				result = getRegularDays();
+			}
+		}
+		
+		return result;		
+	}	
+	
+	
+	public String getRegularDays() {
+		String result = "";
+
+		if (occursMonday) {
+			result = "Monday";
+		}			
+		if (occursTuesday) {
+			if (result.length() > 0) {
+				result = result.concat(", ");
+			}
+			result = result.concat("Tuesday");
+		}
+		if (occursWednesday) {
+			if (result.length() > 0) {
+				result = result.concat(", ");
+			}
+			result = result.concat("Wednesday");
+		}
+		if (occursThursday) {
+			if (result.length() > 0) {
+				result = result.concat(", ");
+			}
+			result = result.concat("Thursday");
+		}
+		if (occursFriday) {
+			if (result.length() > 0) {
+				result = result.concat(", ");
+			}
+			result = result.concat("Friday");
+		}		
+		if (occursSaturday) {
+			if (result.length() > 0) {
+				result = result.concat(", ");
+			}
+			result = result.concat("Saturday");
+		}		
+		if (occursSunday) {
+			if (result.length() > 0) {
+				result = result.concat(", ");
+			}
+			result = result.concat("Sunday");
+		}				
+		int index = result.lastIndexOf(", ");
+		if (index != -1) {
+			result = result.substring(0, index).concat(" and ").concat(result.substring(index+2));
+		}		
+		return result;		
+	}	
 	
 	public String getFormattedEndDate() {
 		return endDate.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));		

@@ -1,7 +1,7 @@
-package com.afterschoolclub;
+package com.afterschoolclub.controller;
 import jakarta.mail.MessagingException;
 
-
+import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Event;
 import com.afterschoolclub.data.Parent;
@@ -13,6 +13,7 @@ import com.afterschoolclub.data.User;
 import com.afterschoolclub.data.EventDay;
 import com.afterschoolclub.data.Holiday;
 import com.afterschoolclub.data.MenuGroup;
+import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.RecurrenceSpecification;
 
 import com.afterschoolclub.data.repository.ClassRepository;
@@ -20,11 +21,15 @@ import com.afterschoolclub.data.repository.ClubRepository;
 import com.afterschoolclub.data.repository.EventRepository;
 import com.afterschoolclub.data.repository.HolidayRepository;
 import com.afterschoolclub.data.repository.MenuGroupRepository;
+import com.afterschoolclub.data.repository.MenuOptionRepository;
 import com.afterschoolclub.data.repository.ParentalTransactionRepository;
 import com.afterschoolclub.data.repository.RecurrenceSpecificationRepository;
 import com.afterschoolclub.data.repository.ResourceRepository;
 import com.afterschoolclub.data.repository.StudentRepository;
 import com.afterschoolclub.data.repository.UserRepository;
+import com.afterschoolclub.service.ClubPicService;
+import com.afterschoolclub.service.EmailService;
+import com.afterschoolclub.service.ProfilePicService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -66,17 +71,22 @@ public class MainController {
 	public MainController(UserRepository userRepository, EventRepository eventRepository,
 			MenuGroupRepository menuGroupRepository, ResourceRepository resourceRepository,
 			ClassRepository classRepository, StudentRepository studentRepository, ParentalTransactionRepository transactionRepository, 
-			ClubRepository clubRepository, RecurrenceSpecificationRepository recurrenceSpecificationRepository, HolidayRepository holidayRepository, SessionBean sessionBean) {
+			ClubRepository clubRepository, RecurrenceSpecificationRepository recurrenceSpecificationRepository, HolidayRepository holidayRepository, MenuOptionRepository menuOptionRepository, ProfilePicService profilePicService, ClubPicService clubPicService, SessionBean sessionBean) {
 		super();		
 		Club.repository = clubRepository;
 		Event.repository = eventRepository;
-		Resource.repostiory = resourceRepository;
+		Resource.repository = resourceRepository;
 		MenuGroup.repository = menuGroupRepository;
 		Student.repository = studentRepository;
 		ParentalTransaction.repository = transactionRepository;
 		User.repository = userRepository;
+        User.profilePicService = profilePicService;
+        Club.clubPicService = clubPicService;
+
+        
 		StudentClass.repository = classRepository;
 		RecurrenceSpecification.repository = recurrenceSpecificationRepository;
+		MenuOption.repository = menuOptionRepository;
 		Holiday.repository = holidayRepository;
 		
         this.sessionBean = sessionBean;
@@ -279,22 +289,14 @@ public class MainController {
 
 	@GetMapping("/calendarBack")
 	public String calendarBack(Model model) {
-		String returnPage = validateIsLoggedOn(model);
-		if (returnPage == null) {
-			sessionBean.setTimetableStartDate(sessionBean.getTimetableStartDate().minusMonths(1)) ;						
-			returnPage = setupCalendar(model);
-		}
-		return returnPage;	
+		sessionBean.setTimetableStartDate(sessionBean.getTimetableStartDate().minusMonths(1)) ;						
+		return setupCalendar(model);
 	}
 
 	@GetMapping("/calendarForward")
 	public String calendarForward(Model model) {
-		String returnPage = validateIsLoggedOn(model);
-		if (returnPage == null) {
-			sessionBean.setTimetableStartDate(sessionBean.getTimetableStartDate().plusMonths(1)) ;						
-			returnPage = setupCalendar(model);
-		}
-		return returnPage;	
+		sessionBean.setTimetableStartDate(sessionBean.getTimetableStartDate().plusMonths(1)) ;						
+		return setupCalendar(model);		
 	}
 	
 
@@ -316,11 +318,10 @@ public class MainController {
 	}
 
 	
-	public String setupCalendar(Model model) {		
+	public String initialiseCalendar(Model model) {		
 		LocalDate calendarMonth = sessionBean.getTimetableStartDate();
 		LocalDate calendarDay = null;
 		LocalDate calendarNextMonth = null;
-		this.setInDialogue(false,model);
 			
 		calendarDay = calendarMonth.withDayOfMonth(1);
 		calendarNextMonth = calendarDay.plusMonths(1);
@@ -333,11 +334,12 @@ public class MainController {
 			numCalendarWeeks = numCalendarWeeks / 7;
 				
 		EventDay[][] calendar = new EventDay[numCalendarWeeks][7];
+		List<Holiday> allHolidays = Holiday.findAll();
 		for (int i = 0; i < calendar.length; i++) {
 			for (int j = 0; j < calendar[i].length; j++) {
 				if ((calendarDay.getDayOfWeek().getValue() == (j + 1))
 						&& (calendarDay.isBefore(calendarNextMonth))) {
-					EventDay eventDay = new EventDay(calendarDay, events, sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), sessionBean.getFilter());					
+					EventDay eventDay = new EventDay(calendarDay, allHolidays, events, sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), sessionBean.getFilter());					
 					calendar[i][j] = eventDay;
 					calendarDay = calendarDay.plusDays(1);
 				} else {
@@ -347,6 +349,10 @@ public class MainController {
 		}		
 		model.addAttribute("calendar", calendar);
 		return "calendar";
+	}
+	
+	public String setupCalendar(Model model) {		
+		return "redirect:/calendar";
 	}
 	
 	
@@ -424,13 +430,16 @@ public class MainController {
 	}
 
 	@GetMapping("/calendar")
-	public String calendar(Model model) {
-		String returnPage = validateIsLoggedOn(model);
-		if (returnPage == null) {
-			this.setInDialogue(false,model);		
-			returnPage = setupCalendar(model);			
+	public String calendar(      
+            @RequestParam(name="filterClub", required=false,  defaultValue="0") int filterClub,
+            Model model) {
+
+		if (filterClub != 0) {
+			sessionBean.getFilter().setFilterClubId(filterClub);
 		}
-		return returnPage;
+		this.setInDialogue(false,model);
+		sessionBean.setCalendarView(true);
+		return initialiseCalendar(model);			
 	}
 	
 
@@ -517,6 +526,13 @@ public class MainController {
 	}
 
 
+	@GetMapping("/viewClubs") // complete
+	public String viewClubs(Model model) {
+		this.setInDialogue(false,model);	  
+		List<Club> allClubs = Club.findAll();
+		model.addAttribute("allClubs",allClubs);
+		return "viewClubs";	
+	}	
     
 
 

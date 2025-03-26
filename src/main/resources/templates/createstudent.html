@@ -7,7 +7,9 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"> </script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="./css/styles.css"/>	
-	<script src="./scripts/afterschoolclub.js"></script>		
+	<script src="./scripts/afterschoolclub.js"></script>
+	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>
+
 </head>
 <body>
 	<div th:replace="~{fragments/header :: header}"></div>
@@ -18,124 +20,148 @@
 	<div id="main" class="main container-flex no-margin ">
 				
 			<form action="./addStudent" method="post">
+			
+			<input type="hidden" name="studentId" th:value="${student.getStudentId()}"/>
+			
 			<div class="col py-3">
 
 				<div class="row mb-2">
-					<div class="col-sm-8" align="center">
-						<h1 align="center">Add New Child</h1>
+					<div class="col-sm-12" align="center">
+						<h1 th:if="${isEditing}" align="center">Update Child Details</h1>
+						<h1 th:unless="${isEditing}" align="center">Add New Child</h1>
 					</div>					
 				</div>
 
 				<div class="row mb-2">
-					<div class="col-sm-2" align="center">
+					<div class="col-sm-2 asc-form-label" align="center">
 						<label for="firstName">First Name:</label>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-sm-10">
 						<input class="form-control form-control-sm mr-sm-2" required
-							type="text" name="firstName" id="firstName" />
+							type="text" name="firstName" id="firstName" th:value="${student.getFirstName()}"/>
 					</div>
 				</div>
 				<div class="row mb-2">
-					<div class="col-sm-2" align="center">
+					<div class="col-sm-2 asc-form-label" align="center">
 						<label for="surname">Surname:</label>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-sm-10">
 						<input class="form-control form-control-sm mr-sm-2" required
-							type="text" name="surname" id="surname" />
+							type="text" name="surname" id="surname" th:value="${student.getSurname()}"/>
 					</div>
 				</div>
 				<div class="row mb-2">
-					<div class="col-sm-2" align="center">
+					<div class="col-sm-2 asc-form-label" align="center">
 						<label for="className">Class:</label>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-sm-10">
 						<select class="form-select form-control-sm mr-sm-2"  name="className" id="className" required>
-							<option th:each="class : ${classNames}" th:value="${class.getClassId()}" th:text="${class.getName()}">ClassName</option>
+							<option th:each="class : ${classNames}" th:value="${class.getClassId()}"  th:selected="${student.getClassId()?.getId() == class.getClassId()}" th:text="${class.getName()}">ClassName</option>
 						</select>
 					</div>
 				</div>
 				<div class="row mb-2">
-					<div class="col-sm-2" align="center">
+					<div class="col-sm-2 asc-form-label" align="center">
 						<label for="dateOfBirth">Date Of Birth:</label>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-sm-10">
 						<input class="form-control form-control-sm mr-sm-2" required
-							type="date" name="dateOfBirth" id="dateOfBirth" />
+							type="date" name="dateOfBirth" id="dateOfBirth" th:value="${student.getDateOfBirth()}"/>
 					</div>
 				</div>
 				<div class="row mb-2">
-						<div class="col-sm-2" align="center">
+						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="allergyNote">Allergies:</label>
 						</div>
-						<div class="col-sm-6">
-							<textarea class="form-control form-control-sm mr-sm-2" required
-								name="allergyNote" id="allergyNote"></textarea>
+						<div class="col-sm-10">
+							<textarea class="form-control form-control-sm mr-sm-2" 
+								name="allergyNote" id="allergyNote" th:text="${student.getAllergyNoteText()}"></textarea>
 						</div>
 				</div>
 				<div class="row mb-2">
-						<div class="col-sm-2" align="center">
+						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="healthNote">Health Notes:</label>
 						</div>
-						<div class="col-sm-6">
-							<textarea class="form-control form-control-sm mr-sm-2" required
-								name="healthNote" id="healthNote"></textarea>
+						<div class="col-sm-10">
+							<textarea class="form-control form-control-sm mr-sm-2" 
+								name="healthNote" id="healthNote" th:text="${student.getHealthNoteText()}"></textarea>
 						</div>
 				</div>
 				<div class="row mb-2">
-						<div class="col-sm-2" align="center">
+						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="dietNote">Diet Requirements:</label>
 						</div>
-						<div class="col-sm-6">
-							<textarea class="form-control form-control-sm mr-sm-2" required
-								name="dietNote" id="dietNote"></textarea>
+						<div class="col-sm-10">
+							<textarea class="form-control form-control-sm mr-sm-2" 
+								name="dietNote" id="dietNote" th:text="${student.getDietNoteText()}"></textarea>
 						</div>
 				</div>
 				<div class="row mb-2">
-						<div class="col-sm-2" align="center">
+						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="careNote">Care Plan:</label>
 						</div>
-						<div class="col-sm-6">
-							<textarea class="form-control form-control-sm mr-sm-2" required
-								name="careNote" id="careNote"></textarea>
+						<div class="col-sm-10">
+							<textarea class="form-control form-control-sm mr-sm-2" 
+								name="careNote" id="careNote" th:text="${student.getCarePlanNoteText()}"></textarea>
 						</div>
 				</div>
 				
 				<div class="row mb-2">
-						<div class="col-sm-2" align="center">
+						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="medicationNote">Medication:</label>
 						</div>
-						<div class="col-sm-6">
-							<textarea class="form-control form-control-sm mr-sm-2" required
-								name="medicationNote" id="medicationNote"></textarea>
+						<div class="col-sm-10">
+							<textarea class="form-control form-control-sm mr-sm-2" 
+								name="medicationNote" id="medicationNote" th:text="${student.getMedicationNoteText()}"></textarea>
 						</div>
 				</div>
 				
-				<div class="row mb-2">
-						<div class="col-sm-2" align="center">
+				<div class="row mb-4">
+						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="otherNote">Other:</label>
 						</div>
-						<div class="col-sm-6">
-							<textarea class="form-control form-control-sm mr-sm-2" required
-								name="otherNote" id="otherNote"></textarea>
+						<div class="col-sm-10">
+							<textarea class="form-control form-control-sm mr-sm-2" 
+								name="otherNote" id="otherNote" th:text="${student.getOtherNoteText()}"></textarea>
 						</div>
 				</div>
+				
 				<div class="row mb-2">
-					<div class="col-sm-2" align="center">
-						<label for="consentToShare">Consent to Share:</label>
+					<div class="col-sm-2 asc-form-label" align="center">
 					</div>
-					<div class="col-sm-6">
-						<input class="form-check-input" type="checkbox" name="consentToShare" id="consentToShare" />
+					<div class="col-sm-9">
+						I confirm this is an up to date and accurate record of my child's medical records
+					</div>
+					<div class="col-sm-1" align="left">
+						<input class="form-check-input" type="checkbox" required name="confirmation"  />
+					</div>					
+				</div>				
+
+				
+				<div class="row mb-4">
+					<div class="col-sm-2 asc-form-label" align="center">
+					</div>
+					<div class="col-sm-9">
+						I give consent for these details to be shared with with medical professionals in case of emergency																			
+					</div>
+					<div class="col-sm-1" align="left">
+						<input class="form-check-input" type="checkbox" required name="consentToShare" th:checked="${student.isConsentToShare()}" id="consentToShare" />
 					</div>
 				</div>
 				
-			</div>
+				
+
+				
+				
 				<div class="row mb-2">
 					<div class="col-sm-6" align="right">
-						<button class="btn btn-primary" name="submit">Submit</button>
+						<button th:if="${isEditing}" class="btn btn-primary" name="submit">Update</button>
+						<button th:unless="${isEditing}" class="btn btn-primary" name="submit">Add</button>
 					</div>
 					<div class="col-sm-6" align="left">
-						<a href="./calendar" class="btn btn-secondary" role="button">Cancel</a>
+						<a href="javascript:history.back()" class="btn btn-secondary" role="button">Cancel</a>
 					</div>					
+				</div>
 				</div>
 			</form>
 		</div>

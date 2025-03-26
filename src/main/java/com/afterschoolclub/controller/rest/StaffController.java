@@ -1,8 +1,4 @@
-package com.afterschoolclub;
-
-import com.afterschoolclub.data.Resource;
-import com.afterschoolclub.data.rest.Staff;
-
+package com.afterschoolclub.controller.rest;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +22,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.afterschoolclub.SessionBean;
+import com.afterschoolclub.controller.AdminController;
+import com.afterschoolclub.data.Staff;
+
 
 
 @RestController
 @RequestMapping("api/staff")
 public class StaffController {
+	
+	
+	
+    private final SessionBean sessionBean;	
+    
+	static Logger logger = LoggerFactory.getLogger(AdminController.class);
+
+	
+    @Autowired
+    public StaffController(SessionBean sessionBean) {
+        this.sessionBean = sessionBean;
+    }    
+    
+	
+	
     @GetMapping
     public List<Staff> getAllStaff() {
     	return Staff.findAllActive();

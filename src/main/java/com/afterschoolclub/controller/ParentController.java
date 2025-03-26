@@ -1,10 +1,11 @@
-package com.afterschoolclub;
+package com.afterschoolclub.controller;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.data.Attendee;
 import com.afterschoolclub.data.AttendeeMenuChoice;
 import com.afterschoolclub.data.Event;
@@ -33,6 +35,8 @@ import com.afterschoolclub.data.ParentalTransaction;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.StudentClass;
 import com.afterschoolclub.data.User;
+import com.afterschoolclub.service.DisplayHelperService;
+import com.afterschoolclub.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.api.payments.Transaction;
@@ -42,6 +46,9 @@ import com.paypal.base.rest.PayPalRESTException;
 @SessionAttributes({"sessionBean"})
 public class ParentController {
 
+	@Autowired	
+    private DisplayHelperService displayHelper;
+	
 	@Autowired	
     private MainController mainController;
 	
@@ -100,6 +107,27 @@ public class ParentController {
 		if (returnPage == null) {
 			Iterable<StudentClass> classNames = StudentClass.findAll();
 			model.addAttribute("classNames",classNames);
+			
+			Student s = new Student();
+			model.addAttribute("student",s);
+			
+			model.addAttribute("isEditing",false);
+			
+			this.setInDialogue(true,model);
+			returnPage = "createstudent";		
+		}
+		return returnPage;
+	}
+
+	@GetMapping("/editStudent")
+	public String createStudent(@RequestParam(name = "studentId") int studentId, Model model) {
+		String returnPage = validateIsParent(model);
+		if (returnPage == null) {
+			Student s = Student.findById(studentId);
+			model.addAttribute("student",s);			
+			Iterable<StudentClass> classNames = StudentClass.findAll();
+			model.addAttribute("classNames",classNames);
+			model.addAttribute("isEditing",true);			
 			this.setInDialogue(true,model);
 			returnPage = "createstudent";		
 		}
@@ -107,10 +135,11 @@ public class ParentController {
 	}
 
 
-
 	
 	@PostMapping("/addStudent")
-	public String addStudent(@RequestParam(name = "firstName") String firstName,
+	public String addStudent(
+			@RequestParam(name = "studentId") int studentId,
+			@RequestParam(name = "firstName") String firstName,
 			@RequestParam(name = "surname") String surname, @RequestParam(name = "className") int className,
 			@RequestParam(name = "dateOfBirth") LocalDate dateOfBirth,
 			@RequestParam(name = "allergyNote") String allergyNote,
@@ -121,17 +150,35 @@ public class ParentController {
 			@RequestParam(name = "consentToShare", defaultValue = "false") boolean consentToShare, Model model) {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {
-			Student student = new Student(firstName, surname, dateOfBirth, consentToShare);
+			Student student = null;
+			if (studentId == 0) {
+				student = new Student();
+				sessionBean.getLoggedOnParent().addStudent(student);				
+			}
+			else {
+				student = sessionBean.getLoggedOnParent().getStudentFromId(studentId);
+			}
+			student.setFirstName(firstName);
+			student.setSurname(surname);
+			student.setDateOfBirth(dateOfBirth);
+			student.setConsentToShare(consentToShare);
 			student.setClassId(AggregateReference.to(className));		
-			student.addMedicalNote(new MedicalNote(MedicalNote.Type.ALLERGY,allergyNote));
-			student.addMedicalNote(new MedicalNote(MedicalNote.Type.HEALTH,healthNote));
-			student.addMedicalNote(new MedicalNote(MedicalNote.Type.DIET, dietNote));
-			student.addMedicalNote(new MedicalNote(MedicalNote.Type.CAREPLAN,careNote));
-			student.addMedicalNote(new MedicalNote(MedicalNote.Type.MEDICATION,medicationNote));
-			student.addMedicalNote(new MedicalNote(MedicalNote.Type.OTHER,otherNote));
-			sessionBean.getLoggedOnParent().addStudent(student);
+			student.setAllergyNoteText(allergyNote);
+			student.setHealthNoteText(healthNote);
+			student.setDietNoteText(dietNote);
+			student.setCarePlanNoteText(careNote);
+			student.setMedicationNoteText(medicationNote);
+			student.setOtherNoteText(otherNote);
+			student.updateTimestamp();
+			
 			sessionBean.getLoggedOnUser().save();
-			model.addAttribute("flashMessage","Added New Child.");						
+			if (studentId == 0) {
+				model.addAttribute("flashMessage","Added New Child.");
+			}
+			else {
+				model.addAttribute("flashMessage","Updated Child Details.");
+			}
+				
 			returnPage = setupCalendar(model);
 		}
 		return returnPage;
@@ -145,20 +192,20 @@ public class ParentController {
             @RequestParam(name="unavailable", required=false, defaultValue="false") Boolean unavailable,
             @RequestParam(name="missed", required=false, defaultValue="false") Boolean missed,
             @RequestParam(name="attended", required=false, defaultValue="false") Boolean attended,
-            
+            @RequestParam(name="filterClub", required=true) int filterClub,
+
     		Model model) 
     {
-    	String returnPage = validateIsParent(model);
-    	if (returnPage == null) {
-    		this.setInDialogue(false,model);
-    		sessionBean.getFilter().setDisplayingAttending(attending);
-    		sessionBean.getFilter().setDisplayingAvailable(available);
-    		sessionBean.getFilter().setDisplayingUnavailable(unavailable);
-    		sessionBean.getFilter().setDisplayingMissed(missed);
-    		sessionBean.getFilter().setDisplayingAttended(attended);
-    		returnPage = setupCalendar(model);
-    	}
-		return returnPage;		
+
+		this.setInDialogue(false,model);
+		sessionBean.getFilter().setDisplayingAttending(attending);
+		sessionBean.getFilter().setDisplayingAvailable(available);
+		sessionBean.getFilter().setDisplayingUnavailable(unavailable);
+		sessionBean.getFilter().setDisplayingMissed(missed);
+		sessionBean.getFilter().setDisplayingAttended(attended);
+		sessionBean.getFilter().setFilterClubId(filterClub);
+		return setupCalendar(model);
+    			
     }    
     
 	@GetMapping("/viewTransactions")
@@ -176,7 +223,7 @@ public class ParentController {
 			model.addAttribute("openingBalance",openingBalanceStr);
 			model.addAttribute("closingBalance",closingBalanceStr);
 			model.addAttribute("transactions",transactions);
-			this.setInDialogue(true,model);
+			this.setInDialogue(false,model);
 			returnPage= "viewtransactions";
 		}
 		return returnPage;
@@ -253,12 +300,18 @@ public class ParentController {
 					
 			List<String> selectedStudents = new ArrayList<String>();
 			
-			Set <Student> allChildren = sessionBean.getLoggedOnParent().getStudents();
-			for (Student student :allChildren) {
-				if (event.registered(student)) {
-					selectedStudents.add(student.getIdAsString());
+			Set <Student> allChildren; 
+			if (sessionBean.isLoggedOn()) {
+				allChildren = sessionBean.getLoggedOnParent().getStudents();
+				for (Student student :allChildren) {
+					if (event.registered(student)) {
+						selectedStudents.add(student.getIdAsString());
+					}
 				}
-			}			
+			}
+			else {
+				allChildren = new HashSet<Student>();
+			}
 			
 			
 			if (!editOptions && !viewOnly) {
@@ -273,7 +326,7 @@ public class ParentController {
 			model.addAttribute("recurringEvents", recurringEvents);
 			
 			model.addAttribute("viewOnly", viewOnly);						
-			model.addAttribute("displayHelper", new DisplayHelper());			
+			model.addAttribute("displayHelper", displayHelper);			
 			this.setInDialogue(true,model);
 
 			returnPage = "sessionOptions";
@@ -306,11 +359,8 @@ public class ParentController {
 	
 	@GetMapping("/parentViewSession")
 	public String parentViewSession(@RequestParam (name="eventId") Integer eventId, Model model) {
-		String returnPage = validateIsParent(model);
-		if (returnPage == null) {	
-			returnPage = setUpSessionOptions(eventId, false, true, model);							
-		}	
-		return returnPage;
+
+		return setUpSessionOptions(eventId, false, true, model);		
 	}	
 		
 
@@ -506,6 +556,9 @@ public class ParentController {
 			Parent loggedOnParent = tmpUser.getParent(); 
 			Event event = Event.findById(eventId);
 
+			if (bookingEndDate == null) {
+				bookingEndDate =  event.getStartDateTime().toLocalDate();
+			}
 			boolean recurringBooking = event.getStartDateTime().toLocalDate().compareTo(bookingEndDate) != 0;
 
 			List<Event> allEvents = null;
@@ -601,7 +654,7 @@ public class ParentController {
 									if (!optionValue.equals("None")) {
 										int menuOptionId = Integer.parseInt(optionValue);
 										AttendeeMenuChoice amc = new AttendeeMenuChoice(
-												AggregateReference.to(menuOptionId));
+												AggregateReference.to(menuGroup.getMenuGroupOptionId(menuOptionId)));
 										attendee.addAttendeeMenuChoice(amc);
 										MenuOption menuOption = menuGroup.getMenuOption(menuOptionId);
 										totalCost += menuOption.getAdditionalCost();
@@ -715,7 +768,7 @@ public class ParentController {
 						String optionValue = allParams.getOrDefault(optionQueryParam, "None");
 						if (!optionValue.equals("None")) {
 							int menuOptionId = Integer.parseInt(optionValue);
-							AttendeeMenuChoice amc = new AttendeeMenuChoice(AggregateReference.to(menuOptionId));
+							AttendeeMenuChoice amc = new AttendeeMenuChoice(AggregateReference.to(menuGroup.getMenuGroupOptionId(menuOptionId)));
 							attendee.addAttendeeMenuChoice(amc);
 							MenuOption menuOption = menuGroup.getMenuOption(menuOptionId);
 							totalCost += menuOption.getAdditionalCost();									

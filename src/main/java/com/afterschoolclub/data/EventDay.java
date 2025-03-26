@@ -15,14 +15,17 @@ import lombok.ToString;
 public class EventDay {
 	private LocalDate date;
 	private ArrayList<FilteredEvent> filteredEvents = new ArrayList<FilteredEvent>();
+	private boolean holiday;
 	
 	/**
 	 * @param date
 	 */
-	public EventDay(LocalDate date, List<Event> events, User user, Student student, Filter filter) {
+	public EventDay(LocalDate date, List<Holiday> allHolidays, List<Event> events, User user, Student student, Filter filter ) {
 		super();
 		this.date = date;
 		this.addAllEventsForDay(events, user, student, filter);
+		this.holiday = Holiday.isDateInHolidays(date, allHolidays);
+		
 	}
 	
 	public void addAllEventsForDay(List<Event> allEvents, User user, Student student, Filter filter) {
@@ -32,5 +35,6 @@ public class EventDay {
 			}
 		}
 	}
+	
 	
 }

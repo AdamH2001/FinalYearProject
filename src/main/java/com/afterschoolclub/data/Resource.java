@@ -19,16 +19,13 @@ import lombok.ToString;
 @ToString
 public class Resource {
 
-	public static ResourceRepository repostiory = null;
+	public static ResourceRepository repository = null;
 
 	
 	public enum Type {
 		LOCATION, STAFF, EQUIPMENT
 	}
-	
-	public enum State {
-		ACTIVE, INACTIVE
-	}	
+
 	
 	@Id
 	private int resourceId;
@@ -44,38 +41,35 @@ public class Resource {
 	private transient int maxDemand = 0;
 	
 	
-
-	
-	
 	public static List<Resource> findByEventIdType(int eventId, Type type) {
-		return repostiory.findByEventIdType(eventId, type);
+		return repository.findByEventIdType(eventId, type);
 	}
 	
 	public static List<Resource> findByType(Type type) {
-		return repostiory.findByType(type);
+		return repository.findByType(type);
 	}
 	
 	public static List<Resource> findActiveByType(Type type) {
-		return repostiory.findByTypeAndState(type, State.ACTIVE);
+		return repository.findByTypeAndState(type, State.ACTIVE);
 	}	
 	
 	public static Resource findById(int resourceId) {
-		Optional<Resource> o = repostiory.findById(Integer.valueOf(resourceId)); 
+		Optional<Resource> o = repository.findById(Integer.valueOf(resourceId)); 
 		return o.isPresent() ? o.get() : null;
 	}
 	
 	
 	public static List<Resource> findAll() {
-		return  new ArrayList<>((Collection<? extends Resource>) repostiory.findAll());		
+		return  new ArrayList<>((Collection<? extends Resource>) repository.findAll());		
 	}	
 	
 	public static List<Resource> findAllActive() {
-		return repostiory.findByState(State.ACTIVE);
+		return repository.findByState(State.ACTIVE);
 		
 	}
 	
 	public static void cleanUpInactiveResources() {
-		List<Resource> allInactive = repostiory.findByState(State.INACTIVE);
+		List<Resource> allInactive = repository.findByState(State.INACTIVE);
 		for (Resource resource : allInactive) {
 			try {
 				Resource.deleteById(resource.getResourceId());
@@ -91,7 +85,7 @@ public class Resource {
 	
 	
 	public static void deleteById(int eventId) {
-		repostiory.deleteById(eventId);		
+		repository.deleteById(eventId);		
 	}		
 	
 	public int getQuantity() {
@@ -109,7 +103,7 @@ public class Resource {
 	
 	public void save()
 	{
-		repostiory.save(this);
+		repository.save(this);
 	}
 	
 	public int getMaxDemand() {

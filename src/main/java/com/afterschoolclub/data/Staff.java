@@ -1,15 +1,9 @@
-package com.afterschoolclub.data.rest;
-
-import com.afterschoolclub.data.Resource;
-import com.afterschoolclub.data.Resource.State;
+package com.afterschoolclub.data;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.transaction.annotation.Transactional;
-
-import com.afterschoolclub.data.User;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +23,7 @@ public class Staff {
 	
 	
 	public static List<Staff> findAllActive() {
-		List<User> allActiveStaffUsers = User.findStaffByState(Resource.State.ACTIVE);
+		List<User> allActiveStaffUsers = User.findStaffByState(State.ACTIVE);
 		List<Staff> allStaff = new ArrayList<Staff>();
 		
 		for (User staffUser : allActiveStaffUsers) {
@@ -48,7 +42,7 @@ public class Staff {
 	private int capacity;
 	private String description;
 	private String keywords;
-	private Resource.State state;
+	private State state;
 	private int maxDemand;
 		
 	public Staff() {

@@ -13,11 +13,11 @@ import lombok.ToString;
 public class AttendeeMenuChoice {
 	@Id
 	private int attendeeMenuChoiceId;
-	AggregateReference<MenuOption, Integer> menuOptionId;
+	AggregateReference<MenuGroupOption, Integer> menuGroupOptionId;
 	
 	
-	public AttendeeMenuChoice(AggregateReference<MenuOption, Integer> menuOptionId) {
+	public AttendeeMenuChoice(AggregateReference<MenuGroupOption, Integer> menuGroupOptionId) {
 		super();
-		this.menuOptionId = menuOptionId;
+		this.menuGroupOptionId = menuGroupOptionId;
 	}
 }

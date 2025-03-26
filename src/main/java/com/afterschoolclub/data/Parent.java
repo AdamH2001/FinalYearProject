@@ -82,6 +82,10 @@ public class Parent {
 		return ParentalTransaction.getBalance(this);			
 	}	
 	
+	public int getVoucherBalance() {
+		return ParentalTransaction.getVoucherBalance(this);			
+	}		
+	
 	public int getBalanceOn(LocalDate date) {
 		return ParentalTransaction.getBalanceOn(this, date);			
 	}	
@@ -90,7 +94,13 @@ public class Parent {
 	public String getFormattedBalanceOn(LocalDate date) {
 		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
 		return n.format(getBalanceOn(date)/100.0);		
-	}		
+	}
+	
+	public String getFormattedVoucherBalance() {
+		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
+		return n.format(this.getVoucherBalance() / 100.0);
+	}
+	
 	public String getFormattedBalance() {
 		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
 		return n.format(this.getBalance() / 100.0);
@@ -99,5 +109,10 @@ public class Parent {
 	public boolean hasChildren() {
 		return this.getStudents().size() > 0;		
 	}
-		
+
+	public int numFutureSessionsBooked() {		
+		int result = User.repository.numFutureSessionsBooked(parentId);
+		return result;
+	}
+	
 }

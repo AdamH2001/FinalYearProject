@@ -478,6 +478,22 @@ public class Event {
 		return this.getMaxAttendees() <= this.getNumberAttendees();
 	}
 	
+	public int getOptionCost(int menuGroupOptionId)
+	{
+		int optionCost = 0;
+
+		List <MenuGroup> menuGroups = getMenuGroups();
+		for (MenuGroup menuGroup: menuGroups) {											
+			MenuOption menuOption = menuGroup.getMenuOptionFromGroupOptionId(menuGroupOptionId);
+			if (menuOption != null) {					
+				optionCost = menuOption.getAdditionalCost();
+			}
+		}														
+					
+		return optionCost;
+	}
+	
+/*	
 	public int getOptionCost(int optionId)
 	{
 		int optionCost = 0;
@@ -492,6 +508,9 @@ public class Event {
 					
 		return optionCost;
 	}
+		*/
+	
+	
 	
 	public boolean hasOptions()
 	{									

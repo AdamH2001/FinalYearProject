@@ -9,11 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
-import com.afterschoolclub.data.Resource.State;
 import com.afterschoolclub.data.repository.UserRepository;
+import com.afterschoolclub.service.ProfilePicService;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,8 +25,12 @@ import lombok.ToString;
 @ToString
 public class User {
 
+	
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+    
 	public static UserRepository repository = null;
-
+	public static ProfilePicService profilePicService = null;
 	
 	static Random r = new Random();
 
@@ -81,7 +86,7 @@ public class User {
 		return repository.findStaff();		
 	}			
 	
-	public static List<User> findStaffByState(Resource.State state) {
+	public static List<User> findStaffByState(State state) {
 		return repository.findStaffByState(state);		
 	}			
 	
@@ -108,8 +113,7 @@ public class User {
 	
 	
 	public String getImageURL() {
-	
-		return "https://github.com/mdo.png";
+		return profilePicService.getImageURL(userId);		
 	}
 	
 

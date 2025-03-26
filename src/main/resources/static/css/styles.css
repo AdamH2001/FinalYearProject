@@ -2,9 +2,7 @@ html {
 	height: 100%;
 }
 
-body {
-	min-height: 100%;
-}
+
 
 .height {
 	height: 100vh;
@@ -144,7 +142,10 @@ fieldset {
 	display: none;
 }
 
-
+.holiday {
+	background-color: black;
+	color: white;
+}
 
 .dayevent, .event {
 	background-color: GreenYellow;
@@ -243,8 +244,14 @@ h3 {
 	background-color: white
 }
 
+
+:root {
+  --asc-theme: RGB(36, 38, 68);
+}
+
+
 .bg-navafterschoolclub {
-	background-color: RGB(36, 38, 68);
+	background-color: var(--asc-theme);
 }
 
 afterschoolheader {
@@ -354,6 +361,16 @@ afterschoolheader {
 	 color: #6c757d;   
 }
 
+.nav-link {
+	color: white;
+}
+
+.nav-link:hover {
+	color: #0080FF;
+	
+}
+
+
 .FilterRadio.disabled {
 	background-color: transparent;
 	color: #6c757d;  
@@ -428,23 +445,24 @@ afterschoolheader {
 	}
 
 
-
 .leftnav {
 	padding-left : 5px;
+	padding-right : 2px;
+	
 }
  
 #main {
-	top: 104px;
-	left: 145px;	
+	top: 81px;
+	left: 210px;	
 	position: relative;
 	display: none;
-	margin-left: 15px;
+	margin: 0;
 	
 		
 }
 
 #leftnav {
-	top: 72px; 
+	top: 81px; 
 	
 	left: 0px;
 	position: relative;
@@ -470,6 +488,72 @@ afterschoolheader {
 .RegisterAbsentButton {
 	background-color: white;
 	color: black;
+	
+}
+
+.asc-form-label {
+	text-align: right;
+	/*font-weight: bold; */		
+}
+
+.asc-box {
+  background: orange;
+  border-radius: 5px 5px 0px 0px;
+  text-align: center;
+  color: white;
+  padding: 10px;
+}
+
+.asc-clubimage {
+  border-radius: 5px 5px 0px 0px;
+}
+
+.asc-clubprice {
+  font-size: 20pt;
+}
+
+.asc-clubtitle {
+  font-size: 14pt;
+  color: var(--asc-theme);
+}
+
+body {
+	min-height: 100%;
+	text-align: start;
+    transition-property: opacity, transform;
+   /* font-family: "gf_Poppins variant0", Tofu;*/
+    font-weight: 400;
+    font-style: normal;
+    font-stretch: normal;
+    font-optical-sizing: auto;
+    opacity: 1;
+    line-height: initial;
+    transition-duration: 350ms;
+    color: var(--asc-theme);	
+}
+
+
+.asc-icon{
+	padding-left: 10px;
+	padding-right: 10px;
+	
+
+	
+}
+
+.asc-filter{
+	margin-left: 14px;
+	margin-right: 6px;
+	
+
+	
+}
+
+.asc-filterlabel{
+	margin-left: 14px;
+	margin-right: 10px;
+	
+
 	
 }
 

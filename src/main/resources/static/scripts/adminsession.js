@@ -1,0 +1,115 @@
+
+
+function validateEventForm(event) {
+	
+	var maxMaxAttendees = $("#staff").val().length * 8;
+	var maxAttendees = 	$("#maxAttendees").val();
+	
+	// ensure have enough staff for attendees 
+	
+	if (maxAttendees > maxMaxAttendees) {
+		$("#validationMessage").text("Need at least one member of staff per 8 students.");
+		$("#validationContainer").show();
+		event.preventDefault();		
+	}
+	
+	// ensure if have specified a recurring end date that have also selected a recurring pattern
+	
+	start = new Date($("#startDate").val());	
+	recurringEndDate = new Date($("#recurringEndDate").val());
+	if (+start != +recurringEndDate) {
+		if (!($("#MonRecurring")[0].checked || $("#TueRecurring")[0].checked || $("#WedRecurring")[0].checked || $("#ThurRecurring")[0].checked || $("#FriRecurring")[0].checked || $("#SatRecurring")[0].checked || $("#SunRecurring")[0].checked)) {
+			$("#validationMessage").text("Need to specify a recurring pattern.");
+			$("#validationContainer").show();
+			event.preventDefault();		
+			
+		}
+	}		
+	return;
+}
+
+
+function setDateLimits(){
+	
+	if ($("#viewing").length==0) {
+		var shortestPeriod = 30;
+		  
+		var start = new Date($("#startDate").val());
+		var now = new Date();
+		var isToday = +start == +now;
+		
+		var earliestTime = new Date()
+		earliestTime.setHours(7);
+		earliestTime.setMinutes(0);
+	
+		var lastStartTime = new Date();
+		lastStartTime.setHours(18);
+		lastStartTime.setMinutes(30);
+		
+		var lastEndTime = new Date(lastStartTime).setMinutes(lastStartTime.getMinutes()+shortestPeriod);
+		
+		
+		//set minimum start time 
+		if (isToday) {
+			if (now < earliestTime) {
+				$("#startTime").attr('min', formatTime(earliestTime));
+			}
+			else {
+				$("#startTime").attr('min', formatTime(now));
+			}
+		}
+		else{
+			$("#startTime").attr('min', formatTime(earliestTime));
+		}
+		
+		//set max end and start time 
+		$("#startTime").attr('max', formatTime(lastStartTime));
+		$("#endTime").attr('max', formatTime(lastEndTime));			   
+	
+		//set min time to ensure following shortest period
+		start.setHours(parseInt($("#startTime").val().substring(0,2)));
+		start.setMinutes(parseInt($("#startTime").val().substring(3,5))+shortestPeriod);	
+		$("#endTime").attr('min', formatTime(start) );		
+		
+		// set min date
+		if (now > lastStartTime) {
+			$("#startDate").attr('min', formatDate(now.setDate(now.getDate()+1)));
+		}	
+		else {
+			$("#startDate").attr('min', formatDate(now));
+		}   
+		
+		$("#recurringEndDate").attr('min', $("#startDate").val());
+		
+		// Set maximum year to end of academic year
+		year = start.getYear()+1900;
+		if (start.getMonth() >=8) {
+			year++;
+		}
+		$("#recurringEndDate").attr('max', year+'-08-31');
+		
+		
+		if ($("#recurringEndDate").val() == "") {
+			$("#recurringEndDate").val($("#startDate").val());
+		}
+		else {
+			start = new Date($("#startDate").val());
+			recurEnd = new Date($("#recurringEndDate").val()); 
+		
+			if (recurEnd < start) {
+				$("#recurringEndDate").val($("#startDate").val());
+			}
+		}
+		if (($("#startDate").val() == $("#recurringEndDate").val())) {
+			$(".recurSpecifier").prop("disabled", true);
+			$(".recurSpecifier").css("color", "grey");
+			$(".recurSpecifier").prop("checked", false);
+		}
+		else {
+			$(".recurSpecifier").prop("disabled", false);
+			$(".recurSpecifier").css("color", "black");
+		}
+	}
+	
+		
+  };

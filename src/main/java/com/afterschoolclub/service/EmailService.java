@@ -1,4 +1,4 @@
-package com.afterschoolclub;
+package com.afterschoolclub.service;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>After School Club</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"> </script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/styles.css"/>
+	<script src="./scripts/afterschoolclub.js"></script>	
+	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>
+
+
+<style>
+
+
+
+</style>
+</head>
+<body class="asc-clubtext">
+	<div th:replace="~{fragments/header :: header}"></div>
+	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
+
+
+	<div id="main" class="main container-flex no-margin ">
+					
+		<div class="row mb-2 asc-clubtitle">					
+			<div class="col-sm-12" >
+				<h1 align="center" style="color: black">Clubs</h1>
+				<p >Welcome to our website, your one-stop destination for booking your child into a variety of exciting after-school clubs! Whether your child is interested in joining 
+				the harmony of our Choir Club, getting active in Football or Tennis, exploring the wonders of Science, or starting their day with a positive vibe at Breakfast Club, we have 
+				something for every interest and age group. With a wide range of engaging and enriching activities available, it’s easy to find the perfect club to help your child develop new skills, 
+				make friends, and have fun. Simply browse through our options and book your child’s place today! </p> 
+			</div>					
+		</div>
+				
+				
+		<div class="row mb-2">				
+			<div class="col-sm-12">
+				<input class="form-control" id="filter" type="text" placeholder="Search...">
+			</div>			
+		</div>
+					
+		<div class="row mb-2 filterrow" th:each="club : ${allClubs}">
+			<div class="col-sm-6">
+				<th:block th:if="${sessionBean.isAdminLoggedOn()}">
+					<a th:href="${'./editClub?clubId=' + club.getClubId()}">
+						<img class="w-100 asc-clubimage" th:src="${club.getImageURL()}" />
+					</a>
+				</th:block>
+				<th:block th:unless="${sessionBean.isAdminLoggedOn()}">
+					<a th:href="${'./calendar?filterClub=' + club.getClubId()}">								
+						<img class="w-100 asc-clubimage" th:src="${club.getImageURL()}" />
+					</a>					
+				</th:block>
+				
+			</div>
+			<div class="col-sm-6">
+				<div class="container-flex no-margin h-100">
+					<div class="row h-50">
+						<div class="col-sm-7">
+							<div class="row">
+								<div class="col-sm-12 asc-clubtitle" th:text="${club.getTitle()}"></div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<span>Suitable for: </span><span th:text="${club.getSuitableFor()}"></span>
+									<span style="display:none" th:text="${club.getSuitableYears()}"></span>
+								</div>								
+							</div>
+							<div th:if="${club.getRegularSpecification().getRegularDays().length()>0}" class="row">
+								<div class="col-sm-12">
+									<span>Occurs: </span><span th:text="${club.getRegularSpecification().getRegularDaysDisplay()}"></span>									
+								</div>	
+								<span style="display:none" th:text="${club.getRegularSpecification().getRegularDays()}"></span>
+															
+							</div>
+							
+														
+						</div>
+						<div class="col-sm-5" >
+							<div class="asc-box">
+								<span>from</span>
+								<span class="asc-clubprice" th:text="${club.getFormattedBasePrice()}"> </span>
+								<br/>
+								<span>per session</span>								
+							</div>
+						</div>
+					</div>
+					<div class="row h-50">
+						<div class="col-sm-12" th:text="${club.getDescription()}"></div>
+						<span style="display:none" th:text="${club.getKeywords()}"></span>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="spacer">&nbsp;</div>
+	</div>
+
+<script>
+
+function getSearchTerms(text) {
+
+	//The parenthesis in the regex creates a captured group within the quotes
+	var myRegexp = /[^\s"]+|"([^"]*)"/gi;
+	var myString = text.toLowerCase().trim();
+	var myArray = [];
+
+	do {
+	    //Each call to exec returns the next regex match as an array
+	    var match = myRegexp.exec(myString);
+	    if (match != null)
+	    {
+	        //Index 1 in the array is the captured group if it exists
+	        //Index 0 is the matched text, which we use if no captured group exists
+	        myArray.push(match[1] ? match[1] : match[0]);
+	    }
+	} while (match != null);
+	return myArray;
+}
+
+
+$(document).ready(function(){
+	  $("#filter").on("keyup", function() {
+	    var words = getSearchTerms($(this).val());
+	    
+	    $(".filterrow").filter(function() {
+	    	$(this).toggle(shouldFilter(this, words))
+	    });			    			    
+	  });
+	   
+	});
+
+
+</script>
+
+</body>
+</html>

@@ -1,12 +1,12 @@
 package com.afterschoolclub.data;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.MappedCollection;
-
+import org.springframework.data.annotation.Transient;
+import com.afterschoolclub.data.repository.MenuGroupOptionRepository;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,19 +23,43 @@ public class MenuGroupOption {
 	private int menuOptionId;
 	private int menuGroupId;
 	
+	private State state = State.ACTIVE;
 	
-	@MappedCollection(idColumn = "menu_option_id")
-	private Set<MenuOption> menuOptions = new HashSet<>();
+	@Transient
+	private transient MenuOption menuOption = null; 
 	
+	static public MenuGroupOptionRepository repository;
+	
+		
+	public MenuOption getMenuOption() {		
+		if (menuOption == null) {
+			menuOption = MenuOption.findById(menuOptionId);
+		}
+		return menuOption;
+		
+	}	
 	
 
-	
-	public MenuOption getMenuOption() {
-		MenuOption result = null;
-		Iterator<MenuOption> iterator = menuOptions.iterator();
-		while (iterator.hasNext() && result == null) {
-			result = iterator.next(); 
-		}
-		return result;
+
+	public static List<MenuGroupOption> findAll() {
+		return  new ArrayList<>((Collection<? extends MenuGroupOption>) repository.findAll());		
 	}	
+	
+	public static MenuGroupOption findById(int id) {
+		Optional<MenuGroupOption> o = repository.findById(Integer.valueOf(id)); 
+		return o.isPresent() ? o.get() : null;
+	}
+	
+	
+	public boolean isActive() {
+		return state == State.ACTIVE;
+	}
+	
+	public void save()
+	{
+		repository.save(this);
+	}
+	
+	
+	
 }
