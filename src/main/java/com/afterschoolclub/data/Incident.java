@@ -53,7 +53,7 @@ public class Incident {
 	}
 	
 	public boolean involves(int attendeeId) {		
-        return getAttendeeIncident(attendeeId) == null;
+        return getAttendeeIncident(attendeeId) != null;
 	} 
 	
 	public AttendeeIncident getAttendeeIncident(int attendeeId) {
