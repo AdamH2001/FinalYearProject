@@ -61,7 +61,7 @@
 											<select name="attendeeId" id="newAttendee"  onChange="changedStudent()">
 											    <option value="0">Select Student...</option> 
 												<option th:each="attendee : ${event.getSortedAttendees()}"
-													th:disabled="${incident.involves(attendee.getAttendeeId())}" th:value="${attendee.getAttendeeId()}" th:text="${attendee.getStudent().getFullName()}">AttendeeId</option>
+													th:disabled="${incident.involves(attendee.getAttendeeId())}  or ${!event.didAttend(attendee.getStudent())}" th:value="${attendee.getAttendeeId()}" th:text="${attendee.getStudent().getFullName()}">AttendeeId</option>
 											</select>
 										</div>
 										<div class="col-sm-9">
