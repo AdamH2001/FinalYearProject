@@ -240,7 +240,6 @@ public class MainController {
 	    if (sessionBean.isLoggedOn()) {
 			returnPage = setupCalendar(model);			
 	    }
-	    paypalService.getAllWebProfiles();
 	    return returnPage;
 	}
 
