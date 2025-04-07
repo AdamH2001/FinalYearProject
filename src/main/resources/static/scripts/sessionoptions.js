@@ -198,33 +198,6 @@ function activateStudent(elementId) {
 
 
 
-function updateRegisterButtons(button) {	
-	if (button.classList.contains("RegisterPresentButton")) {
-		button.classList.remove("Absent");		
-		button.classList.add("Present");
-		
-		
-		
-		$("#" + button.id.replace("PresentButton", "attendee")).val("Present");
-
-		
-		$("#" + button.id.replace("PresentButton", "AbsentButton"))[0].classList.remove("Absent");
-		$("#" + button.id.replace("PresentButton", "AbsentButton"))[0].classList.add("Present");		
-			
-	}
-	else {
-		button.classList.remove("Present");
-		button.classList.add("Absent");
-		
-		$("#" + button.id.replace("AbsentButton", "attendee")).val("Absent");
-		$("#" + button.id.replace("AbsentButton", "PresentButton"))[0].classList.remove("Present");
-		$("#" + button.id.replace("AbsentButton", "PresentButton"))[0].classList.add("Absent");																	
-	}	
-	return false;
-}
-
-
-
 
 
 
