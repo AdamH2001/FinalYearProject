@@ -29,6 +29,13 @@ public interface EventRepository extends CrudRepository<Event, Integer> {
 	@Query("SELECT e.* FROM event e, event_resource er where er.resource_id=:resourceId and er.event_id = e.event_id and e.start_date_time > NOW() order by e.start_date_time")
 	List<Event> findByFutureDemandOnResourceId(int resourceId);
 	
+	@Query("SELECT DISTINCT e.* FROM event e, incident i where i.event_id = e.event_id order by  start_date_time desc")
+	List<Event> findAllWithIncidents();
+	
+	
+	@Query("SELECT DISTINCT  e.* FROM after_school_club2.event e, incident i, attendee_incident ai, attendee a  where i.event_id = e.event_id and ai.attendee_id = a.attendee_id and a.event_id = e.event_id and a.student_id = :studentId order by  start_date_time desc")
+	List<Event> findAllWithIncidentsForStudent(int studentId);	
+
 	
 	
 }

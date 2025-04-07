@@ -321,13 +321,22 @@
 											th:id="${'item' + (iter.index+1) + 'buttons'}"
 											th:style="${iter.last}?'':'display:none'">
 											<button type="button" th:unless="${iter.index==10}"
-												th:id="${'add' +(iter.index+1)}" class="btn btn-secondary"
-												onClick="addRow(this)">+</button>
+												th:id="${'add' +(iter.index+1)}" class="btn imagebtn btn-success"
+												onClick="addRow(this)"><i class="fa fa-plus"></i></button>
 											<button type="button" th:unless="${iter.first}"
-												th:id="${'remove' +(iter.index+1)}" class="btn btn-secondary"
-												onCLick="removeRow(this)">-</button>
+												th:id="${'remove' +(iter.index+1)}" class="btn imagebtn btn-danger"
+												onCLick="removeRow(this)"><i class="fa fa-trash"></i></button>
 										</div>
 									</div>
+									
+									
+									
+									
+					
+									
+									
+									
+									
 	
 									<div th:unless="${viewing}"
 										th:each="i : ${#numbers.sequence(clubSession.getActiveEquipmentEventResources().size()+1, 10)}"
@@ -358,11 +367,11 @@
 										</div>
 										<div class="col-sm-3" th:id="${'item' + i + 'buttons'}">
 											<button type="button" th:unless="${i==10}"
-												th:id="${'add' + i}" class="btn btn-secondary"
-												onClick="addRow(this)">+</button>
+												th:id="${'add' + i}" class="btn imagebtn btn-success"
+												onClick="addRow(this)"><i class="fa fa-plus"></i></button>
 											<button type="button" th:unless="${i==1}"
-												th:id="${'remove' + i}" class="btn btn-secondary"
-												onCLick="removeRow(this)">-</button>
+												th:id="${'remove' + i}" class="btn imagebtn btn-danger"
+												onCLick="removeRow(this)"><i class="fa fa-trash"></i></button>
 										</div>
 									</div>
 								</div>

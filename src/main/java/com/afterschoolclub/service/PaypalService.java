@@ -6,6 +6,7 @@ import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -81,19 +82,71 @@ public class PaypalService {
     	return Payment.get(apiContext, paymentId);
     }
     
+    public int refundSale(
+            String salesId,
+            int	amountInPence
+    ) throws PayPalRESTException {
+    	Sale s = Sale.get(apiContext, salesId);
+    	
+    	RefundRequest rr = new RefundRequest();
+    	
+    	rr.setReason("Services not used");
+    	rr.setDescription("Services not used");
+    				
+		Amount a = new Amount();
+		a.setCurrency("GBP");				
+		DecimalFormat df = new DecimalFormat("#0.00");
+		double amountInPounds =  amountInPence;
+		amountInPounds = amountInPounds / 100;		
+		a.setTotal(df.format(amountInPounds));		
+		rr.setAmount(a);		
+				
+		DetailedRefund dr = s.refund(apiContext, rr);
+		String refundedAmount = dr.getAmount().getTotal();
+		System.out.println("Refunded ".concat(refundedAmount));
+		double d = Double.parseDouble(refundedAmount);
+		int refundedAmountInPence = (int)(d * 100);
+		
+		return refundedAmountInPence;
+    }
+    
+    
+    public void getAllWebProfiles() {
+		try {
+
+			List<WebProfile> allProfiles = WebProfile.getList(apiContext);
+			System.out.print(allProfiles);
+		}
+		catch (PayPalRESTException e){
+			e.printStackTrace();
+			webProfileId = null;
+		}		
+    }
     
     public String getDefaultWebProfileId() throws PayPalRESTException 
     {
+    	return "XP-C93W-UV9V-WNMD-HMBF";
+    	/*
     	if (webProfileId == null) {
 			InputFields inputFields = new InputFields();
 			inputFields.setNoShipping(1);
+			
+			
+			
 			WebProfile webProfile   = new WebProfile();
-			webProfile.setName(Integer.valueOf(new Random().nextInt()).toString());
+			String name = "tmpProfile-".concat(Integer.valueOf(new Random().nextInt()).toString());
+			webProfile.setName(name);
 			webProfile.setTemporary(true);
-			webProfile.setInputFields(inputFields);			
-			webProfileId = webProfile.create(apiContext).getId();
+			webProfile.setInputFields(inputFields);		
+			try {
+				webProfileId = webProfile.create(apiContext).getId();
+			}
+			catch (PayPalRESTException e){
+				e.printStackTrace();
+				webProfileId = null;
+			}
     	}
-		return webProfileId;
+		return webProfileId; */
     }
 
 	

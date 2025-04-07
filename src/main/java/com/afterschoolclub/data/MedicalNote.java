@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 
 
 
@@ -25,6 +26,8 @@ public class MedicalNote {
 	private int medicalNoteId;
 	private Type noteType;
 	private String note;
+	AggregateReference<Student, Integer> studentId;
+
 	
 	/**
 	 * @param noteType

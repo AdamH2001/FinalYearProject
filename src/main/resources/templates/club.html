@@ -23,6 +23,8 @@
 
 		<form action="./addClub" method="post">
 			<input type="hidden" th:value="${club.getClubId()}" name="clubId" />
+			<input th:value="${tempFilename}" type="hidden" name="tempFilename"  />
+						
 			<div class="col py-3">
 
 				<div class="row mb-2">
@@ -71,6 +73,17 @@
 							name="basePrice" id="basePrice" />
 					</div>
 				</div>
+				
+				<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label">
+						<label for="basePrice">Accept Vouchers:</label>
+					</div>
+					<div class="col-sm-10 ">
+						<input class="form-check-input"   type="checkbox" th:checked="${club.isAcceptsVouchers()}"
+							name="acceptsVouchers" id="acceptsVouchers" />
+					</div>
+				</div>
+				
 
 				<div class="row mb-2 ">
 					<div class="col-sm-2 asc-form-label">
@@ -125,7 +138,7 @@
 	    // Add the uploaded image content to the form data collection
 
 	    data.append("file", file);     
-	    data.append("id", id);
+	    data.append("filename", id);
 
 	    // Make Ajax request with the contentType = false, and procesDate = false
 	    var ajaxRequest = $.ajax({
@@ -144,18 +157,11 @@
 	}
 
 
-	function uploadImage(){
-	    var files = event.target.files;
-	    if (files.length > 0) {
-	    	id = event.target.parentElement.getAttribute("for").replace("profilePic-", "");
-			uploadFile(files[0], id);
-	    }	
-	  }
 	  
 	function uploadNewImage(){
 	    var files = event.target.files;
 	    if (files.length > 0) {    	
-			uploadFile(files[0], "u"+$("#loggedOnUser")[0].innerText);
+			uploadFile(files[0],  $("input[name=tempFilename]").val());
 	    }	
 	  }  
 

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.data.Attendee;
+import com.afterschoolclub.data.AttendeeIncident;
 import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Event;
 import com.afterschoolclub.data.EventMenu;
@@ -29,11 +30,15 @@ import com.afterschoolclub.data.Holiday;
 import com.afterschoolclub.data.Incident;
 import com.afterschoolclub.data.MenuGroup;
 import com.afterschoolclub.data.MenuOption;
+import com.afterschoolclub.data.Parent;
+import com.afterschoolclub.data.ParentalTransaction;
 import com.afterschoolclub.data.RecurrenceSpecification;
 import com.afterschoolclub.data.Resource;
 import com.afterschoolclub.data.Resource.Type;
 import com.afterschoolclub.service.ClubPicService;
 import com.afterschoolclub.service.DisplayHelperService;
+import com.afterschoolclub.service.PaypalService;
+import com.paypal.base.rest.PayPalRESTException;
 import com.afterschoolclub.data.ResourceStatus;
 import com.afterschoolclub.data.State;
 import com.afterschoolclub.data.Student;
@@ -52,6 +57,10 @@ public class AdminController {
 	
 	@Autowired	
     private MainController mainController;
+
+	@Autowired	
+    private PaypalService paypalService;
+
 	
     private final SessionBean sessionBean;	
         
@@ -96,6 +105,20 @@ public class AdminController {
 	}
 	
 	
+    @GetMapping("/adminViewIncidents")
+    public String updateAdminFilters(Model model) 
+    {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {
+			setInDialogue(false,model);
+			List<Event> allIncidentEvents = Event.findAllWithIncidents();
+			model.addAttribute("incidentEvents", allIncidentEvents);	
+			this.setInDialogue(false,model);							
+			returnPage = "adminIncidents";
+		}		
+		return returnPage;
+    }   
+    
     
     @PostMapping("/updateAdminFilters")
     public String updateAdminFilters(
@@ -119,22 +142,46 @@ public class AdminController {
 
 
 	@PostMapping("/addIncident")
-	public String addIncident(@RequestParam(name = "attendee") int attendeeId,
-			@RequestParam(name = "summary") String summary, int eventId, Model model) {
+	public String addIncident(
+			@RequestParam(name = "attendeeId") List<Integer> allAttendees,
+			@RequestParam(name = "attendeeNotes") List<String> allAttendeeNotes,			
+			@RequestParam(name = "incidentSummary") String summary,
+			@RequestParam(name = "eventId") int eventId,
+			@RequestParam(name = "incidentId") int incidentId,								
+			Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {
 			Event event = Event.findById(eventId);						
-			if (event!=null) {	
-				Attendee attendee = event.getAttendee(attendeeId);
-				Incident newIncident = new Incident(AggregateReference.to(event.getEventId()), summary);
-				attendee.addIncident(newIncident);
+			if (event!=null) {
+				Incident incident = null;			
+				if (incidentId == 0) { // Need to create a new incident
+					incident = new Incident();
+					event.addIncident(incident);
+				}
+				else { // We are updating an existing incident
+					incident = event.getIncident(incidentId);					
+					incident.resetAttendees();
+				}				
+				incident.setSummary(summary);				
+				for (int i = 0; i < allAttendees.size(); i++) {
+					int attendeeId = allAttendees.get(i).intValue();
+					if (attendeeId != 0) {
+						String attendeeNotes = allAttendeeNotes.get(i);					
+						incident.addAttendeeIncident(new AttendeeIncident(AggregateReference.to(attendeeId), attendeeNotes));
+					}
+				}
 				event.save();
 				model.addAttribute("flashMessage", "Incident has been added");
 			}
 			else {
 				model.addAttribute("flashMessage","Link out of date");
 			}
-			returnPage = setupCalendar(model);					
+			if (incidentId != 0) {
+				returnPage = "redirect:/adminViewIncidents";
+			}
+			else {
+				returnPage = setupCalendar(model);
+			}
 		}
 		return returnPage;
 	}    
@@ -190,8 +237,13 @@ public class AdminController {
 						attendee.setStudent(student);
 					}					
 				}
-				model.addAttribute("event",event);
-				this.setInDialogue(true,model);
+				model.addAttribute("incident", new Incident());
+				model.addAttribute("isViewing", false);
+				model.addAttribute("isEditing", false);
+				model.addAttribute("isCreating", true);
+				model.addAttribute("event",event);				
+				model.addAttribute("incident", new Incident());
+				this.setInDialogue(true,model);				
 				returnPage = "createincident";			
 			}
 			else {
@@ -201,6 +253,106 @@ public class AdminController {
 		}
 		return returnPage;
 	}	
+	
+	@GetMapping("/adminViewIncident")
+	public String viewIncident(@RequestParam (name="eventId") int eventId, @RequestParam (name="incidentId") int incidentId,  Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {
+			Event event = Event.findById(eventId);
+			if (event != null) {
+				Incident incident = event.getIncident(incidentId);
+				if (incident !=null) {				
+					for (Attendee attendee: event.getAttendees()) {
+						List<Student> studList = Student.findByAttendeeId(attendee.getAttendeeId());
+						
+						for (Student student: studList) {
+							logger.info("student = {}", student);
+							attendee.setStudent(student);
+						}					
+					}
+					model.addAttribute("incident", new Incident());
+					model.addAttribute("isViewing", true);
+					model.addAttribute("isEditing", false);
+					model.addAttribute("isCreating", false);
+					model.addAttribute("event",event);				
+					model.addAttribute("incident", incident);
+					this.setInDialogue(false,model);
+					
+					returnPage = "createincident";		
+				}
+				else {
+					model.addAttribute("flashMessage","Link out of date");
+					returnPage = "redirect:/adminViewIncidents";				
+				}				
+			}
+			else {
+				model.addAttribute("flashMessage","Link out of date");
+				returnPage = "redirect:adminViewIncidents";
+			}
+		}
+		return returnPage;
+	}	
+	
+	@GetMapping("/adminEditIncident")
+	public String editIncident(@RequestParam (name="eventId") int eventId, @RequestParam (name="incidentId") int incidentId,  Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {
+			Event event = Event.findById(eventId);
+			if (event != null) {
+				Incident incident = event.getIncident(incidentId);
+				if (incident != null ) {
+					for (Attendee attendee: event.getAttendees()) {
+						List<Student> studList = Student.findByAttendeeId(attendee.getAttendeeId());
+						
+						for (Student student: studList) {
+							logger.info("student = {}", student);
+							attendee.setStudent(student);
+						}					
+					}
+					model.addAttribute("incident", new Incident());
+					model.addAttribute("isViewing", false);
+					model.addAttribute("isEditing", true);
+					model.addAttribute("isCreating", false);
+					model.addAttribute("event",event);				
+					model.addAttribute("incident", incident);
+					this.setInDialogue(true,model);
+					
+					returnPage = "createincident";								
+				}
+				else {
+					model.addAttribute("flashMessage","Link out of date");
+					returnPage = "redirect:adminViewIncidents";						
+				}
+			}
+			else {
+				model.addAttribute("flashMessage","Link out of date");
+				returnPage = "redirect:adminViewIncidents";
+			}
+		}
+		return returnPage;
+	}		
+	
+	@GetMapping("/adminDeleteIncident")
+	public String adminDeleteIncident(@RequestParam (name="eventId") int eventId, @RequestParam (name="incidentId") int incidentId,  Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {
+			Event event = Event.findById(eventId);
+			if (event != null) {
+				event.removeIncident(incidentId);
+				event.save();
+				returnPage = "redirect:/adminViewIncidents";									
+			}
+			else {
+				model.addAttribute("flashMessage","Link out of date");
+				returnPage = "redirect:adminViewIncidents";	
+			}
+		}
+		return returnPage;
+	}		
+	
+	
+	
+	
 	
 	
 	@PostMapping("/addRegister")
@@ -620,9 +772,11 @@ public class AdminController {
 		if (returnPage == null) {		
 			Club club = new Club();
 			model.addAttribute("club", club);
-			model.addAttribute("isEditing", false);						
+			model.addAttribute("isEditing", false);	
+			model.addAttribute("tempFilename", clubPicService.getTempfilename());
+			
 			this.setInDialogue(true,model);
-			returnPage = "createclub";
+			returnPage = "club";
 		}
 		return returnPage;
 	}
@@ -634,9 +788,11 @@ public class AdminController {
 		if (returnPage == null) {		
 			Club club = Club.findById(clubId);
 			model.addAttribute("club", club);	
-			model.addAttribute("isEditing", true);						
+			model.addAttribute("isEditing", true);
+			model.addAttribute("tempFilename", clubPicService.getTempfilename());
+			
 			this.setInDialogue(true,model);
-			returnPage = "createclub";
+			returnPage = "club";
 		}
 		return returnPage;
 	}
@@ -656,13 +812,17 @@ public class AdminController {
 			@RequestParam(name = "year3", defaultValue="false") boolean yearThreeCanAttend,
 			@RequestParam(name = "year4", defaultValue="false") boolean yearFourCanAttend,
 			@RequestParam(name = "year5", defaultValue="false") boolean yearFiveCanAttend,
-			@RequestParam(name = "year6", defaultValue="false") boolean yearSixCanAttend, Model model) {		
+			@RequestParam(name = "year6", defaultValue="false") boolean yearSixCanAttend,
+			@RequestParam(name = "acceptsVouchers", defaultValue="false") boolean acceptsVouchers,			
+			@RequestParam (name = "tempFilename")	String tempFilename, 
+			Model model) {		
 		this.setInDialogue(false,model);
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {
 			Club club;
 			if (clubId == 0) {
 				club = new Club(title, description, basePrice, yearRCanAttend, yearOneCanAttend, yearTwoCanAttend, yearThreeCanAttend, yearFourCanAttend, yearFiveCanAttend, yearSixCanAttend, keywords);
+				club.setAcceptsVouchers(acceptsVouchers);
 				club.save();
 				model.addAttribute("flashMessage","Created Club.");
 			}
@@ -679,17 +839,201 @@ public class AdminController {
 				club.setYear5CanAttend(yearFiveCanAttend);
 				club.setYear6CanAttend(yearSixCanAttend);
 				club.setKeywords(keywords);
+				club.setAcceptsVouchers(acceptsVouchers);				
 				club.save();
 				model.addAttribute("flashMessage","Updated Club.");	
 			}
-			clubPicService.renameImage(sessionBean.getLoggedOnUser(), club);
-			
-			
-						
-
-			returnPage = setupCalendar(model);
+			clubPicService.renameImage(tempFilename, club);
+			returnPage = sessionBean.getRedirectUrl();
 		}
 		return returnPage;
 
+	}
+	
+	@GetMapping("/clubRevenue")
+	public String viewTransactions(Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {	
+			model.addAttribute("clubs",Club.findAll());			
+			model.addAttribute("totalRevenue",ParentalTransaction.getTotalRevenueBetween(sessionBean.getFinanceStartDate(), sessionBean.getFinanceEndDate()));				
+			
+			sessionBean.setReturnTransactions(); //TODO set diffeent page
+			this.setInDialogue(false,model);
+			returnPage= "clubRevenue";
+		}
+		return returnPage;
+		
+		
+	}
+	
+	@GetMapping("/parentFinances")
+	public String parentFinances(Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {	
+			model.addAttribute("users",User.findParents());
+			
+			model.addAttribute("totalOverdraftLimit",Parent.getTotalOverdraftLmit());				
+			
+			sessionBean.setReturnTransactions(); //TODO set diffeent page
+			this.setInDialogue(false,model);
+			returnPage= "parentFinance";
+		}
+		return returnPage;
+		
+		
+	}
+	
+	
+	
+	@GetMapping("/clubRevenueBack")
+	public String transactionBack(Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {				
+			sessionBean.setFinanceStartDate(sessionBean.getFinanceStartDate().minusYears(1));
+			returnPage = "redirect:./clubRevenue";
+		}
+		return returnPage;			
+	}
+	
+	@GetMapping("/clubRevenueForward")
+	public String transactionForward(Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {		
+			sessionBean.setFinanceStartDate(sessionBean.getFinanceStartDate().plusYears(1));
+			returnPage = "redirect:./clubRevenue";
+		}
+		return returnPage;	
 	}	
+
+	
+	@GetMapping("/adminViewTransactions")
+	public String viewTransactions(	@RequestParam(name = "userId") int userId,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {	
+			LocalDate start = sessionBean.getTransactionStartDate();
+			LocalDate end = start.plusMonths(1);
+			User user = User.findById(userId);
+			Parent parent = user.getParent();
+			
+
+			List<ParentalTransaction> transactions = parent.getTransactions(start,end);
+			
+			int openingBalance = parent.getBalanceOn(start);
+			int closingBalance = parent.getBalanceOn(end);
+			int openingVoucherBalance = parent.getVoucherBalanceOn(start);
+			int closingVoucherBalance = parent.getVoucherBalanceOn(end);			
+			
+			model.addAttribute("openingBalance",openingBalance);
+			model.addAttribute("closingBalance",closingBalance);
+			model.addAttribute("openingVoucherBalance",openingVoucherBalance);
+			model.addAttribute("closingVoucherBalance",closingVoucherBalance);			
+			model.addAttribute("transactions",transactions);
+			model.addAttribute("user",user);
+			
+			sessionBean.setReturnTransactions(); //TODO set return url
+
+			this.setInDialogue(false,model);
+			returnPage= "viewtransactions";
+		}
+		return returnPage;
+		
+		
+	}
+	
+	@GetMapping("/deleteUser")
+	public String deleteUser(	@RequestParam(name = "userId") int userId,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {				
+			User user = User.findById(userId);
+			user.setState(State.INACTIVE);
+			user.update();			
+			returnPage= "redirect:parentFinances";
+		}
+		return returnPage;				
+	}	
+	
+	@PostMapping("/updateOverdraft")
+	public String updateOverdraft(@RequestParam(name = "userId") int userId,
+			@RequestParam(name = "overdraftLimit") int overdraftLimit,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {				
+			User user = User.findById(userId);
+			Parent parent = user.getParent();
+			parent.setOverdraftLimit(overdraftLimit);
+			parent.update();			
+			returnPage= "redirect:parentFinances";
+		}
+		return returnPage;
+	}		
+	
+	@PostMapping("/registerVoucher")
+	public String registerVoucher(@RequestParam(name = "userId") int userId,
+			@RequestParam(name = "voucherAmount") int voucherAmount,
+			@RequestParam(name = "voucherReference") String voucherReference,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {			
+			
+			User user = User.findById(userId);
+			Parent parent = user.getParent();									
+			ParentalTransaction pt = new ParentalTransaction(voucherAmount, LocalDateTime.now(), ParentalTransaction.Type.DEPOSIT, "Voucher Registered");
+			pt.setPaymentReference(voucherReference);
+			pt.setBalanceType(ParentalTransaction.BalanceType.VOUCHER);			
+
+			parent.addTransaction(pt);			
+			user.save();
+			
+			
+			returnPage= "redirect:parentFinances";
+		}
+		return returnPage;
+	}		
+	
+	@GetMapping("/refundUser")
+	public String refundUser(@RequestParam(name = "userId") int userId,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {					
+			User user = User.findById(userId);
+			Parent parent = user.getParent();
+			int balance = parent.getBalance();
+			int remainingRefund = balance;
+			
+			List<ParentalTransaction> allTopUps = parent.getCashTopUps();
+			
+			Iterator<ParentalTransaction> itr = allTopUps.iterator();
+			
+			while (remainingRefund > 0 && itr.hasNext()) {
+				ParentalTransaction pt = itr.next();
+				
+				int refundedAmount =0;
+				try {
+					refundedAmount = paypalService.refundSale(pt.getPaymentReference(), remainingRefund);
+				}
+				catch (PayPalRESTException e) {
+					e.printStackTrace(); // TODFO could observe timeout but may have actually refunded
+					refundedAmount = 0;
+				}
+				remainingRefund -= refundedAmount;
+				logger.info("Refunded {}", refundedAmount);
+				
+				if (refundedAmount > 0) {
+					ParentalTransaction withdrawTrans = new ParentalTransaction(refundedAmount, LocalDateTime.now(), ParentalTransaction.Type.WITHDRAWAL, "Withdrawn Cash");
+					parent.addTransaction(withdrawTrans);					
+				}
+			}
+			if (remainingRefund != balance) {
+				user.save();
+			}
+			returnPage= "redirect:parentFinances";
+		}
+		return returnPage;
+	}	
+	
+	
+	
+	
 }

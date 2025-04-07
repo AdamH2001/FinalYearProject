@@ -311,21 +311,6 @@ function addNewStaff(event) {
 
 
 
-$(document).ready(function(){
-  $("#filter").on("keyup", function() {
-    var words = $(this).val().toLowerCase().trim().split(/\s+/);
-    
-    $("#equipmentList").find(".filterrow").filter(function() {
-    	$(this).toggle(shouldFilter(this, words))
-    });
-    $("#staffList").find(".filterrow").filter(function() {
-    	$(this).toggle(shouldFilter(this, words))
-      });
-    $("#locationList").find(".filterrow").filter(function() {
-    	$(this).toggle(shouldFilter(this, words))
-      });
-  });
-});
 
 
 function insertEditControl(parent) {

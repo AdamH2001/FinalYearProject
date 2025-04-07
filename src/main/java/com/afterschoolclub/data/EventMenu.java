@@ -13,6 +13,8 @@ public class EventMenu {
 	@Id
 	private int eventMenuId;
 	AggregateReference<MenuGroup, Integer> menuGroupId;	
+	AggregateReference<Event, Integer> eventId;	
+	
 	
 	public EventMenu() {
 		super();	
@@ -28,5 +30,11 @@ public class EventMenu {
 		this.menuGroupId = em.menuGroupId;
 
 	}
+	
+	public int getMenuGroupIdAsInt() {
+		return menuGroupId.getId().intValue();
+	}	
+	
+	
 }
 

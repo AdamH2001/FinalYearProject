@@ -18,47 +18,163 @@
 
 	
 	<div id="main" class="main container-flex no-margin ">
-
 			<form action="./addIncident" method="post">
+				<input type=hidden name="eventId" th:value="${event.getEventId()}"/>							
+				<input type=hidden name="incidentId" th:value="${incident.getIncidentId()}"/>							
+			
+			
 				<div class="col py-3">
-					<h1 align="center">
-						Report Incident for <span th:text="${event.getClub().getTitle()}"></span>
-					</h1>
+					<h1 th:if="${isViewing}" align="center">Incident for <span th:text="${event.getClub().getTitle()}"></span></h1>
+					<h1 th:if="${isEditing}" align="center">Update Incident for <span th:text="${event.getClub().getTitle()}"></span></h1>
+					<h1 th:if="${isCreating}" align="center">Record Incident for <span th:text="${event.getClub().getTitle()}"></span></h1>
 					<div class="row mb-2">
-						<div class="col-sm-2" align="center">
-							<label for="students">Attendee:</label>
+						<div class="col-sm-2 asc-form-label" align="center">
+							<label for="summary">Incident Summary:</label>
 						</div>
-						<div class="col-sm-6">
-							<select name="attendee" id="attendee" required>
-								<option th:each="attendee : ${event.getSortedAttendees()}"
-									th:value="${attendee.getAttendeeId()}" th:text="${attendee.getStudent().getFullName()}">AttendeeId</option>
-							</select>
-						</div>
-
-					</div>
-					<div class="row mb-2">
-						<div class="col-sm-2" align="center">
-							<label for="summary">Summary:</label>
-						</div>
-						<div class="col-sm-6">
+						<div class="col-sm-9">
 							<textarea class="form-control form-control-sm mr-sm-2" required
-								name="summary" id="summary"></textarea>
-							<input type=hidden name="eventId" th:value="${event.getEventId()}"/>							
+								name="incidentSummary" th:readonly="${isViewing}"  id="incidentSummary" th:text="${incident.getSummary()}"></textarea>
 						</div>
 					</div>
-
+					
+					<div th:if="${isEditing or isCreating or incident.getAttendeeIncidents().size()>0}" class="row mb-2">
+						<div class="col-sm-2 asc-form-label" align="center">
+							<label for="students">Attendee Notes:</label>
+						</div>
+						<div class="col-sm-9" align="center">
+							<fieldset class="form-group border p-3">
+								<div class="container-fluid no-margin">
+									<div th:each="attendeeIncident : ${incident.getAttendeeIncidents()}" class="row mb-2" th:id="${attendeeIncident.getAttendeeId().getId().intValue()}" th:studentName="${attendeeIncident.getStudent(event).getFullName()}">
+										<div class="col-sm-2" style="padding-top:12px" th:text="${attendeeIncident.getStudent(event).getFullName()}"></div>
+										<input type="hidden" name="attendeeId" th:value="${attendeeIncident.getAttendeeId().getId().intValue()}" />
+										<div th:class="${isViewing? 'col-sm-10' : 'col-sm-9'}">
+											<textarea class="form-control form-control-sm mr-sm-2" th:readonly="${isViewing}" name="attendeeNotes" id="attendeeNotes" th:text="${attendeeIncident.getSummary()}"></textarea>
+										</div>						
+										<div th:unless="${isViewing}" style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
+											<button  class="btn imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
+										</div>														
+									</div>									
+								
+								
+									<div th:unless="${isViewing}" id="newAttendeeNotes" class="row mb-2 attendeeNotes">
+										<div class="col-sm-2" style="padding-top:12px">
+											<select name="attendeeId" id="newAttendee"  onChange="changedStudent()">
+											    <option value="0">Select Student...</option> 
+												<option th:each="attendee : ${event.getSortedAttendees()}"
+													th:disabled="${incident.involves(attendee.getAttendeeId())}" th:value="${attendee.getAttendeeId()}" th:text="${attendee.getStudent().getFullName()}">AttendeeId</option>
+											</select>
+										</div>
+										<div class="col-sm-9">
+											<textarea class="form-control form-control-sm mr-sm-2" name="attendeeNotes" id="attendeeNotes"></textarea>
+										</div>						
+										<div style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
+											<button  id="addButton" disabled class="btn imagebtn btn-success" type="button" onClick="insertAttendeeNotes(this)"><i class="fa fa-plus"></i></button>
+										</div>					
+									
+									</div>
+								</div>
+							</fieldset>
+						</div>
+						
+						
+					</div>
+					
+					
 				</div>
-				<div class="row mb-2">
-
+				<div th:if="${isViewing}" class="row mb-2">
+					<div class="col-sm-12" align="center">
+						<a href="javascript:history.back()" class="btn btn-secondary" role="button">Back</a>
+					</div>					
+				</div>
+				
+				<div th:unless="${isViewing}" class="row mb-2">
 					<div class="col-sm-6" align="right">
-						<button class="btn btn-primary" name="submit">Submit</button>
+						<button th:if="${isEditing}" class="btn btn-primary" name="submit">Update</button>
+						<button th:if="${isCreatinging}" class="btn btn-primary" name="submit">Submit</button>
 					</div>
 					<div class="col-sm-6" align="left">
 						<a href="javascript:history.back()" class="btn btn-secondary" role="button">Cancel</a>
 					</div>					
 				</div>
+				<div class="spacer">&nbsp;</div>
+				
 			</form>
 		</div>
+
+
+	<div class="row mb-2 TEMPLATECLASS" id="ATTENDEEID" studentName="ATTENDEENAME" style="display:none">
+		<div class="col-sm-2" style="padding-top:12px" >ATTENDEENAME</div>
+		<input type="hidden" name="attendeeId" value="ATTENDEEID" />
+		<div class="col-sm-9">
+			<textarea class="form-control form-control-sm mr-sm-2" name="attendeeNotes" id="attendeeNotes"></textarea>
+		</div>						
+		<div style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
+			<button  class="btn imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
+		</div>					
+	
+	</div>	
+	
+<SCRIPT>
+
+function removeAttendeeNotes(button) {
+	studentId = button.parentElement.parentElement.id;
+	studentName = button.parentElement.parentElement.getAttribute("studentName");
+	
+	$("select[name=attendeeId] option[value=" + studentId +"]").removeAttr("disabled")
+
+
+	button.parentElement.parentElement.outerHTML="";
+}
+
+
+function insertAttendeeNotes(button) {
+	value = $("select[name=attendeeId]").val();
+	if (value != 0) {		
+		studentName = $("select[name=attendeeId] option:selected").text();
+		selectedIndex =  $("select[name=attendeeId]").prop('selectedIndex');
+		$("select[name=attendeeId] option:selected").attr("disabled", true);
+
+		
+		outerHTML = $("#ATTENDEEID")[0].outerHTML;
+		outerHTML = outerHTML.replaceAll("TEMPLATECLASS", "attendeeNotes").replaceAll("ATTENDEENOTES", "")	
+		outerHTML = outerHTML.replaceAll("ATTENDEENAME", studentName)
+		outerHTML = outerHTML.replaceAll("ATTENDEEID", value)
+
+		
+		$("#newAttendeeNotes")[0].insertAdjacentHTML("beforeBegin", outerHTML);
+		
+		index = $("textarea[name=attendeeNotes]").length - 3;
+		
+		$("textarea[name=attendeeNotes]:eq(" + index + ")").prop("required", true);
+		$("textarea[name=attendeeNotes]:eq(" + (index + 1) + ")").prop("required", false);				
+		$("textarea[name=attendeeNotes]:eq(" + index + ")").val( $("textarea[name=attendeeNotes]:eq(" + (index + 1) + ")").val())
+		$("textarea[name=attendeeNotes]:eq(" + (index + 1) + ")").val("");
+		
+		
+		$("select[name=attendeeId]").val("0");		
+		$("#addButton").prop("disabled", true);
+		$(".attendeeNotes").show();
+
+	}
+	
+	
+
+	
+}
+
+function changedStudent() {
+	index = $("textarea[name=attendeeNotes]").length - 2;
+	if ($("select[name=attendeeId]").val() == "0") {
+		$("#addButton").prop("disabled", true);		
+		$("textarea[name=attendeeNotes]:eq(" + index + ")").prop("required", false);
+	}
+	else {
+		$("#addButton").prop("disabled", false);
+		$("textarea[name=attendeeNotes]:eq(" + index + ")").prop("required", true);
+	}
+}
+
+</SCRIPT>
 
 </body>
 </html>

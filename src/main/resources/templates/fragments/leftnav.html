@@ -20,7 +20,7 @@
 			<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
 				id="menu">
 				<li class="nav-item"><a href="./"
-					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> <i class="fs-4 bi-house"></i>
+					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
 						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-home"></i>Home</span>
 				</a></li>
 				
@@ -34,7 +34,7 @@
 				</a></li>
 		
 				<li class="nav-item"><a href="./createUser"
-					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> <i class="fs-4 bi-house"></i>
+					th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
 						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-user-plus"></i>New User</span>
 				</a></li>
 						
@@ -79,7 +79,11 @@
 								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-calendar-days"></i>
 								Club Timetable</span>
 						</a></li>
-
+						
+						<li  class="nav-item"><a href="./adminViewIncidents"
+						th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
+						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-person-falling-burst"></i>Incidents</span>
+						</a></li>	
 					
 
 						<li><a href="./manageResources" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
@@ -88,9 +92,13 @@
 						<li><a href="./manageRefreshments" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
 							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-utensils"></i>Refreshments</span>
 						</a></li>												
-						<li><a href="#" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
-							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-money-bill-trend-up"></i>Finance Reports</span>
+						<li><a href="./clubRevenue" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
+							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-money-bill-trend-up"></i>Club Revenue</span>
+						</a></li>
+						<li><a href="./parentFinances" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
+							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-file-invoice-dollar"></i>Parent Accounts</span>
 						</a></li>						
+												
 					</ul>
 					<hr th:if="${sessionBean.isCalendarView()}">		
 						<div th:if="${sessionBean.isCalendarView()}" class="container-fluid col-sm-12" style="padding:0px">
@@ -150,7 +158,7 @@
 				<div th:if="${sessionBean.isParentLoggedOn()}" style="padding:0px">
 					<form th:if="${sessionBean.getLoggedOnParent().hasChildren()}" action="./changeStudentField" method="post">
 					<label class="asc-filterlabel"  for="students">Child:</label>
-						<select onchange="this.form.submit()" name="students" id="students" required>
+						<select onchange="this.form.submit()" name="students" id="students" required th:disabled="${sessionBean.isInDialogue()}">
 							<option th:each="student : ${sessionBean.getLoggedOnParent().getStudents()}" th:value="${student.getStudentId()}" th:text="${student.getFullName()}" th:selected="${student.getStudentId() == sessionBean.getSelectedStudent().getStudentId()}">StudentName</option>
 						</select>
 					</form>

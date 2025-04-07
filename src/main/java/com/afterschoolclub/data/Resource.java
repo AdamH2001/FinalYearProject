@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.afterschoolclub.data.repository.ResourceRepository;
 
@@ -36,6 +38,9 @@ public class Resource {
 	private Type type = Type.EQUIPMENT;
 	private State state = State.ACTIVE;
 	private int capacity = 0;
+	AggregateReference<User, Integer> userId;
+
+	
 	
 	@Transient
 	private transient int maxDemand = 0;
@@ -105,6 +110,15 @@ public class Resource {
 	{
 		repository.save(this);
 	}
+
+	@Transactional
+	public void update()
+	{
+		repository.update(resourceId, name, description, quantity, type, state, capacity, keywords);
+	}
+
+	
+	
 	
 	public int getMaxDemand() {
 		OverlappingTimeline overlap = new OverlappingTimeline(this);

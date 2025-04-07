@@ -7,6 +7,7 @@ import com.afterschoolclub.data.Event;
 import com.afterschoolclub.data.Parent;
 import com.afterschoolclub.data.ParentalTransaction;
 import com.afterschoolclub.data.Resource;
+import com.afterschoolclub.data.State;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.StudentClass;
 import com.afterschoolclub.data.User;
@@ -29,12 +30,10 @@ import com.afterschoolclub.data.repository.StudentRepository;
 import com.afterschoolclub.data.repository.UserRepository;
 import com.afterschoolclub.service.ClubPicService;
 import com.afterschoolclub.service.EmailService;
+import com.afterschoolclub.service.PaypalService;
 import com.afterschoolclub.service.ProfilePicService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Base64.Encoder;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +55,12 @@ public class MainController {
 	
 	@Autowired
 	private EmailService mailService;
+	
+	@Autowired
+	private ProfilePicService profilePicService;	
+	
+	@Autowired	
+    private PaypalService paypalService;	
 	
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	
@@ -115,12 +120,6 @@ public class MainController {
 	}
 	
 
-	@GetMapping("/createUser")
-	public String createUser(Model model) {		
-		model.addAttribute("action","createUser");
-		this.setInDialogue(true,model);
-		return "createuser";
-	}
 
 
 	@GetMapping("/log")
@@ -132,70 +131,6 @@ public class MainController {
 		logger.error("An ERROR Message");
 		this.setInDialogue(false,model);
 		return "home";
-	}
-
-	@PostMapping("/addNewUser")
-	public String addNewUser(@RequestParam(name = "firstName") String title,
-			@RequestParam(name = "firstName") String firstName,
-			@RequestParam(name = "surname") String surname, @RequestParam(name = "email") String email,
-			@RequestParam(name = "password") String password, @RequestParam(name = "conPassword") String conPassword,
-			@RequestParam(name = "telephoneNum") String telephoneNum, @RequestParam(name = "altContactName") String altContactName, @RequestParam (name = "altTelephoneNum") String altTelephoneNum, Model model) {
-		User existingUser = User.findByEmail(email);
-
-		String returnPage = "home";
-		this.setInDialogue(false,model);
-		
-		//TODO encode password properly
-		
-		Encoder encoder = Base64.getEncoder();
-		String encodedPass = encoder.encodeToString(password.getBytes());		
-		User user = new User(email, encodedPass, title, firstName, surname, telephoneNum, LocalDateTime.now(), false);
-		Parent parent = new Parent(altContactName,altTelephoneNum);
-		user.addParent(parent);	
-		
-		if (existingUser == null) {
-			if (conPassword.equals(password)) {
-				
-				user.save();
-				logger.info("Saved user{}", user);
-
-				// Send email
-
-				//TODO used config for domain
-				
-				Context context = new Context();
-				context.setVariable("user", user);
-				String link = "http://localhost:8080/AfterSchoolClub/validateEmail?userId=" + user.getUserId()
-						+ "&validationKey=" + user.getValidationKey();
-				context.setVariable("link", link);
-
-				try {
-					mailService.sendTemplateEmail(user.getEmail(), "afterschooladmin@hattonsplace.co.uk",
-							"Verify Email For Afterschool Club", "verifyemailtemplate", context);
-					model.addAttribute("flashMessage","Please verify your email address");
-
-				} catch (MessagingException e) {
-					model.addAttribute("flashMessage","Failed to send verication email.");
-					e.printStackTrace();
-				}
-
-			} else {
-				//TODO set formation
-				model.addAttribute("action","createUser");
-				model.addAttribute("flashMessage","Passwords do not match");
-				model.addAttribute("editUser",user);
-				this.setInDialogue(true,model);
-				returnPage = "createuser";
-			}
-		} else {
-			model.addAttribute("flashMessage","User already exists");
-			model.addAttribute("action","createUser");			
-			model.addAttribute("editUser",user);
-			this.setInDialogue(true,model);
-			returnPage = "createuser";
-		}
-		
-		return returnPage;
 	}
 	
 
@@ -226,7 +161,7 @@ public class MainController {
 	@GetMapping("/alterPassword")
 	public String alterPassword(@RequestParam(name = "userId") Integer userId,
 			@RequestParam(name = "validationKey") Integer validationKey, Model model) {
-		String returnPage = null;
+		String returnPage = "home";
 		this.setInDialogue(false,model);
 		User loggedOnUser = sessionBean.getLoggedOnUser();
 		if (loggedOnUser == null) {
@@ -240,14 +175,12 @@ public class MainController {
 					returnPage = "changepassword";
 				}
 				else {
-					model.addAttribute("flashMessage","Link out of date");
-					returnPage = "home";
+					model.addAttribute("flashMessage","Link out of date");					
 				}
 			}
 			else {
 				model.addAttribute("flashMessage","Link out of date");				
-			}
-			returnPage = "home";
+			}			
 		}
 		else {
 			model.addAttribute("flashMessage","Must be logged out to perform this action");
@@ -282,7 +215,7 @@ public class MainController {
 		}
 		else {
 			model.addAttribute("flashMessage", "Already logged on.");
-			returnPage = setupCalendar(model);			
+			returnPage = sessionBean.getRedirectUrl();
 		}
 		return returnPage;
 	}
@@ -307,6 +240,7 @@ public class MainController {
 	    if (sessionBean.isLoggedOn()) {
 			returnPage = setupCalendar(model);			
 	    }
+	    paypalService.getAllWebProfiles();
 	    return returnPage;
 	}
 
@@ -362,7 +296,7 @@ public class MainController {
 		if (returnPage == null) {
 			if (password.equals(conPassword)) {
 				sessionBean.getLoggedOnUser().setPassword(password);
-				sessionBean.getLoggedOnUser().save();
+				sessionBean.getLoggedOnUser().update();
 				model.addAttribute("flashMessage","Password has been changed");
 				returnPage = setupCalendar(model);				
 			}
@@ -439,6 +373,7 @@ public class MainController {
 		}
 		this.setInDialogue(false,model);
 		sessionBean.setCalendarView(true);
+		sessionBean.setReturnCalendar();
 		return initialiseCalendar(model);			
 	}
 	
@@ -465,8 +400,8 @@ public class MainController {
 	
 	@PostMapping("/resetPassword")
 	public String resetPassword(@RequestParam (name="email") String email, Model model) {
-		String returnPage = validateIsLoggedOn(model);
-		if (returnPage == null) {
+		String returnPage  = "home";
+		if (sessionBean.getLoggedOnUser() == null) {
 			User existingUser = User.findByEmail(email);
 			if (existingUser != null) {
 				// Send email
@@ -491,51 +426,223 @@ public class MainController {
 			else {
 				model.addAttribute("flashMessage","User with that email address does not exist.");				
 			}
-			returnPage = "home";
 		}
+		else {
+			model.addAttribute("flashMessage","Must be logged out to perform this action");
+			returnPage = setupCalendar(model);			
+		}
+				
 		return returnPage;
 	}
 	
-
-	
-
-	
-	// TODO allow edit of admin details... 
-	
-	@GetMapping("/editUserDetails") // complete
-	public String editUserDetails(Model model) {
-		User loggedOnUser = sessionBean.getLoggedOnUser();
-		if (loggedOnUser != null) {
-			if (loggedOnUser.isParent()) {
-				model.addAttribute("action","updateUser");
-				model.addAttribute("editUser", loggedOnUser);
-				this.setInDialogue(true,model);
-
-				return "createuser";
-			} else {
-				model.addAttribute("flashMessage","Must be a parent to perform this action");
-				setupCalendar(model);
-				return "calendar";
-			}
-		} else {
-			model.addAttribute("flashMessage","Must be logged in to perform this action");
-			this.setInDialogue(false,model);
-
-			return "home";
-		}
-	}
-
 
 	@GetMapping("/viewClubs") // complete
 	public String viewClubs(Model model) {
 		this.setInDialogue(false,model);	  
 		List<Club> allClubs = Club.findAll();
 		model.addAttribute("allClubs",allClubs);
+		sessionBean.setReturnClubs();
 		return "viewClubs";	
 	}	
-    
+
+	
+	
+	@GetMapping("/editUserDetails") 
+	public String editUserDetails(Model model) {
+		
+		String returnPage = validateIsLoggedOn(model);
+		if (returnPage == null) {
+			User loggedOnUser = sessionBean.getLoggedOnUser();
+			model.addAttribute("isEditing",true);
+			model.addAttribute("user", loggedOnUser);			
+			this.setInDialogue(true,model);
+			model.addAttribute("tempFilename", profilePicService.getTempfilename());
+			returnPage = "user";
+		} 
+		return returnPage;
+	}
+
+	@GetMapping("/createUser")
+	public String createUser(Model model) {		
+		model.addAttribute("isEditing",false);		
+		this.setInDialogue(true,model);
+		User user = new User();
+		user.addParent(new Parent());
+		model.addAttribute("user", user);		
+		model.addAttribute("tempFilename", profilePicService.getTempfilename());
+		return "user";
+	}
 
 
+
     
+
+	@PostMapping("/saveUserDetails")
+	public String saveUserDetails(
+			@RequestParam(name = "title") String title,			
+			@RequestParam(name = "firstName") String firstName,
+			@RequestParam(name = "surname") String surname, 
+			@RequestParam(name = "email") String email,
+			@RequestParam(name = "password", required=false, defaultValue = "") String password, 
+			@RequestParam(name = "conPassword", required=false, defaultValue = "")String conPassword,			
+			@RequestParam(name = "description", required=false, defaultValue = "") String description,
+			@RequestParam(name = "keywords", required=false, defaultValue = "") String keywords,						
+			@RequestParam(name = "telephoneNum", required=false, defaultValue = "") String telephoneNum, 
+			@RequestParam(name = "altContactName", required=false, defaultValue = "") String altContactName, 
+			@RequestParam (name = "altTelephoneNum", required=false, defaultValue = "")	String altTelephoneNum,
+			@RequestParam (name = "tempFilename")	String tempFilename, 
+			
+			Model model) {
+
+		String returnPage = "home";			
+		boolean newUser = false;
+		
+		User user = sessionBean.getLoggedOnUser();	
+		
+		if (user == null) {
+			user = new User();								
+			user.addParent(new Parent());
+			newUser = true;
+		}
+		boolean emailChanged = !email.equals(user.getEmail());
+
+		user.setTitle(title);
+		user.setFirstName(firstName);
+		user.setSurname(surname);
+		user.setEmail(email);
+		user.setTelephoneNum(telephoneNum);
+		if (newUser) {
+			user.setPassword(password);
+		}
+		
+		if (user.isParent()) {
+			Parent parent = user.getParent();
+			parent.setAltContactName(altContactName);
+			parent.setAltTelephoneNum(altTelephoneNum);
+			
+		}
+		else {
+			Resource resource = user.getResourceObject();
+			resource.setDescription(description);
+			resource.setKeywords(keywords);
+			resource.setState(State.ACTIVE);
+		}
+		
+		
+		// Need to ensure email not in use if new user or email has changed
+		boolean emailOk = true;
+		if (newUser || emailChanged) {
+			emailOk = User.findByEmail(email) == null;
+		}
+		
+		if (emailOk) {
+			// Ensure passwords match
+			boolean passwordOk = (newUser && conPassword.equals(password)) || !newUser;
+			if (passwordOk) {
+				if (emailChanged) {
+					user.setValidationKey();// Update validation key to use in email
+					user.setEmailVerified(false);
+				}
+				profilePicService.renameImage(tempFilename, user);
+
+				if (newUser) {
+					user.save();
+				} 
+				else {
+					user.update();											
+				}
+				
+				if (emailChanged || newUser) {
+					// Send email
+
+					//TODO used config for domain
+					
+					Context context = new Context();
+					context.setVariable("user", user);
+					String link = "http://localhost:8080/AfterSchoolClub/validateEmail?userId=" + user.getUserId()
+							+ "&validationKey=" + user.getValidationKey();
+					context.setVariable("link", link);
+
+					try {
+						mailService.sendTemplateEmail(user.getEmail(), "afterschooladmin@hattonsplace.co.uk",
+								"Verify Email For Afterschool Club", "verifyemailtemplate", context);
+						model.addAttribute("flashMessage","Please verify your email address");
+
+					} catch (MessagingException e) {
+						model.addAttribute("flashMessage","Failed to send verication email.");
+						e.printStackTrace();
+					}										
+				}
+				else {
+					if (newUser) {						
+						model.addAttribute("flashMessage","User has been created");
+					}
+					else {
+						model.addAttribute("flashMessage","Profile has been updated");
+					}
+				}
+				returnPage = setupCalendar(model);
+			}
+			else {
+				model.addAttribute("isEditing",!newUser);
+				model.addAttribute("flashMessage","Passwords do not match");
+				model.addAttribute("user",user);
+				this.setInDialogue(true,model);
+				model.addAttribute("tempFilename", tempFilename);
+				
+				returnPage = "user";					
+			}					
+		}
+		else {
+			model.addAttribute("flashMessage", "Email already in use");
+			model.addAttribute("user", user);
+			model.addAttribute("isEditing", !newUser);
+			model.addAttribute("tempFilename", tempFilename);
+			
+			this.setInDialogue(true, model);
+			returnPage = "user";
+		}
+
+		return returnPage;
+	}
     
+
+	
+	@GetMapping("/transactionBack")
+	public String transactionBack(@RequestParam(name = "userId", required = false) int userId,	
+			Model model) {
+		String returnPage = validateIsLoggedOn(model);
+		if (returnPage == null) {		
+			this.setInDialogue(true,model);			
+			sessionBean.setTransactionStartDate(sessionBean.getTransactionStartDate().minusMonths(1));
+			if (sessionBean.isAdminLoggedOn()) {
+				returnPage = String.format("redirect:./adminViewTransactions?userId=%d", userId);
+			}
+			else {
+				returnPage = "redirect:./viewTransactions";
+			}
+		}
+		return returnPage;			
+	}
+	
+	@GetMapping("/transactionForward")
+	public String transactionForward(@RequestParam(name = "userId", required = false) int userId,
+					Model model) {
+		String returnPage = validateIsLoggedOn(model);
+		if (returnPage == null) {		
+			this.setInDialogue(true,model);			
+			sessionBean.setTransactionStartDate(sessionBean.getTransactionStartDate().plusMonths(1));
+			if (sessionBean.isAdminLoggedOn()) {
+				returnPage = String.format("redirect:./adminViewTransactions?userId=%d", userId);
+			}
+			else {
+				returnPage = "redirect:./viewTransactions";
+			}
+		}
+		return returnPage;	
+	}	
+	
+	
+	
+	
 }

@@ -1,18 +1,20 @@
 package com.afterschoolclub.data;
 
 import java.time.LocalDateTime;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Random;
 import java.util.Set;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
-
 import com.afterschoolclub.data.repository.UserRepository;
 import com.afterschoolclub.service.ProfilePicService;
 
@@ -45,13 +47,14 @@ public class User {
 	private int validationKey = r.nextInt(999999999);
 	private LocalDateTime dateRequested;
 	private boolean emailVerified;
-	
-	@MappedCollection(idColumn = "user_id")
-	private Set<Resource> resources = new HashSet<>();
+	private State state = State.ACTIVE;
 	
 	
 	@MappedCollection(idColumn = "user_id")
-	private Set<Parent> parent = new HashSet<>();	
+	private Set<Resource> resources = new HashSet<>();	
+	
+	@MappedCollection(idColumn = "user_id")
+	private Set<Parent> parents = new HashSet<>();	
 	
 	public static User findById(int userId) {
 		Optional<User> optional = repository.findById(userId);
@@ -63,9 +66,6 @@ public class User {
 		
 		
 	}	
-	
-	
-	
 	
 	public static User findByEmail(String email) {
 		List<User> users = repository.findByEmail(email);
@@ -86,23 +86,47 @@ public class User {
 		return repository.findStaff();		
 	}			
 	
+	public static List<User> findParents() {
+		return repository.findParents();		
+	}			
+	
 	public static List<User> findStaffByState(State state) {
 		return repository.findStaffByState(state);		
 	}			
 	
 	public static List<User> findActiveStaff() {
 		return repository.findStaffByState(State.ACTIVE);		
-	}			
+	}	
+	
+	public static List<User> findInDebt() {
+		return repository.findUsersInDebt();		
+	}	
+	
 		
 	
-	
+	@Transactional
 	public void update() {
-		repository.updateUser(userId, firstName, surname, email, title, telephoneNum, password, validationKey, dateRequested, emailVerified);
+		
+		repository.update(userId, firstName, surname, email, title, telephoneNum, password, validationKey, dateRequested, emailVerified, state);
+		
+		Resource r = this.getResourceObject();
+		if (r != null) {
+			r.update();		
+		}
+		
+		Parent p = this.getParent();
+		if (p != null) {
+			p.update();		
+		}
+		
 	}
 	
 	public Resource getResourceObject() {
 		Resource result = null;
-		result = (Resource) this.resources.toArray()[0];
+		Iterator<Resource>  iterator = this.resources.iterator();
+		if (iterator.hasNext()) {
+			result = iterator.next();
+		}
 		return result;
 	}
 
@@ -130,7 +154,7 @@ public class User {
 			LocalDateTime dateRequested, boolean emailVerified) {
 		super();
 		this.email = email;
-		this.password = password;
+		this.setPassword(password);		
 		this.firstName = firstName;
 		this.surname = surname;
 		this.telephoneNum = telephoneNum;
@@ -152,13 +176,13 @@ public class User {
 	}
 
 	public void addParent(Parent parent) {
-		this.parent.add(parent);
+		this.parents.add(parent);
 	}
 	
 
 	public boolean isParent() {
 		boolean result = false;
-		if (this.parent != null && this.parent.size() > 0)
+		if (this.parents != null && this.parents.size() > 0)
 			result = true;
 		return result;
 	}
@@ -186,7 +210,7 @@ public class User {
 	public Parent getParent() {
 		Parent parent = null;
 		if (this.isParent())
-			parent = (Parent) this.parent.toArray()[0];
+			parent = (Parent) this.parents.toArray()[0];
 		return parent;
 	}
 	
@@ -196,8 +220,7 @@ public class User {
 		this.validationKey = r.nextInt(999999999);
 	}
 	
-
-
+	
 	public void save()
 	{
 		repository.save(this);

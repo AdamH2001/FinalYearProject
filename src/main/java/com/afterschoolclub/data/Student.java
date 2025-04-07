@@ -36,6 +36,8 @@ public class Student {
 	@Id
 	private int studentId;
 	AggregateReference<StudentClass, Integer> classId;
+	AggregateReference<Parent, Integer> parentId;
+	
 	private String firstName = "";
 	private String surname = "";
 	private LocalDate dateOfBirth;
@@ -243,7 +245,6 @@ public class Student {
 	}	
 	
 	public void setMedicalNoteText(Type type, String noteText) {
-		String result = "";		
 		MedicalNote note = getMedicalNote(type);
 		
 		if (note == null) {

@@ -1,10 +1,15 @@
 package com.afterschoolclub.data;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.afterschoolclub.data.ParentalTransaction.BalanceType;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,8 +29,13 @@ public class Parent {
 	
 	@Id
 	public int parentId;
-	private String altContactName;
-	private String altTelephoneNum;
+	private String altContactName = "";
+	private String altTelephoneNum = "";
+	private int overdraftLimit = 0;
+
+	AggregateReference<User, Integer> userId;
+
+	
 	@MappedCollection(idColumn = "parent_id")
 	private Set<Student> students = new HashSet<>();
 	@MappedCollection(idColumn = "parent_id")
@@ -37,6 +47,10 @@ public class Parent {
 		this.altTelephoneNum = altTelephoneNum;
 	}
 	
+	public Parent() {
+		super();		
+	}
+	
 	public Student getFirstStudent() {
 		Student result = null;
 		if (students.size() > 0)
@@ -44,7 +58,9 @@ public class Parent {
 		return result;
 	}
 	
-	
+	static public int getTotalOverdraftLmit() {
+		return User.repository.totalOverdraftLimit();
+	}
 		
 	
 	public void addStudent(Student student) {
@@ -90,21 +106,11 @@ public class Parent {
 		return ParentalTransaction.getBalanceOn(this, date);			
 	}	
 	
+	public int getVoucherBalanceOn(LocalDate date) {
+		return ParentalTransaction.getVoucherBalanceOn(this, date);			
+	}	
+		
 	
-	public String getFormattedBalanceOn(LocalDate date) {
-		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
-		return n.format(getBalanceOn(date)/100.0);		
-	}
-	
-	public String getFormattedVoucherBalance() {
-		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
-		return n.format(this.getVoucherBalance() / 100.0);
-	}
-	
-	public String getFormattedBalance() {
-		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
-		return n.format(this.getBalance() / 100.0);
-	}
 	
 	public boolean hasChildren() {
 		return this.getStudents().size() > 0;		
@@ -114,5 +120,88 @@ public class Parent {
 		int result = User.repository.numFutureSessionsBooked(parentId);
 		return result;
 	}
+
+	@Transactional
+	public void update()
+	{
+		User.repository.updateParent(parentId, altContactName, altTelephoneNum, overdraftLimit);
+	}
+
+	public int getCashCredit() {
+		int result = getBalance();
+		if (result < 0 ) {
+			result = 0;
+		}
+		return result;
+	}
+	
+	public int getCashDebt() {
+		int result = getBalance();
+		if (result > 0 ) {
+			result = 0;
+		}
+		else {
+			result = result * -1;
+		}
+		return result;
+	}	
+
+	public boolean canAfford(int charge,Club club) {
+		int remaining = charge;
+		if (club.isAcceptsVouchers()) {
+			int voucherBalance = this.getVoucherBalance();
+			int voucherCharge = (voucherBalance > remaining) ? remaining :voucherBalance;
+			remaining -= voucherCharge;
+		}
+		
+		if (remaining > 0) {
+			int cashAvailable = getBalance() + overdraftLimit;
+			int cashCharge = (cashAvailable > remaining) ? remaining :cashAvailable;
+			remaining -= cashCharge;
+
+		}
+		return remaining == 0;
+	}
+	
+	public void recordPaymentForClub(int totalCost, Club club, String description) {
+		int remaining = totalCost;
+		if (club.isAcceptsVouchers()) {
+			int voucherBalance = this.getVoucherBalance();
+			int voucherCharge = (voucherBalance > remaining) ? remaining :voucherBalance;
+			if (voucherCharge > 0) {
+				remaining -= voucherCharge;
+				ParentalTransaction pt = new ParentalTransaction(-voucherCharge, LocalDateTime.now(), ParentalTransaction.Type.PAYMENT, description, club);
+				pt.setBalanceType(BalanceType.VOUCHER);
+				addTransaction(pt);
+			}
+		}
+		if (remaining > 0) {
+			ParentalTransaction pt = new ParentalTransaction(-remaining, LocalDateTime.now(), ParentalTransaction.Type.PAYMENT, description, club);
+		}
+		return;
+	}
+	
+	public void recordRefundForClub(int totalRefund, Club club, String description) {
+		int remaining = totalRefund;
+		int voucherBalance = this.getVoucherBalance();
+		int totalCashPaidForClub = ParentalTransaction.getCashPaidForClub(this.getParentId(), club.getClubId());
+		int cashRefund = (totalCashPaidForClub > remaining) ? remaining :totalCashPaidForClub;
+		if (cashRefund > 0) {
+			remaining -= cashRefund;
+			ParentalTransaction pt = new ParentalTransaction(cashRefund, LocalDateTime.now(), ParentalTransaction.Type.REFUND, description, club);
+			addTransaction(pt);
+		}
+		if (remaining > 0 && club.isAcceptsVouchers()) {
+			ParentalTransaction pt = new ParentalTransaction(remaining, LocalDateTime.now(), ParentalTransaction.Type.REFUND, description, club);
+			pt.setBalanceType(BalanceType.VOUCHER);
+			addTransaction(pt);
+		}
+		return;
+	}	
+
+	public List<ParentalTransaction> getCashTopUps() {
+		return ParentalTransaction.getCashTopUps(this);		
+	}		
+	
 	
 }

@@ -3,6 +3,7 @@ package com.afterschoolclub.data.repository;
 import java.util.List;
 import com.afterschoolclub.data.State;
 
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -24,4 +25,10 @@ public interface ResourceRepository extends CrudRepository<Resource, Integer> {
 	
 	@Query("SELECT *  FROM resource where state=:state order by name")
 	List<Resource> findByState(State state);		
+	
+
+	@Modifying
+	@Query("Update resource r set r.name=:name, r.description=:description, r.quantity=:quantity, r.type=:type, state=:state, capacity=:capacity, keywords=:keywords where r.resource_id = :resourceId")	
+	void update(int resourceId, String name, String description, int quantity, Resource.Type type, State state, int capacity, String keywords);
+		
 }

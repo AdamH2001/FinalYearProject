@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,13 +31,13 @@ public class ClubPicService {
 		// TODO Auto-generated constructor stub
 	}
 
-    public String saveImage(MultipartFile file, String id) throws IOException {
+    public String saveImage(MultipartFile file, String filename) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        String fileName = String.format("%s.jpg",  id);        
+        String fileName = String.format("%s.jpg",  filename);        
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -60,9 +61,9 @@ public class ClubPicService {
 
 		return url;
 	}    
-    
-	public void renameImage(User user, Club club) {		
-		String sourceFilename = String.format("u%d.jpg", user.getUserId()) ;
+	
+	public void renameImage(String tempFile, Club club) {		
+		String sourceFilename = String.format("%s.jpg", tempFile) ;
 		String destFilename = String.format("%d.jpg", club.getClubId()) ;
 		
 		Path sourceFilePath = Paths.get(uploadDir).resolve(sourceFilename);
@@ -81,6 +82,12 @@ public class ClubPicService {
         
 	}    	
 	
+    public String getTempfilename() {
+    	String result = String.format("tmp-%d", new Random().nextInt(1000000, 9999999));
+    	return result;
+    }
+    
+	
 	
 	public Resource getResource(String filename) throws MalformedURLException {	
 		Path filePath = Paths.get(uploadDir).resolve(filename);
@@ -88,6 +95,15 @@ public class ClubPicService {
 	}
 
     
-    
+	public void deleteTempImage(User user) {		
+		String sourceFilename = String.format("u%d.jpg", user.getUserId()) ;
+		Path sourceFilePath = Paths.get(uploadDir).resolve(sourceFilename);
+		File sourceFile = new File(sourceFilePath.toUri());
+        if (sourceFile.exists()) {
+        	sourceFile.delete();
+        }        
+        return; 
+        
+	}    	    
     
 }

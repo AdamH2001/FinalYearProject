@@ -19,22 +19,21 @@
 
 	<div id="main" class="main container-flex no-margin ">
 		<div class="row col-sm-12 mb-2" style="text-align: center;">
-			<h1>Account Statement</h1>
+			<h1><span th:text="${user?.getFullName()}"></span><span>&nbsp;Account Statement</span></h1>
 		</div>
 		<div class="row mb-2"></div>
 
 		<div class="row">
-			<div class="col-sm-5" style="text-align: right;"> <a class="prev" href="./transactionBack"><i class="fa-solid fa-left-long"></i></a> </div>
+			<div class="col-sm-5" style="text-align: right;"> <a class="prev" th:href="@{./transactionBack(userId=${user?.getUserId()})}"><i class="fa-solid fa-left-long"></i></a> </div>
 			<div class="col-sm-2" style="text-align: center;"> 
 				<h2 align="center" style="color: orange" th:text="${sessionBean.getTransactionStartDate().getMonth()} + ' ' + ${sessionBean.getTransactionStartDate().getYear()}"></h2>
 			</div>
-			<div class="col-sm-5" style="text-align: left;"> <a class="next" href="./transactionForward"><i class="fa-solid fa-right-long"></i></a> </div>								
+			<div class="col-sm-5" style="text-align: left;"> <a class="next" th:href="@{./transactionForward(userId=${user?.getUserId()})}"><i class="fa-solid fa-right-long"></i></a> </div>								
 		</div>
 
 		<div class="row" >
-		<div class="col-sm-1" align="center"></div>
 		
-		<div class="col-sm-10" align="center">
+		<div class="col-sm-12" align="center">
 
 			<table>
 				<thead>
@@ -42,28 +41,26 @@
 
 					</tr>
 					<tr>
-						<td style="text-align: left;"></td>
-					
-						<td style="text-align: left;"><b>Date</b></td>
-						<td style="text-align: left;"><b>Time</b></td>
-						<td style="text-align: left;"><b>Transaction Type</b></td>
-						<td style="text-align: left;"><b>Description</b></td>
-						<td style="text-align: right;"><b>Amount</b></td>
+						<td style="text-align: center;"><b>Date</b></td>
+						<td style="text-align: center;"><b>Time</b></td>
+						<td style="text-align: center;"><b>Transaction Type</b></td>
+						<td style="text-align: center;"><b>Description</b></td>
+						<td style="text-align: center;"><b>Reference</b></td>
+						<td style="text-align: center;"><b>Cash Balance</b></td>
+						<td style="text-align: center;"><b>Voucher Balance</b></td>
 					</tr>
 				</thead>
 				<tr>
-					<td style="text-align: left;"></td>
-				
 					<td style="text-align: left;"><b></b></td>
 					<td style="text-align: left;"><b></b></td>
 					<td style="text-align: left;"><b></b></td>
 					<td style="text-align: left;"><b></b></td>
-					<td style="text-align: right;"><b th:text="'Opening Balance: ' + ${openingBalance}">Amount</b></td>
+					<td style="text-align: left;"><b></b></td>					
+					<td style="text-align: right;"><b th:text="'Opening: ' + ${sessionBean.formatMoney(openingBalance)}">Amount</b></td>
+					<td style="text-align: right;"><b th:text="'Opening: ' + ${sessionBean.formatMoney(openingVoucherBalance)}">Amount</b></td>
 				</tr>
 
 				<tr th:each="transaction: ${transactions}">
-					<td style="text-align: left;"></td>
-				
 					<td style="text-align: left;"
 						th:text="${transaction.getDateTime().toLocalDate()}" />
 					<td style="text-align: left;"
@@ -72,23 +69,35 @@
 						th:text="${transaction.getFormattedTransactionType()}" />
 					<td style="text-align: left;"
 						th:text="${transaction.getDescription()}" />
+					<td style="text-align: left;"
+						th:text="${transaction.getPaymentReference()}" />	
+																	
 					<td style="text-align: right;"
-						th:text="${transaction.getFormattedAmount()}" />
+						th:text="${transaction.isCash()} ? ${transaction.getFormattedAmount()} : ''" />
+						
+					<td style="text-align: right;"
+						th:text="${transaction.isVoucher()} ? ${transaction.getFormattedAmount()} : ''" />						
 				</tr>
 
-				<tr>
-					<td style="text-align: left;"><b></b></td>
+				<tr>					
 					<td style="text-align: left;"><b></b></td>					
 					<td style="text-align: left;"><b></b></td>
 					<td style="text-align: left;"><b></b></td>
+					<td style="text-align: left;"><b></b></td>					
 					<td style="text-align: left;"><b></b></td>
-					<td style="text-align: right;"><b th:text="'Closing Balance: ' + ${closingBalance}">Amount</b></td>
+					<td style="text-align: right;"><b th:text="'Closing: ' + ${sessionBean.formatMoney(closingBalance)}">Amount</b></td>
+					<td style="text-align: right;"><b th:text="'Closing: ' + ${sessionBean.formatMoney(closingVoucherBalance)}">Amount</b></td>
 				</tr>
 			</table>
 		</div>
 
 	</div>
-
+	<div class="row mb-2">
+		<div class="col-sm-12" align="center">
+			<a href="javascript:history.back()" class="btn btn-secondary" role="button">Back</a>
+		</div>					
+	</div>
+	<div class="spacer">&nbsp;</div>
 	</div>
 
 </body>

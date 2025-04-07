@@ -3,7 +3,6 @@ package com.afterschoolclub.data;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -65,7 +64,6 @@ public class Staff {
 		maxDemand = user.getResourceObject().getMaxDemand();
 	}
 	
-	@Transactional
 	public void save()
 	{
 		User user = null;
@@ -78,7 +76,7 @@ public class Staff {
 			
 			user.setDateRequested(LocalDateTime.now());
 			user.setEmailVerified(true);
-			user.setPassword("somecrap");			
+			user.setPassword("somecrap");	//TODO set to random value		
 		} 
 		else {
 			user = User.findById(userId);
@@ -104,7 +102,6 @@ public class Staff {
 		}
 		else {
 			user.update(); // Don't want to force all the resources to update. 
-			resource.save();
 		}				
 	}
 	
@@ -115,6 +112,10 @@ public class Staff {
 		resource.setState(State.INACTIVE);
 		resource.save();
 
+	}
+	
+	public boolean isParent() {
+		return false;
 	}
 	
 }

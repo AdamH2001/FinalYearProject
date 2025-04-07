@@ -557,3 +557,55 @@ body {
 	
 }
 
+
+
+.imagebtn {
+    border: none;
+    color: white;
+    padding: 0px;
+    font-size: 13px;
+    width: 25px;
+    height: 25px;
+  	cursor: pointer;
+    border-radius: 50%!important;
+}
+
+
+/* Darker background on mouse-over */
+.imagebtn:hover {
+    color: white;
+  
+}
+
+/* Filter styles */
+
+.table.filtertable {
+ --bs-table-bg: rgba(0, 0, 0, 0.075);
+}
+
+.filterheader {
+    background: var(--asc-theme);
+    text-align: center;
+    color:	white;   
+}
+
+.table.filtertable>thead {
+	color:	white;
+}
+
+.filtercenter {
+    text-align: center;   
+    
+}
+
+.stripedrow.oddStripe {
+
+	background-color:rgb(218, 227, 243);
+}
+
+.stripedrow.evenStripe {
+	background-color:rgb(180, 199, 231);
+}
+
+
+

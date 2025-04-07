@@ -27,7 +27,6 @@ import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.data.Attendee;
 import com.afterschoolclub.data.AttendeeMenuChoice;
 import com.afterschoolclub.data.Event;
-import com.afterschoolclub.data.MedicalNote;
 import com.afterschoolclub.data.MenuGroup;
 import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.Parent;
@@ -39,6 +38,7 @@ import com.afterschoolclub.service.DisplayHelperService;
 import com.afterschoolclub.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
+import com.paypal.api.payments.RelatedResources;
 import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.PayPalRESTException; 
   
@@ -214,15 +214,22 @@ public class ParentController {
 		if (returnPage == null) {	
 			LocalDate start = sessionBean.getTransactionStartDate();
 			LocalDate end = start.plusMonths(1);
-			Parent loggedOnParent = sessionBean.getLoggedOnParent();
-			List<ParentalTransaction> transactions = loggedOnParent.getTransactions(start,end);
+			Parent parent = sessionBean.getLoggedOnParent();
+			List<ParentalTransaction> transactions = parent.getTransactions(start,end);
 			
-			String openingBalanceStr = loggedOnParent.getFormattedBalanceOn(start);
-			String closingBalanceStr = loggedOnParent.getFormattedBalanceOn(end);
+			int openingBalance = parent.getBalanceOn(start);
+			int closingBalance = parent.getBalanceOn(end);
+			int openingVoucherBalance = parent.getVoucherBalanceOn(start);
+			int closingVoucherBalance = parent.getVoucherBalanceOn(end);			
 			
-			model.addAttribute("openingBalance",openingBalanceStr);
-			model.addAttribute("closingBalance",closingBalanceStr);
+			model.addAttribute("openingBalance",openingBalance);
+			model.addAttribute("closingBalance",closingBalance);
+			model.addAttribute("openingVoucherBalance",openingVoucherBalance);
+			model.addAttribute("closingVoucherBalance",closingVoucherBalance);	
+			
 			model.addAttribute("transactions",transactions);
+			sessionBean.setReturnTransactions();
+
 			this.setInDialogue(false,model);
 			returnPage= "viewtransactions";
 		}
@@ -230,28 +237,7 @@ public class ParentController {
 		
 		
 	}
-	
-	@GetMapping("/transactionBack")
-	public String transactionBack(Model model) {
-		String returnPage = validateIsParent(model);
-		if (returnPage == null) {		
-			this.setInDialogue(true,model);			
-			sessionBean.setTransactionStartDate(sessionBean.getTransactionStartDate().minusMonths(1));
-			returnPage = "redirect:./viewTransactions";
-		}
-		return returnPage;			
-	}
-	
-	@GetMapping("/transactionForward")
-	public String transactionForward(Model model) {
-		String returnPage = validateIsParent(model);
-		if (returnPage == null) {		
-			this.setInDialogue(true,model);			
-			sessionBean.setTransactionStartDate(sessionBean.getTransactionStartDate().plusMonths(1));
-			returnPage = "redirect:./viewTransactions";
-		}
-		return returnPage;	
-	}
+
 	
 	@GetMapping("/deregisterForEvent")
 	public String deregisterForEvent(@RequestParam (name="eventId") int eventId, Model model) {
@@ -260,8 +246,8 @@ public class ParentController {
 			Event event = Event.findById(eventId);								
 			Student selectedStudent = sessionBean.getSelectedStudent();
 			int cost = selectedStudent.getCostOfEvent(event);
-			selectedStudent.deregister(eventId);			
-			sessionBean.getLoggedOnParent().addTransaction(new ParentalTransaction(cost,LocalDateTime.now(), ParentalTransaction.Type.REFUND, event.getClub().getTitle()));
+			selectedStudent.deregister(eventId);				
+			sessionBean.getLoggedOnParent().recordRefundForClub(cost, event.getClub(), "Cancellation of booking for ".concat(event.getClub().getTitle()));			
 			sessionBean.getLoggedOnUser().save();			
 			model.addAttribute("flashMessage","Cancelled booking for ".concat(selectedStudent.getFirstName()).concat(" and account refunded."));
 			returnPage = setupCalendar(model);			
@@ -329,7 +315,7 @@ public class ParentController {
 			model.addAttribute("displayHelper", displayHelper);			
 			this.setInDialogue(true,model);
 
-			returnPage = "sessionOptions";
+			returnPage = "parentSession";
 		}
 		else {
 			model.addAttribute("flashMessage","Session does not exist");
@@ -374,7 +360,7 @@ public class ParentController {
 		if (returnPage == null) {	
 	        try {
 	            String cancelUrl = "http://localhost:8080/AfterSchoolClub/paymentcancel";
-	            String successUrl = "http://localhost:8080/AfterSchoolClub/reviewpayment";
+	            String successUrl = "http://localhost:8080/AfterSchoolClub/paymentsuccess";
 	            Payment payment = paypalService.createPayment(
 	                    Integer.valueOf(amount),
 	                    "GBP",
@@ -393,7 +379,7 @@ public class ParentController {
 	            }
 	        } catch (PayPalRESTException e) {
 	        	logger.error("Error occurred:: ", e);
-		        returnView = new RedirectView("/paymenterror");
+		        returnView = new RedirectView("paymenterror");
 	        }
 		}
 		else {
@@ -402,7 +388,7 @@ public class ParentController {
 		return returnView;
     }
 
-    @PostMapping("/paymentsuccess")
+    @GetMapping("/paymentsuccess")
     public String paymentSuccess(
             @RequestParam("paymentId") String paymentId,
             @RequestParam("PayerID") String payerId,
@@ -419,18 +405,23 @@ public class ParentController {
 	        		LocalDateTime paymentDateTime = LocalDateTime.parse(payment.getCreateTime(), formatter);
 	        		for (Transaction transaction : transactions) {						
 						String amount = transaction.getAmount().getTotal();
-						int amountInPence  = (int)Double.parseDouble(amount) * 100;		        		
-						sessionBean.getLoggedOnParent().addTransaction(new ParentalTransaction(amountInPence, paymentDateTime,ParentalTransaction.Type.DEPOSIT, "Paypal"));
-	
-		        		//TODO need to add paypal reference in transaction 
-		        				        		
-						logger.info("Amount = {}", amount);
+						int amountInPence  = (int)Double.parseDouble(amount) * 100;
+						String transId = transaction.getRelatedResources().get(0).getSale().getId();
+						
+						ParentalTransaction pt = new ParentalTransaction(amountInPence, paymentDateTime,ParentalTransaction.Type.DEPOSIT, "Paypal");
+						pt.setPaymentReference(transId);						
+						sessionBean.getLoggedOnParent().addTransaction(pt);						
 					}
 	        		sessionBean.getLoggedOnUser().save();					
 					model.addAttribute("flashMessage","Payment Successful");					
 	            }
-	        } catch (PayPalRESTException e) {	        	
-				model.addAttribute("flashMessage",e.getDetails().getMessage());
+	        } catch (PayPalRESTException e) {	   
+	        	if (e.getDetails() != null) {
+	        		model.addAttribute("flashMessage",e.getDetails().getMessage());
+	        	}
+	        	else {
+	        		model.addAttribute("flashMessage","Internal Payment Error");
+	        	}
 	        	logger.error("Error occurred:: ", e);	        	
 	        }
 	        returnPage = setupCalendar(model);
@@ -438,6 +429,7 @@ public class ParentController {
     	return returnPage;
     }
 
+    /*
     @GetMapping("/reviewpayment")
     public String reviewPayment(
             @RequestParam("paymentId") String paymentId,
@@ -463,14 +455,16 @@ public class ParentController {
 				this.setInDialogue(true,model);
 				returnPage = "reviewPayment";
     		}  catch (PayPalRESTException e) {	        
-				model.addAttribute("flashMessage",e.getDetails().getMessage());
+    			if (e.getDetails() != null) {
+    				model.addAttribute("flashMessage",e.getDetails().getMessage());
+    			}
 	        	logger.error("Error occurred:: ", e);
 	        	returnPage = setupCalendar(model);	        	 	        	
 	        }	      
     	}
     	return returnPage;
     }
-    
+    */
     
     @GetMapping("/paymentcancel")
     public String paymentCancel(Model model) {
@@ -674,14 +668,13 @@ public class ParentController {
 				}
 			}
 
-			if (loggedOnParent.getBalance() < totalCost) {
+			if (!loggedOnParent.canAfford(totalCost, event.getClub())) {
 				allErrorMessages.add("Not enough funds to attend this session. Please top up your account.");
 			}
 
 			if (allErrorMessages.size() == 0) {
 				if (totalCost > 0) {
-					loggedOnParent.addTransaction(new ParentalTransaction(-totalCost, LocalDateTime.now(),
-							ParentalTransaction.Type.PAYMENT, event.getClub().getTitle()));
+					loggedOnParent.recordPaymentForClub(totalCost, event.getClub(), "Booking for ".concat(event.getClub().getTitle())); 
 				}
 
 				tmpUser.save();
@@ -778,16 +771,15 @@ public class ParentController {
 				}
 			}				
 			int costDifference = totalCost - totalOriginalCost;
-			
-			if (loggedOnParent.getBalance() >= costDifference) {
+						
+			if (costDifference<=0 || loggedOnParent.canAfford(costDifference, event.getClub())) {
 				if ( costDifference > 0) {
-					loggedOnParent.addTransaction(new ParentalTransaction(-costDifference,LocalDateTime.now(),ParentalTransaction.Type.PAYMENT, "Option changes for ".concat(event.getClub().getTitle())));
+					loggedOnParent.recordPaymentForClub(costDifference, event.getEventClub(), "Option changes for ".concat(event.getClub().getTitle()));
 				}
 				else if ( costDifference < 0) {
-					loggedOnParent.addTransaction(new ParentalTransaction(-costDifference,LocalDateTime.now(),ParentalTransaction.Type.REFUND, "Option changes for ".concat(event.getClub().getTitle())));
-				}
-				tmpUser.save();
-				
+					loggedOnParent.recordRefundForClub(costDifference*-1, event.getEventClub(), "Option changes for ".concat(event.getClub().getTitle()));									
+				}				
+				tmpUser.save();				
 				model.addAttribute("flashMessage", "Updated Options for ".concat(event.getClub().getTitle()));
 				sessionBean.setLoggedOnUser(tmpUser);
 				
@@ -809,29 +801,31 @@ public class ParentController {
 		if (returnPage == null) {				
 			sessionBean.setSelectedStudent(sessionBean.getLoggedOnParent().getStudentFromId(studentId));			
 			logger.info("Selected Student = {} for id {}",sessionBean.getSelectedStudent(), studentId);
-			returnPage = setupCalendar(model);			
+			returnPage = sessionBean.getRedirectUrl();			
 		}
 		return returnPage;
 	}	
 
-	@PostMapping("/saveUserDetails")
-	public String saveUserDetails(@RequestParam(name = "firstName") String firstName,
-			@RequestParam(name = "surname") String surname, @RequestParam(name = "email") String email,
-			@RequestParam(name = "telephoneNum") String telephoneNum, @RequestParam(name = "altContactName") String altContactName, @RequestParam (name = "altTelephoneNum") String altTelephoneNum, Model model) {
+    @GetMapping("/viewIncidents")
+    public String updateAdminFilters(Model model) 
+    {
 		String returnPage = validateIsParent(model);
-		if (returnPage == null) {	
-			Parent loggedOnParent = sessionBean.getLoggedOnParent();
-			sessionBean.getLoggedOnUser().setFirstName(firstName);
-			sessionBean.getLoggedOnUser().setSurname(surname);
-			sessionBean.getLoggedOnUser().setTelephoneNum(telephoneNum);
-			loggedOnParent.setAltContactName(altContactName);
-			loggedOnParent.setAltTelephoneNum(altTelephoneNum);
-			sessionBean.getLoggedOnUser().save();			
-			model.addAttribute("flashMessage","Profile has been updated");
-			returnPage = setupCalendar(model);
-		}
+		if (returnPage == null) {
+			Student currentStudent = sessionBean.getSelectedStudent();
+			if (currentStudent != null) {				
+				List<Event> allIncidentEvents = Event.findAllWithIncidentsForStudent(currentStudent.getStudentId());
+				model.addAttribute("incidentEvents", allIncidentEvents);	
+				this.setInDialogue(false,model);	
+				sessionBean.setReturnIncidents();
+				returnPage = "studentIncidents";				
+			}
+			else {
+				returnPage = setupCalendar(model);
+			}
+		}		
 		return returnPage;
-	}
+    }   
+
 	
 	
 	

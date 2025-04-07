@@ -113,3 +113,38 @@ function setDateLimits(){
 	
 		
   };
+  
+  function addRow(button) {
+  			
+  	var index = Number(button.id.replace("add", ""));
+  	
+  	$("#item" + (index + 1)).show();
+  	$("#item" + index +"buttons").hide();
+  	
+  	
+  	return;	 	
+  }
+
+
+  function removeRow(button) {
+  			
+  	var index = Number(button.id.replace("remove", ""));
+
+  	$("#item" + (index)).hide();
+  	$( "#item" + (index-1) +"buttons").show();
+
+  	$('#equipment' + index).val(0);
+  	$('#equipmentQuantity' + index).val(0);
+  	$('#perAttendee' + index).prop('checked' , false);
+  	
+  	return;	 	
+  }
+  
+  
+
+  function copyPerAttendee() {
+  	$('input[name="hiddenPerAttendee').each(function(i, obj) {
+  			obj.value = $('input[name="perAttendee')[i].checked;
+  		});
+  }
+  

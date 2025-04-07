@@ -1,5 +1,6 @@
 package com.afterschoolclub.data;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -34,8 +35,7 @@ public class Club {
 
 	private int basePrice;
 	
-	
-	
+	private boolean acceptsVouchers = true;
 	
 	private boolean yearRCanAttend;
 	@Column("year_1_can_attend")
@@ -239,5 +239,10 @@ public class Club {
 		return clubPicService.getImageURL(clubId);		
 	}
 	
-	
+	public int getRevenueForYearStarting(LocalDate startDate) {
+		LocalDate endDate = startDate.plusYears(1);
+		endDate =endDate.minusDays(1);
+		return ParentalTransaction.getRevenueForClubBetween(this.getClubId(), startDate, endDate);			
+	}	
+		
 }

@@ -79,7 +79,7 @@
 	  				
 					<div class="col-sm-6">
 							<div class="row mb-2">
-								<div class="col-sm-1 formlabel" align="left">Organiser(s):</div>			
+								<div class="col-sm-1 formlabel" >Organiser(s):</div>			
 							</div>
 							<div th:each="staffMember : ${staff}" >
 								<div class="container-fluid">
@@ -90,7 +90,7 @@
 										
 										<div class="col-sm-10">									
 												<div class="row mb-2"><div class="col-sm-12" align="left" th:text="${staffMember.getFullName()}"></div></div>
-												<div class="row mb-2"><a th:href="${'mailto:' + staffMember.getEmail()}"  class="col-sm-12" align="left" th:text="${staffMember.getEmail()}"></a></div>
+												<div class="row mb-2"><a th:href="${'mailto:' + staffMember.getEmail()}"  class="col-sm-12"  th:text="${staffMember.getEmail()}"></a></div>
 									
 										</div>
 									</div>
@@ -102,7 +102,7 @@
 				<div class="row mb-2">
 					<div class="col-sm-2 formlabel" align="right">Description:</div>
 					<div class="col-sm-10" style="padding:0px"> 
-						<textarea class="form-control form-control-sm mr-sm-2"  row=3 th:text="${clubSession.getClub().getDescription()}" readOnly type="text" name="description" ></textarea>
+						<textarea class="form-control form-control-sm mr-sm-2"  rows="3" th:text="${clubSession.getClub().getDescription()}" readOnly  name="description" ></textarea>
 					</div>
 				</div>
 				
@@ -308,13 +308,13 @@
 										<div class="col-sm-3" th:text="${menuGroupOption.getMenuOption().getDescription()}"></div>
 										<div class="col-sm-3" th:text="${menuGroupOption.getMenuOption().getAllergyInformation()}"></div>
 										<div class="col-sm-2" align="left">
-											<span th:id="${'student-'+student.getStudentId() + '-Option' +menuGroupOption.getMenuOptionId()+'-FormattedCost'}" th:text="${menuGroupOption.getMenuOption().getFormattedCost()}"></span><span>&nbsp;&nbsp;&nbsp;</span>
+											<span th:id="${'student-'+student.getStudentId() + '-Option' +menuGroupOption.getMenuOptionIdAsInt()+'-FormattedCost'}" th:text="${menuGroupOption.getMenuOption().getFormattedCost()}"></span><span>&nbsp;&nbsp;&nbsp;</span>
 											<input onChange="refreshBookingSummary()"  type="radio"
-												th:checked="${displayHelper.checkedOption(menu, menuGroupOption.getMenuOptionId(), student, clubSession, editOptions, viewOnly)}"
+												th:checked="${displayHelper.checkedOption(menu, menuGroupOption.getMenuOptionIdAsInt(), student, clubSession, editOptions, viewOnly)}"
 												th:disabled="${viewOnly}" th:readOnly="${viewOnly}" 
 												
-												class="form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" th:value="${menuGroupOption.getMenuOptionId()}" th:id="${'student-'+student.getStudentId() + '-Option'+menuGroupOption.getMenuOptionId()}"/>
-											<input type="hidden" th:name="${'student-'+student.getStudentId() + '-' + menuGroupOption.getMenuOptionId()+'-Value'}" th:value="${menuGroupOption.getMenuOption().getAdditionalCost()}"  th:id="${'student-'+student.getStudentId() + '-Option' + menuGroupOption.getMenuOptionId()+'-Value'}"/>
+												class="form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" th:value="${menuGroupOption.getMenuOptionIdAsInt()}" th:id="${'student-'+student.getStudentId() + '-Option'+menuGroupOption.getMenuOptionIdAsInt()}"/>
+											<input type="hidden" th:name="${'student-'+student.getStudentId() + '-' + menuGroupOption.getMenuOptionIdAsInt()+'-Value'}" th:value="${menuGroupOption.getMenuOption().getAdditionalCost()}"  th:id="${'student-'+student.getStudentId() + '-Option' + menuGroupOption.getMenuOptionIdAsInt()+'-Value'}"/>
 										</div>
 									</div>
 								</div>

@@ -1,7 +1,7 @@
 USE after_school_club2;
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE `attendee`, `Attendee_Menu_Choice`, `Holiday`, `Recurrence_Specification`, `class`,  `club`, `event`, `Event_Menu`, `Event_Resource`, `incident`, `Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`, `parent`, `resource`, `student`, `Parental_Transaction`, `user`;
+DROP TABLE `attendee`, `Attendee_Menu_Choice`, `Holiday`, `Recurrence_Specification`, `class`,  `club`, `event`, `Event_Menu`, `Event_Resource`, `incident`, `Attendee_Incident`,  `Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`, `parent`, `resource`, `student`, `Parental_Transaction`, `user`;
 SET FOREIGN_KEY_CHECKS=1;
 
 
@@ -16,7 +16,9 @@ CREATE TABLE `User` (
   `approval_key` INT,
   `validation_key` INT,
   `date_requested` DATETIME NOT NULL,
-  `email_verified` BOOLEAN NOT NULL
+  `email_verified` BOOLEAN NOT NULL,
+  `state` ENUM('ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE' 
+
 );
 
 CREATE TABLE `Club` (
@@ -25,6 +27,7 @@ CREATE TABLE `Club` (
   `description` VARCHAR(1024) NOT NULL,
   `keywords` VARCHAR(256) NOT NULL,
   `base_price` INT NOT NULL,
+  `accepts_vouchers` BOOLEAN NOT NULL,  
   `year_r_can_attend` BOOLEAN NOT NULL,
   `year_1_can_attend` BOOLEAN NOT NULL,
   `year_2_can_attend` BOOLEAN NOT NULL,
@@ -68,6 +71,8 @@ CREATE TABLE `Holiday` (
 
 CREATE TABLE `Parental_Transaction` (
   `transaction_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `club_id` INT,
+  `payment_reference` VARCHAR(256),  
   `balance_type` ENUM('VOUCHER','CASH') NOT NULL,
   `amount` INT NOT NULL,
   `date_time` DATETIME NOT NULL,
@@ -80,7 +85,8 @@ CREATE TABLE `Parent` (
   `parent_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,  
   `alt_contact_name` VARCHAR(128) NOT NULL,
-  `alt_telephone_num` VARCHAR(20) NOT NULL
+  `alt_telephone_num` VARCHAR(20) NOT NULL,
+  `overdraft_limit` INT NOT NULL default 0
 );
 
 CREATE TABLE `Student` (
@@ -101,12 +107,20 @@ CREATE TABLE `Attendee` (
   `attended` ENUM('ABSENT','PRESENT','NOTRECORDED') NOT NULL
 );
 
+
 CREATE TABLE `Incident` (
   `incident_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `event_id` INT NOT NULL,
+  `summary` VARCHAR(2000) NOT NULL
+);
+
+CREATE TABLE `Attendee_Incident` (
+  `attendee_incident_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `incident_id` INT NOT NULL,
   `attendee_id` INT NOT NULL,
   `summary` VARCHAR(2000) NOT NULL
 );
+
 
 CREATE TABLE `Resource` (
   `resource_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -189,7 +203,10 @@ ALTER TABLE `Parental_Transaction` ADD FOREIGN KEY (`parent_id`) REFERENCES `Par
 
 ALTER TABLE `Incident` ADD FOREIGN KEY (`event_id`) REFERENCES `Event` (`event_id`);
 
-ALTER TABLE `Incident` ADD FOREIGN KEY (`attendee_id`) REFERENCES `Attendee` (`attendee_id`);
+ALTER TABLE `Attendee_Incident` ADD FOREIGN KEY (`incident_id`) REFERENCES `Incident` (`incident_id`);
+
+ALTER TABLE `Attendee_Incident` ADD FOREIGN KEY (`attendee_id`) REFERENCES `Attendee` (`attendee_id`);
+
 
 ALTER TABLE `Event_Resource` ADD FOREIGN KEY (`event_id`) REFERENCES `Event` (`event_id`);
 
@@ -216,6 +233,9 @@ ALTER TABLE `Event` ADD FOREIGN KEY (`club_id`) REFERENCES `Club` (`club_id`);
 ALTER TABLE `Resource` ADD FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`);
 
 ALTER TABLE `Event` ADD FOREIGN KEY (`recurrence_specification_id`) REFERENCES `Recurrence_Specification` (`recurrence_specification_id`);
+
+ALTER TABLE `Parental_Transaction` ADD FOREIGN KEY (`club_id`) REFERENCES `Club` (`club_id`);
+
 
 # Inserts
 INSERT into after_school_club2.class (name,year_group)
@@ -257,7 +277,9 @@ VALUES ((SELECT menu_option_id from after_school_club2.menu_option WHERE name="M
 INSERT into after_school_club2.user (email,password,first_name,surname,validation_key,date_requested,email_verified, telephone_num, title)
 VALUES ("adam@hattonsplace.co.uk","TWFuVXRkMDE=","Adam","Hatton","6000000",'2022-12-27',True, "01256812734", "Mr"),
 ("chris@hattonsplace.co.uk","TWFuVXRkMDE=","Christine","Smith","6000000",'2022-12-27',True,"01256812734", "Mrs"),
-("peterjones@hattonsplace.co.uk","TWFuVXRkMDE=","Peter","Jones","6000000",'2022-12-27',True, "01256812734", "Mr");
+("peterjones@hattonsplace.co.uk","TWFuVXRkMDE=","Peter","Jones","6000000",'2022-12-27',True, "01256812734", "Mr"),
+("brian@hattonsplace.co.uk","TWFuVXRkMDE=","Brian","Guest","6000000",'2022-12-27',True, "01256812734", "Mr");
+
 
  
 INSERT into after_school_club2.resource(name, description, quantity, type, keywords, state, capacity, user_id)
@@ -270,15 +292,23 @@ VALUES ("Mr A Hatton", "Sports Teacher", 1, "STAFF", "sport",  'ACTIVE', 30, (SE
 INSERT into after_school_club2.parent (user_id, alt_contact_name,alt_telephone_num)
 VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Peter"),"Smithy","1234");
 
+INSERT into after_school_club2.parent (user_id, alt_contact_name,alt_telephone_num)
+VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Brian"),"Smithy","2345");
+
+
 INSERT into after_school_club2.student (parent_id, class_id, first_name, surname, date_of_birth, health_questionnaire_completed, consent_to_share)
 VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Ruth", "Jones", "2014-01-01", "2025-01-01", true), 
 		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=0), "Jonny", "Jones", "2019-02-01", "2025-01-01", true), 
 		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Tom", "Jones", "2014-01-01", "2025-01-01", true); 
         
+INSERT into after_school_club2.student (parent_id, class_id, first_name, surname, date_of_birth, health_questionnaire_completed, consent_to_share)
+VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Melanie", "Guest", "2014-01-01", "2025-01-01", true), 
+		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=0), "Hazel", "Guest", "2019-02-01", "2025-01-01", true), 
+		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Chris", "Guest", "2014-01-01", "2025-01-01", true); 
+        
 
-
-INSERT into after_school_club2.club(title, description, base_price, year_r_can_attend, year_1_can_attend, year_2_can_attend, year_3_can_attend, year_4_can_attend, year_5_can_attend, year_6_can_attend, keywords)
-VALUES ("Football Club", "Football Club for Year 6", 250, false, false, false, false, false, false, true, "Sport, Football, Soccer");
+INSERT into after_school_club2.club(title, description, base_price, year_r_can_attend, year_1_can_attend, year_2_can_attend, year_3_can_attend, year_4_can_attend, year_5_can_attend, year_6_can_attend, keywords, accepts_vouchers)
+VALUES ("Football Club", "Football Club for Year 6", 250, false, false, false, false, false, false, true, "Sport, Football, Soccer", true);
 	
 INSERT into after_school_club2.resource(name, description, quantity, type, keywords, state, capacity)
 VALUES ("Football Pitch 1", "Left hand football pitch at the back of the main building", 1, "LOCATION", "sport football", 'ACTIVE', 20),

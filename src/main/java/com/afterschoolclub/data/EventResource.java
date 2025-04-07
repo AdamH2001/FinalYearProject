@@ -17,6 +17,8 @@ public class EventResource {
 	private int eventResourceId;
 		
 	AggregateReference<Resource, Integer> resourceId;
+	AggregateReference<Event, Integer> eventId;
+
 	private int quantity;
 	private boolean perAttendee;
 	

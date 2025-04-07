@@ -88,7 +88,7 @@
 													<li><a class="dropdown-item" th:if="${!filteredEvent.getEvent().endInPast()}"  th:href="@{/cancelEvent(eventId=${filteredEvent.getEvent().getEventId()})}">Cancel Session</a></li>
 													<li th:if="${filteredEvent.getEvent().isNow()} or ${filteredEvent.getEvent().inPast()}" ><hr/></li>
 													<li><a class="dropdown-item" th:if="${filteredEvent.getEvent().isNow()}"  th:href="@{/takeRegister(eventId=${filteredEvent.getEvent().getEventId()})}">Take Register</a></li>
-													<li><a class="dropdown-item" th:if="${filteredEvent.getEvent().inPast()}" th:href="@{/createIncident(eventId=${filteredEvent.getEvent().getEventId()})}">Report Incident</a></li>
+													<li><a class="dropdown-item" th:if="${filteredEvent.getEvent().inPast()}" th:href="@{/createIncident(eventId=${filteredEvent.getEvent().getEventId()})}">Record Incident</a></li>
 						
 												</ul>
 												<ul th:if="${sessionBean.isParentLoggedOn()}" class="dropdown-menu dropdown-menu-dark text-small shadow "

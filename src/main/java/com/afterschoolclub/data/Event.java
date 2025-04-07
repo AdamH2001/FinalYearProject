@@ -52,6 +52,14 @@ public class Event {
 		return repository.findByResourceId(resourceId);
 	}		
 	
+	public static  List<Event> findAllWithIncidents() {
+		return repository.findAllWithIncidents();
+	}		
+	
+	public static  List<Event> findAllWithIncidentsForStudent(int studentId) {
+		return repository.findAllWithIncidentsForStudent(studentId);
+	}		
+	
 	
 	public static  List<Event> findByFutureDemandOnResourceId(int resourceId) {
 		return repository.findByFutureDemandOnResourceId(resourceId);
@@ -109,6 +117,10 @@ public class Event {
 
 	@MappedCollection(idColumn = "event_id")
 	private Set<EventMenu> eventMenus = new HashSet<>();	
+	
+	@MappedCollection(idColumn = "event_id")
+	private Set<Incident> incidents = new HashSet<>();
+	
 	
 	@Transient
 	private transient Club eventClub = null; 
@@ -229,7 +241,7 @@ public class Event {
 		Iterator<Attendee> attendeeIterator = attendees.iterator();
 		while (result == null && attendeeIterator.hasNext()) {
 			Attendee compare = attendeeIterator.next();
-			if (compare.getStudentId() == student.getStudentId())
+			if (compare.getStudentId().getId().intValue() == student.getStudentId())
 				result = compare;
 		}
 		return result;
@@ -633,5 +645,42 @@ public class Event {
 		return startDateTime.toLocalDate().compareTo(getRecurrenceSpecification().getEndDate()) !=0; 
 	}
 	
+	public void addIncident(Incident incident) {
+		incidents.add(incident);
+	}
+	
+	
+	public Incident getIncident(int incidentId) {
+		Incident result = null;
+		Iterator<Incident> itr = incidents.iterator();
+		
+		while (result == null && itr.hasNext()) {
+			Incident next = itr.next();
+			if (next.getIncidentId() == incidentId) {
+				result = next;
+			}
+		}
+		return result;
+	}	
+	
+	public void removeIncident(int incidentId) {		
+		Incident incident = this.getIncident(incidentId);
+		incidents.remove(incident);
+		return;
+	}	
+	
+	
+
+	public List<Student> getStudentsForIncident(Incident incident) {
+		
+		List <Student> students = new ArrayList<>();
+		Set<AttendeeIncident> allAttendeeIncidents = incident.getAttendeeIncidents();
+		for (AttendeeIncident ai : allAttendeeIncidents) {
+			Student s = this.getAttendee(ai.getAttendeeId().getId().intValue()).getStudent();
+			students.add(s);
+		}
+		return students;
+		
+	}
 	
 }

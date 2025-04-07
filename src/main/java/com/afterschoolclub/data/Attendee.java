@@ -26,12 +26,17 @@ public class Attendee {
 	@Id
 	private int attendeeId;
 	AggregateReference<Event, Integer> eventId;
-	private int studentId;
+	AggregateReference<Student, Integer> studentId;
+
 	private Registration attended = Registration.NOTRECORDED;
-	@MappedCollection(idColumn = "attendee_id")
-	private Set<Incident> incidents = new HashSet<>();
+
 	@MappedCollection(idColumn = "attendee_id")
 	private Set<AttendeeMenuChoice> menuChoices = new HashSet<>();
+	
+	
+	@MappedCollection(idColumn = "attendee_id")
+	private Set<AttendeeIncident> attendeeIncidents = new HashSet<>();
+	
 	
     @ToString.Exclude
 	@Transient
@@ -44,12 +49,10 @@ public class Attendee {
 	public Attendee(AggregateReference<Event, Integer> eventId, int studentId) {
 		super();
 		this.eventId = eventId;
-		this.studentId = studentId;
+		this.studentId = AggregateReference.to(studentId);
 	}
 	
-	public void addIncident(Incident incident) {
-		incidents.add(incident);
-	}
+
 	
 	public void addAttendeeMenuChoice(AttendeeMenuChoice choice) {
 		menuChoices.add(choice);

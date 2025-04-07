@@ -3,6 +3,7 @@ package com.afterschoolclub.controller.rest;
 import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.controller.AdminController;
 import com.afterschoolclub.data.MenuGroupOption;
+import com.afterschoolclub.data.SimpleMenuGroupOption;
 import com.afterschoolclub.data.repository.MenuGroupOptionRepository;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,26 +49,32 @@ public class MenuGroupOptionController {
     
 	
     @GetMapping
-    public Iterable<MenuGroupOption> getAllMenuGroups() {
-    	return MenuGroupOption.findAll();
+    public Iterable<SimpleMenuGroupOption> getAllMenuGroups() {
+    	return SimpleMenuGroupOption.findAll();
     }
 
     @GetMapping(value="/{id}")
-    public Optional<MenuGroupOption> getStaffById(@PathVariable long id) {
+    public Optional<SimpleMenuGroupOption> getStaffById(@PathVariable long id) {
     	MenuGroupOption mg = MenuGroupOption.findById((int)id);
-    	return Optional.of(mg);
+    	SimpleMenuGroupOption smgo = null;
+    	if (mg != null) {
+    		smgo = mg.getSimpleMenuGroupOption();
+    	}
+    	return Optional.of(smgo);
     }
 
     @PostMapping(consumes = {"application/json"})
-    public MenuGroupOption createMenuGroup(@RequestBody MenuGroupOption menuGroup) {
-    	menuGroup.save();
-        return menuGroup;
+    public SimpleMenuGroupOption createMenuGroup(@RequestBody SimpleMenuGroupOption simpleMenuGroupOption) {
+    	MenuGroupOption mgo = new MenuGroupOption(simpleMenuGroupOption);
+    	mgo.save();
+    	return mgo.getSimpleMenuGroupOption();
     }
 
     @PutMapping(value="/{id}", consumes = {"application/json"})
-    public MenuGroupOption updateMenuGroup(@PathVariable long id, @RequestBody MenuGroupOption menuGroup) {
-    	menuGroup.save();
-        return menuGroup;
+    public SimpleMenuGroupOption updateMenuGroup(@PathVariable long id, @RequestBody SimpleMenuGroupOption simpleMenuGroupOption) {
+    	MenuGroupOption mgo = new MenuGroupOption(simpleMenuGroupOption);
+    	mgo.save();
+    	return mgo.getSimpleMenuGroupOption();
     }
     
     @DeleteMapping(value="/{id}")

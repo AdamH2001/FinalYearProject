@@ -84,7 +84,7 @@ public class MenuGroup {
 		Iterator<MenuGroupOption> iterator = menuGroupOptions.iterator();
 		while (iterator.hasNext() && result == null) {
 			MenuGroupOption current = iterator.next();
-			if (current.getMenuOptionId() == menuOptionId) {
+			if (current.getMenuOptionIdAsInt() == menuOptionId) {
 				result = current.getMenuOption(); 
 			}
 		}
@@ -111,7 +111,7 @@ public class MenuGroup {
 		while (iterator.hasNext() && result == 0) {
 			MenuGroupOption current = iterator.next();
 			if (current.getMenuGroupOptionId() == menuGroupOptionId) {
-				result = current.getMenuOptionId(); 
+				result = current.getMenuOptionIdAsInt(); 
 			}
 		}
 		return result;
@@ -122,7 +122,7 @@ public class MenuGroup {
 		Iterator<MenuGroupOption> iterator = menuGroupOptions.iterator();
 		while (iterator.hasNext() && result == 0) {
 			MenuGroupOption current = iterator.next();
-			if (current.getMenuOptionId() == menuOptionId) {
+			if (current.getMenuOptionIdAsInt() == menuOptionId) {
 				result = current.getMenuGroupOptionId(); 
 			}
 		}

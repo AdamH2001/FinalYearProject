@@ -57,7 +57,7 @@
 
 				<div class="row mb-1">
 					<div class="col-sm-4" align="right">Cash Balance:</div>
-					<div class="col-sm-2" align="right" th:text="${sessionBean.getLoggedOnParent().getFormattedBalance()}"></div>
+					<div class="col-sm-2" align="right" th:text="${sessionBean.formatMoney(sessionBean.getLoggedOnParent().getBalance())}"></div>
 
 					<div class="col-sm-4" align="right">Total Sessions:</div>
 					<div class="col-sm-1" align="right" th:text="${sessionBean.getLoggedOnParent().numFutureSessionsBooked()}"></div>
@@ -66,7 +66,7 @@
 				</div>
 				<div class="row mb-1">
 					<div class="col-sm-4" align="right">Voucher Balance:</div>
-					<div class="col-sm-2" align="right" th:text="${sessionBean.getLoggedOnParent().getFormattedVoucherBalance()}"></div>
+					<div class="col-sm-2" align="right" th:text="${sessionBean.formatMoney(sessionBean.getLoggedOnParent().getVoucherBalance())}"></div>
 
 					<div class="col-sm-4" align="right">
 						For <span th:text="${sessionBean.getSelectedStudent().getFirstName()}"></span>:
@@ -76,18 +76,18 @@
 			</div>
 			<div th:if="${sessionBean.isAdminLoggedOn()}" class="col-sm-4 p-2">
 				<div class="row mb-1">
-					<div class="col-sm-4" align="right">Admin Info 1:</div>
-					<div class="col-sm-1" align="right">0</div>
+					<div class="col-sm-4" align="right">Revenue:</div>
+					<div class="col-sm-1" align="right"><a href="./clubRevenue" th:text="${sessionBean.formatMoney(sessionBean.getTotalRevenue())}"></a></div>
 
-					<div class="col-sm-4" align="right">Admin Info 2:</div>
-					<div class="col-sm-1" align="right">0</div>
+					<div class="col-sm-4" align="right">Credit:</div>
+					<div class="col-sm-1" align="right" ><a href="./parentFinances" th:text="${sessionBean.formatMoney(sessionBean.getTotalCashCredit())}"></a></div>
 				</div>
 				<div class="row mb-1">
-					<div class="col-sm-4" align="right">Admin Info 3:</div>
-					<div class="col-sm-1" align="right">0</div>
-
-					<div class="col-sm-4" align="right">Admin Info 4:</div>
-					<div class="col-sm-1" align="right">0</div>
+					<div class="col-sm-4" align="right">Vouchers:</div>
+					<div class="col-sm-1" align="right" ><a href="./parentFinances" th:text="${sessionBean.formatMoney(sessionBean.getTotalVoucherBalance())}"></a></div>
+					
+					<div class="col-sm-4" align="right">Debt:</div>
+					<div class="col-sm-1" align="right" ><a href="./parentFinances"th:text="${sessionBean.formatMoney(sessionBean.getTotalOwed())}"></a></div>					
 				</div>
 
 			</div>

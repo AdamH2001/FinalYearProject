@@ -43,10 +43,17 @@ public class ProfilePicController {
     
 	
     @PostMapping("/profilePics")
-    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file, @RequestParam("id") int studentId) {
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file, @RequestParam(name="id", required=false, defaultValue="0") String studentId, 
+    		 @RequestParam(name="filename", required=false, defaultValue="") String filename) {
         try {
             // Save the file to the directory
-            String filePath = profilePicService.saveImage(file, studentId);
+        	String filePath;
+        	if (filename.length() >0) {
+        		filePath = profilePicService.saveImage(file, filename);
+        	}
+        	else {
+        		filePath = profilePicService.saveImage(file, studentId);
+        	}
             System.out.print("StudentId=".concat(String.valueOf(studentId)));
             return ResponseEntity.ok("Image uploaded successfully: " + filePath);
         } catch (IOException e) {
