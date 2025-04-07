@@ -177,6 +177,7 @@ public class Parent {
 		}
 		if (remaining > 0) {
 			ParentalTransaction pt = new ParentalTransaction(-remaining, LocalDateTime.now(), ParentalTransaction.Type.PAYMENT, description, club);
+			addTransaction(pt);
 		}
 		return;
 	}
