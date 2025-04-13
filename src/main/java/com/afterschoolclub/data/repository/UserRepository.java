@@ -14,8 +14,8 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 	List<User> findByEmail(String email);
 	List<User> findAll();
 	
-	@Query("SELECT u.* from user u, event_resource er, resource r where u.user_id=r.user_id and er.resource_id=r.resource_id and er.event_id = :eventId ORDER BY u.surname")
-	List<User> findStaffByEventId(int eventId);	
+	@Query("SELECT u.* from user u, session_resource sr, resource r where u.user_id=r.user_id and sr.resource_id=r.resource_id and sr.session_id = :sessionId ORDER BY u.surname")
+	List<User> findStaffBySessionId(int sessionId);	
 	
 	@Query("SELECT u.* FROM resource r, user u where r.type=\"STAFF\" and u.user_id=r.user_id AND u.state='ACTIVE'  ORDER BY u.surname")	
 	List<User> findStaff();	
@@ -40,7 +40,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 	void updateParent(int parentId, String altContactName, String altTelephoneNum, int overdraftLimit);
 
 		
-	@Query("SELECT COUNT(*) FROM student s, attendee a, parent p, event e  WHERE p.parent_id = :parentId AND s.parent_id = p.parent_id and e.start_date_time > now() AND a.student_id=s.student_id AND a.event_id=e.event_id")
+	@Query("SELECT COUNT(*) FROM student s, attendee a, parent p, session WHERE p.parent_id = :parentId AND s.parent_id = p.parent_id and session.start_date_time > now() AND a.student_id=s.student_id AND a.session_id=session.session_id")
 	int numFutureSessionsBooked(int parentId);
 	
 	@Query("SELECT SUM(overdraft_limit) FROM parent")

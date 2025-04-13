@@ -58,8 +58,13 @@ public class Club {
 		return repository.findAll();
 	}
 	
-	public static Club findById(int eventId) {
-		Optional<Club> optional = repository.findById(eventId);
+	public static List<Club> findActive() {
+		return repository.findByState(State.ACTIVE);		
+	}	
+	
+	
+	public static Club findById(int sessionId) {
+		Optional<Club> optional = repository.findById(sessionId);
 		Club club = null;
 		if (optional.isPresent()) {
 			club = optional.get();

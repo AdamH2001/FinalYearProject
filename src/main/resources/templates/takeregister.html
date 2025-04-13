@@ -15,6 +15,7 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
 
 	
 	<div id="main" class="main container-flex no-margin ">
@@ -25,8 +26,8 @@
 
 
 
-				<h1 align="center">Take Register for <span th:text="${event.getClub().getTitle()}"></span></h1>
-					<div th:each="attendee: ${event.getSortedAttendees()}" class="row mb-2">
+				<h1 class="asc-header">Take Register for <span th:text="${session.getClub().getTitle()}"></span></h1>
+					<div th:each="attendee: ${session.getSortedAttendees()}" class="row mb-2">
 						<div class="col-sm-6">
 							<label th:text="${attendee.getStudent().getFullName()}" th:for="'attendee_' + ${attendee.getAttendeeId()}">AttendeeId</label> 
 							<input type="checkbox" th:name="'attendee_' + ${attendee.getAttendeeId()}" th:id="'attendee_' + ${attendee.getAttendeeId()}" /> 
@@ -40,10 +41,10 @@
 						<button class="btn btn-primary" name="submit">Submit</button>
 					</div>
 					<div class="col-sm-6" align="left">
-						<a href="javascript:history.back()" class="btn btn-secondary" role="button">Cancel</a>
+						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Cancel</a>
 					</div>					
 				</div>
-				<input type=hidden name="eventId" th:value="${event.getEventId()}"/>											
+				<input type=hidden name="sessionId" th:value="${session.getSessionId()}"/>											
 			</form>
 		</div>
 

@@ -1,13 +1,11 @@
 package com.afterschoolclub.controller;
 
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +24,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.data.Attendee;
 import com.afterschoolclub.data.AttendeeMenuChoice;
-import com.afterschoolclub.data.Event;
+import com.afterschoolclub.data.Session;
 import com.afterschoolclub.data.MenuGroup;
 import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.Parent;
@@ -38,7 +36,6 @@ import com.afterschoolclub.service.DisplayHelperService;
 import com.afterschoolclub.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
-import com.paypal.api.payments.RelatedResources;
 import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.PayPalRESTException; 
   
@@ -88,15 +85,15 @@ public class ParentController {
 		
 		if (sessionBean.getLoggedOnUser() != null) {
 			if (!sessionBean.getLoggedOnUser().isParent()) {
-				model.addAttribute("flashMessage","You need to be a parent to perform this action.");	
+				sessionBean.setFlashMessage("You need to be a parent to perform this action.");	
 				setInDialogue(false,model);
-				returnPage = setupCalendar(model);								
+				returnPage = sessionBean.getRedirectUrl();
 			}
 		}
 		else {
-			model.addAttribute("flashMessage","Please login to perform this action.");
+			sessionBean.setFlashMessage("Please login to perform this action.");
 			setInDialogue(false,model);
-			returnPage = "home";		
+			returnPage = sessionBean.getRedirectUrl();
 		}
 		return returnPage;		
 	}
@@ -173,10 +170,10 @@ public class ParentController {
 			
 			sessionBean.getLoggedOnUser().save();
 			if (studentId == 0) {
-				model.addAttribute("flashMessage","Added New Child.");
+				sessionBean.setFlashMessage("Added New Child.");
 			}
 			else {
-				model.addAttribute("flashMessage","Updated Child Details.");
+				sessionBean.setFlashMessage("Updated Child Details.");
 			}
 				
 			returnPage = setupCalendar(model);
@@ -239,50 +236,50 @@ public class ParentController {
 	}
 
 	
-	@GetMapping("/deregisterForEvent")
-	public String deregisterForEvent(@RequestParam (name="eventId") int eventId, Model model) {
+	@GetMapping("/deregisterForSession")
+	public String deregisterForSession(@RequestParam (name="sessionId") int sessionId, Model model) {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {		
-			Event event = Event.findById(eventId);								
+			Session session = Session.findById(sessionId);								
 			Student selectedStudent = sessionBean.getSelectedStudent();
-			int cost = selectedStudent.getCostOfEvent(event);
-			selectedStudent.deregister(eventId);				
-			sessionBean.getLoggedOnParent().recordRefundForClub(cost, event.getClub(), "Cancellation of booking for ".concat(event.getClub().getTitle()));			
+			int cost = selectedStudent.getCostOfSession(session);
+			selectedStudent.deregister(sessionId);				
+			sessionBean.getLoggedOnParent().recordRefundForClub(cost, session.getClub(), "Cancellation of booking for ".concat(session.getClub().getTitle()));			
 			sessionBean.getLoggedOnUser().save();			
-			model.addAttribute("flashMessage","Cancelled booking for ".concat(selectedStudent.getFirstName()).concat(" and account refunded."));
+			sessionBean.setFlashMessage("Cancelled booking for ".concat(selectedStudent.getFirstName()).concat(" and account refunded."));
 			returnPage = setupCalendar(model);			
 		}
 		return returnPage;
 			
 	}
 
-	public String setUpSessionOptions(Integer eventId, boolean editOptions, boolean viewOnly,  Model model)  {
+	public String setUpSessionOptions(Integer sessionId, boolean editOptions, boolean viewOnly,  Model model)  {
 		
-		return setUpSessionOptions(Event.findById(eventId), editOptions, viewOnly, model);
+		return setUpSessionOptions(Session.findById(sessionId), editOptions, viewOnly, model);
 	}
 	
-	public String setUpSessionOptions(Event event, boolean editOptions, boolean viewOnly,  Model model)  {			
+	public String setUpSessionOptions(Session session, boolean editOptions, boolean viewOnly,  Model model)  {			
 		String returnPage;
 		
-		if (event != null) {			
-			model.addAttribute("clubSession",event);
-			List<User> staff = User.findStaffByEventId(event.getEventId());
+		if (session != null) {			
+			model.addAttribute("clubSession",session);
+			List<User> staff = User.findStaffBySessionId(session.getSessionId());
 			model.addAttribute("staff", staff);
 			model.addAttribute("parent", sessionBean.getLoggedOnParent());
 			
 			
 			
-			List<Event> recurringEvents = Event.findRecurringEvents(event.getRecurrenceSpecificationId().getId());
+			List<Session> recurringSessions = Session.findRecurringSessions(session.getRecurrenceSpecificationId().getId());
 			
-			model.addAttribute("bookingEndDate", event.getStartDate());
-			model.addAttribute("termTimeOnly", event.getRecurrenceSpecification().isTermTimeOnly());			
-			model.addAttribute("MonRecurring",event.getRecurrenceSpecification().isOccursMonday());
-			model.addAttribute("TueRecurring",event.getRecurrenceSpecification().isOccursTuesday());			
-			model.addAttribute("WedRecurring",event.getRecurrenceSpecification().isOccursWednesday());
-			model.addAttribute("ThurRecurring",event.getRecurrenceSpecification().isOccursThursday());
-			model.addAttribute("FriRecurring",event.getRecurrenceSpecification().isOccursFriday());
-			model.addAttribute("SatRecurring",event.getRecurrenceSpecification().isOccursSaturday());
-			model.addAttribute("SunRecurring",event.getRecurrenceSpecification().isOccursSunday());
+			model.addAttribute("bookingEndDate", session.getStartDate());
+			model.addAttribute("termTimeOnly", session.getRecurrenceSpecification().isTermTimeOnly());			
+			model.addAttribute("MonRecurring",session.getRecurrenceSpecification().isOccursMonday());
+			model.addAttribute("TueRecurring",session.getRecurrenceSpecification().isOccursTuesday());			
+			model.addAttribute("WedRecurring",session.getRecurrenceSpecification().isOccursWednesday());
+			model.addAttribute("ThurRecurring",session.getRecurrenceSpecification().isOccursThursday());
+			model.addAttribute("FriRecurring",session.getRecurrenceSpecification().isOccursFriday());
+			model.addAttribute("SatRecurring",session.getRecurrenceSpecification().isOccursSaturday());
+			model.addAttribute("SunRecurring",session.getRecurrenceSpecification().isOccursSunday());
 					
 			List<String> selectedStudents = new ArrayList<String>();
 			
@@ -290,7 +287,7 @@ public class ParentController {
 			if (sessionBean.isLoggedOn()) {
 				allChildren = sessionBean.getLoggedOnParent().getStudents();
 				for (Student student :allChildren) {
-					if (event.registered(student)) {
+					if (session.registered(student)) {
 						selectedStudents.add(student.getIdAsString());
 					}
 				}
@@ -306,10 +303,10 @@ public class ParentController {
 			
 			model.addAttribute("selectedStudents", selectedStudents);			
 					
-			logger.info("Event staff are {}", event.getStaff());
+			logger.info("Session staff are {}", session.getStaff());
 
 			model.addAttribute("editOptions", editOptions);
-			model.addAttribute("recurringEvents", recurringEvents);
+			model.addAttribute("recurringSessions", recurringSessions);
 			
 			model.addAttribute("viewOnly", viewOnly);						
 			model.addAttribute("displayHelper", displayHelper);			
@@ -318,35 +315,35 @@ public class ParentController {
 			returnPage = "parentSession";
 		}
 		else {
-			model.addAttribute("flashMessage","Session does not exist");
+			sessionBean.setFlashMessage("Session does not exist");
 			returnPage = setupCalendar(model);				
 		}
 		return returnPage;
 
 	}
 	
-	@GetMapping("/editEventOptions")
-	public String editEventOptions(@RequestParam (name="eventId") Integer eventId, Model model) {
+	@GetMapping("/editSessionOptions")
+	public String editSessionOptions(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {	
-			returnPage = setUpSessionOptions(eventId, true, false, model);				
+			returnPage = setUpSessionOptions(sessionId, true, false, model);				
 		}
 		return returnPage;
 	}	
 	
-	@GetMapping("/registerForEvent")
-	public String registerForEvent(@RequestParam (name="eventId") Integer eventId, Model model) {
+	@GetMapping("/registerForSession")
+	public String registerForSession(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {	
-			returnPage = setUpSessionOptions(eventId, false, false, model);							
+			returnPage = setUpSessionOptions(sessionId, false, false, model);							
 		}	
 		return returnPage;
 	}
 	
 	@GetMapping("/parentViewSession")
-	public String parentViewSession(@RequestParam (name="eventId") Integer eventId, Model model) {
+	public String parentViewSession(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 
-		return setUpSessionOptions(eventId, false, true, model);		
+		return setUpSessionOptions(sessionId, false, true, model);		
 	}	
 		
 
@@ -413,14 +410,14 @@ public class ParentController {
 						sessionBean.getLoggedOnParent().addTransaction(pt);						
 					}
 	        		sessionBean.getLoggedOnUser().save();					
-					model.addAttribute("flashMessage","Payment Successful");					
+					sessionBean.setFlashMessage("Payment Successful");					
 	            }
 	        } catch (PayPalRESTException e) {	   
 	        	if (e.getDetails() != null) {
-	        		model.addAttribute("flashMessage",e.getDetails().getMessage());
+	        		sessionBean.setFlashMessage(e.getDetails().getMessage());
 	        	}
 	        	else {
-	        		model.addAttribute("flashMessage","Internal Payment Error");
+	        		sessionBean.setFlashMessage("Internal Payment Error");
 	        	}
 	        	logger.error("Error occurred:: ", e);	        	
 	        }
@@ -456,7 +453,7 @@ public class ParentController {
 				returnPage = "reviewPayment";
     		}  catch (PayPalRESTException e) {	        
     			if (e.getDetails() != null) {
-    				model.addAttribute("flashMessage",e.getDetails().getMessage());
+    				sessionBean.setFlashMessage(e.getDetails().getMessage());
     			}
 	        	logger.error("Error occurred:: ", e);
 	        	returnPage = setupCalendar(model);	        	 	        	
@@ -469,7 +466,7 @@ public class ParentController {
     @GetMapping("/paymentcancel")
     public String paymentCancel(Model model) {
 		String returnPage = validateIsParent(model);
-		model.addAttribute("flashMessage","Payment Cancelled");		
+		sessionBean.setFlashMessage("Payment Cancelled");		
 		if (returnPage == null) {	
 			this.setInDialogue(false,model);			
 			returnPage = setupCalendar(model);
@@ -480,7 +477,7 @@ public class ParentController {
     @GetMapping("/paymenterror")
     public String paymentError(Model model) {
 		String returnPage = validateIsParent(model);
-		model.addAttribute("flashMessage","Payment Error");
+		sessionBean.setFlashMessage("Payment Error");
 		if (returnPage == null) {	
 			this.setInDialogue(false,model);			
 			returnPage = setupCalendar(model);
@@ -513,8 +510,8 @@ public class ParentController {
 
 	}	
 	
-	@GetMapping("/cancelRegisterForEvent")
-	public String cancelRegisterForEvent(Model model) {
+	@GetMapping("/cancelRegisterForSession")
+	public String cancelRegisterForSession(Model model) {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {	
 			User tmpUser = User.findById(sessionBean.getLoggedOnUser().getUserId());  // Reload user so no failed bookings already present.
@@ -525,8 +522,8 @@ public class ParentController {
 		return returnPage;		
 	}
 	
-	@PostMapping("/confirmRegisterForEvent")
-	public String confirmRegisterForEvent(@RequestParam Map<String, String> allParams,
+	@PostMapping("/confirmRegisterForSession")
+	public String confirmRegisterForSession(@RequestParam Map<String, String> allParams,
 			@RequestParam(name = "MonRecurring", required = false) Boolean MonRecurring,
 			@RequestParam(name = "TueRecurring", required = false) Boolean TueRecurring,
 			@RequestParam(name = "WedRecurring", required = false) Boolean WedRecurring,
@@ -541,27 +538,27 @@ public class ParentController {
 
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {
-			int eventId = Integer.parseInt(allParams.getOrDefault("eventId", "0"));
+			int sessionId = Integer.parseInt(allParams.getOrDefault("sessionId", "0"));
 
 			User tmpUser = User.findById(sessionBean.getLoggedOnUser().getUserId());  // Reload user so no failed bookings already present.
 			sessionBean.setLoggedOnUser(tmpUser);
 				
 
 			Parent loggedOnParent = tmpUser.getParent(); 
-			Event event = Event.findById(eventId);
+			Session session = Session.findById(sessionId);
 
 			if (bookingEndDate == null) {
-				bookingEndDate =  event.getStartDateTime().toLocalDate();
+				bookingEndDate =  session.getStartDateTime().toLocalDate();
 			}
-			boolean recurringBooking = event.getStartDateTime().toLocalDate().compareTo(bookingEndDate) != 0;
+			boolean recurringBooking = session.getStartDateTime().toLocalDate().compareTo(bookingEndDate) != 0;
 
-			List<Event> allEvents = null;
+			List<Session> allSessions = null;
 
 			if (recurringBooking) {
-				allEvents = Event.findRecurringEvents(event.getRecurrenceSpecificationId().getId());
+				allSessions = Session.findRecurringSessions(session.getRecurrenceSpecificationId().getId());
 			} else {
-				allEvents = new ArrayList<Event>();
-				allEvents.add(event);
+				allSessions = new ArrayList<Session>();
+				allSessions.add(session);
 			}
 
 			int totalCost = 0;
@@ -589,14 +586,14 @@ public class ParentController {
 				allErrorMessages.add("No students selected for booking.");	
 			}
 			else {
-				for (Event specificEvent : allEvents) {
+				for (Session specificSession : allSessions) {
 					boolean tryToBook = !recurringBooking 
-							|| (specificEvent.getStartDateTime().isAfter(LocalDateTime.now())
-							&& !specificEvent.getStartDateTime().toLocalDate().isAfter(bookingEndDate) 
-							&& specificEvent.getStartDateTime().compareTo(event.getStartDateTime()) >=0);
+							|| (specificSession.getStartDateTime().isAfter(LocalDateTime.now())
+							&& !specificSession.getStartDateTime().toLocalDate().isAfter(bookingEndDate) 
+							&& specificSession.getStartDateTime().compareTo(session.getStartDateTime()) >=0);
 	
 					if (tryToBook && recurringBooking) {
-						switch (specificEvent.getStartDateTime().getDayOfWeek()) {
+						switch (specificSession.getStartDateTime().getDayOfWeek()) {
 						case MONDAY:
 							tryToBook = (MonRecurring == null) ? false : MonRecurring.booleanValue();
 							break;
@@ -626,21 +623,21 @@ public class ParentController {
 	
 					if (tryToBook) {
 						sessionCount++;
-						if (specificEvent.getEventId() == event.getEventId()) {
-							event = specificEvent;
+						if (specificSession.getSessionId() == session.getSessionId()) {
+							session = specificSession;
 						}
 						for (Student student : bookedStudents) {
-							if (!specificEvent.canAttend(student)) {
+							if (!specificSession.canAttend(student)) {
 								allErrorMessages.add("Booking failed due to ".concat(student.getFirstName())
 										.concat(" being ineligible"));
 							}
-							else if (!student.isAttendingEvent(specificEvent)) {
-								totalCost += specificEvent.getClub().getBasePrice();
-								Attendee attendee = new Attendee(AggregateReference.to(specificEvent.getEventId()),
+							else if (!student.isAttendingSession(specificSession)) {
+								totalCost += specificSession.getClub().getBasePrice();
+								Attendee attendee = new Attendee(AggregateReference.to(specificSession.getSessionId()),
 										student.getStudentId());
 								student.addAttendee(attendee);
 
-								List<MenuGroup> menuGroups = specificEvent.getMenuGroups();
+								List<MenuGroup> menuGroups = specificSession.getMenuGroups();
 								for (MenuGroup menuGroup : menuGroups) {
 									String optionQueryParam = "student-".concat(String.valueOf(student.getStudentId()))
 											.concat("-").concat(menuGroup.getName().replace(' ', '-'));
@@ -656,25 +653,25 @@ public class ParentController {
 								}	
 							}
 							else {
-								String message = String.format("Booking failed due to %s already attending session on %s.", student.getFirstName(), specificEvent.getStartDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));								
+								String message = String.format("Booking failed due to %s already attending session on %s.", student.getFirstName(), specificSession.getStartDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));								
 								allErrorMessages.add(message);
 							}
 						}
-						if ((specificEvent.getNumberAttendees() + bookedStudents.size()) > specificEvent.getMaxAttendees()) {
+						if ((specificSession.getNumberAttendees() + bookedStudents.size()) > specificSession.getMaxAttendees()) {
 							allErrorMessages.add("Booking failed due to maximum attendees exceeded for session on "
-									.concat(specificEvent.getStartDate()));
+									.concat(specificSession.getStartDate()));
 						}
 					}
 				}
 			}
 
-			if (!loggedOnParent.canAfford(totalCost, event.getClub())) {
+			if (!loggedOnParent.canAfford(totalCost, session.getClub())) {
 				allErrorMessages.add("Not enough funds to attend this session. Please top up your account.");
 			}
 
 			if (allErrorMessages.size() == 0) {
 				if (totalCost > 0) {
-					loggedOnParent.recordPaymentForClub(totalCost, event.getClub(), "Booking for ".concat(event.getClub().getTitle())); 
+					loggedOnParent.recordPaymentForClub(totalCost, session.getClub(), "Booking for ".concat(session.getClub().getTitle())); 
 				}
 
 				tmpUser.save();
@@ -692,17 +689,16 @@ public class ParentController {
 					}											
 				}				
 				
-				String message = String.format("Booked %d session(s) at %s for %s", sessionCount, event.getClub().getTitle(), studentNames); 
+				String message = String.format("Booked %d session(s) at %s for %s", sessionCount, session.getClub().getTitle(), studentNames); 
 						
-				model.addAttribute("flashMessage", message);
+				sessionBean.setFlashMessage(message);
 
 				Student selectedStudent = sessionBean.getSelectedStudent();
 				sessionBean.setSelectedStudent(loggedOnParent.getStudentFromId(selectedStudent.getStudentId()));
 				returnPage = setupCalendar(model);
 			} else {
-				model.addAttribute("flashMessages", allErrorMessages);
-				returnPage = setUpSessionOptions(event, false, false, model);
-				
+				sessionBean.setFlashMessages(allErrorMessages);
+				returnPage = setUpSessionOptions(session, false, false, model);				
 				model.addAttribute("bookingEndDate", bookingEndDate.format(DateTimeFormatter.ofPattern("YYYY-MM-dd")));
 				model.addAttribute("termTimeOnly", termTimeOnly == null ? false : termTimeOnly.booleanValue());			
 				model.addAttribute("MonRecurring",MonRecurring == null ? false : MonRecurring.booleanValue());
@@ -734,11 +730,11 @@ public class ParentController {
 	public String confirmUpdateOptionsForSession(@RequestParam Map<String,String> allParams, Model model) {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {	
-			int eventId = Integer.parseInt(allParams.getOrDefault("eventId", "0"));
+			int sessionId = Integer.parseInt(allParams.getOrDefault("sessionId", "0"));
 			User tmpUser = User.findById(sessionBean.getLoggedOnUser().getUserId());
 			
 			Parent loggedOnParent = tmpUser.getParent();
-			Event event = Event.findById(eventId);
+			Session session = Session.findById(sessionId);
 
 			
 			int totalCost = 0;
@@ -749,13 +745,13 @@ public class ParentController {
 				int id = student.getStudentId();
 				String queryParamStudentAttending = "student-".concat(String.valueOf(id)).concat("-Attending"); 
 				if (allParams.getOrDefault(queryParamStudentAttending, "off").equals("on")) {
-					totalOriginalCost += student.getCostOfEvent(event);
+					totalOriginalCost += student.getCostOfSession(session);
 					
-					totalCost += event.getClub().getBasePrice();
-					Attendee attendee = student.getAttendee(event);
+					totalCost += session.getClub().getBasePrice();
+					Attendee attendee = student.getAttendee(session);
 					attendee.clearAttendeeMenuChoices();	
 					
-					List <MenuGroup> menuGroups = event.getMenuGroups();
+					List <MenuGroup> menuGroups = session.getMenuGroups();
 					for (MenuGroup menuGroup: menuGroups) {							
 						String optionQueryParam = "student-".concat(String.valueOf(student.getStudentId())).concat("-").concat(menuGroup.getName().replace(' ', '-'));
 						String optionValue = allParams.getOrDefault(optionQueryParam, "None");
@@ -772,22 +768,22 @@ public class ParentController {
 			}				
 			int costDifference = totalCost - totalOriginalCost;
 						
-			if (costDifference<=0 || loggedOnParent.canAfford(costDifference, event.getClub())) {
+			if (costDifference<=0 || loggedOnParent.canAfford(costDifference, session.getClub())) {
 				if ( costDifference > 0) {
-					loggedOnParent.recordPaymentForClub(costDifference, event.getEventClub(), "Option changes for ".concat(event.getClub().getTitle()));
+					loggedOnParent.recordPaymentForClub(costDifference, session.getSessionClub(), "Option changes for ".concat(session.getClub().getTitle()));
 				}
 				else if ( costDifference < 0) {
-					loggedOnParent.recordRefundForClub(costDifference*-1, event.getEventClub(), "Option changes for ".concat(event.getClub().getTitle()));									
+					loggedOnParent.recordRefundForClub(costDifference*-1, session.getSessionClub(), "Option changes for ".concat(session.getClub().getTitle()));									
 				}				
 				tmpUser.save();				
-				model.addAttribute("flashMessage", "Updated Options for ".concat(event.getClub().getTitle()));
+				sessionBean.setFlashMessage("Updated Options for ".concat(session.getClub().getTitle()));
 				sessionBean.setLoggedOnUser(tmpUser);
 				
 				Student selectedStudent = sessionBean.getSelectedStudent();
 				sessionBean.setSelectedStudent(loggedOnParent.getStudentFromId(selectedStudent.getStudentId()));
 			}
 			else {
-				model.addAttribute("flashMessage", "Not enough funds to attend this event. Please top up your account.");
+				sessionBean.setFlashMessage("Not enough funds to attend this session. Please top up your account.");
 			}		
 			returnPage = setupCalendar(model); 
 		}				
@@ -813,8 +809,8 @@ public class ParentController {
 		if (returnPage == null) {
 			Student currentStudent = sessionBean.getSelectedStudent();
 			if (currentStudent != null) {				
-				List<Event> allIncidentEvents = Event.findAllWithIncidentsForStudent(currentStudent.getStudentId());
-				model.addAttribute("incidentEvents", allIncidentEvents);	
+				List<Session> allIncidentSessions = Session.findAllWithIncidentsForStudent(currentStudent.getStudentId());
+				model.addAttribute("incidentSessions", allIncidentSessions);	
 				this.setInDialogue(false,model);	
 				sessionBean.setReturnIncidents();
 				returnPage = "studentIncidents";				

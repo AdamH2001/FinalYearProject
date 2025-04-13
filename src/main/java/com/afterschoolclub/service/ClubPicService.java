@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.IOException;
 
 import java.net.MalformedURLException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +31,7 @@ public class ClubPicService {
     private String uploadDir;
     
 	public ClubPicService() {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 
     public String saveImage(MultipartFile file, String filename) throws IOException {
@@ -44,6 +47,23 @@ public class ClubPicService {
         return filePath.toString();
     }
     
+    
+	public List<String> getAllURLs() {
+	    List<String> urlList = new ArrayList<>();
+	    try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(uploadDir))) {
+	        for (Path path : stream) {
+	            if (!Files.isDirectory(path)) {
+	            	urlList.add(String.format("./clubPics/%s", path.getFileName().toString()));
+	            }
+	        }
+	    }
+	    catch (IOException e)
+	    {
+	    	// Will return an empty list
+	    }
+	    return urlList;
+	}    
+	
     
 	public String getImageURL(int id) {
 		String filename = String.format("%d.jpg", id) ;

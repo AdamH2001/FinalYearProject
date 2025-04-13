@@ -10,8 +10,8 @@ import com.afterschoolclub.data.SimpleMenuGroup;
 import com.afterschoolclub.data.State;
 public interface SimpleMenuGroupRepository extends CrudRepository<SimpleMenuGroup, Integer> {
 
-	@Query("SELECT mg.* from Menu_Group mg, Event_Menu em where mg.menu_group_id = em.menu_group_id and em.event_id = :eventId")
-	List<SimpleMenuGroup> findByEventId(int eventId);
+	@Query("SELECT mg.* from Menu_Group mg, Session_Menu em where mg.menu_group_id = em.menu_group_id and em.session_id = :sessionId")
+	List<SimpleMenuGroup> findBySessionId(int sessionId);
 	
 	List<SimpleMenuGroup> findByState(State state);
 	

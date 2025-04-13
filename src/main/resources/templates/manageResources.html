@@ -19,6 +19,7 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
 
 	
 	<div id="main" class="main container-flex no-margin ">
@@ -26,13 +27,11 @@
 
 				<div class="row mb-2">
 					<div class="col-sm-12" align="center">
-						<h1 align="center">Manage Resources</h1>
+						<h1 class="asc-header">Manage Resources</h1>
 					</div>
 				</div>
 				
-				<div class="afterschoolclubflash row mb-2"  style="display: none" id="validationContainer">					
-					<div class="col-sm-12"  id="validationMessage"></div>
-				</div>	
+
 								
 				<div class="row mb-2">				
 					<div class="col-sm-12">

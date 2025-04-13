@@ -31,8 +31,8 @@ public class StudentClass {
 		return repository.findAll();
 	}	
 	
-	public static StudentClass findById(int eventId) {
-		Optional<StudentClass> optional = repository.findById(eventId);
+	public static StudentClass findById(int sessionId) {
+		Optional<StudentClass> optional = repository.findById(sessionId);
 		StudentClass studentclass = null;
 		if (optional.isPresent()) {
 			studentclass = optional.get();

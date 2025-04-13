@@ -46,6 +46,7 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
 
 
 	<div id="main" class="main container-flex no-margin ">
@@ -53,14 +54,11 @@
 
 		<div class="row mb-2">
 			<div class="col-sm-12" align="center">
-				<h1 align="center">Manage Refreshments</h1>
+				<h1 class="asc-header">Manage Refreshments</h1>
 			</div>
 		</div>
 
-		<div class="afterschoolclubflash row mb-2" style="display: none"
-			id="validationContainer">
-			<div class="col-sm-12" id="validationMessage"></div>
-		</div>
+
 
 		<div class="row mb-2">
 			<div class="col-sm-12">
@@ -184,7 +182,7 @@
 								    <div class="accordion-header">
 								    
 								      <div class="accordion-button collapsed"  data-bs-toggle="collapse" th:data-bs-target="${'#flush-collapse-' + menuGroup.getMenuGroupId()}" aria-expanded="false" th:aria-controls="${'flush-collapse-' + menuGroup.getMenuGroupId()}"   >
-								      			<span class="btn imagebtn btn-danger"  onClick="deleteMenuGroup(this)" th:id="${'delete-' + menuGroup.getMenuGroupId()}"><i class="fa fa-trash"></i></span>
+								      			<button class="btn imagebtn btn-danger"  onClick="deleteMenuGroup(this)" th:id="${'delete-' + menuGroup.getMenuGroupId()}"><i class="fa fa-trash"></i></button>
 								      			<span>&nbsp;</span>									      																										
 												<span th:text="${menuGroup.getName()}"></span>	
 								      
@@ -270,7 +268,7 @@
 				<div class="col-sm-12" align="center">
 				
 				
-					<h1 align="center">Select Menu Items</h1>
+					<h1 class="asc-header">Select Menu Items</h1>
 				</div>
 			</div>
 					
@@ -519,7 +517,6 @@ function addMenuGroup(event) {
 					$("#row-"+data.menuOptionId).find("#additionalCost")[0].innerHTML=data.additionalCost;
 					$("#row-"+data.menuOptionId).find("#allergyInformation")[0].innerHTML=data.allergyInformation;
 		
-					//TODO more efficiently
 					setUpEditHandlersForType("menuOption");
 					
 					//Clear input fields			
@@ -640,7 +637,7 @@ function addMenuGroup(event) {
 				data-bs-target="#flush-collapse-MENUGROUPID" aria-expanded="false"
 				aria-controls="flush-collapse-MENUGROUPID">
 				
-				<span class="btn imagebtn btn-danger" onClick="deleteMenuGroup(this)" id="delete-MENUGROUPID"><i class="fa fa-trash"></i></span>
+				<button class="btn imagebtn btn-danger" onClick="deleteMenuGroup(this)" id="delete-MENUGROUPID"><i class="fa fa-trash"></i></button>
 				<span>&nbsp;</span>	
 				<span>MENUGROUPNAME</span>				
 			</div>
@@ -664,7 +661,7 @@ function addMenuGroup(event) {
 	<div class="row ascmenuitem" id="row-MENUGROUPID-MENUOPTIONID" orig-id="row-MENUGROUPID-MENUOPTIONID">
 		<div class="col-sm-1"></div>
 		<div class="col-sm-5">
-			<span class="btn imagebtn btn-danger" onclick="removeMenuItemFromGroup(this)" id="delete-MENUGROUPID-MENUOPTIONID"><i class="fa fa-trash"></i></span>
+			<button class="btn imagebtn btn-danger" onclick="removeMenuItemFromGroup(this)" id="delete-MENUGROUPID-MENUOPTIONID"><i class="fa fa-trash"></i></button>
 			<span>&nbsp;</span>	
 			<span>MENUITEMNAME</span>
 		</div>

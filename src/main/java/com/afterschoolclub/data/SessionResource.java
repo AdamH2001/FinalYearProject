@@ -12,28 +12,28 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class EventResource {
+public class SessionResource {
 	@Id
-	private int eventResourceId;
+	private int sessionResourceId;
 		
 	AggregateReference<Resource, Integer> resourceId;
-	AggregateReference<Event, Integer> eventId;
+	AggregateReference<Session, Integer> sessionId;
 
 	private int quantity;
 	private boolean perAttendee;
 	
-	public EventResource() {
+	public SessionResource() {
 		super();	
 	}
 	
-	public EventResource(AggregateReference<Resource, Integer> resourceId, int quantity, boolean perAttendee) {
+	public SessionResource(AggregateReference<Resource, Integer> resourceId, int quantity, boolean perAttendee) {
 		super();	
 		this.resourceId = resourceId;
 		this.quantity = quantity;
 		this.perAttendee = perAttendee;
 	}	
 	
-	public EventResource(EventResource er) {
+	public SessionResource(SessionResource er) {
 		super();
 		this.resourceId = er.resourceId;
 		this.quantity = er.quantity;

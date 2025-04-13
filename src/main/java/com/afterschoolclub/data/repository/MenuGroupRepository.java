@@ -11,8 +11,8 @@ import com.afterschoolclub.data.State;
 
 public interface MenuGroupRepository extends CrudRepository<MenuGroup, Integer> {
 
-	@Query("SELECT mg.* from Menu_Group mg, Event_Menu em where mg.menu_group_id = em.menu_group_id and em.event_id = :eventId")
-	List<MenuGroup> findByEventId(int eventId);
+	@Query("SELECT mg.* from Menu_Group mg, Session_Menu em where mg.menu_group_id = em.menu_group_id and em.session_id = :sessionId")
+	List<MenuGroup> findBySessionId(int sessionId);
 	
 	List<MenuGroup> findByState(State state);
 	

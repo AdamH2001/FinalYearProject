@@ -44,19 +44,25 @@ function formatTime(date) {
 
 
   function marginHeader() {
-
+	hasError =  $("#errorcontainer").length > 0;
+	
 	if (document.body.scrollHeight > document.body.clientHeight)
 		offset = 30;
 	else	
 		offset = 15; 
 
-  $("#main").width(window.innerWidth  - $("#leftnav").outerWidth() - offset);	
-  //$("#main").width(window.innerWidth -   $("#main").offset().left - 30);	  
+  $("#main").width(window.innerWidth  - $("#leftnav").outerWidth() - offset);
 
-  
-  $("#leftnav").height(window.innerHeight - $("#header").outerHeight() - $("#footer").outerHeight() );	
+  mainTop =  $("#header").outerHeight();  
+  if (hasError) {
+	mainTop += $("#errorcontainer").outerHeight();
+	$("#errorcontainer").width(window.innerWidth  - $("#leftnav").outerWidth() - offset);	
+	$("#errorcontainer").css({left: $("#leftnav").outerWidth()});
+  }
+	
+  $("#leftnav").height(window.innerHeight - $("#header").outerHeight() - $("#footer").outerHeight() +1);	
 
-  $("#main").css({top: $("#header").outerHeight(), left: $("#leftnav").outerWidth()});
+    $("#main").css({top: mainTop , left: $("#leftnav").outerWidth()});
   $("#leftnav").css({top: $("#header").outerHeight()});	
   $(".main").show();
    newPaddingHeight =  $("#footer").outerHeight() - $(".spacer").outerHeight() + parseFloat($(".spacer").css("padding-bottom").replace("px", ""))

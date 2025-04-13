@@ -46,8 +46,8 @@ public class Resource {
 	private transient int maxDemand = 0;
 	
 	
-	public static List<Resource> findByEventIdType(int eventId, Type type) {
-		return repository.findByEventIdType(eventId, type);
+	public static List<Resource> findBySessionIdType(int sessionId, Type type) {
+		return repository.findBySessionIdType(sessionId, type);
 	}
 	
 	public static List<Resource> findByType(Type type) {
@@ -89,8 +89,8 @@ public class Resource {
 	
 	
 	
-	public static void deleteById(int eventId) {
-		repository.deleteById(eventId);		
+	public static void deleteById(int sessionId) {
+		repository.deleteById(sessionId);		
 	}		
 	
 	public int getQuantity() {

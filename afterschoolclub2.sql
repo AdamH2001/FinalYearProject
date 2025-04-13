@@ -1,7 +1,7 @@
 USE after_school_club2;
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE `attendee`, `Attendee_Menu_Choice`, `Holiday`, `Recurrence_Specification`, `class`,  `club`, `event`, `Event_Menu`, `Event_Resource`, `incident`, `Attendee_Incident`,  `Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`, `parent`, `resource`, `student`, `Parental_Transaction`, `user`;
+DROP TABLE IF EXISTS `attendee`, `Attendee_Menu_Choice`, `Holiday`, `Recurrence_Specification`, `class`,  `club`, `Session`, `Session_Menu`, `Session_Resource`, `incident`, `Attendee_Incident`,  `Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`, `parent`, `resource`, `student`, `Parental_Transaction`, `user`;
 SET FOREIGN_KEY_CHECKS=1;
 
 
@@ -52,8 +52,8 @@ CREATE TABLE `Recurrence_Specification` (
   `term_time_only` BOOLEAN NOT NULL
 );
 
-CREATE TABLE `Event` (
-  `event_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+CREATE TABLE `Session` (
+  `session_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `recurrence_specification_id` INT,
   `club_id` INT NOT NULL,
   `start_date_time` DATETIME NOT NULL,
@@ -102,7 +102,7 @@ CREATE TABLE `Student` (
 
 CREATE TABLE `Attendee` (
   `attendee_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `event_id` INT NOT NULL,
+  `session_id` INT NOT NULL,
   `student_id` INT NOT NULL,
   `attended` ENUM('ABSENT','PRESENT','NOTRECORDED') NOT NULL
 );
@@ -110,7 +110,7 @@ CREATE TABLE `Attendee` (
 
 CREATE TABLE `Incident` (
   `incident_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `event_id` INT NOT NULL,
+  `session_id` INT NOT NULL,
   `summary` VARCHAR(2000) NOT NULL
 );
 
@@ -134,9 +134,9 @@ CREATE TABLE `Resource` (
   `user_id` INT
 );
 
-CREATE TABLE `Event_Resource` (
-  `event_resource_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `event_id` INT NOT NULL,
+CREATE TABLE `Session_Resource` (
+  `session_resource_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `session_id` INT NOT NULL,
   `resource_id` INT NOT NULL,
   `quantity` INT NOT NULL,
   `per_attendee` BOOLEAN NOT NULL
@@ -178,9 +178,9 @@ CREATE TABLE `Menu_Group_Option` (
 
 );
 
-CREATE TABLE `Event_Menu` (
-  `event_menu_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `event_id` INT NOT NULL,
+CREATE TABLE `Session_Menu` (
+  `session_menu_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `session_id` INT NOT NULL,
   `menu_group_id` INT NOT NULL
 );
 
@@ -197,20 +197,20 @@ ALTER TABLE `Parent` ADD FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`);
 
 ALTER TABLE `Attendee` ADD FOREIGN KEY (`student_id`) REFERENCES `Student` (`student_id`);
 
-ALTER TABLE `Attendee` ADD FOREIGN KEY (`event_id`) REFERENCES `Event` (`event_id`);
+ALTER TABLE `Attendee` ADD FOREIGN KEY (`session_id`) REFERENCES `Session` (`session_id`);
 
 ALTER TABLE `Parental_Transaction` ADD FOREIGN KEY (`parent_id`) REFERENCES `Parent` (`parent_id`);
 
-ALTER TABLE `Incident` ADD FOREIGN KEY (`event_id`) REFERENCES `Event` (`event_id`);
+ALTER TABLE `Incident` ADD FOREIGN KEY (`session_id`) REFERENCES `Session` (`session_id`);
 
 ALTER TABLE `Attendee_Incident` ADD FOREIGN KEY (`incident_id`) REFERENCES `Incident` (`incident_id`);
 
 ALTER TABLE `Attendee_Incident` ADD FOREIGN KEY (`attendee_id`) REFERENCES `Attendee` (`attendee_id`);
 
 
-ALTER TABLE `Event_Resource` ADD FOREIGN KEY (`event_id`) REFERENCES `Event` (`event_id`);
+ALTER TABLE `Session_Resource` ADD FOREIGN KEY (`session_id`) REFERENCES `Session` (`session_id`);
 
-ALTER TABLE `Event_Resource` ADD FOREIGN KEY (`resource_id`) REFERENCES `Resource` (`resource_id`);
+ALTER TABLE `Session_Resource` ADD FOREIGN KEY (`resource_id`) REFERENCES `Resource` (`resource_id`);
 
 ALTER TABLE `Student` ADD FOREIGN KEY (`class_id`) REFERENCES `Class` (`class_id`);
 
@@ -220,19 +220,19 @@ ALTER TABLE `Menu_Group_Option` ADD FOREIGN KEY (`menu_group_id`) REFERENCES `Me
 
 ALTER TABLE `Menu_Group_Option` ADD FOREIGN KEY (`menu_option_id`) REFERENCES `Menu_Option` (`menu_option_id`);
 
-ALTER TABLE `Event_Menu` ADD FOREIGN KEY (`event_id`) REFERENCES `Event` (`event_id`);
+ALTER TABLE `Session_Menu` ADD FOREIGN KEY (`session_id`) REFERENCES `Session` (`session_id`);
 
-ALTER TABLE `Event_Menu` ADD FOREIGN KEY (`menu_group_id`) REFERENCES `Menu_Group` (`menu_group_id`);
+ALTER TABLE `Session_Menu` ADD FOREIGN KEY (`menu_group_id`) REFERENCES `Menu_Group` (`menu_group_id`);
 
 ALTER TABLE `Attendee_Menu_Choice` ADD FOREIGN KEY (`attendee_id`) REFERENCES `Attendee` (`attendee_id`);
 
 ALTER TABLE `Attendee_Menu_Choice` ADD FOREIGN KEY (`menu_group_option_id`) REFERENCES `Menu_Group_Option` (`menu_group_option_id`);
 
-ALTER TABLE `Event` ADD FOREIGN KEY (`club_id`) REFERENCES `Club` (`club_id`);
+ALTER TABLE `Session` ADD FOREIGN KEY (`club_id`) REFERENCES `Club` (`club_id`);
 
 ALTER TABLE `Resource` ADD FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`);
 
-ALTER TABLE `Event` ADD FOREIGN KEY (`recurrence_specification_id`) REFERENCES `Recurrence_Specification` (`recurrence_specification_id`);
+ALTER TABLE `Session` ADD FOREIGN KEY (`recurrence_specification_id`) REFERENCES `Recurrence_Specification` (`recurrence_specification_id`);
 
 ALTER TABLE `Parental_Transaction` ADD FOREIGN KEY (`club_id`) REFERENCES `Club` (`club_id`);
 

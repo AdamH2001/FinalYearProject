@@ -4,6 +4,7 @@ import com.afterschoolclub.data.Parent;
 import com.afterschoolclub.data.ParentalTransaction;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.User;
+import com.afterschoolclub.service.PolicyService;
 import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Filter;
 
@@ -12,9 +13,11 @@ import lombok.Setter;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -27,6 +30,8 @@ import org.springframework.context.annotation.ScopedProxyMode;
 
 public class SessionBean {
 
+	@Autowired
+    private PolicyService policyService;
 	
     private String name = null;
 
@@ -37,6 +42,10 @@ public class SessionBean {
     
     private boolean inDialogue = false;
     private String returnUrl = "/";
+    private String previousReturnUrl = "/";
+    
+    private List<String> flashMessages = null;
+
 
     
     private LocalDate timetableStartDate = LocalDate.now().minusDays(LocalDate.now().getDayOfMonth()-1);;
@@ -110,11 +119,28 @@ public class SessionBean {
     	return;
     }
     
+    public void setReturnParentFinances()  {
+    	this.setReturnUrl("./parentFinances");
+    	return;
+    }    
+    
+    public void setReturnClubRevenue()  {
+    	this.setReturnUrl("./clubRevenue");
+    	return;
+    }        
 
     public void setReturnTransactions()  {
     	this.setReturnUrl("./viewTransactions");
     	return;
     }    
+    
+    public void setReturnUrl(String newReturn) {
+    	if (!returnUrl.equals(newReturn)) {
+    		previousReturnUrl = returnUrl;
+    		returnUrl = newReturn;
+    	}
+    	return;
+    }
 
     public String getRedirectUrl() {
     	return String.format("redirect:%s", this.getReturnUrl());
@@ -171,8 +197,31 @@ public class SessionBean {
 	public int getTotalCashCredit() {
 		return ParentalTransaction.getTotalCashCredit();
 	}		
-		
 
+	public PolicyService getPolicyService() {
+		return policyService;
+	}		
+	
+	
+	public List<String> getFlashMessages() {
+		List<String> result = flashMessages;
+		flashMessages = null;
+		return result;
+	}		
+	
+	public void  setFlashMessage(String message) {
+		flashMessages = new ArrayList<String>();
+		flashMessages.add(message);
+		return ;
+	}
+	
+			
+	
+	
+	public boolean hasMessage() {
+		return flashMessages != null;
+	}			
+	
 	
 }
 

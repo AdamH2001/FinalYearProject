@@ -20,13 +20,14 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
 
 
 	<div id="main" class="main container-flex no-margin ">
 
 		<div class="row mb-2">
 			<div class="col-sm-12">
-				<h1 align="center" style="color: black">Incidents for <span th:text="${sessionBean.getSelectedStudent().getFullName()}"></span></h1>
+				<h1 class="asc-header">Incidents for <span th:text="${sessionBean.getSelectedStudent().getFullName()}"></span></h1>
 			</div>
 		</div>
 
@@ -50,11 +51,11 @@
 						</tr>
 					</thead>
 					<tbody>
-						<th:block th:each="event : ${incidentEvents}">
-							<tr class="filterrow stripedrow" th:each="incident : ${event.getIncidents()}">
-								<td class="filtercenter"><span th:text="${event.getDisplayStartDate()}"></span>&nbsp;<span th:text="${event.getStartTime()}"></span></td>
-								<td th:text="${event.getClub().getTitle()}"></td>
-								<td th:text="${incident.getSummaryForAttendee(event.getAttendee(sessionBean.getSelectedStudent()))}"></td>								
+						<th:block th:each="session : ${incidentSessions}">
+							<tr class="filterrow stripedrow" th:each="incident : ${session.getIncidents()}">
+								<td class="filtercenter"><span th:text="${session.getDisplayStartDate()}"></span>&nbsp;<span th:text="${session.getStartTime()}"></span></td>
+								<td th:text="${session.getClub().getTitle()}"></td>
+								<td th:text="${incident.getSummaryForAttendee(session.getAttendee(sessionBean.getSelectedStudent()))}"></td>								
 							</tr>
 						</th:block>
 					</tbody>

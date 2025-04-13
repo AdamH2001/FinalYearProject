@@ -25,7 +25,7 @@ public class Attendee {
 	
 	@Id
 	private int attendeeId;
-	AggregateReference<Event, Integer> eventId;
+	AggregateReference<Session, Integer> sessionId;
 	AggregateReference<Student, Integer> studentId;
 
 	private Registration attended = Registration.NOTRECORDED;
@@ -39,12 +39,12 @@ public class Attendee {
 	private transient Student student;
 	
 	/**
-	 * @param eventId
+	 * @param sessionId
 	 * @param studentId
 	 */
-	public Attendee(AggregateReference<Event, Integer> eventId, int studentId) {
+	public Attendee(AggregateReference<Session, Integer> sessionId, int studentId) {
 		super();
-		this.eventId = eventId;
+		this.sessionId = sessionId;
 		this.studentId = AggregateReference.to(studentId);
 	}
 	

@@ -89,8 +89,8 @@ public class Student {
 		return firstName.concat(" ").concat(surname);
 	}
 	
-	public boolean isAttendingEvent(Event event) {
-		return this.getAttendee(event.getEventId()) != null;
+	public boolean isAttendingSession(Session session) {
+		return this.getAttendee(session.getSessionId()) != null;
 	}
 	
 	public void addAttendee(Attendee attendee) {
@@ -101,27 +101,27 @@ public class Student {
 		this.medicalNotes.add(medicalNote);
 	}
 	
-	public void deregister(int eventId) {
-		Attendee attendee = this.getAttendee(eventId);
+	public void deregister(int sessionId) {
+		Attendee attendee = this.getAttendee(sessionId);
 		if (attendee != null) {
 			attendees.remove(attendee);
 		}
 	}
 	
-	public Attendee getAttendee(int eventId) {
+	public Attendee getAttendee(int sessionId) {
 		Attendee result = null;
 		Iterator<Attendee> attendeeIterator = attendees.iterator();
 		
 		while (result == null && attendeeIterator.hasNext()) {
 			Attendee attendee = attendeeIterator.next();
-			if (attendee.getEventId().getId() == eventId)
+			if (attendee.getSessionId().getId() == sessionId)
 				result = attendee;	
 		}
 		return result;
 	}
 	
-	public Attendee getAttendee(Event event) {		
-		return getAttendee(event.getEventId());
+	public Attendee getAttendee(Session session) {		
+		return getAttendee(session.getSessionId());
 	}	
 
 	public StudentClass getStudentClass() {
@@ -139,39 +139,28 @@ public class Student {
 	public boolean equals(Student otherStudent) {		
 		return this.getStudentId() == otherStudent.getStudentId();		
 	}	
-/*	
-	public int getCostOfEvent(Event event) {
-		int totalCost = 0;				
-		Attendee attendee = getAttendee(event.getEventId());
-		if (attendee != null) {
-			totalCost += event.getClub().getBasePrice();					
-			Set <AttendeeMenuChoice> menuChoices = attendee.getMenuChoices();
-			for (AttendeeMenuChoice amc: menuChoices ) {
-				totalCost +=event.getOptionCost(amc.getMenuOptionId().getId());
-			}
-		}
-		return totalCost;
-	} */
+
 	
-	public int getCostOfEvent(Event event) {
+	
+	public int getCostOfSession(Session session) {
 		int totalCost = 0;				
-		Attendee attendee = getAttendee(event.getEventId());
+		Attendee attendee = getAttendee(session.getSessionId());
 		if (attendee != null) {
-			totalCost += event.getClub().getBasePrice();	
+			totalCost += session.getClub().getBasePrice();	
 			Set <AttendeeMenuChoice> menuChoices = attendee.getMenuChoices();
 			
 			for (AttendeeMenuChoice amc: menuChoices ) {
-				totalCost +=event.getOptionCost(amc.getMenuGroupOptionId().getId());
+				totalCost +=session.getOptionCost(amc.getMenuGroupOptionId().getId());
 			}
 		}
 		return totalCost;
 	}
 	
 	
-	public boolean chosenMenuOptionForEvent(Event event, int menuGroupOptionId) {
+	public boolean chosenMenuOptionForSession(Session session, int menuGroupOptionId) {
 		boolean result = false;				
 				
-		Attendee attendee = getAttendee(event.getEventId());
+		Attendee attendee = getAttendee(session.getSessionId());
 		if (attendee != null) {
 			Set <AttendeeMenuChoice> menuChoices = attendee.getMenuChoices();
 			Iterator <AttendeeMenuChoice> iterator = menuChoices.iterator();
@@ -181,35 +170,7 @@ public class Student {
 		}
 		return result;		
 	}
-	
-	/*
-	  	public int getCostOfEvent(Event event) {
-		int totalCost = 0;				
-		Attendee attendee = getAttendee(event.getEventId());
-		if (attendee != null) {
-			totalCost += event.getClub().getBasePrice();					
-			Set <AttendeeMenuChoice> menuChoices = attendee.getMenuChoices();
-			for (AttendeeMenuChoice amc: menuChoices ) {
-				totalCost +=event.getOptionCost(amc.getMenuOptionId().getId());
-			}
-		}
-		return totalCost;
-	}
-	
-	public boolean chosenMenuOptionForEvent(Event event, int menuOptionId) {
-		boolean result = false;				
-				
-		Attendee attendee = getAttendee(event.getEventId());
-		if (attendee != null) {
-			Set <AttendeeMenuChoice> menuChoices = attendee.getMenuChoices();
-			Iterator <AttendeeMenuChoice> iterator = menuChoices.iterator();
-			while (iterator.hasNext() && !result) {
-				result = iterator.next().getMenuOptionId().getId() == menuOptionId;
-			}
-		}
-		return result;		
-	}
-	 */
+
 
 	public String getIdAsString() {
 		return String.valueOf(getStudentId());

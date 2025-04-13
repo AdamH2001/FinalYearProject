@@ -12,16 +12,24 @@
 	
 </head>
 <body>
-		<footer th:fragment="footer" id="footer" class="text-center text-lg-start fixed-bottom" style="position:fixed;">
-			<div class="navbar bg-navafterschoolclub text-afterschoolclubfooter"
+		<footer class="navbar bg-navafterschoolclub text-afterschoolclubfooter text-center text-lg-start fixed-bottom" th:fragment="footer" id="footer" style="position:fixed;">
+			<div class="container-flex"
 				style="width: 100%;">
-				<table>
-					<tr>
-						<td>
-							<h1>Footer</h1>
-						</td>
-					</tr>
-				</table>
+				<div class="row" >
+					<div class="col-sm-2"></div>
+					
+					<div class="col-sm-2"><a class="nav-link footer-link" href="./privacypolicy"> Privacy Policy</a></div>
+					<div class="col-sm-2"><a class="nav-link footer-link" href="./termsandconditions">Terms and Conditions</a></div>
+					<div class="col-sm-2"><a class="nav-link footer-link" href="./policiesandprocedures">Policies and Procedures</a></div>
+					
+					<div class="col-sm-1 footer-link" style="text-align:right">Contact:</div>
+					<div class="col-sm-3" align="left">
+						<table>
+							<tr><td><a class="nav-link footer-link" style="text-align:left"  href="mailto:admin@afterschoolclub.com"><i class="fa-regular fa-envelope"></i>&nbsp; admin@afterschoolclub.com</a></td></tr>
+							<tr><td><a class="nav-link footer-link" style="text-align:left" href="tel:01256888888"><i class="fa-solid fa-phone"></i>&nbsp; 01256888888</a></td></tr>
+						</table>
+					</div>
+				</div>
 			</div>
 		</footer>
 </body>

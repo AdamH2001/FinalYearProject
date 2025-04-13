@@ -16,35 +16,27 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
 
 	
 	<div id="main" class="main container-flex no-margin ">
 				<div class="row mb-2 col-sm-12">				
-						<h1 th:if="${editOptions}" align="center">Update <span th:text="${clubSession.getClub().getTitle()}"></span> Options</h1>
-						<h1 th:unless="${editOptions or viewOnly}" align="center">Book <span th:text="${clubSession.getClub().getTitle()}"></span> Session</h1>
-						<h1 th:if="${viewOnly}" align="center">View <span th:text="${clubSession.getClub().getTitle()}"></span> Session</h1>
+						<h1 class="asc-header" th:if="${editOptions}">Update <span th:text="${clubSession.getClub().getTitle()}"></span> Options</h1>
+						<h1 class="asc-header" th:unless="${editOptions or viewOnly}">Book <span th:text="${clubSession.getClub().getTitle()}"></span> Session</h1>
+						<h1 class="asc-header" th:if="${viewOnly}">View <span th:text="${clubSession.getClub().getTitle()}"></span> Session</h1>
 						
 				</div>
 				
-				<th:block th:if="${flashMessages!=null}">
-					<div th:each="message : ${flashMessages}" class="afterschoolclubflash row mb-2">								
-						<div class="col-sm-12" th:text="${message}">FlashMessage</div>					
-					</div>
-				</th:block>
-					
-									
-				<div class="afterschoolclubflash row mb-2"  style="display: none" id="validationContainer">					
-					<div class="col-sm-12"  id="validationMessage"></div>
-				</div>			
+		
 				
 				
-			<form th:action="${editOptions ? 'confirmUpdateOptionsForSession' : 'confirmRegisterForEvent'}" method="post" onSubmit="validateBookingForm(event)">
-				<input th:each="recurringEvent : ${recurringEvents}" type="hidden" name="recurringEvent" th:value="${recurringEvent.getStartDate()}"/>
+			<form th:action="${editOptions ? 'confirmUpdateOptionsForSession' : 'confirmRegisterForSession'}" method="post" onSubmit="validateBookingForm(event)">
+				<input th:each="recurringSession : ${recurringSessions}" type="hidden" name="recurringSession" th:value="${recurringSession.getStartDate()}"/>
 			
 			<div class="container-fluid row col-sm-12">
 			
 				<input id="basePrice" type="hidden" name="basePrice" th:value="${clubSession.getClub().getBasePrice()}" />
-				<input id="eventId" type="hidden" name="eventId" th:value="${clubSession.getEventId()}" />
+				<input id="sessionId" type="hidden" name="sessionId" th:value="${clubSession.getSessionId()}" />
 				<input th:if="${viewOnly}" id="viewOnly" type="hidden" name="viewOnly" value="${viewOnly}" />
 				
 				<div class="row mb-2">&nbsp;</div>
@@ -52,25 +44,25 @@
 				<div class="row mb-2">
 					<div class="col-sm-6">						
 							<div class="row mb-2">						
-								<div class="col-sm-4 formlabel" align="right">Date:</div>
+								<div class="col-sm-4 asc-form-label">Date:</div>
 			  					<div class="col-sm-3" align="left" th:text="${clubSession.getDisplayStartDate()}" style="padding:0px"></div>
-			  					<div class="col-sm-2 formlabel" align="right">Location:</div>
+			  					<div class="col-sm-2 asc-form-label">Location:</div>
 	  							<div class="col-sm-3" align="left" th:text="${clubSession.getLocation().getName()}"></div>					  					
 			  				</div>
 			  				<div class="row mb-2">
-								<div class="col-sm-4 formlabel" align="right">Time:</div>
+								<div class="col-sm-4 asc-form-label">Time:</div>
 			  					<div class="col-sm-8" align="left" th:text="${clubSession.getStartDateTime().toLocalTime() + ' - ' + clubSession.getEndDateTime().toLocalTime()}" style="padding:0px"></div>
 			  				</div>
 			  				<div class="row mb-2">
-								<div class="col-sm-4 formlabel" align="right">Suitable for:</div>
+								<div class="col-sm-4 asc-form-label">Suitable for:</div>
 			  					<div class="col-sm-8" align="left" th:text="${clubSession.getClub().getSuitableFor()}" style="padding:0px"></div>
 			  				</div>			
 			  				<div class="row mb-2">
-								<div class="col-sm-4 formlabel" align="right">Base Price:</div>
+								<div class="col-sm-4 asc-form-label">Base Price:</div>
 			  					<div class="col-sm-8" align="left" th:text="${clubSession.getClub().getFormattedBasePrice()}" style="padding:0px"></div>
 			  				</div>				  				
 			  				<div class="row mb-2">
-								<div class="col-sm-4 formlabel" align="right">Current Attendees:</div>
+								<div class="col-sm-4 asc-form-label">Current Attendees:</div>
 			  					<div class="col-sm-8" align="left" style="padding:0px" ><span th:text="${clubSession.getNumberAttendees()}" style="padding:0px">?</span><span> out of a maximum </span><span th:text="${clubSession.getMaxAttendees()}"></span><span></span></div>
 			  				</div>					
 	  				
@@ -79,7 +71,7 @@
 	  				
 					<div class="col-sm-6">
 							<div class="row mb-2">
-								<div class="col-sm-1 formlabel" >Organiser(s):</div>			
+								<div class="col-sm-1 asc-form-label" >Organiser(s):</div>			
 							</div>
 							<div th:each="staffMember : ${staff}" >
 								<div class="container-fluid">
@@ -100,21 +92,21 @@
 				</div>
 
 				<div class="row mb-2">
-					<div class="col-sm-2 formlabel" align="right">Description:</div>
+					<div class="col-sm-2 asc-form-label">Description:</div>
 					<div class="col-sm-10" style="padding:0px"> 
 						<textarea class="form-control form-control-sm mr-sm-2"  rows="3" th:text="${clubSession.getClub().getDescription()}" readOnly  name="description" ></textarea>
 					</div>
 				</div>
 				
 				<div class="row mb-2">
-					<div class="col-sm-2 formlabel" align="right">Notes:</div>
+					<div class="col-sm-2 asc-form-label">Notes:</div>
 					<div class="col-sm-10" style="padding:0px"> 
 						<textarea class="form-control form-control-sm mr-sm-2"  th:text="${clubSession.getParentNotes()}" rows=3 readOnly  name="parentNotes" id="parentNotes" ></textarea>				
 					</div>
 				</div>				
 				
 				<div th:if="${clubSession.isRecurring()}" class="row mb-4">
-						<div class="col-sm-2 formlabel" align="right">
+						<div class="col-sm-2 asc-form-label">
 							<label for="startDate">Recurring Booking:</label>
 						</div>
 						<div class="col-sm-10" style="padding:0px">			
@@ -209,7 +201,7 @@
 				
 					<!--  Key
 				<div class="container-fluid row col-sm-12">					
-						<div class="col-sm-1 formlabel" align="right">Session Key:</div>
+						<div class="col-sm-1 asc-form-label">Session Key:</div>
 						<div class="col-sm-7" style="padding:0px">	
 							<div class="row mb-4">													
 								<div class="col-sm-2">	
@@ -239,7 +231,7 @@
 					 
 					 
 					<div th:if="${sessionBean.isLoggedOn()}" class="row">
-						<div class="col-sm-2 formlabel" align="right"></div>
+						<div class="col-sm-2 asc-form-label"></div>
 						<div class="col-sm-10" style="padding:0px">							
 							
 							<ul class="nav nav-tabs" >
@@ -260,7 +252,7 @@
 							    </a>
 						     	<input th:if="${editOptions}" type=hidden th:name="${'student-'+student.getStudentId()+'-Attending'}"  th:value="${selectedStudents.contains(student.getIdAsString())} ? 'on' : ''">							    	
 						    	<input class="hiddenTotal" type="hidden" th:name="${'student-'+student.getStudentId() + '-TotalHiddenCost'}"  th:id="${'student-'+student.getStudentId() + '-TotalHiddenCost'}"/>
-						    	<input th:if="${editOptions}" class="hiddenOriginalTotal" type="hidden" th:name="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"  th:value="${student.getCostOfEvent(clubSession)}" th:id="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"/>
+						    	<input th:if="${editOptions}" class="hiddenOriginalTotal" type="hidden" th:name="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"  th:value="${student.getCostOfSession(clubSession)}" th:id="${'student-'+student.getStudentId() + '-TotalHiddenOriginalCost'}"/>
 							    							   					    
 							  </li>							
 							</ul>
@@ -268,17 +260,17 @@
 					</div>
 				
 					<div th:if="${sessionBean.isLoggedOn()}" class="row mb-2">
-							<div class="col-sm-2 formlabel" th:if="${clubSession.getMenuGroups().size()>0}" align="right">Options:</div>
-							<div class="col-sm-2 formlabel" th:unless="${clubSession.getMenuGroups().size()>0}" align="right">&nbsp;</div>
+							<div class="col-sm-2 asc-form-label" th:if="${clubSession.getMenuGroups().size()>0}">Options:</div>
+							<div class="col-sm-2 asc-form-label" th:unless="${clubSession.getMenuGroups().size()>0}">&nbsp;</div>
 					
 							<div class="container-fluid studentContainer col-sm-10" th:if="${clubSession.getMenuGroups().size()>0}"  th:each="student : ${parent.getStudents()}" th:id="${'student-'+student.getStudentId()+'-Container'}" style="padding:0px">
 											
 							<div  class="row mb-2">					
-								<div class="col-sm-2 formlabel"></div>
-								<div class="col-sm-2 formlabel">Item</div>
-								<div class="col-sm-3 formlabel">Description</div>
-								<div class="col-sm-3 formlabel">Allergy Information</div>
-								<div class="col-sm-2 formlabel" align="left">Selection</div>
+								<div class="col-sm-2"></div>
+								<div class="col-sm-2 asc-refreshmentheader">Item</div>
+								<div class="col-sm-3 asc-refreshmentheader">Description</div>
+								<div class="col-sm-3 asc-refreshmentheader">Allergy Information</div>
+								<div class="col-sm-2 asc-refreshmentheader" align="left">Selection</div>
 							</div>
 							
 							
@@ -323,16 +315,16 @@
 							
 					 
 							<div th:if="${editOptions}" class="row mb-2">					
-								<div class="col-sm-10 formlabel childTotal" align="right">Original cost for <span th:text="${student.getFullName()}"></span>:</div>					
-								<div class="col-sm-1 formlabel childTotal" align="left" th:id="${'student-'+student.getStudentId() + '-TotalOriginalCost'}"></div> 																			
+								<div class="col-sm-10 asc-totallabel childTotal" >Original cost for <span th:text="${student.getFullName()}"></span>:</div>					
+								<div class="col-sm-1 asc-totalvalue childTotal" th:id="${'student-'+student.getStudentId() + '-TotalOriginalCost'}"></div> 																			
 							</div>		
 							<div th:if="${editOptions}" class="row mb-2">					
-								<div class="col-sm-10 formlabel childTotal" align="right">New cost for <span th:text="${student.getFullName()}"></span>:</div>					
-								<div class="col-sm-1 formlabel childTotal" align="left" th:id="${'student-'+student.getStudentId() + '-TotalCost'}"></div> 																			
+								<div class="col-sm-10 asc-totallabel childTotal" >New cost for <span th:text="${student.getFullName()}"></span>:</div>					
+								<div class="col-sm-1 asc-totalvalue childTotal" th:id="${'student-'+student.getStudentId() + '-TotalCost'}"></div> 																			
 							</div>									
 							<div th:unless="${editOptions}" class="row mb-2">					
-								<div class="col-sm-10 formlabel childTotal" align="right">Cost for <span th:text="${student.getFullName()}"></span>:</div>					
-								<div class="col-sm-1 formlabel childTotal" align="left" th:id="${'student-'+student.getStudentId() + '-TotalCost'}"></div> 
+								<div class="col-sm-10 asc-totallabel childTotal" >Cost for <span th:text="${student.getFullName()}"></span>:</div>					
+								<div class="col-sm-1 asc-totalvalue childTotal" th:id="${'student-'+student.getStudentId() + '-TotalCost'}"></div> 
 																				
 							</div>								
 							
@@ -343,7 +335,7 @@
 					</div>
 					
 					<div th:if="${!sessionBean.isLoggedOn() and clubSession.getMenuGroups().size()>0}" class="row mb-2">
-							<div class="col-sm-2 formlabel"  align="right">Options:</div>
+							<div class="col-sm-2 asc-form-label"  align="right">Options:</div>
 							<div class="col-sm-10" style="padding:0px">			
 							
 								<fieldset  th:if="${clubSession.getMenuGroups().size()>0}"  class="form-group border p-3 ">
@@ -352,10 +344,10 @@
 													
 										<div  class="row mb-2">					
 					
-											<div class="col-sm-2 formlabel">Item</div>
-											<div class="col-sm-4 formlabel">Description</div>
-											<div class="col-sm-4 formlabel">Allergy Information</div>
-											<div class="col-sm-2 formlabel" align="left">Cost</div>
+											<div class="col-sm-2 asc-refreshmentheader">Item</div>
+											<div class="col-sm-4 asc-refreshmentheader">Description</div>
+											<div class="col-sm-4 asc-refreshmentheader">Allergy Information</div>
+											<div class="col-sm-2 asc-refreshmentheader" align="left">Cost</div>
 										</div>
 										<div th:each="menu : ${clubSession.getMenuGroups()}" >																	
 											<div th:each="menuGroupOption,iterStat : ${menu.getMenuGroupOptions}">
@@ -379,25 +371,25 @@
 					
 					
 					<div th:if="${sessionBean.isLoggedOn()}" class="row mb-2">
-							<div class="col-sm-1 formlabel" align="right"></div>					
+							<div class="col-sm-1 asc-form-label"></div>					
 							<div class="container-fluid col-sm-11">
 						
 								<div th:if="${editOptions}" class="row mb-2">
-									<div class="col-sm-8" align="right"></div>					
-									<div class="col-sm-2 formlabel" id="totalDifferenceLabel" align="Right" >Total Difference:</div>																									
-									<div class="col-sm-1 formlabel" align="left" id="totalCost"></div>																		 
+									<div class="col-sm-8"></div>					
+									<div class="col-sm-2 asc-totallabel" id="totalDifferenceLabel" align="Right" >Total Difference:</div>																									
+									<div class="col-sm-1 asc-totalvalue" id="totalCost"></div>																		 
 								</div>
 
 								<div th:unless="${editOptions}" class="row mb-2">
-									<div class="col-sm-8" align="right"></div>
-									<div class="col-sm-2 formlabel" align="Right" >Cost Per Session:</div>																	
-									<div class="col-sm-1 formlabel" align="left" id="totalCost"></div>																		 
+									<div class="col-sm-8"></div>
+									<div class="col-sm-2 asc-totallabel" >Cost Per Session:</div>																	
+									<div class="col-sm-1 asc-totalvalue" id="totalCost"></div>																		 
 								</div>
 																
 								<div th:unless="${editOptions}"  class="row mb-2">
-									<div class="col-sm-7" align="right"></div>					
-									<div class="col-sm-3 formlabel" align="Right" >Total Cost for <span id="numberSessions" ></span> Session(s):</div>																	
-									<div class="col-sm-1 formlabel" align="left" id="totalCostForAllSessions"></div>																		 
+									<div class="col-sm-7"></div>					
+									<div class="col-sm-3 asc-totallabel" >Total Cost for <span id="numberSessions" ></span> Session(s):</div>																	
+									<div class="col-sm-1 asc-totalvalue"  id="totalCostForAllSessions"></div>																		 
 								</div>								
 									
 								<input type="hidden" name="totalHiddenCost"  id="totalHiddenCost"/>
@@ -417,7 +409,7 @@
 					</div>
 				
 					<div class="col-sm-6" align="left">
-						<a href="./cancelRegisterForEvent" class="btn btn-secondary" role="button">Cancel</a>
+						<a href="./cancelRegisterForSession" class="btn btn-secondary" role="button">Cancel</a>
 					</div>
 				</div>				
 							

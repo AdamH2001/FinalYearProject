@@ -12,16 +12,16 @@ import lombok.ToString;
 public class ResourceStatus {
 
 	int committedDemand;
-	int eventDemand;
+	int sessionDemand;
 	Resource resource;
 	
     @ToString.Exclude
 	OverlappingTimeline overlapTimeline;
 	
-	public ResourceStatus(Resource r, int committedDemand, int eventDemand, OverlappingTimeline overlapTimeline) {		
+	public ResourceStatus(Resource r, int committedDemand, int sessionDemand, OverlappingTimeline overlapTimeline) {		
 		this.resource = r;
 		this.committedDemand = committedDemand;
-		this.eventDemand = eventDemand;
+		this.sessionDemand = sessionDemand;
 		this.overlapTimeline = overlapTimeline;
 	}
 	
@@ -39,14 +39,14 @@ public class ResourceStatus {
 			case EQUIPMENT:
 				if (resource.isActive()) {
 					if (resource.getQuantity() <= committedDemand) {
-						result = String.format("Requested %d %s on %s but none available. Please choose alternative.", eventDemand, resource.getName().toLowerCase(), date);
+						result = String.format("Requested %d %s on %s but none available. Please choose alternative.", sessionDemand, resource.getName().toLowerCase(), date);
 					}
 					else {
-						result = String.format("Requested %d %s on %s but only %d available. Please choose alternative.", eventDemand, resource.getName().toLowerCase(), date, resource.getQuantity() - committedDemand);	
+						result = String.format("Requested %d %s on %s but only %d available. Please choose alternative.", sessionDemand, resource.getName().toLowerCase(), date, resource.getQuantity() - committedDemand);	
 					}								
 				}
 				else {
-					result = String.format("Requested %d %s but equipment is no longer available. Please choose alternative.", eventDemand, resource.getName());
+					result = String.format("Requested %d %s but equipment is no longer available. Please choose alternative.", sessionDemand, resource.getName());
 				}
 				break;
 			case STAFF:
@@ -77,7 +77,7 @@ public class ResourceStatus {
 	}
 	
 	public int getTotalDemand() {
-		return committedDemand + eventDemand;
+		return committedDemand + sessionDemand;
 	}
 
 }

@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -100,8 +100,13 @@ public class PaypalService {
 		amountInPounds = amountInPounds / 100;		
 		a.setTotal(df.format(amountInPounds));		
 		rr.setAmount(a);		
-				
+		
+		String requestId = String.format("REFUND-%s-%d", salesId, LocalDateTime.now().hashCode());
+		apiContext.setRequestId(requestId);
+		
 		DetailedRefund dr = s.refund(apiContext, rr);
+		
+		
 		String refundedAmount = dr.getAmount().getTotal();
 		System.out.println("Refunded ".concat(refundedAmount));
 		double d = Double.parseDouble(refundedAmount);

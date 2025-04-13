@@ -8,10 +8,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class FilteredEvent {
+public class FilteredSession {
 	
 
-	Event event;
+	Session session;
 	User user;
 	Student student;
 	
@@ -22,19 +22,19 @@ public class FilteredEvent {
 	private boolean attended = false;
 
 	
-	public FilteredEvent(Event event, User user, Student student, Filter filter) {
+	public FilteredSession(Session session, User user, Student student, Filter filter) {
 		super();
-		this.event = event;
+		this.session = session;
 		this.user = user;
 		this.student = student;
 		
-		if (filter.getFilterClubId() != 0 && event.getClub().getClubId() != filter.getFilterClubId()) {
+		if (filter.getFilterClubId() != 0 && session.getClub().getClubId() != filter.getFilterClubId()) {
 			setHidden(true);
 		} 
 		else if (user != null && user.isAdmin() ) {		    
 			Resource resource = user.getResourceObject();
 			
-			if (event.usesResource(resource)) {
+			if (session.usesResource(resource)) {
 				setAttending(true);						
 			}
 			else {
@@ -45,18 +45,18 @@ public class FilteredEvent {
 			}	
 			switch (filter.getAdminFilter()) {				
 				case FULLYBOOKED:
-					if (!event.isFullyBooked()) {
+					if (!session.isFullyBooked()) {
 						setHidden(true);
 					}
 						
 					break;
 				case NOATTENDEES:
-					if (event.getNumberAttendees() != 0) {
+					if (session.getNumberAttendees() != 0) {
 						setHidden(true);
 					}					
 					break;
 				case INSUFFICIENTRESOURCES:
-					if (event.hasSufficientResources()) {
+					if (session.hasSufficientResources()) {
 						setHidden(true);
 					}					
 					break;					
@@ -66,14 +66,14 @@ public class FilteredEvent {
 		} 
 		else if (user != null)
 		{		
-			if (event.endInPast()) {
-				if (student != null && event.didAttend(student)) {
+			if (session.endInPast()) {
+				if (student != null && session.didAttend(student)) {
 					setAttended(true);
 					if (!filter.isDisplayingAttended()) {
 						setHidden(true);
 					}							
 				} 
-				else if (student != null && event.registered(student)) {
+				else if (student != null && session.registered(student)) {
 					setMissed(true);
 					if (!filter.isDisplayingMissed()) {
 						setHidden(true);
@@ -87,13 +87,13 @@ public class FilteredEvent {
 				}
 			} 
 			else {
-				if (student != null && student.isAttendingEvent(event)) {
+				if (student != null && student.isAttendingSession(session)) {
 					setAttending(true);
 					if (!filter.isDisplayingAttending()) {
 						setHidden(true);
 					}
 				}
-				else if (student != null && !event.canAttend(student)) { 
+				else if (student != null && !session.canAttend(student)) { 
 					setAvailable(false);	
 					if (!filter.isDisplayingUnavailable()) {
 						setHidden(true);
@@ -110,7 +110,7 @@ public class FilteredEvent {
 	public String getFilterClass() {
 		String result = "Available";
 		if (isHidden)
-			result = "HiddenEvent";
+			result = "HiddenSession";
 		else if (!isAvailable)
 			result = "NotAvailable";
 		else if (isAttending)

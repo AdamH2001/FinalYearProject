@@ -17,7 +17,7 @@ public class AttendeeIncident {
 	private String summary;
 	
 	/**
-	 * @param eventId
+	 * @param sessionId
 	 * @param summary
 	 */
 	public AttendeeIncident(AggregateReference<Attendee, Integer> attendeeId, String summary) {
@@ -27,9 +27,9 @@ public class AttendeeIncident {
 	}
 	
 	
-	public Student getStudent(Event event) {
+	public Student getStudent(Session session) {
 		
-		Student student = event.getAttendee(this.getAttendeeId().getId().intValue()).getStudent();
+		Student student = session.getAttendee(this.getAttendeeId().getId().intValue()).getStudent();
 		return student;
 		
 	}	

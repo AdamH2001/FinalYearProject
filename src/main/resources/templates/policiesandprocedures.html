@@ -1,0 +1,201 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>After School Club</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"> </script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/styles.css"/>
+	<script src="./scripts/afterschoolclub.js"></script>
+	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>
+		
+	
+
+</head>
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
+
+	
+	<div id="main" class="main container-flex no-margin ">
+	
+			<div class="row mb-2 col-sm-12">
+
+
+
+				<h1 class="asc-header">Polices and Procedures</h1>
+				<p> You can find a list of all out polices and procedures below:</p>
+			</div>
+			<div class="row mb-2 col-sm-12">
+				<div class="accordion" id="accordionExample">
+					  <div class="accordion-item">
+					    <h2 class="accordion-header">
+					      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+								Accident and Incidents Policy
+					      </button>
+					    </h2>
+					    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+					      <div class="accordion-body">
+							<a th:href="${sessionBean.getPolicyService().getPolicyURL('accidentandincidentspolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('accidentandincidentspolicy.pdf')} ? '_blank;' : ''">Click here to view our Accidents and Incidents Policy</a>							
+					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
+					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('accidentandincidentspolicy.pdf')" />							
+							</label>
+					      	
+					      	
+					      </div>
+					    </div>
+					  </div>
+					  <div class="accordion-item">
+					    <h2 class="accordion-header">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+					        Attendance Policy
+					      </button>
+					    </h2>
+					    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+					      <div class="accordion-body">
+								<a th:href="${sessionBean.getPolicyService().getPolicyURL('attendeancepolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('attendeancepolicy.pdf')} ? '_blank;' : ''">Click here to view our Attendance Policy</a>
+								<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
+					      			<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('attendeancepolicy.pdf')" />							
+								</label>
+						   </div>
+					    </div>
+					  </div>
+					  <div class="accordion-item">
+					    <h2 class="accordion-header">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+					        Child Protection Policy
+					      </button>
+					    </h2>
+					    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+					      <div class="accordion-body">
+							<a th:href="${sessionBean.getPolicyService().getPolicyURL('childprotectionpolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('childprotectionpolicy.pdf')} ? '_blank;' : ''">Click here to view our Child Protection Policy</a>
+					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
+					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('childprotectionpolicy.pdf')" />							
+							</label>							
+					      </div>
+					    </div>
+					  </div>
+					  <div class="accordion-item">
+					    <h2 class="accordion-header">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+					        Complaints Procedure
+					      </button>
+					    </h2>
+					    <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+					      <div class="accordion-body">
+							<a th:href="${sessionBean.getPolicyService().getPolicyURL('complaintsprocedure.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('complaintsprocedure.pdf')} ? '_blank;' : ''">Click here to view our Complaints Procedure</a>
+					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
+					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('complaintsprocedure.pdf')" />							
+							</label>	
+					      </div>
+					    </div>
+					  </div>
+					  <div class="accordion-item">
+					    <h2 class="accordion-header">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+					        Health and Safety Policy
+					      </button>
+					    </h2>
+					    <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+					      <div class="accordion-body">
+							<a th:href="${sessionBean.getPolicyService().getPolicyURL('healthandsafetypolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('healthandsafetypolicy.pdf')} ? '_blank;' : ''">Click here to view our Health and Safety Policy</a>
+					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
+					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('healthandsafetypolicy.pdf')" />							
+							</label>								
+					      </div>
+					    </div>
+					  </div>
+					  <div class="accordion-item">
+					    <h2 class="accordion-header">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+					        Inclusion Policy
+					      </button>
+					    </h2>
+					    <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+					      <div class="accordion-body">
+							<a th:href="${sessionBean.getPolicyService().getPolicyURL('inclusionpolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('inclusionpolicy.pdf')} ? '_blank;' : ''">Click here to view our Inclusion Policy</a>
+					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
+					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('inclusionpolicy.pdf')" />							
+							</label>	
+														
+					      </div>
+					    </div>
+					  </div>
+					  <div class="accordion-item">
+					    <h2 class="accordion-header">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+					        Information and Data Policy
+					      </button>
+					    </h2>
+					    <div id="collapseSeven" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+					      <div class="accordion-body">
+								<a th:href="${sessionBean.getPolicyService().getPolicyURL('informationanddatapolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('informationanddatapolicy.pdf')} ? '_blank;' : ''">Click here to view our Information and Data Policy</a>
+								<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
+					      			<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('informationanddatapolicy.pdf')" />							
+								</label>	
+						   </div>
+					    </div>
+					  </div>
+					  <div class="accordion-item">
+					    <h2 class="accordion-header">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+					        Safeguarding Policy
+					      </button>
+					    </h2>
+					    <div id="collapseEight" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+					      <div class="accordion-body">
+								<a th:href="${sessionBean.getPolicyService().getPolicyURL('safeguardingpolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('safeguardingpolicy.pdf')} ? '_blank;' : ''">Click here to view our Safeguarding Policy</a>
+								<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
+					      			<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('safeguardingpolicy.pdf')" />							
+								</label>									
+					      </div>
+					    </div>
+					  </div>
+					</div>																										
+			</div>
+			<div class="spacer">&nbsp;</div>
+		</div>
+		
+<script>
+
+
+function uploadFile(file, id) {
+	var data = new FormData();
+    
+    // Add the uploaded image content to the form data collection
+
+    data.append("file", file);     
+    data.append("filename", id);
+
+    // Make Ajax request with the contentType = false, and procesDate = false
+    var ajaxRequest = $.ajax({
+         type: "POST",
+         url: "./policies",
+         contentType: false,
+         processData: false,
+         data: data,
+        });
+    ajaxRequest.done(function (xhr, textStatus) {
+     			console.log("Uploaded Policy");
+		   });
+}
+
+
+  
+function uploadNewPolicy(destFile){
+    var files = event.target.files;
+    if (files.length > 0) {    	
+		uploadFile(files[0],  destFile);
+    }	
+  }  
+
+
+
+</script>
+		
+</body>
+</html>

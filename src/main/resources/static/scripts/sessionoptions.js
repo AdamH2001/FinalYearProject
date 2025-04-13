@@ -120,7 +120,7 @@ function numberRecurringSessions()
 		endDate = new Date($("#bookingEndDate").val());
 			
 
-		$("input[name='recurringEvent']").each(function() {
+		$("input[name='recurringSession']").each(function() {
 			thisDate = new Date(this.value);
 			if (thisDate >= startDate && thisDate <= endDate) {
 					
@@ -235,7 +235,7 @@ function initialiseStudentContainersOld() {
 
 function validateBookingForm(event) {
 	
-	if ($("#startDate").length > 0) { // is recurring event
+	if ($("#startDate").length > 0) { // is recurring session
 
 
 		// ensure if have specified a recurring end date that have also selected a recurring pattern

@@ -1,3 +1,12 @@
+
+:root {
+  --asc-background: RGB(2, 29, 58);
+  --asc-bordertext: RGB(255, 255, 255);
+  --asc-orange: RGB(254,137,50);
+  
+}
+
+
 html {
 	height: 100%;
 }
@@ -143,7 +152,8 @@ fieldset {
 }
 
 .holiday {
-	background-color: black;
+	background-color:  var(--asc-background);
+	
 	color: white;
 }
 
@@ -196,7 +206,9 @@ fieldset {
 .calendarheader {
 	font-size: 1.0em;
 	font-weight: bold;
-	padding: 10px
+	padding: 10px;
+	background-color: var(--asc-background);
+	
 }
 
 .nav-link, .navcategory, label {
@@ -245,13 +257,11 @@ h3 {
 }
 
 
-:root {
-  --asc-theme: RGB(36, 38, 68);
-}
+
 
 
 .bg-navafterschoolclub {
-	background-color: var(--asc-theme);
+	background-color: var(--asc-background);
 }
 
 afterschoolheader {
@@ -274,15 +284,19 @@ afterschoolheader {
 	text-align: center
 }
 
+.asc-orange {
+	color: var(--asc-orange);
+}
+
 
 .text-afterschoolclubmainheader {
-	color: RGB(255, 255, 255);
+	color:  var(--asc-bordertext);
 	font-size: 3.0em;
 	font-weight: bold;
 }
 
 .text-afterschoolclubfooter {
-	color: RGB(255, 255, 255);
+	color: var(--asc-bordertext);
 	font-size: 1.5em;
 	font-weight: bold;
 }
@@ -292,7 +306,7 @@ afterschoolheader {
 }
 
 .text-afterschoolwhite {
-	color: RGB(255, 255, 255);
+	color: var(--asc-bordertext);
 }
 
 .dropdown-menu li {
@@ -316,15 +330,9 @@ afterschoolheader {
 }
 
 
-.eventTitle {
+.sessionTitle {
 	color: white;
 }
-
-
-.formlabel {
-	font-weight: bold;
-}
-
 
 
 .studentContainer {
@@ -362,7 +370,7 @@ afterschoolheader {
 }
 
 .nav-link {
-	color: white;
+	color:	var(--asc-bordertext);
 }
 
 .nav-link:hover {
@@ -462,7 +470,7 @@ afterschoolheader {
 }
 
 #leftnav {
-	top: 81px; 
+	top: 96px; 
 	
 	left: 0px;
 	position: relative;
@@ -496,8 +504,25 @@ afterschoolheader {
 	/*font-weight: bold; */		
 }
 
+.asc-totallabel {
+	text-align: right;
+	font-weight: bold; 		
+}
+
+.asc-totalvalue {
+	text-align: left;
+	font-weight: bold; 		
+}
+
+.asc-refreshmentheader {
+	text-align: left;
+	font-weight: bold; 		
+}
+
+
 .asc-box {
-  background: orange;
+	
+  background: var(--asc-orange);
   border-radius: 5px 5px 0px 0px;
   text-align: center;
   color: white;
@@ -512,10 +537,6 @@ afterschoolheader {
   font-size: 20pt;
 }
 
-.asc-clubtitle {
-  font-size: 14pt;
-  color: var(--asc-theme);
-}
 
 body {
 	min-height: 100%;
@@ -529,7 +550,7 @@ body {
     opacity: 1;
     line-height: initial;
     transition-duration: 350ms;
-    color: var(--asc-theme);	
+    color: var(--asc-background);	
 }
 
 
@@ -562,7 +583,7 @@ body {
 .imagebtn {
     border: none;
     color: white;
-    padding: 0px;
+    padding: 2px;
     font-size: 13px;
     width: 25px;
     height: 25px;
@@ -584,7 +605,7 @@ body {
 }
 
 .filterheader {
-    background: var(--asc-theme);
+    background: var(--asc-background);
     text-align: center;
     color:	white;   
 }
@@ -594,12 +615,10 @@ body {
 }
 
 .filtercenter {
-    text-align: center;   
-    
+    text-align: center;       
 }
 
 .stripedrow.oddStripe {
-
 	background-color:rgb(218, 227, 243);
 }
 
@@ -608,4 +627,17 @@ body {
 }
 
 
+.footer-link {
+	font-size: 0.5em;	
+}
 
+.asc-header {
+	text-align: center;
+	color: var(--asc-background);
+  	font-size: 1.5em;
+	
+}
+
+.asc-text {	
+	color: var(--asc-background);
+}

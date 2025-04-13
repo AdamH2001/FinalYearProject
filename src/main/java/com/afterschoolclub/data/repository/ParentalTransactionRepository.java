@@ -46,6 +46,9 @@ public interface ParentalTransactionRepository extends CrudRepository<ParentalTr
 	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE balance_type='CASH' AND club_id =:clubId AND parent_id =:parentId ")
 	Integer getCashPaidForClub(int parentId, int clubId);
 		
+	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE payment_reference =:paymentReference")
+	Integer getRemainingCreditForPayment(String paymentReference);
+			
 	@Query("SELECT * FROM parental_transaction WHERE parent_id = :parentId AND balance_type ='CASH' AND transaction_type = 'DEPOSIT' ORDER BY date_time DESC") 
 	List<ParentalTransaction> getCashTopUps(int parentId);	
 		

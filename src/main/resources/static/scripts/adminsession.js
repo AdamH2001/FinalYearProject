@@ -1,6 +1,6 @@
 
 
-function validateEventForm(event) {
+function validateSessionForm(event) {
 	
 	var maxMaxAttendees = $("#staff").val().length * 8;
 	var maxAttendees = 	$("#maxAttendees").val();

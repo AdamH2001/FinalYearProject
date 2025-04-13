@@ -15,18 +15,19 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
 
 
 	<div id="main" class="main container-flex no-margin ">
 		<div class="row col-sm-12 mb-2" style="text-align: center;">
-			<h1>Club Revenue</h1>
+			<h1 class="asc-header">Club Revenue</h1>
 		</div>
 		<div class="row mb-2"></div>
 
 		<div class="row">
 			<div class="col-sm-5" style="text-align: right;"> <a class="prev" href="./clubRevenueBack"><i class="fa-solid fa-left-long"></i></a> </div>
 			<div class="col-sm-2" style="text-align: center;"> 
-				<h2 align="center" style="color: orange" th:text="'Academic Year' +  ${sessionBean.getFinanceStartDate().getYear} + '/' + ${sessionBean.getFinanceEndDate().getYear()}"></h2>
+				<h2 align="center" class="asc-orange" th:text="'Academic Year' +  ${sessionBean.getFinanceStartDate().getYear} + '/' + ${sessionBean.getFinanceEndDate().getYear()}"></h2>
 			</div>
 			<div class="col-sm-5" style="text-align: left;"> <a class="next" href="./clubRevenueForward"><i class="fa-solid fa-right-long"></i></a> </div>								
 		</div>

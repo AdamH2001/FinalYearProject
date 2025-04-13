@@ -271,7 +271,6 @@ function addNewStaff(event) {
 			
 				
 			
-			//TODO more efficiently
 			setUpEditHandlersForType('staff');
 			
 
@@ -584,7 +583,6 @@ function postDataAndDisplay(data, type) {
 			
 				
 			
-			//TODO more efficiently
 			setUpEditHandlersForType(type);
 			
 			//Clear input fields			

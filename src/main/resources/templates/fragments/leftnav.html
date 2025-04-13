@@ -13,9 +13,9 @@
 </head>
 <body>
 
-	<div th:fragment="leftnav" class="d-flex flex-column text-afterschoolwhite p-0 m-0"  style="position:fixed; width: 210px">
+	<div th:fragment="leftnav" class="d-flex flex-column text-afterschoolwhite p-0 m-0"  style="position:fixed; width: 180px">
 		<div id="leftnav" th:unless="${sessionBean.isLoggedOn()}" class="leftnav row col-sm-12 bg-navafterschoolclub height d-flex flex-column align-items-center align-items-sm-start text-white min-vh-90">
-				<div style="padding:0px">
+				<div style="padding:0px; ">
 		
 			<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
 				id="menu">
@@ -43,7 +43,7 @@
 			<hr th:if="${sessionBean.isCalendarView()}">		
 			<form th:if="${sessionBean.isCalendarView()}" id="unknownUserFiltersForm" action="./updateFilters" method="post">
 					<label class="asc-filterlabel" for="filterClub">Filter:</label>		
-					<select onchange="this.form.submit()" name="filterClub"  required>
+					<select onchange="this.form.submit()" name="filterClub" style="width: 100px" required>
 						<option value="0" th:selected="${sessionBean.getFilter().getFilterClubId()==0}">All Clubs</option>
 					
 						<option th:each="club: ${sessionBean.findAllClubs()}" th:value="${club.getClubId()}" th:text="${club.getTitle()}" th:selected="${club.getClubId() == sessionBean.getFilter().getFilterClubId()}">ClubName</option>
@@ -53,7 +53,7 @@
 		</div>
 		<div id="leftnav" th:if="${sessionBean.isLoggedOn()}" class="leftnav row col-sm-12 bg-navafterschoolclub height d-flex flex-column align-items-center align-items-sm-start text-white min-vh-90">			
 			
-				<div th:if="${sessionBean.isAdminLoggedOn()}" style="padding:0px">
+				<div th:if="${sessionBean.isAdminLoggedOn()}" style="padding:0px; padding-top:15px">
 
 					<ul	class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
 						id="menu">
@@ -68,7 +68,7 @@
 						</a></li>				
 									
 										
-						<li><a href="./createEvent"
+						<li><a href="./createSession"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
 								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-calendar-plus"></i>
 								 Schedule  Session</span>
@@ -101,13 +101,13 @@
 												
 					</ul>
 					<hr th:if="${sessionBean.isCalendarView()}">		
-						<div th:if="${sessionBean.isCalendarView()}" class="container-fluid col-sm-12" style="padding:0px">
+						<div th:if="${sessionBean.isCalendarView()}" class="container-fluid col-sm-12" style="padding:0px; padding-top:15px">
 						
 						
 						<form id="adminFiltersForm" action="./updateAdminFilters" method="post">
 								<label class="asc-filterlabel" for="filterClub">Filter:</label>
 				
-								<select onchange="this.form.submit()" name="filterClub"  required>
+								<select onchange="this.form.submit()" name="filterClub"  style="width: 100px" required>
 									<option value="0" th:selected="${sessionBean.getFilter().getFilterClubId()==0}">All Clubs</option>
 								
 									<option th:each="club: ${sessionBean.findAllClubs()}" th:value="${club.getClubId()}" th:text="${club.getTitle()}" th:selected="${club.getClubId() == sessionBean.getFilter().getFilterClubId()}">ClubName</option>
@@ -147,7 +147,7 @@
 									<li class="nav-item">
 										<a href="javascript:adminFiltersForm.submit()" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
 										<input class="asc-filter form-check-input" id="insufficientResources" th:checked="${sessionBean.getFilter().getAdminFilterAsInt() == 4}" th:disabled="${sessionBean.isInDialogue()}" type="radio" name="adminFilter" value=4 onChange="adminFiltersForm.submit()"/>
-											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterRadio' : 'FilterRadio'" for="insufficientResources">Insufficient Resources</label>
+											<label th:class="${sessionBean.isInDialogue()}? 'disabled FilterRadio' : 'FilterRadio'" for="insufficientResources">Lacking Resources</label>
 										</a>
 									</li>	
 									
@@ -155,11 +155,11 @@
 						</form>
 					</div>
 				</div>
-				<div th:if="${sessionBean.isParentLoggedOn()}" style="padding:0px">
+				<div th:if="${sessionBean.isParentLoggedOn()}" style="padding:0px; padding-top:15px">
 					<form th:if="${sessionBean.getLoggedOnParent().hasChildren()}" action="./changeStudentField" method="post">
 					<label class="asc-filterlabel"  for="students">Child:</label>
-						<select onchange="this.form.submit()" name="students" id="students" required th:disabled="${sessionBean.isInDialogue()}">
-							<option th:each="student : ${sessionBean.getLoggedOnParent().getStudents()}" th:value="${student.getStudentId()}" th:text="${student.getFullName()}" th:selected="${student.getStudentId() == sessionBean.getSelectedStudent().getStudentId()}">StudentName</option>
+						<select onchange="this.form.submit()" name="students" id="students" required style="width: 100px" th:disabled="${sessionBean.isInDialogue()}">
+							<option th:each="student : ${sessionBean.getLoggedOnParent().getStudents()}" th:value="${student.getStudentId()}" th:text="${student.getFirstName()}" th:selected="${student.getStudentId() == sessionBean.getSelectedStudent().getStudentId()}">StudentName</option>
 						</select>
 					</form>
 					<ul
@@ -168,7 +168,7 @@
 						
 						<li class="nav-item"><a href="./createStudent"
 						th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
-						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-user-plus"></i>Add New Child</span>
+						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-user-plus"></i>Add Child</span>
 						</a></li>
 												
 						<li th:if="${sessionBean.getLoggedOnParent().hasChildren()}" class="nav-item"><a th:href="@{./editStudent(studentId=${sessionBean.getSelectedStudent().getStudentId()})}"
@@ -204,7 +204,7 @@
 						<form th:if="${sessionBean.isCalendarView()}" id="filtersForm" action="./updateFilters" method="post">
 								<label class="asc-filterlabel" for="filterClub">Filter:</label>
 				
-								<select onchange="this.form.submit()" name="filterClub"  required>
+								<select onchange="this.form.submit()" name="filterClub" style="width: 100px" required>
 									<option value="0" th:selected="${sessionBean.getFilter().getFilterClubId()==0}">All Clubs</option>
 								
 									<option th:each="club: ${sessionBean.findAllClubs()}" th:value="${club.getClubId()}" th:text="${club.getTitle()}" th:selected="${club.getClubId() == sessionBean.getFilter().getFilterClubId()}">ClubName</option>

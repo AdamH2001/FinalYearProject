@@ -14,23 +14,23 @@ import lombok.ToString;
 @ToString
 public class OverlappingTimeline {
 
-	private List <TimelineEvent> timelineEvents = new ArrayList<TimelineEvent>(); 
-	private Event originalSession;
+	private List <TimelineSession> timelineSessions = new ArrayList<TimelineSession>(); 
+	private Session originalSession;
 	
-	public enum TimelineEventType {
+	public enum TimelineSessionType {
 		START, END
 	}
 	
 	
-	class TimelineEvent {
-		Event event;
-		TimelineEventType type;
+	class TimelineSession {
+		Session session;
+		TimelineSessionType type;
 		
 		
 		
-		public TimelineEvent(Event event, TimelineEventType type) {
+		public TimelineSession(Session session, TimelineSessionType type) {
 			super();
-			this.event = event;
+			this.session = session;
 			this.type = type;
 		}
 
@@ -38,37 +38,37 @@ public class OverlappingTimeline {
 
 		public LocalDateTime getTime() {
 			LocalDateTime result = null;
-			if (type == TimelineEventType.START) {
-				result = event.getStartDateTime();
+			if (type == TimelineSessionType.START) {
+				result = session.getStartDateTime();
 			}
 			else {
-				result = event.getEndDateTime();
+				result = session.getEndDateTime();
 			}
 			return result;
 		}
 		
 		public int getResourceQuantity(int resourceId)
 		{
-			int result = event.getRequiredResourceQuantity(resourceId);
-			if (type == TimelineEventType.END) {
+			int result = session.getRequiredResourceQuantity(resourceId);
+			if (type == TimelineSessionType.END) {
 				result *= -1;
 			}
 			return result;
 		}						
 	}
 	
-	public OverlappingTimeline(Event session) {
+	public OverlappingTimeline(Session session) {
 		originalSession = session; 
 		
-		List<Event> overlappingSessions = session.getOverlappingEvents();
+		List<Session> overlappingSessions = session.getOverlappingSessions();
 		
-		// create time-line event ordered by time of event
-		for (Event overlappingSession : overlappingSessions) {
-			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.START));
-			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.END));			
+		// create time-line session ordered by time of session
+		for (Session overlappingSession : overlappingSessions) {
+			timelineSessions.add(new TimelineSession(overlappingSession, TimelineSessionType.START));
+			timelineSessions.add(new TimelineSession(overlappingSession, TimelineSessionType.END));			
 		}
-		timelineEvents.sort(new Comparator<TimelineEvent>() {
-					public int compare(TimelineEvent tle1, TimelineEvent tle2) {
+		timelineSessions.sort(new Comparator<TimelineSession>() {
+					public int compare(TimelineSession tle1, TimelineSession tle2) {
 						return tle1.getTime().compareTo(tle2.getTime());
 					}
 				}); 
@@ -78,16 +78,16 @@ public class OverlappingTimeline {
 	
 	public OverlappingTimeline(Resource resource) {
 		
-		List<Event> overlappingSessions = Event.findByFutureDemandOnResourceId(resource.getResourceId());
+		List<Session> overlappingSessions = Session.findByFutureDemandOnResourceId(resource.getResourceId());
 		
 		
-		// create time-line event ordered by time of event
-		for (Event overlappingSession : overlappingSessions) {
-			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.START));
-			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.END));			
+		// create time-line session ordered by time of session
+		for (Session overlappingSession : overlappingSessions) {
+			timelineSessions.add(new TimelineSession(overlappingSession, TimelineSessionType.START));
+			timelineSessions.add(new TimelineSession(overlappingSession, TimelineSessionType.END));			
 		}
-		timelineEvents.sort(new Comparator<TimelineEvent>() {
-					public int compare(TimelineEvent tle1, TimelineEvent tle2) {
+		timelineSessions.sort(new Comparator<TimelineSession>() {
+					public int compare(TimelineSession tle1, TimelineSession tle2) {
 						return tle1.getTime().compareTo(tle2.getTime());
 					}
 				}); 
@@ -100,9 +100,9 @@ public class OverlappingTimeline {
 		int maxResourceRequired = 0;
 		int currentRequirement = 0;
 		
-		// iterate over time-line events calculating maximum required instances of resource identified by resourceId
-		for (TimelineEvent e : timelineEvents) {
-			currentRequirement += e.getResourceQuantity(resourceId);
+		// iterate over time-line sessions calculating maximum required instances of resource identified by resourceId
+		for (TimelineSession ts : timelineSessions) {
+			currentRequirement += ts.getResourceQuantity(resourceId);
 			if (currentRequirement > maxResourceRequired) {
 				maxResourceRequired = currentRequirement;
 			}

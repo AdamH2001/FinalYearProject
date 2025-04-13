@@ -77,10 +77,18 @@ public class User {
 	}		
 		
 
-	public static List<User> findStaffByEventId(int eventId) {
-		return repository.findStaffByEventId(eventId);
+	public static List<User> findStaffBySessionId(int sessionId) {
+		return repository.findStaffBySessionId(sessionId);
 		
 	}		
+	
+	
+	public static List<User> findUsersInDebt() {
+		return repository.findUsersInDebt();
+		
+	}		
+	
+	
 	
 	public static List<User> findStaff() {
 		return repository.findStaff();		

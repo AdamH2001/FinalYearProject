@@ -15,18 +15,19 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
 
 	
 	<div id="main" class="main container-flex no-margin ">
 			<form action="./addIncident" method="post">
-				<input type=hidden name="eventId" th:value="${event.getEventId()}"/>							
+				<input type=hidden name="sessionId" th:value="${session.getSessionId()}"/>							
 				<input type=hidden name="incidentId" th:value="${incident.getIncidentId()}"/>							
 			
 			
 				<div class="col py-3">
-					<h1 th:if="${isViewing}" align="center">Incident for <span th:text="${event.getClub().getTitle()}"></span></h1>
-					<h1 th:if="${isEditing}" align="center">Update Incident for <span th:text="${event.getClub().getTitle()}"></span></h1>
-					<h1 th:if="${isCreating}" align="center">Record Incident for <span th:text="${event.getClub().getTitle()}"></span></h1>
+					<h1 class="asc-header" th:if="${isViewing}">Incident for <span th:text="${session.getClub().getTitle()}"></span></h1>
+					<h1 class="asc-header" th:if="${isEditing}">Update Incident for <span th:text="${session.getClub().getTitle()}"></span></h1>
+					<h1 class="asc-header" th:if="${isCreating}">Record Incident for <span th:text="${session.getClub().getTitle()}"></span></h1>
 					<div class="row mb-2">
 						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="summary">Incident Summary:</label>
@@ -44,8 +45,8 @@
 						<div class="col-sm-9" align="center">
 							<fieldset class="form-group border p-3">
 								<div class="container-fluid no-margin">
-									<div th:each="attendeeIncident : ${incident.getAttendeeIncidents()}" class="row mb-2" th:id="${attendeeIncident.getAttendeeId().getId().intValue()}" th:studentName="${attendeeIncident.getStudent(event).getFullName()}">
-										<div class="col-sm-2" style="padding-top:12px" th:text="${attendeeIncident.getStudent(event).getFullName()}"></div>
+									<div th:each="attendeeIncident : ${incident.getAttendeeIncidents()}" class="row mb-2" th:id="${attendeeIncident.getAttendeeId().getId().intValue()}" th:studentName="${attendeeIncident.getStudent(session).getFullName()}">
+										<div class="col-sm-2" style="padding-top:12px" th:text="${attendeeIncident.getStudent(session).getFullName()}"></div>
 										<input type="hidden" name="attendeeId" th:value="${attendeeIncident.getAttendeeId().getId().intValue()}" />
 										<div th:class="${isViewing? 'col-sm-10' : 'col-sm-9'}">
 											<textarea class="form-control form-control-sm mr-sm-2" th:readonly="${isViewing}" name="attendeeNotes" id="attendeeNotes" th:text="${attendeeIncident.getSummary()}"></textarea>
@@ -60,8 +61,8 @@
 										<div class="col-sm-2" style="padding-top:12px">
 											<select name="attendeeId" id="newAttendee"  onChange="changedStudent()">
 											    <option value="0">Select Student...</option> 
-												<option th:each="attendee : ${event.getSortedAttendees()}"
-													th:disabled="${incident.involves(attendee.getAttendeeId())}  or ${!event.didAttend(attendee.getStudent())}" th:value="${attendee.getAttendeeId()}" th:text="${attendee.getStudent().getFullName()}">AttendeeId</option>
+												<option th:each="attendee : ${session.getSortedAttendees()}"
+													th:disabled="${incident.involves(attendee.getAttendeeId())}  or ${!session.didAttend(attendee.getStudent())}" th:value="${attendee.getAttendeeId()}" th:text="${attendee.getStudent().getFullName()}">AttendeeId</option>
 											</select>
 										</div>
 										<div class="col-sm-9">
@@ -83,7 +84,7 @@
 				</div>
 				<div th:if="${isViewing}" class="row mb-2">
 					<div class="col-sm-12" align="center">
-						<a href="javascript:history.back()" class="btn btn-secondary" role="button">Back</a>
+						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Back</a>
 					</div>					
 				</div>
 				
@@ -93,7 +94,7 @@
 						<button th:if="${isCreating}" class="btn btn-primary" name="submit">Submit</button>
 					</div>
 					<div class="col-sm-6" align="left">
-						<a href="javascript:history.back()" class="btn btn-secondary" role="button">Cancel</a>
+						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Cancel</a>
 					</div>					
 				</div>
 				<div class="spacer">&nbsp;</div>

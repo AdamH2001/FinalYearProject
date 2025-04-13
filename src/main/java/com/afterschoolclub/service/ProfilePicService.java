@@ -26,7 +26,7 @@ public class ProfilePicService {
     private String uploadDir;
     
 	public ProfilePicService() {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 
     

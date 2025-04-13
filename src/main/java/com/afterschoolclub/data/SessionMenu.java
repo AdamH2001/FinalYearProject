@@ -9,23 +9,23 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class EventMenu {
+public class SessionMenu {
 	@Id
-	private int eventMenuId;
+	private int sessionMenuId;
 	AggregateReference<MenuGroup, Integer> menuGroupId;	
-	AggregateReference<Event, Integer> eventId;	
+	AggregateReference<Session, Integer> sessionId;	
 	
 	
-	public EventMenu() {
+	public SessionMenu() {
 		super();	
 	}
 	
-	public EventMenu(AggregateReference<MenuGroup, Integer> menuGroupId) {
+	public SessionMenu(AggregateReference<MenuGroup, Integer> menuGroupId) {
 		super();
 		this.menuGroupId = menuGroupId;
 	}
 	
-	public EventMenu(EventMenu em) {
+	public SessionMenu(SessionMenu em) {
 		super();
 		this.menuGroupId = em.menuGroupId;
 

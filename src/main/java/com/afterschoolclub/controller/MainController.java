@@ -3,7 +3,7 @@ import jakarta.mail.MessagingException;
 
 import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.data.Club;
-import com.afterschoolclub.data.Event;
+import com.afterschoolclub.data.Session;
 import com.afterschoolclub.data.Parent;
 import com.afterschoolclub.data.ParentalTransaction;
 import com.afterschoolclub.data.Resource;
@@ -11,7 +11,7 @@ import com.afterschoolclub.data.State;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.StudentClass;
 import com.afterschoolclub.data.User;
-import com.afterschoolclub.data.EventDay;
+import com.afterschoolclub.data.SessionDay;
 import com.afterschoolclub.data.Holiday;
 import com.afterschoolclub.data.MenuGroup;
 import com.afterschoolclub.data.MenuOption;
@@ -19,7 +19,7 @@ import com.afterschoolclub.data.RecurrenceSpecification;
 
 import com.afterschoolclub.data.repository.ClassRepository;
 import com.afterschoolclub.data.repository.ClubRepository;
-import com.afterschoolclub.data.repository.EventRepository;
+import com.afterschoolclub.data.repository.SessionRepository;
 import com.afterschoolclub.data.repository.HolidayRepository;
 import com.afterschoolclub.data.repository.MenuGroupRepository;
 import com.afterschoolclub.data.repository.MenuOptionRepository;
@@ -30,7 +30,6 @@ import com.afterschoolclub.data.repository.StudentRepository;
 import com.afterschoolclub.data.repository.UserRepository;
 import com.afterschoolclub.service.ClubPicService;
 import com.afterschoolclub.service.EmailService;
-import com.afterschoolclub.service.PaypalService;
 import com.afterschoolclub.service.ProfilePicService;
 
 import java.time.LocalDate;
@@ -59,8 +58,8 @@ public class MainController {
 	@Autowired
 	private ProfilePicService profilePicService;	
 	
-	@Autowired	
-    private PaypalService paypalService;	
+	@Autowired
+	private ClubPicService clubPicService;	
 	
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	
@@ -68,18 +67,18 @@ public class MainController {
 	
 	/**
 	 * @param userRepository
-	 * @param eventRepository
+	 * @param sessionRepository
 	 * @param menuGroupRepository
 	 * @param resourceRepository
 	 * @param classRepository
 	 */
-	public MainController(UserRepository userRepository, EventRepository eventRepository,
+	public MainController(UserRepository userRepository, SessionRepository sessionRepository,
 			MenuGroupRepository menuGroupRepository, ResourceRepository resourceRepository,
 			ClassRepository classRepository, StudentRepository studentRepository, ParentalTransactionRepository transactionRepository, 
 			ClubRepository clubRepository, RecurrenceSpecificationRepository recurrenceSpecificationRepository, HolidayRepository holidayRepository, MenuOptionRepository menuOptionRepository, ProfilePicService profilePicService, ClubPicService clubPicService, SessionBean sessionBean) {
 		super();		
 		Club.repository = clubRepository;
-		Event.repository = eventRepository;
+		Session.repository = sessionRepository;
 		Resource.repository = resourceRepository;
 		MenuGroup.repository = menuGroupRepository;
 		Student.repository = studentRepository;
@@ -104,9 +103,11 @@ public class MainController {
 		model.addAttribute("sessionBean", sessionBean);
 		
 		if (!sessionBean.isLoggedOn()) {			
-			model.addAttribute("flashMessage","Please login to perform this action.");
+			sessionBean.setFlashMessage("Please login to perform this action.");
 			setInDialogue(false,model);
-			returnPage = "home";		
+			//returnPage = "redirect:/";
+			returnPage = sessionBean.getRedirectUrl();
+
 		}
 		return returnPage;		
 	}
@@ -150,7 +151,7 @@ public class MainController {
 				} catch (MessagingException e) {
 					e.printStackTrace();
 				}
-				model.addAttribute("flashMessage", "Email is now verified");
+				sessionBean.setFlashMessage("Email is now verified");
 			}
 		}
 		this.setInDialogue(false,model);
@@ -175,15 +176,15 @@ public class MainController {
 					returnPage = "changepassword";
 				}
 				else {
-					model.addAttribute("flashMessage","Link out of date");					
+					sessionBean.setFlashMessage("Link out of date");					
 				}
 			}
 			else {
-				model.addAttribute("flashMessage","Link out of date");				
+				sessionBean.setFlashMessage("Link out of date");				
 			}			
 		}
 		else {
-			model.addAttribute("flashMessage","Must be logged out to perform this action");
+			sessionBean.setFlashMessage("Must be logged out to perform this action");
 			returnPage = setupCalendar(model);			
 		}
 		return returnPage;
@@ -199,22 +200,24 @@ public class MainController {
 		if (!sessionBean.isLoggedOn()) {			
 			User existingUser = User.findByEmail(username);			
 			if (existingUser == null) {
-				model.addAttribute("flashMessage", "Email or Password Incorrect");
+				sessionBean.setFlashMessage("Email or Password Incorrect");
 			} else {
 				if (existingUser.isPasswordValid(password)) {
 					if (existingUser.isEmailVerified()) {
 						sessionBean.setLoggedOnUser(existingUser);	
 						returnPage = setupCalendar(model);
 					} else {
-						model.addAttribute("flashMessage", "Email has not been verified");						
+						sessionBean.setFlashMessage("Email has not been verified");
+						returnPage = sessionBean.getRedirectUrl();
 					}	
 				} else {
-					model.addAttribute("flashMessage", "Email or Password Incorrect");					
+					sessionBean.setFlashMessage("Email or Password Incorrect");
+					returnPage = sessionBean.getRedirectUrl();
 				}
 			}
 		}
 		else {
-			model.addAttribute("flashMessage", "Already logged on.");
+			sessionBean.setFlashMessage("Already logged on.");
 			returnPage = sessionBean.getRedirectUrl();
 		}
 		return returnPage;
@@ -237,11 +240,44 @@ public class MainController {
 	public String home(Model model) {
 		String returnPage = "home";
 		this.setInDialogue(false,model);	  
-	    if (sessionBean.isLoggedOn()) {
-			returnPage = setupCalendar(model);			
-	    }
+		List<String> allClubPics = clubPicService.getAllURLs();
+		sessionBean.setReturnUrl("./");
+
+		model.addAttribute("allImages", allClubPics);
+
 	    return returnPage;
 	}
+	
+	@GetMapping("/privacypolicy")
+	public String privacypolicy(Model model) {
+		sessionBean.setReturnUrl("./privacypolicy");
+		this.setInDialogue(false,model);	  
+	    return "privacypolicy";
+	}
+	
+	@GetMapping("/missingPolicy")
+	public String missingPolicy(Model model) {
+		this.setInDialogue(false,model);	  
+	    return "missingPolicy";
+	}
+	
+	
+	@GetMapping("/termsandconditions")
+	public String termsandconditions(Model model) {
+		sessionBean.setReturnUrl("./termsandconditions");
+		this.setInDialogue(false,model);	  
+	    return "termsandconditions";
+	}
+	
+	@GetMapping("/policiesandprocedures")
+	public String policiesandprocedures(Model model) {
+		sessionBean.setReturnUrl("./policiesandprocedures"); //TODO add to above
+		this.setInDialogue(false,model);	  
+	    return "policiesandprocedures";
+	}
+	
+	
+	
 
 	@GetMapping("/logout")
 	public String home(Model model, SessionStatus status) {
@@ -258,7 +294,7 @@ public class MainController {
 			
 		calendarDay = calendarMonth.withDayOfMonth(1);
 		calendarNextMonth = calendarDay.plusMonths(1);
-		List<Event> events = Event.findForMonth(calendarDay);
+		List<Session> sessions = Session.findForMonth(calendarDay);
 		
 		int numCalendarWeeks = (calendarDay.lengthOfMonth() + calendarDay.getDayOfWeek().getValue() - 1);
 		if (numCalendarWeeks % 7 > 0)
@@ -266,14 +302,14 @@ public class MainController {
 		else
 			numCalendarWeeks = numCalendarWeeks / 7;
 				
-		EventDay[][] calendar = new EventDay[numCalendarWeeks][7];
+		SessionDay[][] calendar = new SessionDay[numCalendarWeeks][7];
 		List<Holiday> allHolidays = Holiday.findAll();
 		for (int i = 0; i < calendar.length; i++) {
 			for (int j = 0; j < calendar[i].length; j++) {
 				if ((calendarDay.getDayOfWeek().getValue() == (j + 1))
 						&& (calendarDay.isBefore(calendarNextMonth))) {
-					EventDay eventDay = new EventDay(calendarDay, allHolidays, events, sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), sessionBean.getFilter());					
-					calendar[i][j] = eventDay;
+					SessionDay sessionDay = new SessionDay(calendarDay, allHolidays, sessions, sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), sessionBean.getFilter());					
+					calendar[i][j] = sessionDay;
 					calendarDay = calendarDay.plusDays(1);
 				} else {
 					calendar[i][j] = null;
@@ -296,11 +332,11 @@ public class MainController {
 			if (password.equals(conPassword)) {
 				sessionBean.getLoggedOnUser().setPassword(password);
 				sessionBean.getLoggedOnUser().update();
-				model.addAttribute("flashMessage","Password has been changed");
+				sessionBean.setFlashMessage("Password has been changed");
 				returnPage = setupCalendar(model);				
 			}
 			else {
-				model.addAttribute("flashMessage","Passwords do not match");
+				sessionBean.setFlashMessage("Passwords do not match");
 				model.addAttribute("formAction","./updatePassword");
 				this.setInDialogue(true,model);
 				returnPage = "changepassword";
@@ -322,15 +358,15 @@ public class MainController {
 						user.setPassword(password);
 						user.setValidationKey();
 						user.save();
-						model.addAttribute("flashMessage","Password has been changed");
+						sessionBean.setFlashMessage("Password has been changed");
 					}
 					else {
-						model.addAttribute("flashMessage","Link out of date");
+						sessionBean.setFlashMessage("Link out of date");
 					}
 					returnPage = "home";
 				}
 				else {
-					model.addAttribute("flashMessage","Passwords do not match");
+					sessionBean.setFlashMessage("Passwords do not match");
 					model.addAttribute("formAction","./updatePasswordWithKey");
 					model.addAttribute("userId",userId);
 					model.addAttribute("validationKey",validationKey);
@@ -339,12 +375,12 @@ public class MainController {
 				}
 			}
 			else {
-				model.addAttribute("flashMessage","Link out of date");
+				sessionBean.setFlashMessage("Link out of date");
 				returnPage = "home";
 			}
 		}
 		else {
-			model.addAttribute("flashMessage","Must be logged out to perform this action");
+			sessionBean.setFlashMessage("Must be logged out to perform this action");
 			returnPage = "home";
 		}
 		return returnPage;
@@ -391,7 +427,7 @@ public class MainController {
 			returnPage = "forgottenpassword";
 		}
 		else {
-			model.addAttribute("flashMessage","Must be logged out to perform this action");
+			sessionBean.setFlashMessage("Must be logged out to perform this action");
 			returnPage = setupCalendar(model);			
 		}
 		return returnPage;
@@ -415,19 +451,19 @@ public class MainController {
 				try {
 					mailService.sendTemplateEmail(existingUser.getEmail(), "afterschooladmin@hattonsplace.co.uk",
 							"Reset Your Password For Afterschool Club", "forgottenpasswordtemplate", context);
-					model.addAttribute("flashMessage","Forgotten password email sent.");				
+					sessionBean.setFlashMessage("Forgotten password email sent.");				
 
 				} catch (MessagingException e) {
-					model.addAttribute("flashMessage","Failed to send email.");
+					sessionBean.setFlashMessage("Failed to send email.");
 					e.printStackTrace();
 				}				
 			}
 			else {
-				model.addAttribute("flashMessage","User with that email address does not exist.");				
+				sessionBean.setFlashMessage("User with that email address does not exist.");				
 			}
 		}
 		else {
-			model.addAttribute("flashMessage","Must be logged out to perform this action");
+			sessionBean.setFlashMessage("Must be logged out to perform this action");
 			returnPage = setupCalendar(model);			
 		}
 				
@@ -438,7 +474,7 @@ public class MainController {
 	@GetMapping("/viewClubs") // complete
 	public String viewClubs(Model model) {
 		this.setInDialogue(false,model);	  
-		List<Club> allClubs = Club.findAll();
+		List<Club> allClubs = Club.findActive();
 		model.addAttribute("allClubs",allClubs);
 		sessionBean.setReturnClubs();
 		return "viewClubs";	
@@ -565,26 +601,26 @@ public class MainController {
 					try {
 						mailService.sendTemplateEmail(user.getEmail(), "afterschooladmin@hattonsplace.co.uk",
 								"Verify Email For Afterschool Club", "verifyemailtemplate", context);
-						model.addAttribute("flashMessage","Please verify your email address");
+						sessionBean.setFlashMessage("Please verify your email address");
 
 					} catch (MessagingException e) {
-						model.addAttribute("flashMessage","Failed to send verication email.");
+						sessionBean.setFlashMessage("Failed to send verication email.");
 						e.printStackTrace();
 					}										
 				}
 				else {
 					if (newUser) {						
-						model.addAttribute("flashMessage","User has been created");
+						sessionBean.setFlashMessage("User has been created");
 					}
 					else {
-						model.addAttribute("flashMessage","Profile has been updated");
+						sessionBean.setFlashMessage("Profile has been updated");
 					}
 				}
 				returnPage = setupCalendar(model);
 			}
 			else {
 				model.addAttribute("isEditing",!newUser);
-				model.addAttribute("flashMessage","Passwords do not match");
+				sessionBean.setFlashMessage("Passwords do not match");
 				model.addAttribute("user",user);
 				this.setInDialogue(true,model);
 				model.addAttribute("tempFilename", tempFilename);
@@ -593,7 +629,7 @@ public class MainController {
 			}					
 		}
 		else {
-			model.addAttribute("flashMessage", "Email already in use");
+			sessionBean.setFlashMessage("Email already in use");
 			model.addAttribute("user", user);
 			model.addAttribute("isEditing", !newUser);
 			model.addAttribute("tempFilename", tempFilename);
@@ -608,7 +644,7 @@ public class MainController {
 
 	
 	@GetMapping("/transactionBack")
-	public String transactionBack(@RequestParam(name = "userId", required = false) int userId,	
+	public String transactionBack(@RequestParam(name = "userId", required = false,  defaultValue="0") int userId,	
 			Model model) {
 		String returnPage = validateIsLoggedOn(model);
 		if (returnPage == null) {		
@@ -625,7 +661,7 @@ public class MainController {
 	}
 	
 	@GetMapping("/transactionForward")
-	public String transactionForward(@RequestParam(name = "userId", required = false) int userId,
+	public String transactionForward(@RequestParam(name = "userId", required = false,  defaultValue="0") int userId,
 					Model model) {
 		String returnPage = validateIsLoggedOn(model);
 		if (returnPage == null) {		

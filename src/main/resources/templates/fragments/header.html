@@ -16,8 +16,11 @@
 		class="container-fluid fixed-top bg-navafterschoolclub afterschoolheader text-afterschoolwhite" id="header"
 		style="width: 100%;">
 		<span style="display: none" id="loggedOnUser" th:text="${sessionBean.getLoggedOnUser()?.getUserId()}"></span>
-		<div th:unless="${sessionBean.isLoggedOn()}" class="row p-2">
-			<div class="text-afterschoolclubmainheader col-sm-9">After School Club</div>
+		<div th:unless="${sessionBean.isLoggedOn()}" class="row p-2"  align="center">
+			<div class="col-sm-2" align="left"><img src="./images/asc-logo.png" style="width:140px;height:80px"></div>
+		
+			<div class="text-afterschoolclubmainheader col-sm-4">After School Club</div>
+			<div class="col-sm-3"></div>
 
 			<div class="col-sm-3">
 				<form class="form-inline" action="./processlogin" method="POST">
@@ -39,20 +42,15 @@
 							<a href="./forgotPassword">Forgot password</a>
 						</div>
 					</div>
-
-					<div class="afterschoolclubflash row mb-1 afterschoolclubleft">
-						<div class="col-sm-12" th:switch="${flashMessage}">
-							<div th:case="null">&nbsp;</div>
-							<div th:case="*" th:text="${flashMessage}">&nbsp;</div>
-						</div>
-					</div>
 				</form>
 			</div>
 		</div>
 
 
 		<div th:if="${sessionBean.isLoggedOn()}" class="row p-2">
-			<div class="col-sm-6 text-afterschoolclubmainheader">After School Club</div>
+			<div class="col-sm-2" align="left"><img src="./images/asc-logo.png" style="width:140px;height:80px"></div>
+		
+			<div class="text-afterschoolclubmainheader col-sm-4">After School Club</div>
 			<div th:if="${sessionBean.isParentLoggedOn()}" class="col-sm-4 p-2">
 
 				<div class="row mb-1">
@@ -92,11 +90,11 @@
 
 			</div>
 
-
 			<div class="col-sm-2">
 				<span class="dropdown position-absolute top-50 end-0 translate-middle">
-					<a href="#" class="d-flex align-items-center nav-link text-decoration-none dropdown-toggle" id="dropdownUser1"
-						data-bs-toggle="dropdown" aria-expanded="false"> <img th:src="${sessionBean.getLoggedOnUser().getImageURL()}"
+					<a href="#" 
+						th:class="${sessionBean.isInDialogue()}? 'disabled d-flex align-items-center nav-link text-decoration-none dropdown-toggle' : 'd-flex align-items-center nav-link text-decoration-none dropdown-toggle'" 										
+						id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false"> <img th:src="${sessionBean.getLoggedOnUser().getImageURL()}"
 						th:alt="${sessionBean.getLoggedOnUser().getFullName()}" width="30" height="30" class="rounded-circle"> <span
 						th:text="${sessionBean.getLoggedOnUser().getFullName()}" class="d-none d-sm-inline mx-1"></span>
 					</a>

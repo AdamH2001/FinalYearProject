@@ -9,7 +9,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
-import com.afterschoolclub.data.repository.EventRepository;
+import com.afterschoolclub.data.repository.SessionRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,68 +33,68 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Event {
-	public static EventRepository repository = null;
+public class Session {
+	public static SessionRepository repository = null;
 
-	public static List<Event> findForMonth(LocalDate date) {
+	public static List<Session> findForMonth(LocalDate date) {
 		LocalDate monthStart = date.withDayOfMonth(1);
 		LocalDate nextMonth = date.plusMonths(1);
-		return repository.findEventsBetweenDates(monthStart, nextMonth);
+		return repository.findSessionsBetweenDates(monthStart, nextMonth);
 	}
 	
-	public static List<Event> findForDay(LocalDate date) {
+	public static List<Session> findForDay(LocalDate date) {
 		LocalDate dayStart = date;
 		LocalDate nextDay = date.plusDays(1);
-		return repository.findEventsBetweenDates(dayStart, nextDay);
+		return repository.findSessionsBetweenDates(dayStart, nextDay);
 	}
 		
-	public static  List<Event> findByResourceId(int resourceId) {
+	public static  List<Session> findByResourceId(int resourceId) {
 		return repository.findByResourceId(resourceId);
 	}		
 	
-	public static  List<Event> findAllWithIncidents() {
+	public static  List<Session> findAllWithIncidents() {
 		return repository.findAllWithIncidents();
 	}		
 	
-	public static  List<Event> findAllWithIncidentsForStudent(int studentId) {
+	public static  List<Session> findAllWithIncidentsForStudent(int studentId) {
 		return repository.findAllWithIncidentsForStudent(studentId);
 	}		
 	
 	
-	public static  List<Event> findByFutureDemandOnResourceId(int resourceId) {
+	public static  List<Session> findByFutureDemandOnResourceId(int resourceId) {
 		return repository.findByFutureDemandOnResourceId(resourceId);
 	}	
 	
 	
-	public static Event findById(int eventId) {
-		Optional<Event> optional = repository.findById(eventId);
-		Event event = null;
+	public static Session findById(int sessionId) {
+		Optional<Session> optional = repository.findById(sessionId);
+		Session session = null;
 		if (optional.isPresent()) {
-			event = optional.get();
+			session = optional.get();
 		}
-		return event;
+		return session;
 	}	
 	
-	public static List<Event>  findRecurringEvents(int recurringId) {
+	public static List<Session>  findRecurringSessions(int recurringId) {
 		return repository.findByReccurenceSpecificationId(recurringId);		
 		
 	}	
 		
 	
-	public static void saveAll(List<Event> allEvents) {
-		repository.saveAll(allEvents);
+	public static void saveAll(List<Session> allSessions) {
+		repository.saveAll(allSessions);
 		
 	}	
 	
 	
-	public static void deleteById(int eventId) {
-		repository.deleteById(eventId);		
+	public static void deleteById(int sessionId) {
+		repository.deleteById(sessionId);		
 	}		
 	
 	
 	
 	@Id
-	private int eventId;
+	private int sessionId;
 		
 	AggregateReference<Club, Integer> clubId;
 	AggregateReference<RecurrenceSpecification, Integer> recurrenceSpecificationId;
@@ -109,21 +109,21 @@ public class Event {
 
 	private String administratorNotes="";
 	
-	@MappedCollection(idColumn = "event_id")
-	private Set<EventResource> eventResources = new HashSet<>();
+	@MappedCollection(idColumn = "session_id")
+	private Set<SessionResource> sessionResources = new HashSet<>();
 	
-	@MappedCollection(idColumn = "event_id")
+	@MappedCollection(idColumn = "session_id")
 	private Set<Attendee> attendees = new HashSet<>();
 
-	@MappedCollection(idColumn = "event_id")
-	private Set<EventMenu> eventMenus = new HashSet<>();	
+	@MappedCollection(idColumn = "session_id")
+	private Set<SessionMenu> sessionMenus = new HashSet<>();	
 	
-	@MappedCollection(idColumn = "event_id")
+	@MappedCollection(idColumn = "session_id")
 	private Set<Incident> incidents = new HashSet<>();
 	
 	
 	@Transient
-	private transient Club eventClub = null; 
+	private transient Club sessionClub = null; 
 
 	@Transient
 	private transient RecurrenceSpecification recurrenceSpecification = null; 	
@@ -136,7 +136,7 @@ public class Event {
 	
 
 	
-	public Event() {
+	public Session() {
 		super();			
 		this.clubId= null;
 		this.maxAttendees = 10;	
@@ -168,14 +168,14 @@ public class Event {
 	 * @param maxAttendees
 	 */
 	
-	public Event(AggregateReference<Club, Integer> clubId, LocalDateTime startDateTime,
+	public Session(AggregateReference<Club, Integer> clubId, LocalDateTime startDateTime,
 			LocalDateTime endDateTime, int maxAttendees) {
 		super();
 		this.clubId= clubId;		
 		this.startDateTime = startDateTime;
 		this.endDateTime = endDateTime;
 		this.maxAttendees = maxAttendees;
-		this.eventClub=null;	
+		this.sessionClub=null;	
 		this.parentNotes = "";
 		this.administratorNotes = "";
 				
@@ -186,28 +186,42 @@ public class Event {
 	/**
 	 *
 	 */
-	public Event(Event e) {
+	public Session(Session session) {
 		super();
-		this.clubId = e.clubId;				
-		this.startDateTime = e.startDateTime;
-		this.endDateTime = e.endDateTime;
-		this.maxAttendees = e.maxAttendees;
-		this.eventClub = e.eventClub;
 		
-		for (EventResource er : e.eventResources) {
-			this.eventResources.add(new EventResource(er));
+		// Don't copy sessionId 
+		
+		this.clubId = session.clubId;				
+		this.startDateTime = session.startDateTime;
+		this.endDateTime = session.endDateTime;
+		this.maxAttendees = session.maxAttendees;
+		this.sessionClub = session.sessionClub;
+		
+		for (SessionResource er : session.sessionResources) {
+			this.sessionResources.add(new SessionResource(er));
 		}
 		
-		for (EventMenu menu : e.eventMenus) {
-			this.eventMenus.add(new EventMenu(menu));
+		for (SessionMenu menu : session.sessionMenus) {
+			this.sessionMenus.add(new SessionMenu(menu));
 		}
 		
-		this.eventClub = e.eventClub;
+		for (SessionMenu menu : session.sessionMenus) {
+			this.sessionMenus.add(new SessionMenu(menu));
+		}		
 		
-		this.recurrenceSpecificationId = e.getRecurrenceSpecificationId();
-		this.recurrenceSpecification = e.getRecurrenceSpecification();
-		this.parentNotes = e.parentNotes;
-		this.administratorNotes = e.administratorNotes;
+		this.menuGroups = new ArrayList<MenuGroup>();
+		for (MenuGroup menuGroup : session.getMenuGroups()) {
+			this.menuGroups.add(menuGroup);
+		}		
+		
+		
+		
+		this.sessionClub = session.sessionClub;
+		
+		this.recurrenceSpecificationId = session.getRecurrenceSpecificationId();
+		this.recurrenceSpecification = session.getRecurrenceSpecification();
+		this.parentNotes = session.parentNotes;
+		this.administratorNotes = session.administratorNotes;
 		
 		// Don't copy attendees or incidents
 		
@@ -267,10 +281,10 @@ public class Event {
 	}
 
 	public Club getClub() {
-		if (this.eventClub == null && clubId != null) {
-			eventClub = Club.findById(clubId.getId());
+		if (this.sessionClub == null && clubId != null) {
+			sessionClub = Club.findById(clubId.getId());
 		}
-		return eventClub;
+		return sessionClub;
 		
 	}
 	
@@ -296,9 +310,9 @@ public class Event {
 		Iterator<Resource> resourceIterator = allResources.iterator();
 		while (location == null & resourceIterator.hasNext()) {
 			Resource r = resourceIterator.next();
-			Iterator<EventResource> erIterator = eventResources.iterator();
+			Iterator<SessionResource> erIterator = sessionResources.iterator();
 			while (location == null & erIterator.hasNext()) {
-				EventResource er = erIterator.next();
+				SessionResource er = erIterator.next();
 				if (er.getResourceId().getId().intValue() == r.getResourceId() && r.getType() == Resource.Type.LOCATION) {
 					location = r;
 				}				
@@ -311,7 +325,7 @@ public class Event {
 		if (requiredResources == null) {
 			Iterable <Resource> allResources = Resource.findAll();
 			requiredResources = new ArrayList<Resource>();
-			for (EventResource er : eventResources) {
+			for (SessionResource er : sessionResources) {
 				for (Resource r : allResources) {
 					if (er.getResourceId().getId().intValue() == r.getResourceId()) {
 						requiredResources.add(r);
@@ -328,9 +342,9 @@ public class Event {
 		Iterator<Resource> resourceIterator = allResources.iterator();
 		while (resourceIterator.hasNext()) {
 			Resource r = resourceIterator.next();
-			Iterator<EventResource> erIterator = eventResources.iterator();
+			Iterator<SessionResource> erIterator = sessionResources.iterator();
 			while (erIterator.hasNext()) {
-				EventResource er = erIterator.next();
+				SessionResource er = erIterator.next();
 				if (er.getResourceId().getId().intValue() == r.getResourceId() && r.getType() == Resource.Type.EQUIPMENT) {
 					equipment.add(r);
 				}				
@@ -345,9 +359,9 @@ public class Event {
 		Iterator<Resource> resourceIterator = allResources.iterator();
 		while (resourceIterator.hasNext()) {
 			Resource r = resourceIterator.next();
-			Iterator<EventResource> erIterator = eventResources.iterator();
+			Iterator<SessionResource> erIterator = sessionResources.iterator();
 			while (erIterator.hasNext()) {
-				EventResource er = erIterator.next();
+				SessionResource er = erIterator.next();
 				if (er.getResourceId().getId().intValue() == r.getResourceId() && r.getType() == Resource.Type.STAFF) {
 					staff.add(r);
 				}				
@@ -358,7 +372,7 @@ public class Event {
 	
 	public List<MenuGroup> getMenuGroups() {
 		if (menuGroups == null) {
-			menuGroups = MenuGroup.findByEventId(eventId);		
+			menuGroups = MenuGroup.findBySessionId(sessionId);		
 		}
 		return menuGroups;
 	}
@@ -378,7 +392,6 @@ public class Event {
 	
 	
 	
-	//TODO why do we do it this way 
 	
 	public boolean requiresStaff(int resourceId) {
 		boolean required = false;
@@ -391,14 +404,14 @@ public class Event {
 	}
 		
 	
-	public void addResource(EventResource eventResource) {
-		this.eventResources.add(eventResource);
+	public void addResource(SessionResource sessionResource) {
+		this.sessionResources.add(sessionResource);
 	}
 	
 	public boolean usesResource(Resource resource) {
 		boolean result = false;
 		
-		Iterator<EventResource> erIterator = eventResources.iterator();
+		Iterator<SessionResource> erIterator = sessionResources.iterator();
 		while (erIterator.hasNext() && !result) {
 			result = erIterator.next().getResourceId().getId() == resource.getResourceId();
 		}		
@@ -406,8 +419,8 @@ public class Event {
 		return result; 
 	}
 	
-	public void addEventMenu(EventMenu menu) {
-		this.eventMenus.add(menu);
+	public void addSessionMenu(SessionMenu menu) {
+		this.sessionMenus.add(menu);
 	}	
 		
 	public String getStartTime() {
@@ -443,7 +456,7 @@ public class Event {
 		if (this.endInPast())
 			result = false;
 		
-		if (this.getMaxAttendees() <= this.getAttendees().size() && !student.isAttendingEvent(this))
+		if (this.getMaxAttendees() <= this.getAttendees().size() && !student.isAttendingSession(this))
 			result = false;
 		
 		return result;				
@@ -526,17 +539,17 @@ public class Event {
 	
 	public boolean hasOptions()
 	{									
-		return (eventMenus != null) && (eventMenus.size() > 0);
+		return (sessionMenus != null) && (sessionMenus.size() > 0);
 	}	
 
 	
-	public List<EventResource> getActiveEquipmentEventResources() {
+	public List<SessionResource> getActiveEquipmentSessionResources() {
 		List<Resource> equipment = getEquipment();
-		List <EventResource> result = new ArrayList<EventResource>();
-		Set<EventResource> allResources = getEventResources();
-		Iterator <EventResource> iterator = allResources.iterator();
+		List <SessionResource> result = new ArrayList<SessionResource>();
+		Set<SessionResource> allResources = getSessionResources();
+		Iterator <SessionResource> iterator = allResources.iterator();
 		while (iterator.hasNext()) {
-			EventResource er = iterator.next();
+			SessionResource er = iterator.next();
 			int resourceId = er.getResourceId().getId().intValue();
 			Iterator<Resource> equipmentIterator = equipment.iterator();
 			boolean isEquipment = false;
@@ -554,15 +567,15 @@ public class Event {
 	}
 	
 	
-	public List<Event> getOverlappingEvents() {
-		return repository.findOverlappingEvents(getEventId(), getStartDateTime(), getEndDateTime());		
+	public List<Session> getOverlappingSessions() {
+		return repository.findOverlappingSessions(getSessionId(), getStartDateTime(), getEndDateTime());		
 	}	
 	
 	public List<ResourceStatus> getResourceStatus() {
 		Map<Integer, Integer> resourceRequirements = new HashMap<>(); //maps resourceId to quantity
 				
 		//get list map of all resourceid and quantities needed
-		for (EventResource er : eventResources) {
+		for (SessionResource er : sessionResources) {
 			if (!resourceRequirements.containsKey(er.getResourceId().getId())) {
 				resourceRequirements.put(er.getResourceId().getId(), getRequiredResourceQuantity(er.getResourceId().getId().intValue()));
 			}
@@ -615,19 +628,19 @@ public class Event {
 	
 		
 	public void clearResources() {
-		eventResources = new HashSet<>();		
+		sessionResources = new HashSet<>();		
 		requiredResources = null;				 
 	}
 	
 	public void clearMenu() {
-		eventMenus = new HashSet<>();			
+		sessionMenus = new HashSet<>();			
 		menuGroups = null; 	
 	}	
 	
 	public int getRequiredResourceQuantity(int resourceId) {
 		int result = 0;
 		
-		for (EventResource er : eventResources) {
+		for (SessionResource er : sessionResources) {
 			if (er.getResourceId().getId().intValue() == resourceId)
 			{				
 				if (er.isPerAttendee()) {

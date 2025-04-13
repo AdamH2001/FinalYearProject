@@ -20,7 +20,7 @@ public class Incident {
 	private int incidentId;
 	private String summary="";
 	
-	AggregateReference<Event, Integer> eventId;
+	AggregateReference<Session, Integer> sessionId;
 	
 	@MappedCollection(idColumn = "incident_id")
 	private Set<AttendeeIncident> attendeeIncidents = new HashSet<>();
@@ -28,7 +28,7 @@ public class Incident {
 		
 	
 	/**
-	 * @param eventId
+	 * @param sessionId
 	 * @param summary
 	 */
 	public Incident(String summary) {
@@ -37,7 +37,7 @@ public class Incident {
 	}
 	
 	/**
-	 * @param eventId
+	 * @param sessionId
 	 * @param summary
 	 */
 	public Incident() {

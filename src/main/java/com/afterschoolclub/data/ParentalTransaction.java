@@ -47,6 +47,18 @@ public class ParentalTransaction {
 		return result;
 	}		
 	
+
+	public static int getRemainingCreditForPayment(String paymentReference) {
+		Integer balance =  repository.getRemainingCreditForPayment(paymentReference);
+		int result = 0;
+		if (balance != null) {
+			result = balance.intValue();
+		}
+		return result;
+	}	
+	
+	
+	
 	
 	public static int getVoucherBalanceOn(Parent parent, LocalDate start) {
 		Integer balance =  repository.getVoucherBalance(parent.getParentId(), start);

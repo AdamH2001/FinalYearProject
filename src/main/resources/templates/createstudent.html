@@ -15,6 +15,7 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
 
 	
 	<div id="main" class="main container-flex no-margin ">
@@ -27,8 +28,8 @@
 
 				<div class="row mb-2">
 					<div class="col-sm-12" align="center">
-						<h1 th:if="${isEditing}" align="center">Update Child Details</h1>
-						<h1 th:unless="${isEditing}" align="center">Add New Child</h1>
+						<h1 class="asc-header" th:if="${isEditing}">Update Child Details</h1>
+						<h1 class="asc-header" th:unless="${isEditing}">Add Child</h1>
 					</div>					
 				</div>
 
@@ -159,7 +160,7 @@
 						<button th:unless="${isEditing}" class="btn btn-primary" name="submit">Add</button>
 					</div>
 					<div class="col-sm-6" align="left">
-						<a href="javascript:history.back()" class="btn btn-secondary" role="button">Cancel</a>
+						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Cancel</a>
 					</div>					
 				</div>
 				</div>

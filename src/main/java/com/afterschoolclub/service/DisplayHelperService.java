@@ -2,11 +2,11 @@ package com.afterschoolclub.service;
 
 import org.springframework.stereotype.Service;
 
-import com.afterschoolclub.data.Event;
+import com.afterschoolclub.data.Session;
 import com.afterschoolclub.data.Filter;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.User;
-import com.afterschoolclub.data.FilteredEvent;
+import com.afterschoolclub.data.FilteredSession;
 
 import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.MenuGroup;
@@ -16,10 +16,10 @@ import com.afterschoolclub.data.MenuGroup;
 public class DisplayHelperService {
 
 	
-	public String getStudentClass(Student selectedStudent, Student currentStudent, Event event, boolean viewOnly)
+	public String getStudentClass(Student selectedStudent, Student currentStudent, Session session, boolean viewOnly)
 	{
 		String result = "";
-		if ((event.registered(currentStudent) || !event.canAttend(currentStudent)) && !viewOnly) {
+		if ((session.registered(currentStudent) || !session.canAttend(currentStudent)) && !viewOnly) {
 			result ="disabled ";
 		}
 		else if (selectedStudent.equals(currentStudent)) {
@@ -32,19 +32,19 @@ public class DisplayHelperService {
 			
 	}
 	
-	public String getStudentCheckContainerClass(User user, Student selectedStudent, Student currentStudent, Event event, boolean editing, boolean viewOnly, Filter filter)
+	public String getStudentCheckContainerClass(User user, Student selectedStudent, Student currentStudent, Session session, boolean editing, boolean viewOnly, Filter filter)
 	{
-		FilteredEvent filterEvent = new FilteredEvent(event, user, currentStudent, filter);
-		return filterEvent.getFilterClass();
+		FilteredSession filterSession = new FilteredSession(session, user, currentStudent, filter);
+		return filterSession.getFilterClass();
 			
 	}	
 	
-	public String getStudentClass(Student selectedStudent, Student currentStudent, Event event, boolean editing, boolean viewOnly)
+	public String getStudentClass(Student selectedStudent, Student currentStudent, Session session, boolean editing, boolean viewOnly)
 	{
 		String result = "";
 
 		if (editing) {
-			if (event.registered(currentStudent)) {
+			if (session.registered(currentStudent)) {
 				if (selectedStudent.equals(currentStudent)) {
 					result = "active ";
 				}
@@ -54,57 +54,18 @@ public class DisplayHelperService {
 			}			
 		}
 		else
-			result = getStudentClass(selectedStudent, currentStudent, event, viewOnly);
+			result = getStudentClass(selectedStudent, currentStudent, session, viewOnly);
 		
 		return result;
 			
 	}
-	/*
-	public boolean checkedStudent(Student selectedStudent, Student currentStudent, Event event, boolean editing, boolean viewOnly)
-	{
-		return 	(!viewOnly && !editing && selectedStudent.equals(currentStudent)) || event.registered(currentStudent);
 
-	}
-	
-	public String hiddenCheckedStudent(Student selectedStudent, Student currentStudent, Event event, boolean editing, boolean viewOnly)
-	{
-		String result = "";
-		if (checkedStudent(selectedStudent, currentStudent, event, editing, viewOnly))
-			result = "on";
-		return result;			
-	} */
-	
-	/*
-	public boolean checkedOption(MenuGroup menuGroup, int menuOptionId, Student student, Event event, boolean editing, boolean viewOnly)
-	{
-		boolean result = false; 
-		if (menuOptionId == 0) {
-			Set<MenuGroupOption> mgos = menuGroup.getMenuGroupOptions();
-			boolean chosenSomethingElse = false;
-			
-			Iterator<MenuGroupOption> mgoIterator = mgos.iterator();
-			while (mgoIterator.hasNext() && !chosenSomethingElse) {
-				MenuGroupOption mgo = mgoIterator.next();
-				Set<MenuOption> menuOptions = mgo.getMenuOptions();	
-				Iterator<MenuOption> iterator = menuOptions.iterator();
-				while (iterator.hasNext() && !chosenSomethingElse) {
-					chosenSomethingElse = student.chosenMenuOptionForEvent(event, iterator.next().getMenuOptionId());
-				}		
-			}
-			
-			result = !chosenSomethingElse;
-		}
-		else {
-			result = student.chosenMenuOptionForEvent(event, menuOptionId);
-		}
-		return result;
-	}*/
 	
 	
-	public boolean checkedOption(MenuGroup menuGroup, int menuOptionId, Student student, Event event, boolean editing, boolean viewOnly)
+	public boolean checkedOption(MenuGroup menuGroup, int menuOptionId, Student student, Session session, boolean editing, boolean viewOnly)
 	{
 		boolean result;
-		MenuOption menuOption = menuGroup.getChosenMenuOption(student, event);
+		MenuOption menuOption = menuGroup.getChosenMenuOption(student, session);
 		if (menuOption != null) {
 			result = menuOption.getMenuOptionId() == menuOptionId;
 		}
@@ -115,40 +76,10 @@ public class DisplayHelperService {
 	}
 	
 	
-	/*
 	
-	public String getOptionText(MenuGroup menuGroup, Student student, Event event)
+	public String getOptionText(MenuGroup menuGroup, Student student, Session session)
 	{
-		boolean foundOption = false;
-		String optionText = "None";
-		
-		
-		Set<MenuGroupOption> mgos = menuGroup.getMenuGroupOptions();
-		Iterator<MenuGroupOption> mgoIterator = mgos.iterator();
-		
-		
-		while (mgoIterator.hasNext() && !foundOption) {
-			
-			MenuGroupOption mgo = mgoIterator.next();
-			Set<MenuOption> menuOptions = mgo.getMenuOptions();	
-			Iterator<MenuOption> iterator = menuOptions.iterator();
-			while (iterator.hasNext() && !foundOption) {
-				MenuOption mo = iterator.next();
-				foundOption = student.chosenMenuOptionForEvent(event, mo.getMenuOptionId());
-				if (foundOption) {
-					optionText = mo.getName();
-				}
-			}		
-		}
-			
-			
-		return optionText;
-	}
-	*/
-	
-	public String getOptionText(MenuGroup menuGroup, Student student, Event event)
-	{
-		MenuOption menuOption = menuGroup.getChosenMenuOption(student, event);		
+		MenuOption menuOption = menuGroup.getChosenMenuOption(student, session);		
 		
 		String optionText = "None";
 		if (menuOption != null) {

@@ -21,13 +21,14 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
 
 
 	<div id="main" class="main container-flex no-margin ">
 
 		<div class="row mb-2">
 			<div class="col-sm-12">
-				<h1 align="center" style="color: black">Incidents</h1>
+				<h1 class="asc-header">Incidents</h1>
 			</div>
 		</div>
 
@@ -54,26 +55,26 @@
 						</tr>
 					</thead>
 					<tbody>
-						<th:block th:each="event : ${incidentEvents}">
-							<tr class="filterrow stripedrow" th:each="incident : ${event.getIncidents()}">
-								<td class="filtercenter"><span th:text="${event.getDisplayStartDate()}"></span>&nbsp;<span th:text="${event.getStartTime()}"></span></td>
-								<td th:text="${event.getClub().getTitle()}"></td>
+						<th:block th:each="session : ${incidentSessions}">
+							<tr class="filterrow stripedrow" th:each="incident : ${session.getIncidents()}">
+								<td class="filtercenter"><span th:text="${session.getDisplayStartDate()}"></span>&nbsp;<span th:text="${session.getStartTime()}"></span></td>
+								<td th:text="${session.getClub().getTitle()}"></td>
 								<td th:text="${incident.getSummary()}"></td>
 								<td>
-									<div th:each="student : ${event.getStudentsForIncident(incident)}" th:text="${student.getFullName()}"></div>
+									<div th:each="student : ${session.getStudentsForIncident(incident)}" th:text="${student.getFullName()}"></div>
 								</td>
 								<td class="filtercenter">
-									<a class="text-decoration-none" th:href="@{./adminViewIncident(eventId=${event.getEventId()}, incidentId=${incident.getIncidentId()})}">
+									<a class="text-decoration-none" th:href="@{./adminViewIncident(sessionId=${session.getSessionId()}, incidentId=${incident.getIncidentId()})}">
 										<button class="btn imagebtn btn-success" type="button">
 											<i class="fa-regular fa-eye"></i>
 										</button>
 									</a>
-									<a class="text-decoration-none"  th:href="@{./adminEditIncident(eventId=${event.getEventId()}, incidentId=${incident.getIncidentId()})}">																	
+									<a class="text-decoration-none"  th:href="@{./adminEditIncident(sessionId=${session.getSessionId()}, incidentId=${incident.getIncidentId()})}">																	
 										<button class="btn imagebtn btn-primary" type="button">
 											<i class="fa-solid fa-pencil"></i>
 										</button>
 									</a>
-									<a class="text-decoration-none"  th:href="@{./adminDeleteIncident(eventId=${event.getEventId()}, incidentId=${incident.getIncidentId()})}">
+									<a class="text-decoration-none"  th:href="@{./adminDeleteIncident(sessionId=${session.getSessionId()}, incidentId=${incident.getIncidentId()})}">
 										<button class="btn imagebtn btn-danger" type="button" onClick="deleteIncident()">
 											<i class="fa fa-trash"></i>
 										</button>

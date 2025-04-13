@@ -45,8 +45,8 @@ public class MenuGroup {
 	
 		
 	
-	public static List<MenuGroup> findByEventId(int eventId) {
-		return repository.findByEventId(eventId);		
+	public static List<MenuGroup> findBySessionId(int sessionId) {
+		return repository.findBySessionId(sessionId);		
 	}	
 	
 	public static MenuGroup findById(int menuGroupId) {
@@ -169,7 +169,7 @@ public class MenuGroup {
 	}
 	
 	
-	public MenuOption getChosenMenuOption(Student student, Event event)
+	public MenuOption getChosenMenuOption(Student student, Session session)
 	{
 		boolean foundOption = false;
 		MenuOption result = null;
@@ -178,7 +178,7 @@ public class MenuGroup {
 		Iterator<MenuGroupOption> mgoIterator = mgos.iterator();
 		while (mgoIterator.hasNext() && !foundOption) {		
 			MenuGroupOption mgo = mgoIterator.next();
-			foundOption = student.chosenMenuOptionForEvent(event, mgo.getMenuGroupOptionId());
+			foundOption = student.chosenMenuOptionForSession(session, mgo.getMenuGroupOptionId());
 			if (foundOption) {
 				result = mgo.getMenuOption();
 			}

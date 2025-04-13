@@ -18,146 +18,38 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
+	
+	
 
 	
 	<div id="main" class="main container-flex no-margin ">
-	
-			<div class="row col-sm-12">
-
-
-
-				<h1>A News Item</h1>
-				<p>
-	
-				
-				&#xf500;
-				
-				Starmer's visit to the White House comes a day before
-					Ukrainian President Volodymyr Zelensky visits DC to sign an
-					agreement on sharing the country's mineral resources with the US.
-					Speaking to reporters in the Oval Office now Trump makes reference
-					to the visit, saying America needs rare earth minerals.</p>
-
-				<h1>A News Item</h1>
-				<p>Starmer's visit to the White House comes a day before
-					Ukrainian President Volodymyr Zelensky visits DC to sign an
-					agreement on sharing the country's mineral resources with the US.
-
-					Speaking to reporters in the Oval Office now Trump makes reference
-					to the visit, saying America needs rare earth minerals.</p>
-
-				<h1>A News Item</h1>
-				<p>Starmer's visit to the White House comes a day before
-					Ukrainian President Volodymyr Zelensky visits DC to sign an
-					agreement on sharing the country's mineral resources with the US.
-
-					Speaking to reporters in the Oval Office now Trump makes reference
-					to the visit, saying America needs rare earth minerals.</p>
-
-				<h1>A News Item</h1>
-				<p>Starmer's visit to the White House comes a day before
-					Ukrainian President Volodymyr Zelensky visits DC to sign an
-					agreement on sharing the country's mineral resources with the US.
-
-
-					Speaking to reporters in the Oval Office now Trump makes reference
-					to the visit, saying America needs rare earth minerals.</p>
-				<p>1234</p>
-
-				<h1>A News Item</h1>
-				<p>Starmer's visit to the White House comes a day before
-					Ukrainian President Volodymyr Zelensky visits DC to sign an
-					agreement on sharing the country's mineral resources with the US.
-					Speaking to reporters in the Oval Office now Trump makes reference
-					to the visit, saying America needs rare earth minerals.</p>
-
-				<h1>A News Item</h1>
-				<p>Starmer's visit to the White House comes a day before
-					Ukrainian President Volodymyr Zelensky visits DC to sign an
-					agreement on sharing the country's mineral resources with the US.
-
-					Speaking to reporters in the Oval Office now Trump makes reference
-					to the visit, saying America needs rare earth minerals.</p>
-
-				<h1>A News Item</h1>
-				<p>Starmer's visit to the White House comes a day before
-					Ukrainian President Volodymyr Zelensky visits DC to sign an
-					agreement on sharing the country's mineral resources with the US.
-
-					Speaking to reporters in the Oval Office now Trump makes reference
-					to the visit, saying America needs rare earth minerals.</p>
-				<p>1234</p>
+		<div class="row mb-2 col-sm-12"  style="padding-top:25px">
+				<p >Welcome to our website, your one-stop destination for booking your child into a variety of exciting after-school clubs! Whether your child is interested in joining 
+				the harmony of our Choir Club, getting active in Football or Tennis, exploring the wonders of Science, or starting their day with a positive vibe at Breakfast Club, we have 
+				something for every interest and age group. With a wide range of engaging and enriching activities available, it’s easy to find the perfect club to help your child develop new skills, 
+				make friends, and have fun.</p> 
 			</div>
+			<div class="row mb-2 ">
+					<div class="col-sm-1"></div>
+			
+					<div class="col-sm-10">
+						<div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+						  <div class="carousel-inner">
+						    <div th:each="url, iStat : ${allImages}"  th:class="${iStat.first}? 'carousel-item active': 'carousel-item'  ">
+						      <img  width="100%" th:src="${url}" th:alt="${'Slide' + (iStat.index + 1)}">
+						    </div>
+						  </div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>				
+			</div>		
+			<div class="row mb-2 col-sm-12"> &nbsp; </div>
 			<div class="spacer">&nbsp;</div>
+
 		</div>
-		
-<SCRIPT>	
 
-
-$(document).ready(function () {
-	   $('#profilePic').on('change', function () {
-	      var data = new FormData();
-	      var files = $("#profilePic").get(0).files;
-	      // Add the uploaded image content to the form data collection
-	      if (files.length > 0) {
-	           data.append("file", files[0]);
-	           data.append("id", "42");
-
-	      }
-
-	      // Make Ajax request with the contentType = false, and procesDate = false
-	      var ajaxRequest = $.ajax({
-	           type: "POST",
-	           url: "./api/uploads/images",
-	           contentType: false,
-	           processData: false,
-	           data: data
-	           });
-
-	      ajaxRequest.done(function (xhr, textStatus) {
-	                    // Do other operation
-	             });
-	   });
-	});
-
-
-
-
-
-
-
-
-
-/*
-
-
-
-
-	const input = document.getElementById('profilePic');
-	
-	// This will upload the file after having read it
-	const upload = (file) => {
-	  fetch('./api/uploads/images', { // Your POST endpoint
-	    method: 'POST',
-	    body: file // This is your file object
-	  }).then(
-	    response => response.json() // if the response is a JSON object
-	  ).then(
-	    success => console.log(success) // Handle the success response object
-	  ).catch(
-	    error => console.log(error) // Handle the error response object
-	  );
-	};
-	
-	// Event handler executed when a file is selected
-	const onSelectFile = () => upload(input.files[0]);
-	
-	// Add a listener on your input
-	// It will be triggered when a file will be selected
-	input.addEventListener('change', onSelectFile, false);
-	*/
-	
-</SCRIPT>
 
 		
 </body>
