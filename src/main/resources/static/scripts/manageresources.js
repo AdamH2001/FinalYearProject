@@ -208,7 +208,6 @@ function addNewStaff(event) {
 			"telephoneNum": $("input[name='staffTelephoneNum']").val(),
 			"description": $("input[name='staffDescription']").val(),
 			"keywords": $("input[name='staffKeywords']").val(),
-			"capacity": $("input[name='staffCapacity']").val(),
 			"state": "ACTIVE",
 			"type": "STAFF",
 		}		
@@ -243,7 +242,6 @@ function addNewStaff(event) {
 			$("#row-u"+data.userId).find("#telephoneNum")[0].innerHTML=data.telephoneNum;
 			$("#row-u"+data.userId).find("#description")[0].innerHTML=data.description;
 			$("#row-u"+data.userId).find("#keywords")[0].innerHTML=data.keywords;
-			$("#row-u"+data.userId).find("#capacity")[0].innerHTML=data.capacity;
 			
 			//Resolve image
 			$("#row-u"+data.userId).find("#staffProfilePicTemplate")[0].setAttribute("id", "profilePic-" + data.userId);

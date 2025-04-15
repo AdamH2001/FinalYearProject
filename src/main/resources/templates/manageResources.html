@@ -79,7 +79,7 @@
 									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable equipment" orig-data="" edittype="text">Keywords</div>
 									<div style="padding-left:0px" id="quantity"  class="col-sm-1 editable equipment" orig-data="" edittype="number" align=center>Quantity</div>						
 									<div style="padding-left:0px" id="delete" class="col-sm-1">
-										<button class="btn imagebtn btn-danger deleteButton"  type="button" id="newDelete" onclick="deleteResource(this, 'equipment')"><i class="fa fa-trash"></i></button>
+										<button class="btn asc-control imagebtn btn-danger deleteButton"  type="button" id="newDelete" onclick="deleteResource(this, 'equipment')"><i class="fa fa-trash"></i></button>
 										
 										
 
@@ -87,7 +87,7 @@
 										
 										
 										
-										<button class="btn imagebtn btn-primary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
+										<button class="btn asc-control imagebtn btn-primary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
 									</div>												
 								</div>
 								
@@ -97,8 +97,8 @@
 									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable equipment" th:orig-data="${resource.getKeywords()}" th:text="${resource.getKeywords()}" edittype="text">Keywords</div>
 									<div style="padding-left:0px" id="quantity" class="col-sm-1 editable equipment" th:orig-data="${resource.getQuantity()}" th:text="${resource.getQuantity()}" edittype="number" align=center>Quantity</div>						
 									<div style="padding-left:0px" class="col-sm-1">
-										<button class="btn imagebtn btn-danger deletebutton"  type="button" th:id="${'delete-' + resource.getResourceId()}" onclick="deleteResource(this, 'equipment')"><i class="fa fa-trash"></i></button>
-										<button class="btn imagebtn btn-primary undoButton"  type="button" th:id="${'undo-' + resource.getResourceId()}" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
+										<button class="btn asc-control imagebtn btn-danger deletebutton"  type="button" th:id="${'delete-' + resource.getResourceId()}" onclick="deleteResource(this, 'equipment')"><i class="fa fa-trash"></i></button>
+										<button class="btn asc-control imagebtn btn-primary undoButton"  type="button" th:id="${'undo-' + resource.getResourceId()}" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
 									</div>												
 								</div>
 								
@@ -107,7 +107,7 @@
 										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control equipmentInput" name="equipmentDescription" type="text" required /></div>							
 										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control equipmentInput" name="equipmentKeywords" type="text" required /></div>
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number"><input class="form-control equipmentInput" min=0 name="equipmentQuantity" type="number" required /></div>							
-										<div style="padding-left:0px" class="col-sm-1"><button class="btn imagebtn btn-success" type="submit" ><i class="fa fa-plus"></i></button></div>
+										<div style="padding-left:0px" class="col-sm-1"><button class="btn asc-control imagebtn btn-success" type="submit" ><i class="fa fa-plus"></i></button></div>
 								</div>	
 							</div>	
 						</fieldset>
@@ -132,8 +132,7 @@
 									<div style="padding-left:0px" class="col-sm-2"><b>Email</b></div>
 									<div style="padding-left:0px" class="col-sm-1"><b>Contact Number</b></div>
 									<div style="padding-left:0px" class="col-sm-2"><b>Description</b></div>
-									<div style="padding-left:0px" class="col-sm-1"><b>Keywords</b></div>
-									<div style="padding-left:0px" class="col-sm-1"><b>#Students</b></div>																	
+									<div style="padding-left:0px" class="col-sm-2"><b>Keywords</b></div>
 								</div>
 								
 								
@@ -154,12 +153,11 @@
 									<div style="padding-left:0px" id="email" class="col-sm-2 editable staff" orig-data="" edittype="email">email</div>
 									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable staff" orig-data="" edittype="text">Telephone Number</div>
 									<div style="padding-left:0px" id="description" class="col-sm-2 editable staff" orig-data="" edittype="textarea">Description</div>
-									<div style="padding-left:0px" id="keywords" class="col-sm-1 editable staff" orig-data="" edittype="textarea">Keywords</div>
-									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable staff" orig-data="" edittype="number">Capacity</div>
+									<div style="padding-left:0px" id="keywords" class="col-sm-2 editable staff" orig-data="" edittype="textarea">Keywords</div>
 					
 									<div style="padding-left:0px" class="col-sm-1">
-										<button class="btn imagebtn btn-danger deletebutton"  type="button" id="newDelete" onclick="deleteStaff(this)"><i class="fa fa-trash"></i></button>
-										<button class="btn imagebtn btn-primary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
+										<button class="btn asc-control imagebtn btn-danger deletebutton"  type="button" id="newDelete" onclick="deleteStaff(this)"><i class="fa fa-trash"></i></button>
+										<button class="btn asc-control imagebtn btn-primary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
 									</div>		
 								</div>
 								
@@ -180,12 +178,11 @@
 									<div style="padding-left:0px" id="email" class="col-sm-2 editable staff" th:orig-data="${staff.getEmail()}" th:text="${staff.getEmail()}" edittype="email">email</div>
 									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable staff" th:orig-data="${staff.getTelephoneNum()}" th:text="${staff.getTelephoneNum()}" edittype="text">Telephone Number</div>
 									<div style="padding-left:0px" id="description" class="col-sm-2 editable staff" th:orig-data="${staff.getResourceObject().getDescription()}" th:text="${staff.getResourceObject().getDescription()}" edittype="textarea">Description</div>
-									<div style="padding-left:0px" id="keywords" class="col-sm-1 editable staff" th:orig-data="${staff.getResourceObject().getKeywords()}" th:text="${staff.getResourceObject().getKeywords()}" edittype="textarea">Keywords</div>
-									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable staff" th:orig-data="${staff.getResourceObject().getCapacity()}" th:text="${staff.getResourceObject().getCapacity()}" edittype="number">Capacity</div>
+									<div style="padding-left:0px" id="keywords" class="col-sm-2 editable staff" th:orig-data="${staff.getResourceObject().getKeywords()}" th:text="${staff.getResourceObject().getKeywords()}" edittype="textarea">Keywords</div>
 					
 									<div style="padding-left:0px" class="col-sm-1">
-										<button class="btn imagebtn btn-danger deletebutton"  type="button" th:id="${'delete-' + staff.getUserId()}" onclick="deleteStaff(this)"><i class="fa fa-trash"></i></button>
-										<button class="btn imagebtn btn-primary undoButton"  type="button" th:id="${'undo-u' + staff.getUserId()}" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
+										<button class="btn asc-control imagebtn btn-danger deletebutton"  type="button" th:id="${'delete-' + staff.getUserId()}" onclick="deleteStaff(this)"><i class="fa fa-trash"></i></button>
+										<button class="btn asc-control imagebtn btn-primary undoButton"  type="button" th:id="${'undo-u' + staff.getUserId()}" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
 									</div>												
 								</div>
 								
@@ -195,22 +192,15 @@
 												<img src="./images/missingProfile.jpg"  id="profilePicImage-0" width="30" height="30" class="rounded-circle"/>
 												<input class="form-control staffInput" name="staffProfilePic" id="newStaffProfilePic" type="file" style="display:none" onchange="uploadNewImage()"/>
 											</label>
-										</div>
-										
-										
+										</div>																				
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffTitle" type="text" required /></div>
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffFirstName" type="text" required /></div>
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffSurname" type="text" required /></div>
 										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffEmail" type="email" required /></div>
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffTelephoneNum" type="tel" required /></div>
 										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffDescription" type="text" required /></div>
-										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffKeywords" type="text" required /></div>
-										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number"><input class="form-control staffInput" name="staffCapacity" min=0 type="number" required /></div>									
-										<div style="padding-left:0px" class="col-sm-1"><button class="btn imagebtn btn-success" type="submit" ><i class="fa fa-plus"></i></button></div>
-										
-										
-										
-										
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffKeywords" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-1"><button class="btn asc-control imagebtn btn-success" type="submit" ><i class="fa fa-plus"></i></button></div>
 								</div>	
 							</div>	
 						</fieldset>	
@@ -241,8 +231,8 @@
 									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable location" orig-data="" edittype="text">Keywords</div>
 									<div style="padding-left:0px" id="capacity"  class="col-sm-1 editable location" orig-data="" edittype="number" align=center>Capacity</div>						
 									<div style="padding-left:0px" id="delete" class="col-sm-1">
-										<button class="btn imagebtn btn-danger deletebutton"  type="button" id="newDelete" onclick="deleteResource(this, 'location')"><i class="fa fa-trash"></i></button>
-										<button class="btn imagebtn btn-primary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
+										<button class="btn asc-control imagebtn btn-danger deletebutton"  type="button" id="newDelete" onclick="deleteResource(this, 'location')"><i class="fa fa-trash"></i></button>
+										<button class="btn asc-control imagebtn btn-primary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
 									</div>												
 								</div>
 																
@@ -254,8 +244,8 @@
 									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable location" th:orig-data="${location.getKeywords()}" th:text="${location.getKeywords()}" edittype="text">Keywords</div>
 									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable location" th:orig-data="${location.getCapacity()}" th:text="${location.getCapacity()}" edittype="number" align=center>Capacity</div>						
 									<div style="padding-left:0px" class="col-sm-1">
-										<button class="btn imagebtn btn-danger deletebutton"  type="button" th:id="${'delete-' + location.getResourceId()}" onclick="deleteResource(this, 'location')"><i class="fa fa-trash"></i></button>
-										<button class="btn imagebtn btn-primary undoButton"  type="button" th:id="${'undo-' + location.getResourceId()}" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
+										<button class="btn asc-control imagebtn btn-danger deletebutton"  type="button" th:id="${'delete-' + location.getResourceId()}" onclick="deleteResource(this, 'location')"><i class="fa fa-trash"></i></button>
+										<button class="btn asc-control imagebtn btn-primary undoButton"  type="button" th:id="${'undo-' + location.getResourceId()}" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
 									</div>												
 								</div>
 								
@@ -264,7 +254,7 @@
 										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control locationInput" name="locationDescription" type="text" required /></div>							
 										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control locationInput" name="locationKeywords" type="text" required /></div>
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number"><input class="form-control locationInput" min=0 name="locationCapacity" type="number" required /></div>							
-										<div style="padding-left:0px" class="col-sm-1"><button class="btn imagebtn btn-success" type="submit" ><i class="fa fa-plus"></i></button></div>
+										<div style="padding-left:0px" class="col-sm-1"><button class="btn asc-control imagebtn btn-success" type="submit" ><i class="fa fa-plus"></i></button></div>
 								</div>	
 							</div>	
 						</fieldset>

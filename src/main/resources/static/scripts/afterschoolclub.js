@@ -55,7 +55,7 @@ function formatTime(date) {
 
   mainTop =  $("#header").outerHeight();  
   if (hasError) {
-	mainTop += $("#errorcontainer").outerHeight();
+	mainTop += 10;
 	$("#errorcontainer").width(window.innerWidth  - $("#leftnav").outerWidth() - offset);	
 	$("#errorcontainer").css({left: $("#leftnav").outerWidth()});
   }
@@ -97,3 +97,12 @@ function formatTime(date) {
 	return $("#loggedOnUser")[0].innerText.length>0;
 
   }
+  
+  async function reloadImg(url) {
+  	  await fetch(url, { cache: 'reload', mode: 'no-cors' })
+  	  document.body.querySelectorAll(`img[src='${url}']`)
+  	    .forEach(img => img.src = url)
+  	}  
+  
+    
+   

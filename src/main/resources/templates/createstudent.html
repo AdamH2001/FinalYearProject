@@ -37,8 +37,8 @@
 					<div class="col-sm-2 asc-form-label" align="center">
 						<label for="firstName">First Name:</label>
 					</div>
-					<div class="col-sm-10">
-						<input class="form-control form-control-sm mr-sm-2" required
+					<div class="col-sm-9">
+						<input class="form-control mr-sm-2" required
 							type="text" name="firstName" id="firstName" th:value="${student.getFirstName()}"/>
 					</div>
 				</div>
@@ -46,8 +46,8 @@
 					<div class="col-sm-2 asc-form-label" align="center">
 						<label for="surname">Surname:</label>
 					</div>
-					<div class="col-sm-10">
-						<input class="form-control form-control-sm mr-sm-2" required
+					<div class="col-sm-9">
+						<input class="form-control mr-sm-2" required
 							type="text" name="surname" id="surname" th:value="${student.getSurname()}"/>
 					</div>
 				</div>
@@ -55,8 +55,8 @@
 					<div class="col-sm-2 asc-form-label" align="center">
 						<label for="className">Class:</label>
 					</div>
-					<div class="col-sm-10">
-						<select class="form-select form-control-sm mr-sm-2"  name="className" id="className" required>
+					<div class="col-sm-9">
+						<select class="asc-control form-select form-control-sm mr-sm-2"  name="className" id="className" required>
 							<option th:each="class : ${classNames}" th:value="${class.getClassId()}"  th:selected="${student.getClassId()?.getId() == class.getClassId()}" th:text="${class.getName()}">ClassName</option>
 						</select>
 					</div>
@@ -65,8 +65,8 @@
 					<div class="col-sm-2 asc-form-label" align="center">
 						<label for="dateOfBirth">Date Of Birth:</label>
 					</div>
-					<div class="col-sm-10">
-						<input class="form-control form-control-sm mr-sm-2" required
+					<div class="col-sm-9">
+						<input class="form-control mr-sm-2" required
 							type="date" name="dateOfBirth" id="dateOfBirth" th:value="${student.getDateOfBirth()}"/>
 					</div>
 				</div>
@@ -74,8 +74,8 @@
 						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="allergyNote">Allergies:</label>
 						</div>
-						<div class="col-sm-10">
-							<textarea class="form-control form-control-sm mr-sm-2" 
+						<div class="col-sm-9">
+							<textarea class="form-control mr-sm-2" 
 								name="allergyNote" id="allergyNote" th:text="${student.getAllergyNoteText()}"></textarea>
 						</div>
 				</div>
@@ -83,8 +83,8 @@
 						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="healthNote">Health Notes:</label>
 						</div>
-						<div class="col-sm-10">
-							<textarea class="form-control form-control-sm mr-sm-2" 
+						<div class="col-sm-9">
+							<textarea class="form-control mr-sm-2" 
 								name="healthNote" id="healthNote" th:text="${student.getHealthNoteText()}"></textarea>
 						</div>
 				</div>
@@ -92,8 +92,8 @@
 						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="dietNote">Diet Requirements:</label>
 						</div>
-						<div class="col-sm-10">
-							<textarea class="form-control form-control-sm mr-sm-2" 
+						<div class="col-sm-9">
+							<textarea class="form-control mr-sm-2" 
 								name="dietNote" id="dietNote" th:text="${student.getDietNoteText()}"></textarea>
 						</div>
 				</div>
@@ -101,8 +101,8 @@
 						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="careNote">Care Plan:</label>
 						</div>
-						<div class="col-sm-10">
-							<textarea class="form-control form-control-sm mr-sm-2" 
+						<div class="col-sm-9">
+							<textarea class="form-control mr-sm-2" 
 								name="careNote" id="careNote" th:text="${student.getCarePlanNoteText()}"></textarea>
 						</div>
 				</div>
@@ -111,8 +111,8 @@
 						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="medicationNote">Medication:</label>
 						</div>
-						<div class="col-sm-10">
-							<textarea class="form-control form-control-sm mr-sm-2" 
+						<div class="col-sm-9">
+							<textarea class="form-control mr-sm-2" 
 								name="medicationNote" id="medicationNote" th:text="${student.getMedicationNoteText()}"></textarea>
 						</div>
 				</div>
@@ -121,8 +121,8 @@
 						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="otherNote">Other:</label>
 						</div>
-						<div class="col-sm-10">
-							<textarea class="form-control form-control-sm mr-sm-2" 
+						<div class="col-sm-9">
+							<textarea class="form-control mr-sm-2" 
 								name="otherNote" id="otherNote" th:text="${student.getOtherNoteText()}"></textarea>
 						</div>
 				</div>
@@ -131,10 +131,8 @@
 					<div class="col-sm-2 asc-form-label" align="center">
 					</div>
 					<div class="col-sm-9">
-						I confirm this is an up to date and accurate record of my child's medical records
-					</div>
-					<div class="col-sm-1" align="left">
-						<input class="form-check-input" type="checkbox" required name="confirmation"  />
+						I confirm this is an up to date and accurate record of my child's medical records &nbsp;	
+						<input class="asc-control form-check-input" type="checkbox" required name="confirmation"  />
 					</div>					
 				</div>				
 
@@ -143,10 +141,8 @@
 					<div class="col-sm-2 asc-form-label" align="center">
 					</div>
 					<div class="col-sm-9">
-						I give consent for these details to be shared with with medical professionals in case of emergency																			
-					</div>
-					<div class="col-sm-1" align="left">
-						<input class="form-check-input" type="checkbox" required name="consentToShare" th:checked="${student.isConsentToShare()}" id="consentToShare" />
+						I give consent for these details to be shared with with medical professionals in case of emergency &nbsp;																			
+						<input class="asc-control form-check-input" type="checkbox" required name="consentToShare" th:checked="${student.isConsentToShare()}" id="consentToShare" />
 					</div>
 				</div>
 				

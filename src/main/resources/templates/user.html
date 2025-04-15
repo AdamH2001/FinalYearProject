@@ -31,48 +31,62 @@
 						<h1 class="asc-header" th:if="${isEditing}">Update Profile</h1>
 					</div>
 				</div>
+				<div class="row mb-2">
+					<div class="col-sm-12" align="center">
+						<label for="profilePic"> <img width="150" height="150" id="profilePicImage"
+							th:src="${user.getImageURL()}"  data-toggle="tooltip" title="Click this image to update your picture. "/> 
+							
+							<input class="form-control" name="profilePic"
+							id="profilePic" type="file" style="display: none" onchange="uploadNewImage()" />
+						</label>
 
+					</div>
+				</div>
+				
+					
 				<div class="row mb-2">
 					<div class="col-sm-2 asc-form-label">
 						<label for="title">Title:</label>
 					</div>
-					<div class="col-sm-10">
-						<input th:value="${user.getTitle()}" class="form-control form-control-sm mr-sm-2" required type="text"
+					<div class="col-sm-1">
+						<input th:value="${user.getTitle()}" class="form-control mr-sm-2" required type="text" placeholder="E.g. Mr or Mrs" maxlength=20 data-toggle="tooltip" title="e.g Mr, Mrs, Miss or Dr."
 							name="title" id="title" />
 					</div>
-				</div>
+				</div>			
 				<div class="row mb-2">
+
+					
 					<div class="col-sm-2 asc-form-label">
 						<label for="firstName">First Name:</label>
 					</div>
-					<div class="col-sm-10">
-						<input th:value="${user.getFirstName()}" class="form-control form-control-sm mr-sm-2" required type="text"
-							name="firstName" id="firstName" />
+					<div class="col-sm-4">
+						<input th:value="${user.getFirstName()}" maxlength=64 class="form-control mr-sm-2" required type="text"
+							name="firstName" id="firstName" placeholder="Please fill in your first name."/>
 					</div>
-				</div>
-				<div class="row mb-2">
-					<div class="col-sm-2 asc-form-label">
+					<div class="col-sm-1 asc-form-label">
 						<label for="surname">Surname:</label>
 					</div>
-					<div class="col-sm-10">
-						<input th:value="${user.getSurname()}" class="form-control form-control-sm mr-sm-2" required type="text"
+					<div class="col-sm-4">
+						<input th:value="${user.getSurname()}" maxlength=64  placeholder="Please fill in your surname." class="form-control mr-sm-2" required type="text"
 							name="surname" id="surname" />
-					</div>
+					</div>					
+										
 				</div>
+
 				<div class="row mb-2">
 					<div class="col-sm-2 asc-form-label">
 						<label for="email">Email:</label>
 					</div>
-					<div class="col-sm-10">
-						<input required type="text" name="email" th:value="${user.getEmail()}" id="email" class="form-control form-control-sm mr-sm-2" autocomplete="email"/>
+					<div class="col-sm-4">
+						<input required type="text" maxlength=64  name="email" th:value="${user.getEmail()}" id="email" placeholder="Your email address. This will be validated." class="form-control mr-sm-2" autocomplete="email"/>
 					</div>
 				</div>
 				<div th:unless="${user.isParent()}" class="row mb-2">
 					<div class="col-sm-2 asc-form-label">
 						<label for="email">Description:</label>
 					</div>
-					<div class="col-sm-10">
-						<textarea required rows="3"  name="description" th:text="${user.getResourceObject().getDescription()}" id="description" class="form-control form-control-sm mr-sm-2"></textarea> 
+					<div class="col-sm-9">
+						<textarea required rows="3"  maxlength=256 name="description" th:text="${user.getResourceObject().getDescription()}" placeholder="Brief description of what you do at the school" id="description" class="form-control mr-sm-2"></textarea> 
 							 
 					</div>
 				</div>
@@ -80,8 +94,8 @@
 					<div class="col-sm-2 asc-form-label">
 						<label for="email">Keywords:</label>
 					</div>
-					<div class="col-sm-10">
-						<textarea required rows="3" name="keywords" th:text="${user.getResourceObject().getKeywords()}" id="keywords" class="form-control form-control-sm mr-sm-2" ></textarea>							 
+					<div class="col-sm-9">
+						<textarea required rows="3" maxlength=256 name="keywords" th:text="${user.getResourceObject().getKeywords()}" id="keywords" placeholder="Keywords e.g. Maths, English, Sport etc..." class="form-control mr-sm-2" ></textarea>							 
 					</div>
 				</div>				
 								
@@ -89,58 +103,50 @@
 					<div class="col-sm-2 asc-form-label">
 						<label for="password">Password:</label>
 					</div>
-					<div class="col-sm-10">
-						<input class="form-control form-control-sm mr-sm-2" required type="password" name="password" id="password" />
+					<div class="col-sm-4">
+						<input class="form-control mr-sm-2" maxlength=64  placeholder="Please enter a secure password." required type="password" name="password" id="password" />
 					</div>
-				</div>
-				<div th:unless="${isEditing}" class="row mb-2">
-					<div class="col-sm-2 asc-form-label">
+					<div class="col-sm-1 asc-form-label">
 						<label for="conPassword">Confirm Password:</label>
 					</div>
-					<div class="col-sm-10">
-						<input class="form-control form-control-sm mr-sm-2" required type="password"
+					<div class="col-sm-4">
+						<input class="form-control mr-sm-2" maxlength=64 required type="password" placeholder="Confirm the password entered."
 							name="conPassword" id="conPassword" />
-					</div>
+					</div>					
 				</div>
+
 				<div class="row mb-2">
 					<div class="col-sm-2 asc-form-label">
 						<label for="telephoneNum">Telephone Number:</label>
 					</div>
-					<div class="col-sm-10">
-						<input th:value="${user.getTelephoneNum()}" class="form-control form-control-sm mr-sm-2" required type="text"
-							name="telephoneNum" id="telephoneNum" />
+					<div class="col-sm-4">
+						<input th:value="${user.getTelephoneNum()}" maxlength=20 class="form-control mr-sm-2" required type="text"
+							name="telephoneNum" id="telephoneNum" placeholder="Your main telephone number."/>
 					</div>
 				</div>
 				<div th:if="${user.isParent()}" class="row mb-2">
+				
+
+
+				
 					<div class="col-sm-2 asc-form-label">
-						<label for="altContactName">Alt Emergency Contact Full Name:</label>
+						<label for="altContactName">Alt Contact Name:</label>
 					</div>
-					<div class="col-sm-10">
-						<input th:value="${user.getParent().getAltContactName()}" class="form-control form-control-sm mr-sm-2" required
-							type="text" name="altContactName" id="altContactName" />
+					<div class="col-sm-4">
+						<input th:value="${user.getParent().getAltContactName()}" maxlength=128  class="form-control mr-sm-2" required
+							type="text" name="altContactName" id="altContactName" placeholder="Alternative person to contact."/>
 					</div>
-				</div>
-				<div th:if="${user.isParent()}" class="row mb-2">
-					<div class="col-sm-2 asc-form-label">
-						<label for="altTelephoneNum">Alt Emergency Contact Telephone Number:</label>
+					<div class="col-sm-1 asc-form-label">
+						<label for="altTelephoneNum">Alt Contact Telephone:</label>
 					</div>
-					<div class="col-sm-10">
-						<input th:value="${user.getParent().getAltTelephoneNum()}" class="form-control form-control-sm mr-sm-2" required
+					<div class="col-sm-4">
+						<input th:value="${user.getParent().getAltTelephoneNum()}" maxlength=20  placeholder="Alternative person's telephone number." class="form-control mr-sm-2" required
 							type="text" name="altTelephoneNum" id="altTelephoneNum" />
 					</div>
+										
 				</div>
-				<div class="row mb-2">
-					<div class="col-sm-2 asc-form-label">
-						<label>Image:</label>
-					</div>
-					<div class="col-sm-10">
-						<label for="profilePic"> <img width="150" height="150" id="profilePicImage"
-							th:src="${user.getImageURL()}" /> <input class="form-control" name="profilePic"
-							id="profilePic" type="file" style="display: none" onchange="uploadNewImage()" />
-						</label>
 
-					</div>
-				</div>
+
 
 			</div>
 			<div class="row mb-2">
@@ -194,12 +200,6 @@ function uploadNewImage(){
     }	
   }  
 
-async function reloadImg(url) {
-	  await fetch(url, { cache: 'reload', mode: 'no-cors' })
-	  document.body.querySelectorAll(`img[src='${url}']`)
-	    .forEach(img => img.src = url)
-	}
-	
 
 
 </script>

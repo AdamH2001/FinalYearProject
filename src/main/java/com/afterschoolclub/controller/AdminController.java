@@ -944,7 +944,7 @@ public class AdminController {
 			model.addAttribute("transactions",transactions);
 			model.addAttribute("user",user);
 			
-			sessionBean.setReturnTransactions(); 
+			sessionBean.setReturnUrl("./adminViewTransactions?userId=".concat(String.valueOf(userId))); 
 
 			this.setInDialogue(false,model);
 			returnPage= "viewtransactions";

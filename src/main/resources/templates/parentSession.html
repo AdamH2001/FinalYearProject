@@ -94,18 +94,18 @@
 				<div class="row mb-2">
 					<div class="col-sm-2 asc-form-label">Description:</div>
 					<div class="col-sm-10" style="padding:0px"> 
-						<textarea class="form-control form-control-sm mr-sm-2"  rows="3" th:text="${clubSession.getClub().getDescription()}" readOnly  name="description" ></textarea>
+						<textarea class="form-control mr-sm-2"  rows="3" th:text="${clubSession.getClub().getDescription()}" readOnly  name="description" ></textarea>
 					</div>
 				</div>
 				
 				<div class="row mb-2">
 					<div class="col-sm-2 asc-form-label">Notes:</div>
 					<div class="col-sm-10" style="padding:0px"> 
-						<textarea class="form-control form-control-sm mr-sm-2"  th:text="${clubSession.getParentNotes()}" rows=3 readOnly  name="parentNotes" id="parentNotes" ></textarea>				
+						<textarea class="form-control mr-sm-2"  th:text="${clubSession.getParentNotes()}" rows=3 readOnly  name="parentNotes" id="parentNotes" ></textarea>				
 					</div>
 				</div>				
 				
-				<div th:if="${clubSession.isRecurring()}" class="row mb-4">
+				<div th:if="${clubSession.isRecurring()} and ${!viewOnly}" class="row mb-4">
 						<div class="col-sm-2 asc-form-label">
 							<label for="startDate">Recurring Booking:</label>
 						</div>
@@ -118,14 +118,14 @@
 											<label for="endTime">Book  Until:</label>
 										</div>																			
 										<div class="col-sm-3">
-											<input class="form-control form-control-sm mr-sm-2" th:min="${clubSession.getStartDate()}" th:value="${bookingEndDate}" required type="date" name="bookingEndDate" id="bookingEndDate" th:max="${clubSession.getRecurrenceSpecification().getFormattedEndDate()}" onChange="refreshBookingSummary()" th:disabled="${viewOnly}"/>
+											<input class="form-control mr-sm-2" th:min="${clubSession.getStartDate()}" th:value="${bookingEndDate}" required type="date" name="bookingEndDate" id="bookingEndDate" th:max="${clubSession.getRecurrenceSpecification().getFormattedEndDate()}" onChange="refreshBookingSummary()" th:disabled="${viewOnly}"/>
 											<input type="hidden" id="startDate" th:value="${clubSession.getStartDate()}" />
 										</div>		
 										<div th:unless="${clubSession.getRecurrenceSpecification().isTermTimeOnly()}" th:disabled="${viewOnly}" class="col-sm-2" align="right">						
 											<label for="termTimeOnly" class="recurSpecifier">Term Time Only:</label>
 										</div>
 										<div th:unless="${clubSession.getRecurrenceSpecification().isTermTimeOnly()}" th:disabled="${viewOnly}" class="col-sm-1" align="left">
-											<input class="form-check-input recurSpecifier" type="checkbox"  th:checked="${termTimeOnly}" name="termTimeOnly" id="NonHolidaysOnly" th:disabled="${viewOnly}"/>
+											<input class="asc-control form-check-input recurSpecifier" type="checkbox"  th:checked="${termTimeOnly}" name="termTimeOnly" id="NonHolidaysOnly" th:disabled="${viewOnly}"/>
 											
 											
 										</div>
@@ -287,7 +287,7 @@
 										<input onChange="refreshBookingSummary()"   type="radio"
 											th:checked="${displayHelper.checkedOption(menu, 0, student, clubSession, editOptions, viewOnly)}"  
 											th:disabled="${viewOnly}" th:readOnly="${viewOnly}"
-											class="form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" 
+											class="asc-control form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" 
 											value="None" th:id="${'student-'+student.getStudentId() + '-OptionNone'}"/>
 										<input type="hidden" th:name="${'student-'+student.getStudentId() + '-None-Value'}" value="0"  th:id="${'student-'+student.getStudentId() + '-OptionNone-Value'}"/>
 									</div>
@@ -305,7 +305,7 @@
 												th:checked="${displayHelper.checkedOption(menu, menuGroupOption.getMenuOptionIdAsInt(), student, clubSession, editOptions, viewOnly)}"
 												th:disabled="${viewOnly}" th:readOnly="${viewOnly}" 
 												
-												class="form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" th:value="${menuGroupOption.getMenuOptionIdAsInt()}" th:id="${'student-'+student.getStudentId() + '-Option'+menuGroupOption.getMenuOptionIdAsInt()}"/>
+												class="asc-control form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" th:value="${menuGroupOption.getMenuOptionIdAsInt()}" th:id="${'student-'+student.getStudentId() + '-Option'+menuGroupOption.getMenuOptionIdAsInt()}"/>
 											<input type="hidden" th:name="${'student-'+student.getStudentId() + '-' + menuGroupOption.getMenuOptionIdAsInt()+'-Value'}" th:value="${menuGroupOption.getMenuOption().getAdditionalCost()}"  th:id="${'student-'+student.getStudentId() + '-Option' + menuGroupOption.getMenuOptionIdAsInt()+'-Value'}"/>
 										</div>
 									</div>

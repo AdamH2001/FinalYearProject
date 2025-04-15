@@ -122,8 +122,8 @@
 									th:orig-data="${menuOption.getAdditionalCost()}" th:text="${menuOption.getAdditionalCost()}" edittype="number"
 									align=center>Cost</div>
 								<div style="padding-left: 0px" class="col-sm-1 asc-menuitembutton">
-									<button class="btn imagebtn btn-danger" type="button" onclick="deleteMenuItem(this)" th:id="${'delete-' + menuOption.getMenuOptionId()}"><i class="fa fa-trash"></i></button>
-									<button style="display:none" class="btn imagebtn btn-primary" type="button" onclick="undoChanges(this)" th:id="${'undo-' + menuOption.getMenuOptionId()}"><i class="fa fa-rotate-left"></i></button>
+									<button class="btn asc-control imagebtn btn-danger" type="button" onclick="deleteMenuItem(this)" th:id="${'delete-' + menuOption.getMenuOptionId()}"><i class="fa fa-trash"></i></button>
+									<button style="display:none" class="btn asc-control imagebtn btn-primary" type="button" onclick="undoChanges(this)" th:id="${'undo-' + menuOption.getMenuOptionId()}"><i class="fa fa-rotate-left"></i></button>
 
 								</div>
 								<div style="padding-top: 5px" class="col-sm-1 asc-menuitemcheckbox">
@@ -156,7 +156,7 @@
 										name="menuOptionAdditionalCost" type="number" required />
 								</div>
 								<div style="padding-left: 0px" class="col-sm-1">								
-									<button  class="btn imagebtn btn-success" type="submit"><i class="fa fa-plus"></i></button>
+									<button  class="btn asc-control imagebtn btn-success" type="submit"><i class="fa fa-plus"></i></button>
 								</div>
 							</div>
 						</div>
@@ -197,7 +197,7 @@
 											th:id="${'row-' + menuGroupOption.getMenuGroupOptionId()}" th:orig-id="${'row-' + menuGroupOption.getMenuGroupIdAsInt() + '-' + menuGroupOption.getMenuOptionIdAsInt()}">
 											<div class="col-sm-1"></div>
 											<div class="col-sm-5" >
-												<button class="btn imagebtn btn-danger" type="button" onclick="removeMenuItemFromGroup(this)" th:id="${'delete-' + menuGroupOption.getMenuGroupOptionId()}"><i class="fa fa-trash"></i></button>
+												<button class="btn asc-control imagebtn btn-danger" type="button" onclick="removeMenuItemFromGroup(this)" th:id="${'delete-' + menuGroupOption.getMenuGroupOptionId()}"><i class="fa fa-trash"></i></button>
 												<span>&nbsp;</span>
 												<span th:text="${menuGroupOption.getMenuOption().getName()}"></span>			
 											</div>
@@ -207,7 +207,7 @@
 										<div class="row" th:id="${'newItem-' + menuGroup.getMenuGroupId()}">
 											<div class="col-sm-1"></div>
 											<div class="col-sm-5">
-												<button  class="btn imagebtn btn-success" type="button" th:id="${'add-' + menuGroup.getMenuGroupId()}" onclick="addMenuItem(this)"><i class="fa fa-plus"></i></button>
+												<button  class="btn asc-control imagebtn btn-success" type="button" th:id="${'add-' + menuGroup.getMenuGroupId()}" onclick="addMenuItem(this)"><i class="fa fa-plus"></i></button>
 												<span>&nbsp;</span>										
 												<span>Click to Add New Item</span>
 												
@@ -228,7 +228,7 @@
 										data-bs-target="#flush-collapseNew"
 										aria-expanded="false"
 										aria-controls="flush-collapseNew">						
-												<span  class="btn imagebtn btn-success"  onClick="addMenuGroup(event)"><i class="fa fa-plus"></i></span>
+												<button  class="btn imagebtn btn-success"  onClick="addMenuGroup(event)"><i class="fa fa-plus"></i></button>
 												<span>&nbsp;</span>																			
 												<span><input style="width:300" class="form-control" name="menuGroupName" type="text" placeholder="Enter name for new group"/></span>	
 									</div>
@@ -637,7 +637,7 @@ function addMenuGroup(event) {
 				data-bs-target="#flush-collapse-MENUGROUPID" aria-expanded="false"
 				aria-controls="flush-collapse-MENUGROUPID">
 				
-				<button class="btn imagebtn btn-danger" onClick="deleteMenuGroup(this)" id="delete-MENUGROUPID"><i class="fa fa-trash"></i></button>
+				<button class="btn asc-control imagebtn btn-danger" onClick="deleteMenuGroup(this)" id="delete-MENUGROUPID"><i class="fa fa-trash"></i></button>
 				<span>&nbsp;</span>	
 				<span>MENUGROUPNAME</span>				
 			</div>
@@ -649,7 +649,7 @@ function addMenuGroup(event) {
 				<div class="row" id="newItem-MENUGROUPID">
 					<div class="col-sm-1"></div>
 					<div class="col-sm-5">					
-						<button  class="btn imagebtn btn-success" type="submit"  id="add-MENUGROUPID" onclick="addMenuItem(this)" ><i class="fa fa-plus"></i></button>
+						<button  class="btn asc-control imagebtn btn-success" type="submit"  id="add-MENUGROUPID" onclick="addMenuItem(this)" ><i class="fa fa-plus"></i></button>
 						<span>&nbsp;</span>	
 						<span>Click to Add New Item</span>
 					</div>
@@ -661,7 +661,7 @@ function addMenuGroup(event) {
 	<div class="row ascmenuitem" id="row-MENUGROUPID-MENUOPTIONID" orig-id="row-MENUGROUPID-MENUOPTIONID">
 		<div class="col-sm-1"></div>
 		<div class="col-sm-5">
-			<button class="btn imagebtn btn-danger" onclick="removeMenuItemFromGroup(this)" id="delete-MENUGROUPID-MENUOPTIONID"><i class="fa fa-trash"></i></button>
+			<button class="btn asc-control imagebtn btn-danger" onclick="removeMenuItemFromGroup(this)" id="delete-MENUGROUPID-MENUOPTIONID"><i class="fa fa-trash"></i></button>
 			<span>&nbsp;</span>	
 			<span>MENUITEMNAME</span>
 		</div>
@@ -676,8 +676,8 @@ function addMenuGroup(event) {
 		<div style="padding-left: 0px" id="additionalCost" class="col-sm-1 editable menuOption" orig-data="" edittype="number"
 			align=center>Cost</div>
 		<div style="padding-left: 0px" class="col-sm-1 asc-menuitembutton">		
-				<button class="btn imagebtn btn-danger" type="button" onclick="deleteMenuItem(this)"  id="delete-MENUOPTIONID"><i class="fa fa-trash"></i></button>
-				<button style="display:none" class="btn imagebtn btn-primary" type="button" onclick="undoChanges(this)" id="undo-MENUOPTIONID"><i class="fa fa-rotate-left"></i></button>												
+				<button class="btn asc-control imagebtn btn-danger" type="button" onclick="deleteMenuItem(this)"  id="delete-MENUOPTIONID"><i class="fa fa-trash"></i></button>
+				<button style="display:none" class="btn asc-control imagebtn btn-primary" type="button" onclick="undoChanges(this)" id="undo-MENUOPTIONID"><i class="fa fa-rotate-left"></i></button>												
 		</div>
 		<div style="padding-left: 0px" class="col-sm-1 asc-menuitemcheckbox">
 			<input name="selectedOption" type="checkbox" />

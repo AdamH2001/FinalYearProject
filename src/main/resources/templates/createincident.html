@@ -33,7 +33,7 @@
 							<label for="summary">Incident Summary:</label>
 						</div>
 						<div class="col-sm-9">
-							<textarea class="form-control form-control-sm mr-sm-2" required
+							<textarea class="form-control mr-sm-2" required
 								name="incidentSummary" th:readonly="${isViewing}"  id="incidentSummary" th:text="${incident.getSummary()}"></textarea>
 						</div>
 					</div>
@@ -49,10 +49,10 @@
 										<div class="col-sm-2" style="padding-top:12px" th:text="${attendeeIncident.getStudent(session).getFullName()}"></div>
 										<input type="hidden" name="attendeeId" th:value="${attendeeIncident.getAttendeeId().getId().intValue()}" />
 										<div th:class="${isViewing? 'col-sm-10' : 'col-sm-9'}">
-											<textarea class="form-control form-control-sm mr-sm-2" th:readonly="${isViewing}" name="attendeeNotes" id="attendeeNotes" th:text="${attendeeIncident.getSummary()}"></textarea>
+											<textarea class="form-control mr-sm-2" th:readonly="${isViewing}" name="attendeeNotes" id="attendeeNotes" th:text="${attendeeIncident.getSummary()}"></textarea>
 										</div>						
 										<div th:unless="${isViewing}" style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
-											<button  class="btn imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
+											<button  class="btn asc-control imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
 										</div>														
 									</div>									
 								
@@ -66,10 +66,10 @@
 											</select>
 										</div>
 										<div class="col-sm-9">
-											<textarea class="form-control form-control-sm mr-sm-2" name="attendeeNotes" id="attendeeNotes"></textarea>
+											<textarea class="form-control mr-sm-2" name="attendeeNotes" id="attendeeNotes"></textarea>
 										</div>						
 										<div style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
-											<button  id="addButton" disabled class="btn imagebtn btn-success" type="button" onClick="insertAttendeeNotes(this)"><i class="fa fa-plus"></i></button>
+											<button  id="addButton" disabled class="btn asc-control imagebtn btn-success" type="button" onClick="insertAttendeeNotes(this)"><i class="fa fa-plus"></i></button>
 										</div>					
 									
 									</div>
@@ -107,10 +107,10 @@
 		<div class="col-sm-2" style="padding-top:12px" >ATTENDEENAME</div>
 		<input type="hidden" name="attendeeId" value="ATTENDEEID" />
 		<div class="col-sm-9">
-			<textarea class="form-control form-control-sm mr-sm-2" name="attendeeNotes" id="attendeeNotes"></textarea>
+			<textarea class="form-control mr-sm-2" name="attendeeNotes" id="attendeeNotes"></textarea>
 		</div>						
 		<div style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
-			<button  class="btn imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
+			<button  class="btn asc-control imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
 		</div>					
 	
 	</div>	

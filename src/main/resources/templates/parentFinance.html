@@ -29,7 +29,7 @@
 
 		<div class="row mb-2">				
 			<div class="col-sm-12">
-				<input class="form-control" id="filter" type="text" placeholder="Search..">
+				<input class="form-control" id="filter" type="text" placeholder="Search.." data-toggle="tooltip" title="Type in names to filter parents being shown.">
 			</div>
 			
 		</div>		
@@ -47,7 +47,7 @@
 						<td style="text-align: center;"><b>Voucher Balance</b></td>
 						<td style="text-align: center;"><b>Cash Credit</b></td>
 						<td style="text-align: center;"><b>Cash Debt</b><a class="text-decoration-none"  href="./emailAllUsersInDebt">
-										<button  class="btn imagebtn btn-primary" type="button"><i class="fa-solid fa-envelope-circle-check"></i></button>
+										<button  class="btn imagebtn btn-primary" type="button"><i class="fa-solid fa-envelope-circle-check" data-toggle="tooltip" title="Select to email all users in debt."></i></button>
 									</a></td>
 						<td style="text-align: center;"><b>Cash Balance</b></td>
 					</tr>
@@ -57,7 +57,7 @@
 					<tr class="filterrow" th:each="user: ${users}">
 						<td style="text-align: left;"><a class="text-decoration-none" th:href="@{./deleteUser(userId=${user.getUserId()})}">
 
-								<button class="btn imagebtn btn-danger" type="submit" onClick="deleteParent()">
+								<button class="btn imagebtn btn-danger" type="submit" onClick="deleteParent()" data-toggle="tooltip" title="Remove user from system.">
 									<i class="fa fa-trash"></i>
 								</button>
 
@@ -70,7 +70,7 @@
 										th:text="${sessionBean.formatMoney(user.getParent().getOverdraftLimit())}"></td>
 									<td style="text-align: left; width: 50%"><a class="text-decoration-none"><button
 												class="btn imagebtn btn-primary" type="button" th:onclick="'updateOverdraft(' + ${user.getUserId()} + ',' + ${user.getParent().getCashDebt()} + ',' + ${user.getParent().getOverdraftLimit()} +')'">
-												<i class="fa-solid fa-magnifying-glass-dollar"></i>
+												<i class="fa-solid fa-magnifying-glass-dollar" data-toggle="tooltip" title="Select to update users overdraft."></i>
 											</button></a></td>
 								</tr>
 							</table>
@@ -82,7 +82,7 @@
 										th:text="${sessionBean.formatMoney(user.getParent().getVoucherBalance())}"></td>
 									<td style="text-align: left; width: 50%"><a class="text-decoration-none" href="#"><button
 												class="btn imagebtn btn-success" type="button" th:onclick="'addVoucher(' + ${user.getUserId()} + ')'">
-												<i class="fa fa-plus"></i>
+												<i class="fa fa-plus" data-toggle="tooltip" title="Record a voucher against the parent's account."></i>
 											</button></a></td>
 								</tr>
 							</table>
@@ -92,7 +92,7 @@
 							<td  style="text-align:right;width:50%"  th:text="${sessionBean.formatMoney(user.getParent().getCashCredit())}"></td>
 							<td style="text-align:left;width:50%">
 									<a th:if="${user.getParent().getCashCredit()>0}" class="text-decoration-none" th:href="@{./refundUser(userId=${user.getUserId()})}">
-										<button class="btn imagebtn btn-primary" type="button">
+										<button class="btn imagebtn btn-primary" type="button" data-toggle="tooltip" title="Refund user existing cash credit.">
 											<i class="fa-brands fa-cc-paypal"></i>
 										</button>
 									</a></td>
@@ -103,7 +103,7 @@
 							<td  style="text-align:right;width:50%"  th:text="${sessionBean.formatMoney(user.getParent().getCashDebt())}"></td>
 							<td style="text-align:left;width:50%">
 									<a th:if="${user.getParent().getCashDebt()}>0" class="text-decoration-none"  th:href="@{./emailUserInDebt(userId=${user.getUserId()})}">
-										<button  class="btn imagebtn btn-primary" type="button"><i class="fa fa-envelope"></i></button>
+										<button  class="btn imagebtn btn-primary" type="button" data-toggle="tooltip" title="Email user to pay the e=outstanding debt."><i class="fa fa-envelope"></i></button>
 									</a></td>
 						</tr></table>																				
 					</td>					
@@ -156,7 +156,7 @@
 	</div>
 	<div class="row mb-2">
 		<div class="col-sm-12" align="center">
-			<a href="javascript:history.back()" class="btn btn-secondary" role="button">Back</a>
+			<a href="./calendar" class="btn btn-secondary" role="button">Back</a>
 		</div>					
 	</div>
 	<div class="spacer">&nbsp;</div>
@@ -176,23 +176,32 @@
 					<h1 class="asc-header">Update Overdraft</h1>
 				</div>
 			</div>
-					
-			<form action="./updateOverdraft" method="post">			
+			<div class="afterschoolclubflash col mb-2"  style="display: none" id="overdraftFlash">					
+				<div class="col-sm-12"  align="center" id="overdraftValidationMessage"></div>
+			</div>	
+			<form action="./updateOverdraft" method="post" id="overdraftForm">			
 				<input type="hidden" name="userId" id="overdraftUserId"/>
 				<div class="row mb-2">
-					<div class="col-sm-6 asc-form-label">
+					<div class="col-sm-2" align="right"></div>				
+									
+					<div class="col-sm-4 asc-form-label">
 						New Limit:
 					</div>		
-					<div class="col-sm-6">
-						<input class="form-control form-control-sm mr-sm-2"  type="number" required name="overdraftLimit" id="overdraftLimit"/>
+					<div class="col-sm-4">
+						<input type="text" id="overdraftLimitInput" for="overdraftLimit" required placeholder="Price without extras such as refreshments" maxlength=7 class="asc-moneyinput form-control" 
+					    	data-toggle="tooltip" title="Enter new overdraft limit in pounds." />
+					
+					
+						<input class="form-control mr-sm-2"  type="number" name="overdraftLimit" id="overdraftLimit" style="display:none"/>
 					</div>		
 				</div>
 				<div class="row mb-2">
+								
 					<div class="col-sm-6" align="right">
-						<button class="btn btn-primary" name="submit" type="submit">Update</button>															
+						<button class="btn btn-primary" onClick="validateOverdraft()" type="button"  data-toggle="tooltip" title="Select to update overdraft.">Update</button>															
 					</div>								
 					<div class="col-sm-6" align="left">
-						<button class="btn btn-secondary" onClick="$('#overdraftModal').hide()">Cancel</button>
+						<button class="btn btn-secondary" onClick="$('#overdraftModal').hide()" data-toggle="tooltip" title="Select to cancel any updates.">Cancel</button>
 					</div>
 				</div>
 			</form>				
@@ -214,14 +223,14 @@
 				</div>
 			</div>
 					
-			<form action="./registerVoucher" method="post">			
+			<form action="./registerVoucher" method="post" >			
 				<input type="hidden" name="userId" id="voucherUserId"/>
 				<div class="row mb-2">
 					<div class="col-sm-6 asc-form-label">
 						Voucher Reference:
 					</div>		
 					<div class="col-sm-6">
-						<input class="form-control form-control-sm mr-sm-2" required  name="voucherReference" min=0 />
+						<input class="form-control mr-sm-2" required  placeholder="Voucher reference" name="voucherReference" min=0 data-toggle="tooltip" title="Enter reference for voucher." style="text-align:right"/>
 					</div>		
 				</div>
 				<div class="row mb-2">
@@ -229,15 +238,18 @@
 						Voucher Amount:
 					</div>		
 					<div class="col-sm-6">
-						<input class="form-control form-control-sm mr-sm-2"  required type="number" name="voucherAmount" min=0 />
+						<input type="text" id="voucherAmountInput" for="voucherAmount" required placeholder="Voucher amount in pounds" maxlength=7 class="asc-moneyinput form-control" 
+					    	data-toggle="tooltip" title="Enter voucher amount in pounds." />
+					    						
+						<input class="form-control mr-sm-2"  id="voucherAmount" type="number" name="voucherAmount" min=0 style="display:none"/>
 					</div>		
 				</div>				
 				<div class="row mb-2">
 					<div class="col-sm-6" align="right">
-						<button class="btn btn-primary" name="submit" type="submit">Update</button>															
+						<button class="btn btn-primary" name="submit"  type="submit" data-toggle="tooltip" title="Select to add voucher.">Add</button>															
 					</div>								
 					<div class="col-sm-6" align="left">
-						<button class="btn btn-secondary" onClick="$('#voucherModal').hide()">Cancel</button>
+						<button class="btn btn-secondary" onClick="$('#voucherModal').hide()" type="button" data-toggle="tooltip" title="Select cancel any updates.">Cancel</button>
 					</div>
 				</div>
 			</form>				
@@ -254,11 +266,13 @@ function deleteParent() {
 	}
 }
 
-function updateOverdraft(userId, existingdebt, existinOverdraft) {
-	$("#overdraftModal").show();
+function updateOverdraft(userId, existingdebt, existingOverdraft) {
 	$("#overdraftUserId").val(userId);
 	$("#overdraftLimit")[0].setAttribute("min", existingdebt);
-	$("#overdraftLimit").val(existinOverdraft);	
+	$("#overdraftLimit").val(existingOverdraft);	
+	$("#overdraftLimitInput").val(pounds.format(existingOverdraft/100));
+	$("#overdraftModal").show();
+	
 }
 
 function addVoucher(userId) {
@@ -268,6 +282,30 @@ function addVoucher(userId) {
 
 }
 
+function validateOverdraft(userId) {
+	if (Number($("#overdraftLimit").val()) < Number($("#overdraftLimit")[0].getAttribute("min"))) {
+		$("#overdraftValidationMessage")[0].innerText="Cannot have an overdraft below cash debt.";
+		$("#overdraftFlash").show();
+		$("#overdraftLimitInput").val(pounds.format( Number($("#overdraftLimit")[0].getAttribute("min"))/100));
+		$("#overdraftLimit").val(Number($("#overdraftLimit")[0].getAttribute("min")));
+		
+	}
+	else {
+		$("#overdraftFlash").hide();
+		$("#overdraftForm").submit();	
+	}
+}
+
+
+$('.asc-moneyinput').change(function(e) {
+    value=e.target.value.replace("£", "").trim();
+    if(isNaN(value)){
+        e.target.value = ''
+    }else{		
+  	$("#" + e.target.getAttribute("for")).val(Math.round(value * 100))
+      e.target.value = pounds.format(value);
+    }
+  })
 
 </script>
 

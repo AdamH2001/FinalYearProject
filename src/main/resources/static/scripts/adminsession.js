@@ -2,14 +2,15 @@
 
 function validateSessionForm(event) {
 	
-	var maxMaxAttendees = $("#staff").val().length * 8;
+	var maxMaxAttendees = $("#staff").val().length * 10;
 	var maxAttendees = 	$("#maxAttendees").val();
 	
 	// ensure have enough staff for attendees 
 	
 	if (maxAttendees > maxMaxAttendees) {
-		$("#validationMessage").text("Need at least one member of staff per 8 students.");
+		$("#validationMessage").text("Need at least one member of staff per 10 students.");
 		$("#validationContainer").show();
+		window.scrollTo(0, 0);		
 		event.preventDefault();		
 	}
 	
@@ -21,8 +22,10 @@ function validateSessionForm(event) {
 		if (!($("#MonRecurring")[0].checked || $("#TueRecurring")[0].checked || $("#WedRecurring")[0].checked || $("#ThurRecurring")[0].checked || $("#FriRecurring")[0].checked || $("#SatRecurring")[0].checked || $("#SunRecurring")[0].checked)) {
 			$("#validationMessage").text("Need to specify a recurring pattern.");
 			$("#validationContainer").show();
+			window.scrollTo(0, 0);
 			event.preventDefault();		
 			
+
 		}
 	}		
 	return;

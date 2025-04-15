@@ -41,8 +41,8 @@ public class SessionBean {
     private Filter filter = new Filter();
     
     private boolean inDialogue = false;
-    private String returnUrl = "/";
-    private String previousReturnUrl = "/";
+    private String returnUrl = "./";
+    private String previousReturnUrl = "./";
     
     private List<String> flashMessages = null;
 

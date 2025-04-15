@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -225,6 +226,7 @@ public class ParentController {
 			model.addAttribute("closingVoucherBalance",closingVoucherBalance);	
 			
 			model.addAttribute("transactions",transactions);
+						
 			sessionBean.setReturnTransactions();
 
 			this.setInDialogue(false,model);
@@ -244,9 +246,10 @@ public class ParentController {
 			Student selectedStudent = sessionBean.getSelectedStudent();
 			int cost = selectedStudent.getCostOfSession(session);
 			selectedStudent.deregister(sessionId);				
-			sessionBean.getLoggedOnParent().recordRefundForClub(cost, session.getClub(), "Cancellation of booking for ".concat(session.getClub().getTitle()));			
+			String message = "Cancelled booking for ".concat(session.getClub().getTitle()).concat(" for ").concat(selectedStudent.getFirstName());
+			sessionBean.getLoggedOnParent().recordRefundForClub(cost, session.getClub(), message);			
 			sessionBean.getLoggedOnUser().save();			
-			sessionBean.setFlashMessage("Cancelled booking for ".concat(selectedStudent.getFirstName()).concat(" and account refunded."));
+			sessionBean.setFlashMessage("Cancelled booking for ".concat(selectedStudent.getFirstName()).concat(". Account refunded."));
 			returnPage = setupCalendar(model);			
 		}
 		return returnPage;
@@ -426,42 +429,7 @@ public class ParentController {
     	return returnPage;
     }
 
-    /*
-    @GetMapping("/reviewpayment")
-    public String reviewPayment(
-            @RequestParam("paymentId") String paymentId,
-            @RequestParam("PayerID") String payerId,
-            Model model) {
-    	
-		String returnPage = validateIsParent(model);
-		if (returnPage == null) {	
-			try {
-		        Payment payment = paypalService.getPayment(paymentId);   
-				model.addAttribute("paymentId",paymentId);
-				model.addAttribute("payerId",payerId);
-	        	List <Transaction> transactions = payment.getTransactions();	        
-	        	int amountInPence = 0;	    				
-				for (Transaction transaction : transactions) {					
-					String amount = transaction.getAmount().getTotal();
-					amountInPence  += (int)Double.parseDouble(amount) * 100;
-	        		
-				}
-				NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);				
-				model.addAttribute("amount",  n.format(amountInPence / 100.0));				
-	        	logger.info("Amount in pence {}", amountInPence);
-				this.setInDialogue(true,model);
-				returnPage = "reviewPayment";
-    		}  catch (PayPalRESTException e) {	        
-    			if (e.getDetails() != null) {
-    				sessionBean.setFlashMessage(e.getDetails().getMessage());
-    			}
-	        	logger.error("Error occurred:: ", e);
-	        	returnPage = setupCalendar(model);	        	 	        	
-	        }	      
-    	}
-    	return returnPage;
-    }
-    */
+ 
     
     @GetMapping("/paymentcancel")
     public String paymentCancel(Model model) {
@@ -670,24 +638,31 @@ public class ParentController {
 			}
 
 			if (allErrorMessages.size() == 0) {
-				if (totalCost > 0) {
-					loggedOnParent.recordPaymentForClub(totalCost, session.getClub(), "Booking for ".concat(session.getClub().getTitle())); 
-				}
-
-				tmpUser.save();
-				String studentNames = "";
-				int i = 0;			
-				for (Student student : bookedStudents) {
-					i++;							
-					studentNames += student.getFirstName();
+				 
+				Iterator<Student> itr = bookedStudents.iterator();
+				Student student = itr.next();
+				String studentNames = student.getFirstName();
+				
+				while (itr.hasNext()) {
+					student = itr.next();
 					
-					if (i == (bookedStudents.size() - 1)) {
+					if (itr.hasNext()) {
+						studentNames += ", ";
+					}
+					else {
 						studentNames += " and ";
 					}
-					else if (i != bookedStudents.size()) {
-						studentNames += ",";
-					}											
-				}				
+					studentNames += student.getFirstName();
+				}
+				
+				
+				if (totalCost > 0) {
+					
+					String description = session.getClub().getTitle().concat(" for ").concat(studentNames);
+					loggedOnParent.recordPaymentForClub(totalCost, session.getClub(), description); 
+				}
+
+				tmpUser.save();						
 				
 				String message = String.format("Booked %d session(s) at %s for %s", sessionCount, session.getClub().getTitle(), studentNames); 
 						

@@ -16,30 +16,35 @@
 		class="container-fluid fixed-top bg-navafterschoolclub afterschoolheader text-afterschoolwhite" id="header"
 		style="width: 100%;">
 		<span style="display: none" id="loggedOnUser" th:text="${sessionBean.getLoggedOnUser()?.getUserId()}"></span>
-		<div th:unless="${sessionBean.isLoggedOn()}" class="row p-2"  align="center">
-			<div class="col-sm-2" align="left"><img src="./images/asc-logo.png" style="width:140px;height:80px"></div>
-		
-			<div class="text-afterschoolclubmainheader col-sm-4">After School Club</div>
-			<div class="col-sm-3"></div>
+		<div th:unless="${sessionBean.isLoggedOn()}" class="row pr-2 pt-2 pb-2 pl-0"  align="center">
+			<div class="col-sm-9 p-0" align="left">
+				<table class="p-0" style="width:100%">
+					<td width="210px"  style="vertical-align: top; text-align:center">
+						<div><a href="./" data-toggle="tooltip" title="Click to return home.">
+						<img src="./images/asc-logo.png" style="width:160px;height:100px"></a></div>	
+					</td>
+					<td style="vertical-align: top;"><div class="text-afterschoolclubmainheader">After School Club</div></td>
+				</table>				
+			</div>
 
 			<div class="col-sm-3">
 				<form class="form-inline" action="./processlogin" method="POST">
 					<div class="row mb-1">
 						<div class="col-sm-6">
 							<input type="email" name="username" placeholder="username" autocomplete="email"
-								class="form-control form-control-sm mr-sm-2" id="inputEmail3" required>
+								class="form-control mr-sm-2" id="inputEmail3" required data-toggle="tooltip" title="Enter username to log in. This is your email address.">
 						</div>
 						<div class="col-sm-6">
-							<button type="submit" class="btn btn-primary">Sign in</button>
+							<button type="submit" class="btn btn-primary" data-toggle="tooltip" title="Select to login.">Sign in</button>
 						</div>
 					</div>
 					<div class="row mb-1">
 						<div class="col-sm-6">
-							<input type="password" name="password" placeholder="password" class="form-control form-control-sm mr-sm-2"
-								id="inputPassword3" required>
+							<input type="password" name="password" placeholder="password" class="form-control mr-sm-2"
+								id="inputPassword3" required data-toggle="tooltip" title="Enter password to be able to login.">
 						</div>
 						<div class="col-sm-6">
-							<a href="./forgotPassword">Forgot password</a>
+							<a href="./forgotPassword" data-toggle="tooltip" title="Select if cannot remember password.">Forgot password</a>
 						</div>
 					</div>
 				</form>
@@ -48,10 +53,21 @@
 
 
 		<div th:if="${sessionBean.isLoggedOn()}" class="row p-2">
-			<div class="col-sm-2" align="left"><img src="./images/asc-logo.png" style="width:140px;height:80px"></div>
-		
-			<div class="text-afterschoolclubmainheader col-sm-4">After School Club</div>
-			<div th:if="${sessionBean.isParentLoggedOn()}" class="col-sm-4 p-2">
+			<div class="col-sm-7 p-0" align="left">
+				<table class="p-0" style="width:100%">
+					<td width="210px"  style="vertical-align: top; text-align:center">
+						<div><a href="./" data-toggle="tooltip" title="Click to return home.">
+						<img src="./images/asc-logo.png" style="width:160px;height:100px"></a></div>	
+					</td>
+					<td style="vertical-align: top;" class="text-afterschoolclubmainheader">
+						<div th:if="${sessionBean.isAdminLoggedOn()}">After School Club Admin</div>
+						<div th:unless="${sessionBean.isAdminLoggedOn()}">After School Club</div>					
+					</td>
+				</table>				
+			</div>		
+			
+
+			<div th:if="${sessionBean.isParentLoggedOn()}" class="col-sm-3 p-2">
 
 				<div class="row mb-1">
 					<div class="col-sm-4" align="right">Cash Balance:</div>
@@ -72,7 +88,7 @@
 					<div class="col-sm-1" align="right" th:text="${sessionBean.getSelectedStudent().numFutureSessionsAttending()}"></div>
 				</div>
 			</div>
-			<div th:if="${sessionBean.isAdminLoggedOn()}" class="col-sm-4 p-2">
+			<div th:if="${sessionBean.isAdminLoggedOn()}" class="col-sm-3 p-2">
 				<div class="row mb-1">
 					<div class="col-sm-4" align="right">Revenue:</div>
 					<div class="col-sm-1" align="right"><a href="./clubRevenue" th:text="${sessionBean.formatMoney(sessionBean.getTotalRevenue())}"></a></div>

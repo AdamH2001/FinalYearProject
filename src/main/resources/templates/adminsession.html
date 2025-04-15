@@ -39,22 +39,16 @@
 							<h1 class="asc-header" th:if="${scheduling}">Schedule Club Session</h1>
 						</div>
 					</div>
-					<th:block th:if="${resourceStatus}">
-						<th:block  th:each="status : ${resourceStatus}" >
-							<div th:unless="${status.isSufficient()}" class="afterschoolclubflash row mb-2">
-								<div class="col-sm-12" th:text="${status.getMessage()}">FlashMessage</div>
-							</div>						
-						</th:block>
-					</th:block>
+
 					
 
 
 					<div class="row mb-2">
-						<div class="col-sm-1" align="right">
+						<div class="col-sm-1 asc-form-label">
 							<label for="club">Club:</label>
 						</div>
 						<div class="col-sm-4">
-							<select class="form-select form-control-sm mr-sm-2"  name="club" id="club" required th:disabled="${clubSession.getNumberAttendees()&gt;0} or ${viewing}">
+							<select class="asc-control form-select form-control-sm mr-sm-2"  name="club" id="club" required th:disabled="${clubSession.getNumberAttendees()&gt;0} or ${viewing}" data-toggle="tooltip" title="Select Club scheduling session for.">
 								<option th:each="club : ${clubs}" th:value="${club.getClubId()}" th:text="${club.getTitle()}" th:selected="${clubSession.getClub()?.getClubId() == club.getClubId()}">Club Title</option>
 							</select>
 							<input th:if="${clubSession.getNumberAttendees()&gt;0} or ${viewing}" type=hidden name="club" th:value="${clubSession.getClub()?.getClubId()}" />
@@ -62,32 +56,32 @@
 					</div>
 
 					<div class="row mb-2">
-						<div class="col-sm-1" align="right">
+						<div class="col-sm-1 asc-form-label">
 							<label for="club">Location:</label>
 						</div>
 						<div class="col-sm-4">
-							<select class="form-select form-control-sm mr-sm-2" name="location" id="location" required th:disabled="${viewing}">
+							<select class="asc-control form-select form-control-sm mr-sm-2" name="location" id="location" required th:disabled="${viewing}" data-toggle="tooltip" title="Select location where this session will occur.">
 								<option th:each="location : ${locations}" 
 										th:value="${location.getResourceId()}" 
 										th:text="${location.getName()}" 
 										th:selected="${clubSession.getLocation()?.getResourceId() == location.getResourceId()}">location Name</option>
 							</select>
 						</div>
-						<div class="col-sm-2" align="right">
+						<div class="col-sm-2 asc-form-label">
 							<label for="maxAttendees">Max Attendees:</label>
 						</div>
 						<div class="col-sm-4">
-							<input class="form-control form-control-sm mr-sm-2" required type="number" name="maxAttendees" id="maxAttendees" min="1" th:disabled="${viewing}" th:value="${clubSession.getMaxAttendees()}" />
+							<input class="form-control mr-sm-2" required type="number" name="maxAttendees" id="maxAttendees" min="1" th:disabled="${viewing}" th:value="${clubSession.getMaxAttendees()}" data-toggle="tooltip" title="Select maximum number of attendees. Note you will need one member of staff per 10 students."/>
 						</div>
 						
 					</div>
 					
 					<div class="row mb-2">
-						<div class="col-sm-1" align="right" >
+						<div class="col-sm-1 asc-form-label" >
 							<label for="staff">Staff:</label>
 						</div>
 						<div class="col-sm-10">
-							<select class="form-select form-control-sm mr-sm-2" name="staff" id="staff" required multiple th:disabled="${viewing}">
+							<select class="asc-control form-select form-control-sm mr-sm-2" name="staff" id="staff" required multiple th:disabled="${viewing}" data-toggle="tooltip" title="Select all staff required for this session. Note you will need one member of staff per 10 students.">
 								<option th:if="${viewing} and ${clubSession.requiresStaff(staffMember)}" th:each="staffMember : ${staff}" th:value="${staffMember.getResourceId()}" th:text="${staffMember.getName()}" th:selected="${clubSession.requiresStaff(staffMember)}">Staff Name</option>
 								<option th:if="${editing} or ${scheduling}" th:each="staffMember : ${staff}" th:value="${staffMember.getResourceId()}" th:text="${staffMember.getName()}" th:selected="${clubSession.requiresStaff(staffMember)}">Staff Name</option>								
 							</select>
@@ -96,7 +90,7 @@
 										
 					
 					<div class="row mb-2">
-						<div class="col-sm-1" align="right">
+						<div class="col-sm-1 asc-form-label">
 							<label for="startDate">Time:</label>
 						</div>
 						<div class="col-sm-10">			
@@ -104,47 +98,49 @@
 								<div class="container-fluid no-margin">
 									<div class="row mb-2">		
 								
-										<div class="col-sm-2" align="right">
+										<div class="col-sm-2 asc-form-label">
 											<label for="startTime">Start:</label>
 																	
 										</div>				
 										<div class="col-sm-3">						
-											<input class="form-control form-control-sm mr-sm-1" min="06:00" required type="time" name="startTime" id="startTime"  th:value="${clubSession.getStartTime()}" onChange="setDateLimits()" th:disabled="${viewing}"/>
+											<input class="form-control mr-sm-1" min="06:00" required type="time" name="startTime" id="startTime"  th:value="${clubSession.getStartTime()}" onChange="setDateLimits()" th:disabled="${viewing}" data-toggle="tooltip" title="Start time for the session."/>
 										</div>
 										
 																
-										<div class="col-sm-4" align="right">
+										<div class="col-sm-4 asc-form-label">
 											<label for="startDate">Date:</label>
 										</div>
 										
 										<div class="col-sm-3" align="left">							
-											<input class="form-control form-control-sm mr-sm-1" min="" required type="date" name="startDate" id="startDate" th:value="${clubSession.getStartDate()}" onChange="setDateLimits()" th:disabled="${viewing}"/>
+											<input class="form-control mr-sm-1" min="" required type="date" name="startDate" id="startDate" th:value="${clubSession.getStartDate()}" onChange="setDateLimits()" th:disabled="${viewing}" data-toggle="tooltip" title="Date of the session."/>
 										</div>
 																				
 									</div>
 									<div class="row mb-2">
-										<div class="col-sm-2" align="right">
+										<div class="col-sm-2 asc-form-label">
 											<label for="endTime">End:</label>
 										</div>
 										<div class="col-sm-3">											
-											<input class="form-control form-control-sm mr-sm-2" required type="time" name="endTime" id="endTime" th:value="${clubSession.getEndTime()}" onChange="setDateLimits()" th:disabled="${viewing}"/>
-										</div>
-															
-										<div th:if="${scheduling} or ${viewing AND clubSession.isRecurring()}"  class="col-sm-4" align="right">							
-											
-											<label for="recurringEndDate">Repeat Until:</label>
+											<input class="form-control mr-sm-2" required type="time" name="endTime" id="endTime" th:value="${clubSession.getEndTime()}" onChange="setDateLimits()" th:disabled="${viewing}" data-toggle="tooltip" title="End time for the session."/>
 										</div>
 										
-										<div th:if="${scheduling} or ${viewing AND clubSession.isRecurring()}" class="col-sm-3">
-											<input class="form-control form-control-sm mr-sm-2" min="" required type="date" name="recurringEndDate" id="recurringEndDate" th:value="${clubSession.getRecurrenceSpecification().getFormattedEndDate()}" onChange="setDateLimits()" th:disabled="${viewing}"/>
-										</div>
+										<th:block th:unless="${takingRegister}">			
+											<div th:if="${scheduling} or ${viewing AND clubSession.isRecurring()}"  class="col-sm-4 asc-form-label">							
+												
+												<label for="recurringEndDate">Repeat Until:</label>
+											</div>
+											
+											<div th:if="${scheduling} or ${viewing AND clubSession.isRecurring()}" class="col-sm-3">
+												<input class="form-control mr-sm-2" min="" required type="date" name="recurringEndDate" id="recurringEndDate" th:value="${clubSession.getRecurrenceSpecification().getFormattedEndDate()}" onChange="setDateLimits()" th:disabled="${viewing}" data-toggle="tooltip" title="End date require the recurring schedule for sessionto end."/>
+											</div>
+										</th:block>
 										
 										
 									</div>
 									
 									<div class="row mb-2"></div>
 									<div th:unless="${editing} or ${takingRegister}"  class="row mb-2">
-										<div class="col-sm-2" align="right">
+										<div class="col-sm-2 asc-form-label">
 											<label for="recurringEndDate" class="recurSpecifier">Recurring Pattern:</label>
 										</div>
 										<div class="col-sm-10">
@@ -152,50 +148,50 @@
 												<div class="container-fluid no-margin">
 													<div class="row mb-2">
 										
-														<div class="col-sm-1" align="right">
+														<div class="col-sm-1 asc-form-label">
 															<label for="MonRecurring">Mon:</label>
 														</div>
 														<div class="col-sm-1" align="left">							
-															<input class="form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursMonday()}" name="MonRecurring" id="MonRecurring" th:disabled="${viewing}"/>
+															<input class="asc-control form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursMonday()}" name="MonRecurring" id="MonRecurring" th:disabled="${viewing}" data-toggle="tooltip" title="Select if require to schedule for every Monday between two specfied dates."/>
 														</div>
-														<div class="col-sm-1" align="right">
+														<div class="col-sm-1 asc-form-label">
 															<label for="TueRecurring">Tue:</label>
 														</div>
 														<div class="col-sm-1" align="left">								
-															<input class="form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursTuesday()}" name="TueRecurring" id="TueRecurring" th:disabled="${viewing}"/>
+															<input class="asc-control form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursTuesday()}" name="TueRecurring" id="TueRecurring" th:disabled="${viewing}" data-toggle="tooltip" title="Select if require to schedule for every Tuesday between two specfied dates."/>
 														</div>
-														<div class="col-sm-1" align="right">
+														<div class="col-sm-1 asc-form-label">
 															<label for="WedRecurring">Wed:</label>
 														</div>
 														<div class="col-sm-1" align="left">								
-															<input class="form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursWednesday()}"  name="WedRecurring" id="WedRecurring" th:disabled="${viewing}"/>
+															<input class="asc-control form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursWednesday()}"  name="WedRecurring" id="WedRecurring" th:disabled="${viewing}" data-toggle="tooltip" title="Select if require to schedule for every Wednesday between two specfied dates."/>
 														</div>
-														<div class="col-sm-1" align="right">
+														<div class="col-sm-1 asc-form-label">
 															<label for="ThurRecurring">Thur:</label>
 														</div>
 														<div class="col-sm-1" align="left">								
-															<input class="form-check-input recurSpecifier" type="checkbox"   th:checked="${clubSession.getRecurrenceSpecification().isOccursThursday()}"  name="ThurRecurring" id="ThurRecurring" th:disabled="${viewing}"/>
+															<input class="asc-control form-check-input recurSpecifier" type="checkbox"   th:checked="${clubSession.getRecurrenceSpecification().isOccursThursday()}"  name="ThurRecurring" id="ThurRecurring" th:disabled="${viewing}" data-toggle="tooltip" title="Select if require to schedule for every Thursday between two specfied dates."/>
 														</div>
-														<div class="col-sm-1" align="right">
+														<div class="col-sm-1 asc-form-label">
 															<label for="FriRecurring">Fri:</label>
 														</div>
 														<div class="col-sm-1" align="left">										
-															<input class="form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursFriday()}" name="FriRecurring" id="FriRecurring" th:disabled="${viewing}"/>
+															<input class="asc-control form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursFriday()}" name="FriRecurring" id="FriRecurring" th:disabled="${viewing}" data-toggle="tooltip" title="Select if require to schedule for every Friday between two specfied dates."/>
 														</div>
 													</div>
 													<div class="row mb-2">													
 
-														<div class="col-sm-1" align="right">
+														<div class="col-sm-1 asc-form-label">
 															<label for="SatRecurring">Sat:</label>
 														</div>
 														<div class="col-sm-1" align="left">								
-															<input class="form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursSaturday()}" name="SatRecurring" id="SatRecurring" th:disabled="${viewing}"/>
+															<input class="asc-control form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursSaturday()}" name="SatRecurring" id="SatRecurring" th:disabled="${viewing}" data-toggle="tooltip" title="Select if require to schedule for every Saturday between two specfied dates."/>
 														</div>
-														<div class="col-sm-1" align="right">
+														<div class="col-sm-1 asc-form-label">
 															<label for="SunRecurring">Sun:</label>
 														</div>
 														<div class="col-sm-1" align="left">								
-															<input class="form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursSunday()}" name="SunRecurring" id="SunRecurring" th:disabled="${viewing}"/>
+															<input class="asc-control form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isOccursSunday()}" name="SunRecurring" id="SunRecurring" th:disabled="${viewing}" data-toggle="tooltip" title="Select if require to schedule for every Sunday between two specfied dates."/>
 														</div>												
 													</div>													
 												</div>									
@@ -204,11 +200,11 @@
 									</div>
 
 									<div th:unless="${editing} or ${takingRegister}" class="row mb-2">
-										<div class="col-sm-2" align="right">						
+										<div class="col-sm-2 asc-form-label">						
 											<label for="termTimeOnly" class="recurSpecifier">Term Time Only:</label>
 										</div>
 										<div class="col-sm-1" align="left">
-											<input class="form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isTermTimeOnly()}" name="termTimeOnly" id="NonHolidaysOnly" th:disabled="${viewing}"/>
+											<input class="asc-control form-check-input recurSpecifier" type="checkbox"  th:checked="${clubSession.getRecurrenceSpecification().isTermTimeOnly()}" name="termTimeOnly" id="NonHolidaysOnly" th:disabled="${viewing}" data-toggle="tooltip" title="Select if require to restrict schedule to term time only."/>
 										</div>
 									</div>										
 								</div>								
@@ -218,7 +214,7 @@
 					<th:block th:unless="${takingRegister}">					
 						
 						<div class="row mb-2">
-							<div class="col-sm-1" align="right">
+							<div class="col-sm-1 asc-form-label">
 								<label for="startDate">Notes:</label>
 							</div>
 							<div class="col-sm-10">			
@@ -226,22 +222,20 @@
 									<div class="container-fluid no-margin">
 										<div class="row mb-2">		
 									
-											<div class="col-sm-6" align="left">
+											<div class="col-sm-6 asc-form-label-left" align="left">
 												<label for="parentNotes">For Parent:</label>
 																		
 											</div>		
-											<div class="col-sm-6" align="left">
+											<div class="col-sm-6 asc-form-label-left" align="left">
 												<label for="organiserNotes">For Organiser:</label>																
 											</div>		
 										</div>
 									<div class="row mb-2">		
-									
 											<div class="col-sm-6">
-												<textarea class="form-control form-control-sm mr-sm-2"  th:text="${clubSession.getParentNotes()}" rows=5 th:readOnly="${viewing}"  name="parentNotes" id="parentNotes" ></textarea>
-																				
+												<textarea class="form-control mr-sm-2"  th:text="${clubSession.getParentNotes()}" rows=5 th:readOnly="${viewing}"  name="parentNotes" id="parentNotes" maxlength=1024 placeholder="Useful notes for parent e.g. Don't forget your child will need to bring their football boots for this session" data-toggle="tooltip" title="Useful notes for parent"></textarea>																				
 											</div>		
 											<div class="col-sm-6">
-												<textarea class="form-control form-control-sm mr-sm-2"  th:text="${clubSession.getAdministratorNotes()}" rows=5  th:readOnly="${viewing}"  name="organiserNotes" id="organiserNotes"> </textarea>
+												<textarea class="form-control mr-sm-2"  th:text="${clubSession.getAdministratorNotes()}" rows=5  th:readOnly="${viewing}"  name="organiserNotes" id="organiserNotes" maxlength=1024 placeholder="Useful notes for staff e.g. Plan for this session is to focus on defending." data-toggle="tooltip" title="Useful notes for staff"> </textarea>
 											</div>		
 										</div>
 									</div>
@@ -253,11 +247,11 @@
 										
 																
 						<div class="row mb-2" th:if="${clubSession.getMenuGroups().size()>0} or ${editing} or ${scheduling}">
-							<div class="col-sm-1" align="right" >
+							<div class="col-sm-1 asc-form-label" >
 								<label for="staff">Refreshments:</label>
 							</div>
 							<div class="col-sm-10">
-								<select class="form-select form-control-sm mr-sm-2" name="menu" id="menu" multiple th:disabled="${viewing}">
+								<select class="asc-control form-select form-control-sm mr-sm-2" name="menu" id="menu" multiple th:disabled="${viewing}" data-toggle="tooltip" title="Select which refreshments, if any, you require for your session.">
 									<option th:if="${viewing} and ${clubSession.includesMenuGroup(menu.getMenuGroupId())}" th:each="menu : ${menus}" th:value="${menu.getMenuGroupId()}" th:text="${menu.getName()}" th:selected="${clubSession.includesMenuGroup(menu.getMenuGroupId())}">Menu Name</option>
 									<option th:if="${editing} or ${scheduling}"  th:each="menu : ${menus}" th:value="${menu.getMenuGroupId()}" th:text="${menu.getName()}" th:selected="${clubSession.includesMenuGroup(menu.getMenuGroupId())}">Menu Name</option>																														
 								</select>
@@ -265,7 +259,7 @@
 						</div>
 
 						<div th:if="${editing} or ${scheduling} or ${viewing AND clubSession.getActiveEquipmentSessionResources().size()>0}" class="row mb-2">
-							<div class="col-sm-1" align="right">
+							<div class="col-sm-1 asc-form-label">
 								<label>Equipment:</label>
 							</div>
 		
@@ -276,25 +270,25 @@
 		
 											<div class="col-sm-1" align="center"></div>
 		
-											<div class="col-sm-3" align="center">
+											<div class="col-sm-3 asc-form-label-center" align="center">
 												<label>Item</label>
 											</div>
 		
-											<div class="col-sm-2" align="center">
+											<div class="col-sm-2 asc-form-label-center" align="center">
 												<label>Quantity</label>
 											</div>
-											<div class="col-sm-2" align="center">
+											<div class="col-sm-2 asc-form-label-center" align="center">
 												<label>Per Attendee</label>
 											</div>
 										</div>
 										<div th:each="sessionResource, iter: ${clubSession.getActiveEquipmentSessionResources()}" 
 											class="row mb-2" th:id="${'item'+(iter.index+1)}">
-											<div class="col-sm-1" align="right">
+											<div class="col-sm-1 asc-form-label">
 												<label th:text="${'Item '+(iter.index+1)+ ':'}">Item 1:</label>
 											</div>
 											<div class="col-sm-3">
-												<select class="form-select form-control-sm mr-sm-2"
-													name="equipment" th:id="${'equipment'+(iter.index+1)}" th:disabled="${viewing}">
+												<select class="asc-control form-select form-control-sm mr-sm-2"
+													name="equipment" th:id="${'equipment'+(iter.index+1)}" th:disabled="${viewing}" data-toggle="tooltip" title="Select which equipment, if any, require for this session.">
 													<option value="0">None</option>
 													<option th:each="item : ${equipment}"
 														th:value="${item.getResourceId()}"
@@ -305,26 +299,26 @@
 											</div>
 		
 											<div class="col-sm-2">
-												<input class="form-control form-control-sm mr-sm-2"
+												<input class="form-control mr-sm-2"
 													th:id="${'equipmentQuantity'+(iter.index+1)}" type="number"
 													name="equipmentQuantity" min="0"
-													th:value="${sessionResource.getQuantity()}" th:disabled="${viewing}"/>
+													th:value="${sessionResource.getQuantity()}" th:disabled="${viewing}" data-toggle="tooltip" title="Enter quantity of equipment required for this session."/>
 											</div>
 											<div class="col-sm-2" align="center">
-												<input class="form-check-input" type="checkbox"
+												<input class="asc-control form-check-input" type="checkbox"
 													name="perAttendee" th:id="${'perAttendee'+(iter.index+1)}"
-													th:checked="${sessionResource.isPerAttendee()}" th:disabled="${viewing}"/> <input
+													th:checked="${sessionResource.isPerAttendee()}" th:disabled="${viewing}" data-toggle="tooltip" title="Select if equipment is required per person attending session."/> <input
 													type="hidden" name="hiddenPerAttendee" id="hiddenPerAttendee" th:disabled="${viewing}"/>
 											</div>
 											<div th:unless="${viewing}" class="col-sm-3"
 												th:id="${'item' + (iter.index+1) + 'buttons'}"
 												th:style="${iter.last}?'':'display:none'">
 												<button type="button" th:unless="${iter.index==10}"
-													th:id="${'add' +(iter.index+1)}" class="btn imagebtn btn-success"
-													onClick="addRow(this)"><i class="fa fa-plus"></i></button>
+													th:id="${'add' +(iter.index+1)}" class="btn asc-control imagebtn btn-success"
+													onClick="addRow(this)"><i class="fa fa-plus" data-toggle="tooltip" title="Select to add another piece of equipment."></i></button>
 												<button type="button" th:unless="${iter.first}"
-													th:id="${'remove' +(iter.index+1)}" class="btn imagebtn btn-danger"
-													onCLick="removeRow(this)"><i class="fa fa-trash"></i></button>
+													th:id="${'remove' +(iter.index+1)}" class="btn asc-control imagebtn btn-danger"
+													onCLick="removeRow(this)"><i class="fa fa-trash" data-toggle="tooltip" title="Click to remove piece of equipment."></i></button>
 											</div>
 										</div>
 										
@@ -341,12 +335,12 @@
 											th:each="i : ${#numbers.sequence(clubSession.getActiveEquipmentSessionResources().size()+1, 10)}"
 											class="row mb-2" th:id="${'item'+i}"
 											th:style="${i==1} ? '':'display:none'">
-											<div class="col-sm-1" align="right">
+											<div class="col-sm-1 asc-form-label">
 												<label  th:text="${'Item '+i+ ':'}">Item 1:</label>
 											</div>
 											<div class="col-sm-3">
-												<select class="form-select form-control-sm mr-sm-2"
-													name="equipment" th:id="${'equipment'+i}">
+												<select class="asc-control form-select form-control-sm mr-sm-2"
+													name="equipment" th:id="${'equipment'+i}" data-toggle="tooltip" title="Select which equipment, if any, require for this session.">
 													<option value="0">None</option>
 													<option th:each="item : ${equipment}"
 														th:value="${item.getResourceId()}"
@@ -355,22 +349,22 @@
 											</div>
 		
 											<div class="col-sm-2">
-												<input class="form-control form-control-sm mr-sm-2"
+												<input class="form-control mr-sm-2"
 													th:id="${'equipmentQuantity'+ i}" type="number"
-													name="equipmentQuantity" min="0" value="0" />
+													name="equipmentQuantity" min="0" value="0" data-toggle="tooltip" title="Enter quantity of equipment required for this session."/>
 											</div>
 											<div class="col-sm-2" align="center">
-												<input class="form-check-input" type="checkbox"
-													name="perAttendee" th:id="${'perAttendee'+i}" /> <input
+												<input class="asc-control form-check-input" type="checkbox"
+													name="perAttendee" th:id="${'perAttendee'+i}" data-toggle="tooltip" title="Select if equipment is required per person attending session."/> <input
 													type="hidden" name="hiddenPerAttendee" id="hiddenPerAttendee" />
 											</div>
 											<div class="col-sm-3" th:id="${'item' + i + 'buttons'}">
 												<button type="button" th:unless="${i==10}"
-													th:id="${'add' + i}" class="btn imagebtn btn-success"
-													onClick="addRow(this)"><i class="fa fa-plus"></i></button>
+													th:id="${'add' + i}" class="btn asc-control imagebtn btn-success"
+													onClick="addRow(this)" data-toggle="tooltip" title="Select to add another piece of equipment."><i class="fa fa-plus"></i></button>
 												<button type="button" th:unless="${i==1}"
-													th:id="${'remove' + i}" class="btn imagebtn btn-danger"
-													onCLick="removeRow(this)"><i class="fa fa-trash"></i></button>
+													th:id="${'remove' + i}" class="btn asc-control imagebtn btn-danger"
+													onCLick="removeRow(this)" data-toggle="tooltip" title="Click to remove piece of equipment."><i class="fa fa-trash"></i></button>
 											</div>
 										</div>
 									</div>
@@ -388,7 +382,7 @@
 				
 				
 				<div th:if="${viewing} AND ${clubSession.getAttendees().size>0}"  class="row mb-2">
-					<div class="col-sm-1" align="right">
+					<div class="col-sm-1 asc-form-label">
 						<label th:if="${takingRegister}">Register:</label>
 						<label th:unless="${takingRegister}"    th:text="${clubSession.inPast()} ? 'Attendance:' : 'Bookings:'">Bookings:</label>
 					</div>
@@ -439,14 +433,14 @@
 																	
 									<div th:if="${takingRegister}" class="col-sm-2" align="left">	
 										<th:block th:switch="${true}">																	
-											<button th:case="${attendee.wasAbsent()}" type=button class="Absent RegisterAbsentButton" th:id="${'AbsentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)">Absent</button>
-											<button th:case="${attendee.didAttend()}" type=button class="Present RegisterAbsentButton" th:id="${'AbsentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)">Absent</button>
-											<button th:case="*" type=button class="RegisterAbsentButton" th:id="${'AbsentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)">Absent</button>											
+											<button th:case="${attendee.wasAbsent()}" type=button class="Absent RegisterAbsentButton" th:id="${'AbsentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)" data-toggle="tooltip" title="Select to record student is absent.">Absent</button>
+											<button th:case="${attendee.didAttend()}" type=button class="Present RegisterAbsentButton" th:id="${'AbsentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)" data-toggle="tooltip" title="Select to record student is absent.">Absent</button>
+											<button th:case="*" type=button class="RegisterAbsentButton" th:id="${'AbsentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)"  data-toggle="tooltip" title="Select to record student is absent.">Absent</button>											
 										</th:block>
 										<th:block th:switch="${true}">																	
-											<button th:case="${attendee.wasAbsent()}" type=button class="Absent RegisterPresentButton" th:id="${'PresentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)">Present</button>
-											<button th:case="${attendee.didAttend()}" type=button class="Present RegisterPresentButton" th:id="${'PresentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)">Present</button>
-											<button th:case="*" type=button class="RegisterPresentButton" th:id="${'PresentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)">Present</button>											
+											<button th:case="${attendee.wasAbsent()}" type=button class="Absent RegisterPresentButton" th:id="${'PresentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)" data-toggle="tooltip" title="Select to record student is present.">Present</button>
+											<button th:case="${attendee.didAttend()}" type=button class="Present RegisterPresentButton" th:id="${'PresentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)" data-toggle="tooltip" title="Select to record student is present.">Present</button>
+											<button th:case="*" type=button class="RegisterPresentButton" th:id="${'PresentButton_' + attendee.getAttendeeId()}" onClick="updateRegisterButtons(this)" data-toggle="tooltip" title="Select to record student is present.">Present</button>											
 										</th:block>
 										<th:block th:switch="${true}">
 											<input th:case="${attendee.wasAbsent()}" th:name="'attendee_' + ${attendee.getAttendeeId()}" th:id="'attendee_' + ${attendee.getAttendeeId()}" value="Absent" type="hidden" />										
@@ -460,13 +454,13 @@
 									<div class="col-sm-2" align="left">
 										<span th:unless="${takingRegister}" th:switch="${true}" class="col-sm-2">																		
 											<input th:case="${clubSession.inPast()} and ${clubSession.endInPast()}" type="checkbox" disabled  th:checked="${attendee.didAttend()}" th:name="'attendee_' + ${attendee.getAttendeeId()}" th:id="'attendee_' + ${attendee.getAttendeeId()}"
-										    	th:class="${attendee.didAttend()} ? 'Attended form-check-input' : 'Missed form-check-input'"/>
+										    	th:class="${attendee.didAttend()} ? 'Attended form-check-input' : 'Missed form-check-input'" data-toggle="tooltip" title="Attendance indicator: Green if attending, Purple if attended, Black if missed."/>
 	
 											<input th:case="${clubSession.inPast()} and ${not clubSession.endInPast()}" disabled  type="checkbox" th:checked="${attendee.didAttend()}" th:name="'attendee_' + ${attendee.getAttendeeId()}" th:id="'attendee_' + ${attendee.getAttendeeId()}"
-										    	th:class="${attendee.didAttend()} ? 'Attended form-check-input' : 'Attending form-check-input'"/>
+										    	th:class="${attendee.didAttend()} ? 'Attended form-check-input' : 'Attending form-check-input'" data-toggle="tooltip" title="Attendance indicator: Green if attending, Purple if attended, Black if missed."/>
 										    										
 											<input th:case ="*" type="checkbox" th:checked="${attendee.didAttend()}" disabled th:name="'attendee_' + ${attendee.getAttendeeId()}" th:id="'attendee_' + ${attendee.getAttendeeId()}"
-										    	th:class="${attendee.didAttend()} ? 'Attended form-check-input' : 'Attending form-check-input'"/>
+										    	th:class="${attendee.didAttend()} ? 'Attended form-check-input' : 'Attending form-check-input'" data-toggle="tooltip" title="Attendance indicator: Green if attending, Purple if attended, Black if missed."/>
 										</span>
 									
 										<span th:text="${attendee.getStudent().getFullName()}">Name</span> 
@@ -484,17 +478,17 @@
 
 				</div>
 				<div th:if="${viewing} AND ${clubSession.getAttendees().size==0}"  class="row mb-2">
-					<div class="col-sm-1" align="right">
+					<div class="col-sm-1 asc-form-label">
 						<label th:text="${clubSession.inPast()} ? 'Attended:' : 'Bookings:'">Bookings:</label>
 					</div>
-					<div class="col-sm-1" align="left">
+					<div class="col-sm-1 asc-form-label" align="left">
 						<label>None</label>
 					</div>							
 				</div>				
 				
 				<div th:if="${viewing} and ${not takingRegister}" class="row mb-2 p-3">
 					<div class="col-sm-12" align="center">
-						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Back</a>
+						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button" data-toggle="tooltip" title="Return to previous screen.">Back</a>
 					</div>
 				</div>
 				
@@ -505,15 +499,15 @@
 				
 					
 						<button th:case="${editing}" class="btn btn-primary" name="submit"
-							onclick="copyPerAttendee();">Update</button>
+							onclick="copyPerAttendee();" data-toggle="tooltip" title="Press to update the session.">Update</button>
 						<button th:case="${scheduling}" class="btn btn-primary"
 							name="submit"
-							onclick="copyPerAttendee()">Schedule</button>
+							onclick="copyPerAttendee()" data-toggle="tooltip" title="Press to schedule the session.">Schedule</button>
 						<button th:case="${takingRegister}" class="btn btn-primary"
-							name="submit">Record Register</button>							
+							name="submit" data-toggle="tooltip" title="Press to record who attended.">Record Register</button>							
 					</div>
 					<div class="col-sm-6" align="left">
-						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Cancel</a>
+						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button" data-toggle="tooltip" title="Press to cancel any updates.">Cancel</a>
 					</div>
 				</div>						
 				<div class="spacer">&nbsp;</div>

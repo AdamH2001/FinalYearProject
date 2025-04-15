@@ -45,7 +45,7 @@ public class User {
 	private String title;
 	private String telephoneNum;
 	private int validationKey = r.nextInt(999999999);
-	private LocalDateTime dateRequested;
+	private LocalDateTime dateRequested = LocalDateTime.now();
 	private boolean emailVerified;
 	private State state = State.ACTIVE;
 	

@@ -34,23 +34,34 @@
 						<h1 class="asc-header" th:unless="${isEditing}">Create Club</h1>
 					</div>
 				</div>
+				
+				<div class="row mb-2">
 
+					<div class="col-sm-12" align="center">
+						<label for="clubProfilePicTemplate"> <img width="300" height="150" id="newClubImage"
+							th:src="${club.getImageURL()}" data-toggle="tooltip" title="Click this image to update the image associated with this club. "/> 
+							<input class="form-control staffInput" name="clubProfilePicTemplate"
+							id="clubProfilePicTemplate" type="file" style="display: none" onchange="uploadNewImage()" />
+						</label>
+
+					</div>
+				</div>
 				<div class="row mb-2 ">
 					<div class="col-sm-2 asc-form-label">
 						<label for=title>Title:</label>
 					</div>
-					<div class="col-sm-10 ">
-						<input class="form-control form-control-sm mr-sm-2" required type="text" th:value="${club.getTitle()}"
-							name="title" id="title" />
+					<div class="col-sm-9 ">
+						<input class="form-control mr-sm-2" required type="text" th:value="${club.getTitle()}"
+							name="title" id="title" placeholder="Meaningful title e.g. Yr5 Football Club" maxlength=64/>
 					</div>
 				</div>
 				<div class="row mb-2">
 					<div class="col-sm-2 asc-form-label">
 						<label for="description">Description:</label>
 					</div>
-					<div class="col-sm-10">
-						<textarea class="form-control form-control-sm mr-sm-2" required rows="5" name="description"
-							th:text="${club.getDescription()}" id="description"></textarea>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" required rows="5" name="description"
+							th:text="${club.getDescription()}" id="description" placeholder="Insightful description that helps parent understand the associated activities" maxlength=1024></textarea>
 					</div>
 				</div>
 
@@ -58,73 +69,65 @@
 					<div class="col-sm-2 asc-form-label">
 						<label for="description">Keywords:</label>
 					</div>
-					<div class="col-sm-10">
-						<textarea class="form-control form-control-sm mr-sm-2" required rows="3" name="keywords"
-							th:text="${club.getKeywords()}" id="keywords"></textarea>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" required rows="3" name="keywords"
+							th:text="${club.getKeywords()}" placeholder="Words that may be used to help parent find this club e.g. Sport Soccer" id="keywords" maxlength=256></textarea>
 					</div>
 				</div>
 
 
 				<div class="row mb-2">
 					<div class="col-sm-2 asc-form-label">
-						<label for="basePrice">Base Price:</label>
+						<label for="basepriceinput">Base Price:</label>
 					</div>
-					<div class="col-sm-10 ">
-						<input class="form-control form-control-sm mr-sm-2" required type="number" th:value="${club.getBasePrice()}"
-							name="basePrice" id="basePrice" />
+					<div class="col-sm-2 ">
+					    <input type="text" id="basepriceinput" for="baseprice" required placeholder="Price without extras such as refreshments" maxlength=6 class="asc-moneyinput form-control" 
+					    	th:value="${sessionBean.formatMoney(club.getBasePrice())}" data-toggle="tooltip" title="Price without extras such as refreshments." style="width:110px;"/>
+					
+						<input class="form-control mr-sm-2"  type="number" th:value="${club.getBasePrice()}"
+							name="basePrice" id="baseprice"  style="display:none"/>
+					</div>
+					<div class="col-sm-8 asc-form-label-left">
+						<label for="acceptsVouchers">Accept Vouchers: &nbsp;</label>
+						<input class="asc-control form-check-input"   type="checkbox" th:checked="${club.isAcceptsVouchers()}"
+							name="acceptsVouchers" id="acceptsVouchers" data-toggle="tooltip" title="Vouchers cannot be used as payment for all clubs. Please select if this club can be paid by vouchers."/>
 					</div>
 				</div>
 				
-				<div class="row mb-2">
-					<div class="col-sm-2 asc-form-label">
-						<label for="basePrice">Accept Vouchers:</label>
-					</div>
-					<div class="col-sm-10 ">
-						<input class="form-check-input"   type="checkbox" th:checked="${club.isAcceptsVouchers()}"
-							name="acceptsVouchers" id="acceptsVouchers" />
-					</div>
-				</div>
 				
 
 				<div class="row mb-2 ">
 					<div class="col-sm-2 asc-form-label">
 						<label>Year Can Attend:</label>
 					</div>
-					<div class="col-sm-10">
-						<label for="yearR">R:</label> <input class="form-check-input" th:checked="${club.isYearRCanAttend()}"
-							type="checkbox" name="yearR" id="yearR" /> <label for="year1">1:</label> <input class="form-check-input"
-							th:checked="${club.isYear1CanAttend()}" type="checkbox" name="year1" id="year1" /> <label for="year2">2:</label>
-						<input class="form-check-input" th:checked="${club.isYear2CanAttend()}" type="checkbox" name="year2" id="year2" />
-						<label for="year3">3:</label> <input class="form-check-input" th:checked="${club.isYear3CanAttend()}"
-							type="checkbox" name="year3" id="year3" /> <label for="year4">4:</label> <input class="form-check-input"
-							th:checked="${club.isYear4CanAttend()}" type="checkbox" name="year4" id="year4" /> <label for="year5">5:</label>
-						<input class="form-check-input" th:checked="${club.isYear5CanAttend()}" type="checkbox" name="year5" id="year5" />
-						<label for="year6">6:</label> <input class="form-check-input" th:checked="${club.isYear6CanAttend()}"
-							type="checkbox" name="year6" id="year6" />
+					<div class="col-sm-9">
+						<label for="yearR">R: &nbsp;</label> 
+						<input class="asc-control form-check-input" th:checked="${club.isYearRCanAttend()}"	type="checkbox" name="yearR" id="yearR" data-toggle="tooltip" title="Select if club is suitable for students in reception year." /> 
+						<label for="year1"> &nbsp;1: &nbsp;</label> 
+						<input class="asc-control form-check-input" th:checked="${club.isYear1CanAttend()}" type="checkbox" name="year1" id="year1" data-toggle="tooltip" title="Select if club is suitable for students in year 1." /> 
+						<label for="year2"> &nbsp;2: &nbsp;</label>
+						<input class="asc-control form-check-input" th:checked="${club.isYear2CanAttend()}" type="checkbox" name="year2" id="year2" data-toggle="tooltip" title="Select if club is suitable for students in year 2." /> 
+						<label for="year3"> &nbsp;3: &nbsp;</label> 
+						<input class="asc-control form-check-input" th:checked="${club.isYear3CanAttend()}" type="checkbox" name="year3" id="year3" data-toggle="tooltip" title="Select if club is suitable for students in year 3." /> 
+						<label for="year4"> &nbsp;4: &nbsp;</label> 
+						<input class="asc-control form-check-input" th:checked="${club.isYear4CanAttend()}" type="checkbox" name="year4" id="year4" data-toggle="tooltip" title="Select if club is suitable for students in year 4." /> 
+						<label for="year5"> &nbsp;5: &nbsp;</label>
+						<input class="asc-control form-check-input" th:checked="${club.isYear5CanAttend()}" type="checkbox" name="year5" id="year5" data-toggle="tooltip" title="Select if club is suitable for students in year 5." /> 
+						<label for="year6"> &nbsp;6: &nbsp;</label> 
+						<input class="asc-control form-check-input" th:checked="${club.isYear6CanAttend()}" type="checkbox" name="year6" id="year6" data-toggle="tooltip" title="Select if club is suitable for students in year 6." /> 
 					</div>
 				</div>
 
-				<div class="row mb-2">
-					<div class="col-sm-2 asc-form-label">
-						<label>Image:</label>
-					</div>
-					<div class="col-sm-10">
-						<label for="clubProfilePicTemplate"> <img width="300" height="150" id="newClubImage"
-							th:src="${club.getImageURL()}" /> <input class="form-control staffInput" name="clubProfilePicTemplate"
-							id="clubProfilePicTemplate" type="file" style="display: none" onchange="uploadNewImage()" />
-						</label>
 
-					</div>
-				</div>
 
 			</div>
 			<div class="row mb-2">
 				<div class="col-sm-6" align="right">
-					<button th:if="${isEditing}" class="btn btn-primary" name="submit">Update</button>
-					<button th:unless="${isEditing}" class="btn btn-primary" name="submit">Create</button>
+					<button th:if="${isEditing}" class="btn btn-primary" name="submit" data-toggle="tooltip" title="Press to update club details.">Update</button>
+					<button th:unless="${isEditing}" class="btn btn-primary" name="submit" data-toggle="tooltip" title="Press to create new club." >Create</button>
 				</div>
 				<div class="col-sm-6" align="left">
-					<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Cancel</a>
+					<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button" data-toggle="tooltip" title="Press to cancel and not make any changes.">Cancel</a>
 				</div>
 			</div>
 			<div class="spacer">&nbsp;</div>
@@ -166,12 +169,21 @@
 	    }	
 	  }  
 
-	async function reloadImg(url) {
-		  await fetch(url, { cache: 'reload', mode: 'no-cors' })
-		  document.body.querySelectorAll(`img[src='${url}']`)
-		    .forEach(img => img.src = url)
-		}
+
 		
+
+
+	$('.asc-moneyinput').change(function(e) {
+	    value=e.target.value.replace("£", "").trim();
+	    if(isNaN(value)){
+	        e.target.value = ''
+	    }else{		
+	  	$("#" + e.target.getAttribute("for")).val(Math.round(value * 100))
+	      e.target.value = pounds.format(value);
+	    }
+	  })
+	  	
+			
 	
 	</script>
 </body>

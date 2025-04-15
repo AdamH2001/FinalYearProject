@@ -19,38 +19,76 @@
 	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
 	<div th:replace="~{fragments/footer :: footer}"></div>
 	<div th:replace="~{fragments/error :: error}"></div>
-	<div th:replace="~{fragments/error :: error}"></div>
-	
-	
 
-	
-	<div id="main" class="main container-flex no-margin ">
-		<div class="row mb-2 col-sm-12"  style="padding-top:25px">
-				<p >Welcome to our website, your one-stop destination for booking your child into a variety of exciting after-school clubs! Whether your child is interested in joining 
-				the harmony of our Choir Club, getting active in Football or Tennis, exploring the wonders of Science, or starting their day with a positive vibe at Breakfast Club, we have 
-				something for every interest and age group. With a wide range of engaging and enriching activities available, it’s easy to find the perfect club to help your child develop new skills, 
-				make friends, and have fun.</p> 
-			</div>
-			<div class="row mb-2 ">
-					<div class="col-sm-1"></div>
-			
-					<div class="col-sm-10">
-						<div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
-						  <div class="carousel-inner">
-						    <div th:each="url, iStat : ${allImages}"  th:class="${iStat.first}? 'carousel-item active': 'carousel-item'  ">
-						      <img  width="100%" th:src="${url}" th:alt="${'Slide' + (iStat.index + 1)}">
-						    </div>
-						  </div>
+		<table id="main" class="main" style="width:100%; height:100%; max-width:1700px">
+		<tr height="50%">
+			<td colspan=6 width="50%" style="padding:5px">
+				<div class="asc-home-box-white">			
+					<h1>Welcome to After School Club</h1>
+					<p>Welcome to our website! This is your one-stop destination for booking your child into all our exciting after
+						school clubs.</p>
+					<p>At After School Club we understand how important it is to provide a safe, enjoyable and stimulating
+						environment for your child outside of school hours. We have a wide range of engaging and enriching activities
+						available including sports, team games, art and craft, music and dance. It’s easy to find the perfect club to help
+						you child develop new skills, make friends and have fun.</p>
+					<p>If you need more information, please contact the school office on 01256 888888 or email us on
+						<a href="mailto:admin@afterschoolclub.com">admin@afterschoolclub.com</a></p>
+				</div>			
+			</td>
+			<td colspan=6 width="50%" style="padding:5px">
+				<div class="asc-home-box-white">						
+					<div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+						<div class="carousel-inner">
+							<div th:each="url, iStat : ${allImages}" th:class="${iStat.first}? 'carousel-item active': 'carousel-item'  ">
+								<img width="100%" th:src="${url}" th:alt="${'Slide' + (iStat.index + 1)}">
+							</div>
 						</div>
-						<div class="col-sm-1"></div>
-					</div>				
-			</div>		
-			<div class="row mb-2 col-sm-12"> &nbsp; </div>
-			<div class="spacer">&nbsp;</div>
+					</div>	
+				</div>	
+			</td>
+			
+		</tr>
+		<tr height="50%" >
+			<td colspan=4 width="33%" style="padding:5px">
+				<div class="asc-home-box-lightblue">
+					<h1>Registration</h1>
+					<p>The entire registration process is managed efficiently through our website. Both the new parent user and
+						child registration forms are completed on-line. You can also manage your account and add funds using our on-line
+						payment system.</p>
+					<p>Once this simple process is completed you are ready to book your child’s place at any of our exciting clubs.</p>
+				</div>			
+			</td>
+			<td colspan=4 width="33%" style="padding:5px">
+				<div class="asc-home-box-blue">			
+					<h1>Booking</h1>
+					<p>The full range of amazing clubs on offer is available to view under the Club Timetable. Information provided
+						also includes activity description, date, start time, end time, age group suitability and price.</p>
+					<p>Booking your child into a session is so effortless and can be actioned with a few clicks. Regular blocked
+						bookings can also be made.</p>		
+					</div>
+			</td>
+			<td colspan=4 width="33%" style="padding:5px">
+				<div class="asc-home-box-orange">			
+					<h1>Refreshments</h1>
+					<p>We offer a full range of healthy, nutritional and appetising food and drink options from a hearty and filling
+						breakfast to energising snacks at our after school clubs.</p>
+					<p>Your food choices are selected at the time of booking and this gives you the option of choosing at home with
+						your child. We will take into account any dietary requirements and food allergies.</p>
+				</div>
+	
+			</td>
+		</tr>
+		<tr>
+			<td>			<div class="spacer">&nbsp;</div></td>
+			
+		</tr>
+		</table>
 
-		</div>
+
+		<div class="spacer">&nbsp;</div>
 
 
-		
+
+
 </body>
 </html>

@@ -3,7 +3,14 @@
   --asc-background: RGB(2, 29, 58);
   --asc-bordertext: RGB(255, 255, 255);
   --asc-orange: RGB(254,137,50);
-  
+  --asc-blue:  RGB(85,145,181);
+  --asc-lightstripe:  RGB(218, 227, 243);
+  --asc-darkstripe:  RGB(180, 199, 231);
+  --asc-grey:  RGB(222, 222, 222);
+  --asc-black:  RGB(0, 0, 0);
+  --asc-white:  RGB(255, 255, 255);
+   --asc-buttonblue:  RGB(0,128,255);  
+ 
 }
 
 
@@ -49,7 +56,7 @@ fieldset {
 .monthlydate {
 	text-align: center;
 	font-weight: bold;
-	color: rgb(0, 112, 192);
+	color: var(--asc-blue); 
 	padding: 0px;
 	vertical-align: top;
 	height: 10px;
@@ -60,24 +67,21 @@ fieldset {
 
 .table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th
 	{
-	background-color: rgb(218, 227, 243);
+	background-color: var(--asc-lightstripe);
 }
 
 .table-striped>tbody>tr:nth-child(even)>td, .table-striped>tbody>tr:nth-child(even)>th
 	{
-	background-color: rgb(180, 199, 231);
+	background-color: var(--asc-darkstripe);  
 
 }
 
-.bg-custom {
-	background-color: rgb(240, 243, 249);
-}
 
 .table-striped>thead {
 	text-align: center;
 	font-weight: bold;
-	background-color: rgb(68, 114, 196);
-	color: white;
+	background-color: var(--asc-blue);  
+	color: var(--asc-white);  
 	padding: 5px;
 }
 
@@ -86,7 +90,7 @@ fieldset {
 
 }
 
-.event {
+.session {
 	text-align: left;
 	font-weight: normal;
 	font-size: 0.75em;
@@ -96,34 +100,15 @@ fieldset {
 	cursor: pointer;
 }
 
-.dayevent, .dayreminder, .dayidea, .daybirthday, .dayexpired {
-	text-align: center;
-	vertical-align: middle;
-	font-weight: normal;
-	font-size: 0.75em;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	height: 100%;
-	width: 100%;
-	cursor: pointer;
-}
-
-.interested {
-	font-weight: bold;
-}
-
-.dayregistered, .registered, .published {
-	background-color: white;
-}
 
 .Available {
 	background-color: blue;
-	color: white;
+	color: var(--asc-white);  
 }
 
 .NotAvailable {
 	background-color: red;
-	color: white;
+	color: var(--asc-white);
 }
 
 .InsufficientResources {
@@ -134,55 +119,30 @@ fieldset {
 
 .Attending {
 	background-color: green;
-	color: white;
+	color: var(--asc-white);
 }
 
 .Missed {
 	background-color: black;
-	color: white;
+	color: var(--asc-white);
 }
 
 .Attended {
 	background-color: purple;
-	color: white;
+	color: var(--asc-white);
 }
 
-.HiddenEvent {
+.HiddenSession {
 	display: none;
 }
 
 .holiday {
 	background-color:  var(--asc-background);
 	
-	color: white;
+	color: var(--asc-white);
 }
 
-.dayevent, .event {
-	background-color: GreenYellow;
-}
 
-.daybirthday, .birthday {
-	background-color: yellow;
-	cursor: default;
-}
-
-.dayidea, .idea {
-	background-color: pink;
-}
-
-.action {
-	text-align: center;
-	font-weight: bold;
-}
-
-.dayreminder, .reminder {
-	background-color: cyan;
-}
-
-.dayexpired, .expired, .cancelled {
-	background-color: red;
-	cursor: default;
-}
 
 .daytime {
 	text-align: center;
@@ -239,23 +199,6 @@ h3 {
 	font-weight: bold;
 }
 
-.eventcell {
-	height: 110px;
-	overflow: hidden;
-	border: 1px solid white
-}
-
-.eventcellbody {
-	height: 100%;
-	overflow: hidden
-}
-
-.emptycell {
-	height: 110px;
-	overflow: hidden;
-	background-color: white
-}
-
 
 
 
@@ -264,16 +207,19 @@ h3 {
 	background-color: var(--asc-background);
 }
 
-afterschoolheader {
+.afterschoolheader {
 	width: 100%;
-	height: 110px
+	height: 110px;
+	font-size: 20px;
+	
 }
 
 .afterschoolclubflash {
 	color: red; 
 	width: 100%; 
 	text-align: center;
-	font-weight: bold
+	font-weight: bold;
+	font-size: 20px;
 }
 
 .afterschoolclubleft {
@@ -293,6 +239,11 @@ afterschoolheader {
 	color:  var(--asc-bordertext);
 	font-size: 3.0em;
 	font-weight: bold;
+	text-align: left;
+	padding-left: 0px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;	
 }
 
 .text-afterschoolclubfooter {
@@ -331,32 +282,32 @@ afterschoolheader {
 
 
 .sessionTitle {
-	color: white;
+	color: var(--asc-white);
 }
 
 
 .studentContainer {
 	display: none;
 	border: 1px solid;
-	border-color: rgb(222,222,222)
+	border-color: var(--asc-grey);
 }
 
 
 .nav-tabs .nav-item .nav-link {
-	 background-color: #FFF;
-	 color: #0080FF;
-	 border-color: rgb(222,222,222)
+	 background-color: var(--asc-white);
+	 color: var(--asc-buttonblue); 
+	 border-color: var(--asc-grey);
   
 }
 
 .nav-tabs .nav-item .nav-link.active {
-	 background-color: #0080FF;
-	 color: #FFF;  
+	 background-color: var(--asc-buttonblue); 
+	 color: var(--asc-white)
 }
 
 .nav-tabs .nav-item .nav-link.disabled {
-	background-color: rgb(200,200,200);
-	color: #FFF;  
+	background-color: var(--asc-grey);
+	color: var(--asc-white);
 }
 
 .FilterCheck.disabled {
@@ -374,7 +325,7 @@ afterschoolheader {
 }
 
 .nav-link:hover {
-	color: #0080FF;
+	color: var(--asc-buttonblue); 
 	
 }
 
@@ -385,9 +336,9 @@ afterschoolheader {
 }
 
 .tab-content .tab-pane {
-  	background-color: #FFF;
-  	color: #0080FF;
-	border-color: rgb(222,222,222)
+  	background-color: var(--asc-white); 
+  	color: var(--asc-buttonblue); 
+	border-color: var(--asc-grey);
 
 }
 
@@ -456,8 +407,10 @@ afterschoolheader {
 .leftnav {
 	padding-left : 5px;
 	padding-right : 2px;
+	font-size: 20px;
 	
 }
+
  
 #main {
 	top: 81px;
@@ -465,15 +418,16 @@ afterschoolheader {
 	position: relative;
 	display: none;
 	margin: 0;
+	font-size: 20px;
 	
 		
 }
 
 #leftnav {
-	top: 96px; 
-	
+	top: 110px; 
+	width: 220px;
 	left: 0px;
-	position: relative;
+	position: fixed;
 	
 }
 
@@ -499,10 +453,6 @@ afterschoolheader {
 	
 }
 
-.asc-form-label {
-	text-align: right;
-	/*font-weight: bold; */		
-}
 
 .asc-totallabel {
 	text-align: right;
@@ -583,12 +533,14 @@ body {
 .imagebtn {
     border: none;
     color: white;
-    padding: 2px;
+    padding: 0px;
     font-size: 13px;
     width: 25px;
     height: 25px;
   	cursor: pointer;
     border-radius: 50%!important;
+    
+      
 }
 
 
@@ -619,11 +571,11 @@ body {
 }
 
 .stripedrow.oddStripe {
-	background-color:rgb(218, 227, 243);
+	background-color: var(--asc-lightstripe);
 }
 
 .stripedrow.evenStripe {
-	background-color:rgb(180, 199, 231);
+	background-color:var(--asc-darkstripe);
 }
 
 
@@ -640,4 +592,102 @@ body {
 
 .asc-text {	
 	color: var(--asc-background);
+}
+
+
+.asc-center  {
+  margin: 0;
+  position: relative;  
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.asc-form-label {
+		text-align: right;
+		/*font-weight: bold; */		
+	
+}
+
+.asc-form-label-left {
+		text-align: left;
+		/*font-weight: bold; */		
+	
+}
+
+
+.asc-form-label label {
+  margin: 0;
+  position: relative;  
+  top: 50%;
+  -ms-transform: translate(0%, -50%);
+  transform: translate(0%, -50%);	
+}
+
+.asc-form-label-left label {
+  margin: 0;
+  position: relative;  
+  top: 50%;
+  -ms-transform: translate(0%, -50%);
+  transform: translate(0%, -50%);	
+}
+
+.asc-form-label-center label {
+  margin: 0;
+  position: relative;  
+  top: 50%;
+  -ms-transform: translate(0%, -50%);
+  transform: translate(0%, -50%);	
+}
+
+
+.asc-control {  
+  position: relative;  
+  top: 50%;
+  -ms-transform: translate(0%, -50%);
+  transform: translate(0%, -50%);	
+}
+
+.asc-control.form-check-input {
+	margin-top: 0px;
+}
+
+.asc-moneyinput {
+	text-align: right;
+}
+
+.asc-home-box-orange {	
+  background: var(--asc-orange);   
+  color: white;
+  padding: 10px;
+  font-size: 1.0vw;
+  width: 100%;
+  height: 100%;  
+}
+
+.asc-home-box-white {	
+  background: white;   
+  color: var(--asc-background);
+  font-size: 1.0vw;
+  width: 100%;
+  height: 100%;  
+}
+
+.asc-home-box-blue {	
+  background: var(--asc-background); 
+  color: white;
+  padding: 10px;
+  font-size: 1.0vw;
+  width: 100%;
+  height: 100%;  
+}
+
+.asc-home-box-lightblue {	
+  background: var(--asc-blue);  
+  color: white;
+  padding: 10px;
+  font-size: 1.0vw;
+  width: 100%;
+  height: 100%;
 }
