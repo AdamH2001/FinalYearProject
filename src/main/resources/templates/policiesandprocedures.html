@@ -34,15 +34,15 @@
 				<div class="accordion" id="accordionExample">
 					  <div class="accordion-item">
 					    <h2 class="accordion-header">
-					      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+					      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" id="p1" aria-controls="collapseOne">
 								Accident and Incidents Policy
 					      </button>
 					    </h2>
 					    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
 					      <div class="accordion-body">
-							<a th:href="${sessionBean.getPolicyService().getPolicyURL('accidentandincidentspolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('accidentandincidentspolicy.pdf')} ? '_blank;' : ''">Click here to view our Accidents and Incidents Policy</a>							
+							<a id="ap1" th:href="${sessionBean.getPolicyService().getPolicyURL('accidentandincidentspolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('accidentandincidentspolicy.pdf')} ? '_blank;' : ''">Click here to view our Accidents and Incidents Policy</a>							
 					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
-					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('accidentandincidentspolicy.pdf')" />							
+					      		<input class="form-control" name="policy" id="policy" accept=".pdf" type="file" style="display: none" onchange="uploadNewPolicy('p1', 'accidentandincidentspolicy.pdf')" />							
 							</label>
 					      	
 					      	
@@ -51,75 +51,75 @@
 					  </div>
 					  <div class="accordion-item">
 					    <h2 class="accordion-header">
-					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" id="p2" aria-controls="collapseTwo">
 					        Attendance Policy
 					      </button>
 					    </h2>
 					    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 					      <div class="accordion-body">
-								<a th:href="${sessionBean.getPolicyService().getPolicyURL('attendeancepolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('attendeancepolicy.pdf')} ? '_blank;' : ''">Click here to view our Attendance Policy</a>
+								<a id="ap2"  th:href="${sessionBean.getPolicyService().getPolicyURL('attendeancepolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('attendeancepolicy.pdf')} ? '_blank;' : ''">Click here to view our Attendance Policy</a>
 								<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
-					      			<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('attendeancepolicy.pdf')" />							
+					      			<input class="form-control" name="policy" id="policy" accept=".pdf"  type="file" style="display: none" onchange="uploadNewPolicy('p2', 'attendeancepolicy.pdf')" />							
 								</label>
 						   </div>
 					    </div>
 					  </div>
 					  <div class="accordion-item">
 					    <h2 class="accordion-header">
-					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" id="p3" aria-controls="collapseThree">
 					        Child Protection Policy
 					      </button>
 					    </h2>
 					    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 					      <div class="accordion-body">
-							<a th:href="${sessionBean.getPolicyService().getPolicyURL('childprotectionpolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('childprotectionpolicy.pdf')} ? '_blank;' : ''">Click here to view our Child Protection Policy</a>
+							<a id="ap3"  th:href="${sessionBean.getPolicyService().getPolicyURL('childprotectionpolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('childprotectionpolicy.pdf')} ? '_blank;' : ''">Click here to view our Child Protection Policy</a>
 					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
-					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('childprotectionpolicy.pdf')" />							
+					      		<input class="form-control" name="policy" id="policy" accept=".pdf"  type="file" style="display: none" onchange="uploadNewPolicy('p3', 'childprotectionpolicy.pdf')" />							
 							</label>							
 					      </div>
 					    </div>
 					  </div>
 					  <div class="accordion-item">
 					    <h2 class="accordion-header">
-					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" id="p4" aria-controls="collapseFour">
 					        Complaints Procedure
 					      </button>
 					    </h2>
 					    <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 					      <div class="accordion-body">
-							<a th:href="${sessionBean.getPolicyService().getPolicyURL('complaintsprocedure.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('complaintsprocedure.pdf')} ? '_blank;' : ''">Click here to view our Complaints Procedure</a>
+							<a id="ap4" th:href="${sessionBean.getPolicyService().getPolicyURL('complaintsprocedure.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('complaintsprocedure.pdf')} ? '_blank;' : ''">Click here to view our Complaints Procedure</a>
 					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
-					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('complaintsprocedure.pdf')" />							
+					      		<input class="form-control" name="policy" id="policy" accept=".pdf"  type="file" style="display: none" onchange="uploadNewPolicy('p4', 'complaintsprocedure.pdf')" />							
 							</label>	
 					      </div>
 					    </div>
 					  </div>
 					  <div class="accordion-item">
 					    <h2 class="accordion-header">
-					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" id="p5" aria-controls="collapseFive">
 					        Health and Safety Policy
 					      </button>
 					    </h2>
 					    <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 					      <div class="accordion-body">
-							<a th:href="${sessionBean.getPolicyService().getPolicyURL('healthandsafetypolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('healthandsafetypolicy.pdf')} ? '_blank;' : ''">Click here to view our Health and Safety Policy</a>
+							<a id="ap5" th:href="${sessionBean.getPolicyService().getPolicyURL('healthandsafetypolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('healthandsafetypolicy.pdf')} ? '_blank;' : ''">Click here to view our Health and Safety Policy</a>
 					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
-					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('healthandsafetypolicy.pdf')" />							
+					      		<input class="form-control" name="policy" id="policy" accept=".pdf"  type="file" style="display: none" onchange="uploadNewPolicy('p5', 'healthandsafetypolicy.pdf')" />							
 							</label>								
 					      </div>
 					    </div>
 					  </div>
 					  <div class="accordion-item">
 					    <h2 class="accordion-header">
-					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" id="p6" aria-controls="collapseSix">
 					        Inclusion Policy
 					      </button>
 					    </h2>
 					    <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 					      <div class="accordion-body">
-							<a th:href="${sessionBean.getPolicyService().getPolicyURL('inclusionpolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('inclusionpolicy.pdf')} ? '_blank;' : ''">Click here to view our Inclusion Policy</a>
+							<a id="ap6" th:href="${sessionBean.getPolicyService().getPolicyURL('inclusionpolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('inclusionpolicy.pdf')} ? '_blank;' : ''">Click here to view our Inclusion Policy</a>
 					      	<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
-					      		<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('inclusionpolicy.pdf')" />							
+					      		<input class="form-control" name="policy" id="policy" accept=".pdf"  type="file" style="display: none" onchange="uploadNewPolicy('p6', 'inclusionpolicy.pdf')" />							
 							</label>	
 														
 					      </div>
@@ -127,30 +127,30 @@
 					  </div>
 					  <div class="accordion-item">
 					    <h2 class="accordion-header">
-					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" id="p7" aria-controls="collapseSeven">
 					        Information and Data Policy
 					      </button>
 					    </h2>
 					    <div id="collapseSeven" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 					      <div class="accordion-body">
-								<a th:href="${sessionBean.getPolicyService().getPolicyURL('informationanddatapolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('informationanddatapolicy.pdf')} ? '_blank;' : ''">Click here to view our Information and Data Policy</a>
+								<a id="ap7" th:href="${sessionBean.getPolicyService().getPolicyURL('informationanddatapolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('informationanddatapolicy.pdf')} ? '_blank;' : ''">Click here to view our Information and Data Policy</a>
 								<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
-					      			<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('informationanddatapolicy.pdf')" />							
+					      			<input class="form-control" name="policy" id="policy" accept=".pdf"  type="file" style="display: none" onchange="uploadNewPolicy('p7', 'informationanddatapolicy.pdf')" />							
 								</label>	
 						   </div>
 					    </div>
 					  </div>
 					  <div class="accordion-item">
 					    <h2 class="accordion-header">
-					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+					      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" id="p8" aria-controls="collapseEight">
 					        Safeguarding Policy
 					      </button>
 					    </h2>
 					    <div id="collapseEight" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 					      <div class="accordion-body">
-								<a th:href="${sessionBean.getPolicyService().getPolicyURL('safeguardingpolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('safeguardingpolicy.pdf')} ? '_blank;' : ''">Click here to view our Safeguarding Policy</a>
+								<a id="ap8" th:href="${sessionBean.getPolicyService().getPolicyURL('safeguardingpolicy.pdf')}" th:target="${sessionBean.getPolicyService().policyExists('safeguardingpolicy.pdf')} ? '_blank;' : ''">Click here to view our Safeguarding Policy</a>
 								<label th:if="${sessionBean.isAdminLoggedOn()}"> <span  class="btn imagebtn btn-success" style="padding:2px"><i class="fa fa-plus"></i></span> 
-					      			<input class="form-control" name="policy" id="policy" type="file" style="display: none" onchange="uploadNewPolicy('safeguardingpolicy.pdf')" />							
+					      			<input class="form-control" name="policy" id="policy" accept=".pdf"  type="file" style="display: none" onchange="uploadNewPolicy('p8', 'safeguardingpolicy.pdf')" />							
 								</label>									
 					      </div>
 					    </div>
@@ -163,13 +163,13 @@
 <script>
 
 
-function uploadFile(file, id) {
+function uploadFile(file, destFile, id) {
 	var data = new FormData();
     
     // Add the uploaded image content to the form data collection
 
     data.append("file", file);     
-    data.append("filename", id);
+    data.append("filename", destFile);
 
     // Make Ajax request with the contentType = false, and procesDate = false
     var ajaxRequest = $.ajax({
@@ -180,16 +180,19 @@ function uploadFile(file, id) {
          data: data,
         });
     ajaxRequest.done(function (xhr, textStatus) {
-     			console.log("Uploaded Policy");
-		   });
+    	$("#a"+id)[0].href="./policies/" + destFile;
+    	$("#a"+id)[0].target="_blank;";
+    	showValidationMessage("Successfully uploaded " + $("#"+id)[0].innerText);
+    })
 }
 
 
   
-function uploadNewPolicy(destFile){
+function uploadNewPolicy(id, destFile){
     var files = event.target.files;
     if (files.length > 0) {    	
-		uploadFile(files[0],  destFile);
+		uploadFile(files[0],  destFile, id);
+		event.target.value="";
     }	
   }  
 

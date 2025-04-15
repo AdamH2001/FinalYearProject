@@ -961,7 +961,11 @@ public class AdminController {
 		if (returnPage == null) {				
 			User user = User.findById(userId);
 			user.setState(State.INACTIVE);
-			user.update();			
+			
+			//TODO refund user
+			
+			user.update();		
+			sessionBean.setFlashMessage("User successfully deleted.");
 			returnPage= "redirect:parentFinances";
 		}
 		return returnPage;				
@@ -976,7 +980,8 @@ public class AdminController {
 			User user = User.findById(userId);
 			Parent parent = user.getParent();
 			parent.setOverdraftLimit(overdraftLimit);
-			parent.update();			
+			parent.update();		
+			sessionBean.setFlashMessage("Overdraft successfully updated.");
 			returnPage= "redirect:parentFinances";
 		}
 		return returnPage;
@@ -996,9 +1001,11 @@ public class AdminController {
 			pt.setPaymentReference(voucherReference);
 			pt.setBalanceType(ParentalTransaction.BalanceType.VOUCHER);			
 
+			// TODO check reference not already used			
+			
 			parent.addTransaction(pt);			
 			user.save();
-			
+			sessionBean.setFlashMessage("Voucher successfully registered.");
 			
 			returnPage= "redirect:parentFinances";
 		}
@@ -1046,6 +1053,10 @@ public class AdminController {
 			}
 			if (remainingRefund != balance) {
 				user.save();
+				sessionBean.setFlashMessage("User successfully refunded.");				
+			}
+			else {
+				sessionBean.setFlashMessage("Failed to refund user.");								
 			}
 			returnPage= "redirect:parentFinances";
 		}

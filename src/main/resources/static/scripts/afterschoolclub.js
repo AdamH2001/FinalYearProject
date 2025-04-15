@@ -104,5 +104,10 @@ function formatTime(date) {
   	    .forEach(img => img.src = url)
   	}  
   
+	function showValidationMessage(message)
+	{
+		$("#validationMessage")[0].innerText = message;
+		$(".afterschoolclubflash").show()	
+	}
     
    

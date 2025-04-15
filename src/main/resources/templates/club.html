@@ -41,7 +41,7 @@
 						<label for="clubProfilePicTemplate"> <img width="300" height="150" id="newClubImage"
 							th:src="${club.getImageURL()}" data-toggle="tooltip" title="Click this image to update the image associated with this club. "/> 
 							<input class="form-control staffInput" name="clubProfilePicTemplate"
-							id="clubProfilePicTemplate" type="file" style="display: none" onchange="uploadNewImage()" />
+							id="clubProfilePicTemplate" accept=".jpg"  type="file" style="display: none" onchange="uploadNewImage()" />
 						</label>
 
 					</div>

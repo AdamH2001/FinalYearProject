@@ -142,7 +142,7 @@
 									<div style="padding-left:0px" id="image" class="col-sm-1 editable staff" orig-data="" edittype="file">
 											<label for="staffProfilePicTemplate">
 												<img  width="30" height="30" class="rounded-circle"/>
-												<input class="form-control staffInput" name="staffProfilePicTemplate"  id="staffProfilePicTemplate" type="file" style="display:none" onchange="uploadImage()"/>
+												<input class="form-control staffInput" name="staffProfilePicTemplate"  id="staffProfilePicTemplate" accept=".jpg"  type="file" style="display:none" onchange="uploadImage()"/>
 											</label>
 									</div>												
 												
@@ -168,7 +168,7 @@
 									<div style="padding-left:0px" id="image" class="col-sm-1 editable staff" th:orig-data="${staff.getImageURL()}" edittype="file">
 											<label th:for="${'profilePic-' + staff.getUserId()}">
 												<img th:src="${staff.getImageURL()}" th:alt="${staff.getFullName()}" width="30" height="30" class="rounded-circle" th:id="${'profilePicImage-' + staff.getUserId()}"/>
-												<input class="form-control staffInput" name="staffProfilePic" th:id="${'profilePic-' + staff.getUserId()}" type="file" style="display:none" onchange="uploadImage()"/>
+												<input class="form-control staffInput" name="staffProfilePic" th:id="${'profilePic-' + staff.getUserId()}" accept=".jpg"  type="file" style="display:none" onchange="uploadImage()"/>
 											</label>
 									</div>
 								
@@ -190,7 +190,7 @@
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="file">
 											<label for="newStaffProfilePic">
 												<img src="./images/missingProfile.jpg"  id="profilePicImage-0" width="30" height="30" class="rounded-circle"/>
-												<input class="form-control staffInput" name="staffProfilePic" id="newStaffProfilePic" type="file" style="display:none" onchange="uploadNewImage()"/>
+												<input class="form-control staffInput" name="staffProfilePic" id="newStaffProfilePic" accept=".jpg"  type="file" style="display:none" onchange="uploadNewImage()"/>
 											</label>
 										</div>																				
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffTitle" type="text" required /></div>

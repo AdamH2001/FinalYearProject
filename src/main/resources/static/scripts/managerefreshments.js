@@ -454,11 +454,6 @@ function postDataAndDisplay(data, type) {
 
 
 
-function showValidationMessage(message)
-{
-	$("#validationMessage")[0].innerText = message;
-	$(".afterschoolclubflash").show()	
-}
 
 
 
