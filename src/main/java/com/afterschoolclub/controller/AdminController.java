@@ -39,9 +39,6 @@ import com.afterschoolclub.data.Resource.Type;
 import com.afterschoolclub.service.ClubPicService;
 import com.afterschoolclub.service.DisplayHelperService;
 import com.afterschoolclub.service.EmailService;
-import com.afterschoolclub.service.PaypalService;
-import com.paypal.base.rest.PayPalRESTException;
-
 import jakarta.mail.MessagingException;
 
 import com.afterschoolclub.data.ResourceStatus;
@@ -63,9 +60,6 @@ public class AdminController {
 	@Autowired	
     private MainController mainController;
 
-	@Autowired	
-    private PaypalService paypalService;
-	
 	@Autowired
 	private EmailService mailService;	
 
@@ -884,6 +878,9 @@ public class AdminController {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {	
 			model.addAttribute("users",User.findParents());
+			model.addAttribute("validateUsers",User.findToBeAdminValidated());
+
+			
 			
 			model.addAttribute("totalOverdraftLimit",Parent.getTotalOverdraftLmit());				
 			
@@ -960,16 +957,54 @@ public class AdminController {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {				
 			User user = User.findById(userId);
-			user.setState(State.INACTIVE);
-			
-			//TODO refund user
-			
+			user.setState(State.INACTIVE);			
 			user.update();		
+			user.refund();
+			
+			//TODO send an email
+			
 			sessionBean.setFlashMessage("User successfully deleted.");
 			returnPage= "redirect:parentFinances";
 		}
 		return returnPage;				
 	}	
+	
+	@GetMapping("/validateUser")
+	public String validateUser(	@RequestParam(name = "userId") int userId,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {				
+			User user = User.findById(userId);
+			user.setAdminVerified(true);
+			user.update();		
+			
+			//TODO send email to user
+			
+			sessionBean.setFlashMessage("User approved and notified.");
+			returnPage= sessionBean.getRedirectUrl();
+		}
+		return returnPage;				
+	}	
+	
+	@GetMapping("/rejectUser")
+	public String rejectUser(	@RequestParam(name = "userId") int userId,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {				
+			User user = User.findById(userId);
+			user.setAdminVerified(true);
+			
+			//TODO send email to user
+			
+			
+			user.delete();		
+			sessionBean.setFlashMessage("User rejected and notified.");
+			returnPage= sessionBean.getRedirectUrl();
+		}
+		return returnPage;				
+	}		
+	
+	
 	
 	@PostMapping("/updateOverdraft")
 	public String updateOverdraft(@RequestParam(name = "userId") int userId,
@@ -1012,51 +1047,23 @@ public class AdminController {
 		return returnPage;
 	}		
 	
+	/**
+	 * Refund a user their total cash balance 
+	 * @param userId - the user identifier of the user to be refunded
+	 * @param model
+	 * @return return redirect back to the parentFinances view 
+	 */
 	@GetMapping("/refundUser")
 	public String refundUser(@RequestParam(name = "userId") int userId,
 			Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {					
-			User user = User.findById(userId);
-			Parent parent = user.getParent();
-			int balance = parent.getBalance();
-			int remainingRefund = balance;
-			
-			List<ParentalTransaction> allTopUps = parent.getCashTopUps();
-			
-			Iterator<ParentalTransaction> itr = allTopUps.iterator();
-			
-			while (remainingRefund > 0 && itr.hasNext()) {
-				ParentalTransaction pt = itr.next();
-				
-				int refundedAmount =0;
-				int maxAmountCanRefund = ParentalTransaction.getRemainingCreditForPayment(pt.getPaymentReference());
-				int amountCanRefund = Math.min(maxAmountCanRefund,  remainingRefund);
-				if (amountCanRefund > 0) {
-				
-					try {
-						refundedAmount = paypalService.refundSale(pt.getPaymentReference(), amountCanRefund);
-					}
-					catch (PayPalRESTException e) {
-						e.printStackTrace(); // TODFO could observe timeout but may have actually refunded
-						refundedAmount = 0;
-					}
-					remainingRefund -= refundedAmount;
-					logger.info("Refunded {}", refundedAmount);
-					
-					if (refundedAmount > 0) {
-						ParentalTransaction withdrawTrans = new ParentalTransaction(-refundedAmount, LocalDateTime.now(), ParentalTransaction.Type.WITHDRAWAL, "Withdrawn Cash");
-						withdrawTrans.setPaymentReference(pt.getPaymentReference());
-						parent.addTransaction(withdrawTrans);					
-					}
-				}
-			}
-			if (remainingRefund != balance) {
-				user.save();
-				sessionBean.setFlashMessage("User successfully refunded.");				
+			User user = User.findById(userId);			
+			if (user.refund()) {
+				sessionBean.setFlashMessage("User successfully refunded.");								
 			}
 			else {
-				sessionBean.setFlashMessage("Failed to refund user.");								
+				sessionBean.setFlashMessage("Failed to refund user.");												
 			}
 			returnPage= "redirect:parentFinances";
 		}
@@ -1098,7 +1105,7 @@ public class AdminController {
 	public String emailAllUsersInDebt(Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {
-			List<User> allUsersInDebt = User.findUsersInDebt();
+			List<User> allUsersInDebt = User.findInDebt();
 			for (User user:allUsersInDebt) {
 				Parent parent = user.getParent();
 				Context context = new Context();
@@ -1136,7 +1143,18 @@ public class AdminController {
 		}	
 		return returnPage;
 
+	}
+	
+	
+	@GetMapping("/showFinanceSummary")
+	public String emailUserInDebt(@RequestParam(name = "show") boolean show, Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {				
+			sessionBean.setFinanceSummaryVisible(show);
+			returnPage = sessionBean.getRedirectUrl();
+		}		
+		return returnPage;
+
 	}		
-		
 	
 }

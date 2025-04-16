@@ -107,7 +107,7 @@
 						<input class="form-control mr-sm-2" maxlength=64  placeholder="Please enter a secure password." required type="password" name="password" id="password" />
 					</div>
 					<div class="col-sm-1 asc-form-label">
-						<label for="conPassword">Confirm Password:</label>
+						<label for="conPassword">Confirm:</label>
 					</div>
 					<div class="col-sm-4">
 						<input class="form-control mr-sm-2" maxlength=64 required type="password" placeholder="Confirm the password entered."
@@ -117,7 +117,7 @@
 
 				<div class="row mb-2">
 					<div class="col-sm-2 asc-form-label">
-						<label for="telephoneNum">Telephone Number:</label>
+						<label for="telephoneNum">Phone Number:</label>
 					</div>
 					<div class="col-sm-4">
 						<input th:value="${user.getTelephoneNum()}" maxlength=20 class="form-control mr-sm-2" required type="text"
@@ -137,7 +137,7 @@
 							type="text" name="altContactName" id="altContactName" placeholder="Alternative person to contact."/>
 					</div>
 					<div class="col-sm-1 asc-form-label">
-						<label for="altTelephoneNum">Alt Contact Telephone:</label>
+						<label for="altTelephoneNum">Alt Phone:</label>
 					</div>
 					<div class="col-sm-4">
 						<input th:value="${user.getParent().getAltTelephoneNum()}" maxlength=20  placeholder="Alternative person's telephone number." class="form-control mr-sm-2" required

@@ -691,3 +691,16 @@ body {
   width: 100%;
   height: 100%;
 }
+
+.asc-translate-1 {
+    transform: translate(-50%,-150%)!important;
+}
+
+.asc-translate-2 {
+    transform: translate(-50%, 0%)!important;
+}
+
+.fakelink {
+    color: rgba(var(--bs-link-color-rgb),var(--bs-link-opacity,1));
+    text-decoration: underline;
+}

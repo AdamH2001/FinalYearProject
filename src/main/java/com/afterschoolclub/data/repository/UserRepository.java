@@ -27,13 +27,14 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 	List<User> findStaffByState(State state);		
 	
 	@Query("SELECT  u.*  FROM parental_transaction  pt, parent p, user u where balance_type ='CASH' and p.user_id = u.user_id and p.parent_id = pt.parent_id AND u.state='ACTIVE'  GROUP BY pt.parent_id having SUM(pt.amount) < 0")	
-	List<User> findUsersInDebt();	
+	List<User> findInDebt();	
 	
-	
+	@Query("SELECT  u.*  FROM user u where u.admin_verified=false order by date_requested")	
+	List<User> findToBeAdminValidated();		
 	
 	@Modifying
-	@Query("Update user u set u.email = :email, first_name = :firstName, surname = :surname, password =:password, validation_key = :validationKey, date_requested = :dateRequested, email_verified = :emailVerified,  title =:title, telephone_num = :telephoneNum, state=:state where u.user_id = :userId")	
-	void update(int userId, String firstName, String surname, String email, String title, String telephoneNum, String password, int validationKey, LocalDateTime dateRequested, boolean emailVerified, State state);
+	@Query("Update user u set u.email = :email, first_name = :firstName, surname = :surname, password =:password, validation_key = :validationKey, date_requested = :dateRequested, email_verified = :emailVerified,  title =:title, telephone_num = :telephoneNum, state=:state, admin_verified=:adminVerified where u.user_id = :userId")	
+	void update(int userId, String firstName, String surname, String email, String title, String telephoneNum, String password, int validationKey, LocalDateTime dateRequested, boolean emailVerified, State state, boolean adminVerified);
 
 	@Modifying
 	@Query("Update parent p set p.alt_contact_name = :altContactName, p.alt_telephone_num = :altTelephoneNum, overdraft_limit=:overdraftLimit where p.parent_id = :parentId")	
@@ -41,9 +42,9 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 
 		
 	@Query("SELECT COUNT(*) FROM student s, attendee a, parent p, session WHERE p.parent_id = :parentId AND s.parent_id = p.parent_id and session.start_date_time > now() AND a.student_id=s.student_id AND a.session_id=session.session_id")
-	int numFutureSessionsBooked(int parentId);
+	Integer numFutureSessionsBooked(int parentId);
 	
-	@Query("SELECT SUM(overdraft_limit) FROM parent")
-	int totalOverdraftLimit();	
+	@Query("SELECT SUM(overdraft_limit) FROM parent p, user u WHERE u.user_id = p.user_id AND u.state='ACTIVE'")
+	Integer totalOverdraftLimit();	
 	
 }

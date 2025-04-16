@@ -401,8 +401,10 @@ public class ParentController {
 	            	String id = payment.getId();
 	            	logger.info("Payment id = {} @ {}" , id, payment.getCreateTime());	            	
 	            	List <Transaction> transactions = payment.getTransactions();
-	        		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-	        		LocalDateTime paymentDateTime = LocalDateTime.parse(payment.getCreateTime(), formatter);
+	        		//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	        		//LocalDateTime paymentDateTime = LocalDateTime.parse(payment.getCreateTime(), formatter);
+	        		
+	        		LocalDateTime paymentDateTime = LocalDateTime.now();
 	        		for (Transaction transaction : transactions) {						
 						String amount = transaction.getAmount().getTotal();
 						int amountInPence  = (int)Double.parseDouble(amount) * 100;
@@ -766,6 +768,14 @@ public class ParentController {
 		return returnPage;
 	}	
 	
+	/**
+	 * Updates the current selected student. This will cause default actions and
+	 * information in header to reflect the newly selected student
+	 * 
+	 * @param studentId - student identifier for the newly selected student
+	 * @param model
+	 * @return redirect to the page the user was on when selected the new student
+	 */
 	@PostMapping("/changeStudentField")
 	public String changeStudentField(@RequestParam (name="students") int studentId, Model model) {
 		String returnPage = validateIsParent(model);
@@ -777,8 +787,14 @@ public class ParentController {
 		return returnPage;
 	}	
 
+    /**
+     * View all the incidents for the currently selected student  
+     * @param model
+     * @return the template to view the incidents
+     */
+	
     @GetMapping("/viewIncidents")
-    public String updateAdminFilters(Model model) 
+    public String viewIncidents(Model model) 
     {
 		String returnPage = validateIsParent(model);
 		if (returnPage == null) {
@@ -798,6 +814,25 @@ public class ParentController {
     }   
 
 	
+	/**
+	 * Refund the current logged user their total cash balance  
+	 * @param model
+	 * @return return redirect back to the parentFinances view 
+	 */
+	@GetMapping("/refund")
+	public String refund(Model model) {
+		String returnPage = validateIsParent(model);
+		if (returnPage == null) {											
+			if (sessionBean.getLoggedOnUser().refund()) {
+				sessionBean.setFlashMessage("Successfully refunded.");								
+			}
+			else {
+				sessionBean.setFlashMessage("Failed to refund balance.");												
+			}
+			returnPage= sessionBean.getRedirectUrl();	
+		}
+		return returnPage;
+	}	
 	
 	
 }

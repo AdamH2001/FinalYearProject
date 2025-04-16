@@ -110,4 +110,11 @@ function formatTime(date) {
 		$(".afterschoolclubflash").show()	
 	}
     
-   
+   function updateFinanceSummary() {
+		if ($("#financeSummary")[0].checked) {
+			window.location.href = "./showFinanceSummary?show=true";
+		}
+		else {
+			window.location.href = "./showFinanceSummary?show=false";
+		}
+   }

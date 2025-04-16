@@ -7,6 +7,7 @@ import com.afterschoolclub.data.User;
 import com.afterschoolclub.service.PolicyService;
 import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Filter;
+import com.afterschoolclub.data.Policy;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,9 @@ public class SessionBean {
 	@Autowired
     private PolicyService policyService;
 	
+	@Autowired
+    private PolicyProperties policyProperties;	
+	
     private String name = null;
 
     private User loggedOnUser = null;
@@ -41,13 +45,14 @@ public class SessionBean {
     private Filter filter = new Filter();
     
     private boolean inDialogue = false;
+    private boolean financeSummaryVisible = false;
+    
     private String returnUrl = "./";
     private String previousReturnUrl = "./";
     
     private List<String> flashMessages = null;
-
-
     
+   
     private LocalDate timetableStartDate = LocalDate.now().minusDays(LocalDate.now().getDayOfMonth()-1);;
     private LocalDate transactionStartDate = LocalDate.now().minusDays(LocalDate.now().getDayOfMonth()-1);
     private LocalDate financeStartDate = null;
@@ -222,6 +227,10 @@ public class SessionBean {
 		return flashMessages != null;
 	}			
 	
-	
+	public List<Policy> getPolicies() {
+		Policy.policyService = policyService;
+		List<Policy> allPolicies = policyProperties.policies(); 
+		return allPolicies;
+	}
 }
 

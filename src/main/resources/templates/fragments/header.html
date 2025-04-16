@@ -19,11 +19,13 @@
 		<div th:unless="${sessionBean.isLoggedOn()}" class="row pr-2 pt-2 pb-2 pl-0"  align="center">
 			<div class="col-sm-9 p-0" align="left">
 				<table class="p-0" style="width:100%">
-					<td width="210px"  style="vertical-align: top; text-align:center">
-						<div><a href="./" data-toggle="tooltip" title="Click to return home.">
-						<img src="./images/asc-logo.png" style="width:160px;height:100px"></a></div>	
-					</td>
-					<td style="vertical-align: top;"><div class="text-afterschoolclubmainheader">After School Club</div></td>
+					<tr>
+						<td width="210px"  style="vertical-align: top; text-align:center">
+							<div><a href="./" data-toggle="tooltip" title="Click to return home.">
+							<img src="./images/asc-logo.png" style="width:160px;height:100px"></a></div>	
+						</td>
+						<td style="vertical-align: top;"><div class="text-afterschoolclubmainheader">After School Club</div></td>
+					</tr>
 				</table>				
 			</div>
 
@@ -44,7 +46,7 @@
 								id="inputPassword3" required data-toggle="tooltip" title="Enter password to be able to login.">
 						</div>
 						<div class="col-sm-6">
-							<a href="./forgotPassword" data-toggle="tooltip" title="Select if cannot remember password.">Forgot password</a>
+							<a href="./forgotPassword" class="nav-link" style="text-decoration:underline" data-toggle="tooltip" title="Select if cannot remember password.">Forgot password</a>
 						</div>
 					</div>
 				</form>
@@ -53,26 +55,26 @@
 
 
 		<div th:if="${sessionBean.isLoggedOn()}" class="row p-2">
-			<div class="col-sm-7 p-0" align="left">
+			<div class="col-sm-6 p-0" align="left">
 				<table class="p-0" style="width:100%">
-					<td width="210px"  style="vertical-align: top; text-align:center">
-						<div><a href="./" data-toggle="tooltip" title="Click to return home.">
-						<img src="./images/asc-logo.png" style="width:160px;height:100px"></a></div>	
-					</td>
-					<td style="vertical-align: top;" class="text-afterschoolclubmainheader">
-						<div th:if="${sessionBean.isAdminLoggedOn()}">After School Club Admin</div>
-						<div th:unless="${sessionBean.isAdminLoggedOn()}">After School Club</div>					
-					</td>
+					<tr>
+						<td width="210px"  style="vertical-align: top; text-align:center">
+							<div><a href="./" data-toggle="tooltip" title="Click to return home.">
+							<img src="./images/asc-logo.png" style="width:160px;height:100px"></a></div>	
+						</td>
+						<td style="vertical-align: top;" class="text-afterschoolclubmainheader">
+							<div th:if="${sessionBean.isAdminLoggedOn()}">After School Club Admin</div>
+							<div th:unless="${sessionBean.isAdminLoggedOn()}">After School Club</div>					
+						</td>
+					</tr>
 				</table>				
 			</div>		
 			
 
-			<div th:if="${sessionBean.isParentLoggedOn()}" class="col-sm-3 p-2">
-
+			<div th:if="${sessionBean.isParentLoggedOn()}" class="col-sm-4 p-2" >
 				<div class="row mb-1">
 					<div class="col-sm-4" align="right">Cash Balance:</div>
 					<div class="col-sm-2" align="right" th:text="${sessionBean.formatMoney(sessionBean.getLoggedOnParent().getBalance())}"></div>
-
 					<div class="col-sm-4" align="right">Total Sessions:</div>
 					<div class="col-sm-1" align="right" th:text="${sessionBean.getLoggedOnParent().numFutureSessionsBooked()}"></div>
 
@@ -88,22 +90,29 @@
 					<div class="col-sm-1" align="right" th:text="${sessionBean.getSelectedStudent().numFutureSessionsAttending()}"></div>
 				</div>
 			</div>
-			<div th:if="${sessionBean.isAdminLoggedOn()}" class="col-sm-3 p-2">
+			
+			<div th:if="${sessionBean.isAdminLoggedOn()}" class="col-sm-4 p-0">
+				<div class="row mb-1" align="center" >				
+					<div class="col-sm-12"> 				
+							<label for="financeSummary"> Show Financial Summary </label> 
+							<input id="financeSummary" class="asc-control form-check-input" type="checkbox" th:checked="${sessionBean.isFinanceSummaryVisible()}" 
+									onchange="updateFinanceSummary()" />							
+					</div>
+				</div>				
 				<div class="row mb-1">
-					<div class="col-sm-4" align="right">Revenue:</div>
-					<div class="col-sm-1" align="right"><a href="./clubRevenue" th:text="${sessionBean.formatMoney(sessionBean.getTotalRevenue())}"></a></div>
+					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-4" align="right">Revenue:</div>
+					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-1" align="right"><a href="./clubRevenue" th:text="${sessionBean.formatMoney(sessionBean.getTotalRevenue())}"></a></div>
 
-					<div class="col-sm-4" align="right">Credit:</div>
-					<div class="col-sm-1" align="right" ><a href="./parentFinances" th:text="${sessionBean.formatMoney(sessionBean.getTotalCashCredit())}"></a></div>
+					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-4" align="right">Credit:</div>
+					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-1" align="right" ><a href="./parentFinances" th:text="${sessionBean.formatMoney(sessionBean.getTotalCashCredit())}"></a></div>
 				</div>
 				<div class="row mb-1">
-					<div class="col-sm-4" align="right">Vouchers:</div>
-					<div class="col-sm-1" align="right" ><a href="./parentFinances" th:text="${sessionBean.formatMoney(sessionBean.getTotalVoucherBalance())}"></a></div>
+					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-4" align="right">Vouchers:</div>
+					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-1" align="right" ><a href="./parentFinances" th:text="${sessionBean.formatMoney(sessionBean.getTotalVoucherBalance())}"></a></div>
 					
-					<div class="col-sm-4" align="right">Debt:</div>
-					<div class="col-sm-1" align="right" ><a href="./parentFinances"th:text="${sessionBean.formatMoney(sessionBean.getTotalOwed())}"></a></div>					
-				</div>
-
+					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-4" align="right">Debt:</div>
+					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-1" align="right" ><a href="./parentFinances"th:text="${sessionBean.formatMoney(sessionBean.getTotalOwed())}"></a></div>					
+				</div>			
 			</div>
 
 			<div class="col-sm-2">
@@ -124,6 +133,8 @@
 					</ul>
 				</span>
 			</div>
+			
+		
 		</div>
 
 

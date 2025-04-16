@@ -56,8 +56,13 @@ public class Parent {
 		return result;
 	}
 	
-	static public int getTotalOverdraftLmit() {
-		return User.repository.totalOverdraftLimit();
+	static public int getTotalOverdraftLmit() {		
+		Integer limit = User.repository.totalOverdraftLimit();		
+		int result = 0;
+		if (limit != null) {
+			result = limit.intValue();
+		}		
+		return result;
 	}
 		
 	

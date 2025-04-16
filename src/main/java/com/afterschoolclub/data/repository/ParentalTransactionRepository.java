@@ -31,16 +31,16 @@ public interface ParentalTransactionRepository extends CrudRepository<ParentalTr
 	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE club_id is not null AND  date_time >= :startDate AND date_time <= :endDate  ")
 	Integer getTotalRevenueBetween(LocalDate startDate, LocalDate endDate);	
 		
-	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE balance_type='CASH' ")
+	@Query("SELECT SUM(amount) as total FROM parental_transaction pt, parent p, user u where balance_type ='CASH' AND u.user_id = p.user_id AND u.state='ACTIVE' AND pt.parent_id = p.parent_id")
 	Integer getTotalCashBalance();	
 	
-	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE balance_type='VOUCHER'")
+	@Query("SELECT SUM(amount) as total FROM parental_transaction pt, parent p, user u where balance_type ='VOUCHER' AND  u.user_id = p.user_id AND u.state='ACTIVE' AND pt.parent_id = p.parent_id")
 	Integer getTotalVoucherBalance();		
 	
-	@Query("select sum(sub.totalamount) from (SELECT SUM(pt.amount) as totalamount  FROM parental_transaction  pt where balance_type ='CASH'  GROUP BY pt.parent_id having  totalamount < 0) sub")
+	@Query("select sum(sub.totalamount) from (SELECT SUM(pt.amount) as totalamount FROM parental_transaction pt, parent p, user u where balance_type ='CASH' AND u.user_id = p.user_id AND u.state='ACTIVE' AND pt.parent_id = p.parent_id GROUP BY pt.parent_id having  totalamount < 0) sub")
 	Integer getTotalOwed();
 	
-	@Query("select sum(sub.totalamount) from (SELECT SUM(pt.amount) as totalamount  FROM parental_transaction  pt where balance_type ='CASH'  GROUP BY pt.parent_id having  totalamount > 0) sub")
+	@Query("select sum(sub.totalamount) from (SELECT SUM(pt.amount) as totalamount FROM parental_transaction pt, parent p, user u where balance_type ='CASH' AND u.user_id = p.user_id AND u.state='ACTIVE' AND pt.parent_id = p.parent_id GROUP BY pt.parent_id having  totalamount > 0) sub")
 	Integer getTotalCashCredit();
 	
 	@Query("SELECT SUM(amount) as total FROM parental_transaction WHERE balance_type='CASH' AND club_id =:clubId AND parent_id =:parentId ")
@@ -53,5 +53,4 @@ public interface ParentalTransactionRepository extends CrudRepository<ParentalTr
 	List<ParentalTransaction> getCashTopUps(int parentId);	
 		
 }
-	
 	   

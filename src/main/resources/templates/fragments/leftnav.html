@@ -198,7 +198,14 @@
 						<li class="nav-item"><a href="./topUpBalance"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
 								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-hand-holding-dollar"></i>Add Funds</span>
-						</a></li>								
+						</a></li>									
+						
+						<li th:if="${sessionBean.getLoggedOnParent().getCashCredit()>0}"  class="nav-item"><a href="./refund"
+							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
+								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-brands fa-cc-paypal"></i>Refund Balance</span>
+						</a></li>	
+						
+												
 					</ul>
 					<hr th:if="${sessionBean.isCalendarView()}">				
 						<form th:if="${sessionBean.isCalendarView()}" id="filtersForm" action="./updateFilters" method="post">

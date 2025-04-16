@@ -1,22 +1,26 @@
 package com.afterschoolclub.data;
 
 import java.time.LocalDateTime;
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 import java.util.Set;
-import java.util.Base64;
-import java.util.Base64.Encoder;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+
 import com.afterschoolclub.data.repository.UserRepository;
+import com.afterschoolclub.service.PaypalService;
 import com.afterschoolclub.service.ProfilePicService;
+import com.paypal.base.rest.PayPalRESTException;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,8 +35,11 @@ public class User {
     @Value("${file.upload-dir}")
     private String uploadDir;
     
+	static Logger logger = LoggerFactory.getLogger(User.class);
+    
 	public static UserRepository repository = null;
 	public static ProfilePicService profilePicService = null;
+	public static PaypalService paypalService = null;
 	
 	static Random r = new Random();
 
@@ -46,7 +53,9 @@ public class User {
 	private String telephoneNum;
 	private int validationKey = r.nextInt(999999999);
 	private LocalDateTime dateRequested = LocalDateTime.now();
-	private boolean emailVerified;
+	private boolean emailVerified = false;
+	private boolean adminVerified = false;
+	
 	private State state = State.ACTIVE;
 	
 	
@@ -82,13 +91,16 @@ public class User {
 		
 	}		
 	
-	
-	public static List<User> findUsersInDebt() {
-		return repository.findUsersInDebt();
-		
+	public static List<User> findToBeAdminValidated() {
+		return repository.findToBeAdminValidated();		
 	}		
 	
 	
+	public static List<User> findInDebt() {
+		return repository.findInDebt();
+		
+	}		
+		
 	
 	public static List<User> findStaff() {
 		return repository.findStaff();		
@@ -104,18 +116,17 @@ public class User {
 	
 	public static List<User> findActiveStaff() {
 		return repository.findStaffByState(State.ACTIVE);		
+		
+		
 	}	
 	
-	public static List<User> findInDebt() {
-		return repository.findUsersInDebt();		
-	}	
 	
 		
 	
 	@Transactional
 	public void update() {
 		
-		repository.update(userId, firstName, surname, email, title, telephoneNum, password, validationKey, dateRequested, emailVerified, state);
+		repository.update(userId, firstName, surname, email, title, telephoneNum, password, validationKey, dateRequested, emailVerified, state, adminVerified);
 		
 		Resource r = this.getResourceObject();
 		if (r != null) {
@@ -200,18 +211,14 @@ public class User {
 	}
 
 	public boolean isPasswordValid(String entPassword) {
-		boolean valid = false;
-		Encoder encoder = Base64.getEncoder();
-		String encodedPass = encoder.encodeToString(entPassword.getBytes());
-		if (encodedPass.equals(this.password)) {
-			valid = true;
-		}
-		return valid;
+		BCrypt.Result result = BCrypt.verifyer().verify(entPassword.toCharArray(), this.password);
+		return result.verified;
 	}
 	
 	public void setPassword(String password) {
-		Encoder encoder = Base64.getEncoder();
-		this.password = encoder.encodeToString(password.getBytes());
+		
+		this.password = BCrypt.withDefaults().hashToString(12, password.toCharArray());		
+
 	}
 	
 
@@ -222,15 +229,65 @@ public class User {
 		return parent;
 	}
 	
-
 	
 	public void setValidationKey() {
 		this.validationKey = r.nextInt(999999999);
 	}
 	
 	
+	public void delete()
+	{
+		repository.delete(this);
+	}	
+	
 	public void save()
 	{
 		repository.save(this);
+	}		
+	
+	public boolean refund()
+	{
+		boolean result = false;
+		Parent parent = this.getParent();
+		
+		if (parent != null) {
+			int balance = parent.getBalance();
+			int remainingRefund = balance;
+			
+			List<ParentalTransaction> allTopUps = parent.getCashTopUps();
+			
+			Iterator<ParentalTransaction> itr = allTopUps.iterator();
+			
+			while (remainingRefund > 0 && itr.hasNext()) {
+				ParentalTransaction pt = itr.next();
+				
+				int refundedAmount =0;
+				int maxAmountCanRefund = ParentalTransaction.getRemainingCreditForPayment(pt.getPaymentReference());
+				int amountCanRefund = Math.min(maxAmountCanRefund,  remainingRefund);
+				if (amountCanRefund > 0) {
+				
+					try {
+						refundedAmount = paypalService.refundSale(pt.getPaymentReference(), amountCanRefund);
+					}
+					catch (PayPalRESTException e) {
+						e.printStackTrace(); // TODO could observe timeout but may have actually refunded
+						refundedAmount = 0;
+					}
+					remainingRefund -= refundedAmount;
+					logger.info("Refunded {}", refundedAmount);
+					
+					if (refundedAmount > 0) {
+						ParentalTransaction withdrawTrans = new ParentalTransaction(-refundedAmount, LocalDateTime.now(), ParentalTransaction.Type.WITHDRAWAL, "Withdrawn Cash");
+						withdrawTrans.setPaymentReference(pt.getPaymentReference());
+						parent.addTransaction(withdrawTrans);					
+					}
+				}
+			}
+			if (remainingRefund != balance) {
+				this.save();
+				result=true;
+			}
+		}
+		return result;
 	}		
 }

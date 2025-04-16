@@ -30,6 +30,7 @@ import com.afterschoolclub.data.repository.StudentRepository;
 import com.afterschoolclub.data.repository.UserRepository;
 import com.afterschoolclub.service.ClubPicService;
 import com.afterschoolclub.service.EmailService;
+import com.afterschoolclub.service.PaypalService;
 import com.afterschoolclub.service.ProfilePicService;
 
 import java.time.LocalDate;
@@ -75,7 +76,9 @@ public class MainController {
 	public MainController(UserRepository userRepository, SessionRepository sessionRepository,
 			MenuGroupRepository menuGroupRepository, ResourceRepository resourceRepository,
 			ClassRepository classRepository, StudentRepository studentRepository, ParentalTransactionRepository transactionRepository, 
-			ClubRepository clubRepository, RecurrenceSpecificationRepository recurrenceSpecificationRepository, HolidayRepository holidayRepository, MenuOptionRepository menuOptionRepository, ProfilePicService profilePicService, ClubPicService clubPicService, SessionBean sessionBean) {
+			ClubRepository clubRepository, RecurrenceSpecificationRepository recurrenceSpecificationRepository, 
+			HolidayRepository holidayRepository, MenuOptionRepository menuOptionRepository, ProfilePicService profilePicService, 
+			ClubPicService clubPicService, PaypalService paypalService, SessionBean sessionBean) {
 		super();		
 		Club.repository = clubRepository;
 		Session.repository = sessionRepository;
@@ -85,6 +88,7 @@ public class MainController {
 		ParentalTransaction.repository = transactionRepository;
 		User.repository = userRepository;
         User.profilePicService = profilePicService;
+        User.paypalService = paypalService;
         Club.clubPicService = clubPicService;
 
         
@@ -131,7 +135,7 @@ public class MainController {
 		logger.warn("A WARN Message");
 		logger.error("An ERROR Message");
 		this.setInDialogue(false,model);
-		return "home";
+		return sessionBean.getRedirectUrl();
 	}
 	
 
@@ -155,14 +159,14 @@ public class MainController {
 			}
 		}
 		this.setInDialogue(false,model);
-		return "home";
+		return sessionBean.getRedirectUrl();
 
 	}
 	
 	@GetMapping("/alterPassword")
 	public String alterPassword(@RequestParam(name = "userId") Integer userId,
 			@RequestParam(name = "validationKey") Integer validationKey, Model model) {
-		String returnPage = "home";
+		String returnPage = sessionBean.getRedirectUrl();
 		this.setInDialogue(false,model);
 		User loggedOnUser = sessionBean.getLoggedOnUser();
 		if (loggedOnUser == null) {
@@ -195,23 +199,35 @@ public class MainController {
 	@PostMapping("/processlogin")
 	public String processLogin(@RequestParam(name = "username") String username,
 			@RequestParam(name = "password") String password, Model model) {
-		String returnPage = "home";
+		String returnPage = sessionBean.getRedirectUrl();
 		this.setInDialogue(false,model);
 		if (!sessionBean.isLoggedOn()) {			
 			User existingUser = User.findByEmail(username);			
 			if (existingUser == null) {
-				sessionBean.setFlashMessage("Email or Password Incorrect");
+				sessionBean.setFlashMessage("Email or Password Incorrect.");
 			} else {
 				if (existingUser.isPasswordValid(password)) {
 					if (existingUser.isEmailVerified()) {
-						sessionBean.setLoggedOnUser(existingUser);	
-						returnPage = setupCalendar(model);
+						if (existingUser.isAdminVerified()) {
+							if (existingUser.getState() == State.ACTIVE) {
+								sessionBean.setLoggedOnUser(existingUser);	
+								returnPage = setupCalendar(model);
+							}
+							else {
+								sessionBean.setFlashMessage("Account is no longer active. Contact administrator if you think this is an error.");
+								returnPage = sessionBean.getRedirectUrl();									
+							}
+						}
+						else {
+							sessionBean.setFlashMessage("Account has not been verified by administrators.");
+							returnPage = sessionBean.getRedirectUrl();							
+						}
 					} else {
-						sessionBean.setFlashMessage("Email has not been verified");
+						sessionBean.setFlashMessage("Email has not been verified.");
 						returnPage = sessionBean.getRedirectUrl();
 					}	
 				} else {
-					sessionBean.setFlashMessage("Email or Password Incorrect");
+					sessionBean.setFlashMessage("Email or Password Incorrect.");
 					returnPage = sessionBean.getRedirectUrl();
 				}
 			}
@@ -242,9 +258,7 @@ public class MainController {
 		this.setInDialogue(false,model);	  
 		List<String> allClubPics = clubPicService.getAllURLs();
 		sessionBean.setReturnUrl("./");
-
 		model.addAttribute("allImages", allClubPics);
-
 	    return returnPage;
 	}
 	
@@ -357,13 +371,13 @@ public class MainController {
 					if (user.getValidationKey() == validationKey.intValue()) {
 						user.setPassword(password);
 						user.setValidationKey();
-						user.save();
+						user.update();
 						sessionBean.setFlashMessage("Password has been changed");
 					}
 					else {
 						sessionBean.setFlashMessage("Link out of date");
 					}
-					returnPage = "home";
+					returnPage = sessionBean.getRedirectUrl();
 				}
 				else {
 					sessionBean.setFlashMessage("Passwords do not match");
@@ -376,12 +390,12 @@ public class MainController {
 			}
 			else {
 				sessionBean.setFlashMessage("Link out of date");
-				returnPage = "home";
+				returnPage = sessionBean.getRedirectUrl();
 			}
 		}
 		else {
 			sessionBean.setFlashMessage("Must be logged out to perform this action");
-			returnPage = "home";
+			returnPage = sessionBean.getRedirectUrl();
 		}
 		return returnPage;
 	}
@@ -412,12 +426,6 @@ public class MainController {
 		return initialiseCalendar(model);			
 	}
 	
-
-	
-
-
-
-
 	
 	@GetMapping("/forgotPassword")
 	public String forgotPassword(Model model) {
@@ -435,13 +443,13 @@ public class MainController {
 	
 	@PostMapping("/resetPassword")
 	public String resetPassword(@RequestParam (name="email") String email, Model model) {
-		String returnPage  = "home";
+		String returnPage  = sessionBean.getRedirectUrl();
 		if (sessionBean.getLoggedOnUser() == null) {
 			User existingUser = User.findByEmail(email);
 			if (existingUser != null) {
 				// Send email
 				existingUser.setValidationKey();
-				existingUser.save();
+				existingUser.update();
 				Context context = new Context();
 				context.setVariable("user", existingUser);
 				String link = "http://localhost:8080/AfterSchoolClub/alterPassword?userId=" + existingUser.getUserId()
@@ -529,7 +537,7 @@ public class MainController {
 			
 			Model model) {
 
-		String returnPage = "home";			
+		String returnPage = sessionBean.getRedirectUrl();
 		boolean newUser = false;
 		
 		User user = sessionBean.getLoggedOnUser();	

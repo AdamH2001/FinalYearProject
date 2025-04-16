@@ -35,23 +35,23 @@
 		</div>		
 
 		<div class="row" >
-		<div class="col-sm-1" align="center"></div>
-		
-		<div class="col-sm-11" align="center">
+			<div class="col-sm-1" align="center"></div>
+			
+			<div class="col-sm-11" align="center">
 
-			<table>
-				<thead>
-					<tr>
-						<td style="text-align: center;"><b>Name</b></td>
-						<td style="text-align: center;"><b>Overdraft</b></td>
-						<td style="text-align: center;"><b>Voucher Balance</b></td>
-						<td style="text-align: center;"><b>Cash Credit</b></td>
-						<td style="text-align: center;"><b>Cash Debt</b><a class="text-decoration-none"  href="./emailAllUsersInDebt">
-										<button  class="btn imagebtn btn-primary" type="button"><i class="fa-solid fa-envelope-circle-check" data-toggle="tooltip" title="Select to email all users in debt."></i></button>
-									</a></td>
-						<td style="text-align: center;"><b>Cash Balance</b></td>
-					</tr>
-				</thead>
+				<table id="finances">
+					<thead>
+						<tr>
+							<td style="text-align: left;"><b>Name</b></td>
+							<td style="text-align: center;"><b>Overdraft</b></td>
+							<td style="text-align: center;"><b>Voucher Balance</b></td>
+							<td style="text-align: center;"><b>Cash Credit</b></td>
+							<td style="text-align: center;"><b>Cash Debt</b><a class="text-decoration-none"  href="./emailAllUsersInDebt">
+											<button  class="btn imagebtn btn-primary" type="button"><i class="fa-solid fa-envelope-circle-check" data-toggle="tooltip" title="Select to email all users in debt."></i></button>
+										</a></td>
+							<td style="text-align: center;"><b>Cash Balance</b></td>
+						</tr>
+					</thead>
 
 
 					<tr class="filterrow" th:each="user: ${users}">
@@ -151,6 +151,49 @@
 					<td class="fw-bold" style="text-align: center;" th:text="${sessionBean.formatMoney(sessionBean.getTotalCashBalance())}" />
 				</tr>				
 			</table>
+			
+			<table id="toBeValidated">
+				<thead>
+					<tr>
+						<td style="text-align: left;"><b>Name</b></td>
+						<td style="text-align: left;"><b>Email</b></td>
+						<td style="text-align: center;"><b>Telephone</b></td>
+						<td style="text-align: center;"><b>Date Requested</b></td>
+
+					</tr>
+				</thead>
+
+
+				<tr class="filterrow" th:each="user: ${validateUsers}">
+					<td style="text-align: left;">
+					
+							<a class="text-decoration-none" th:href="@{./rejectUser(userId=${user.getUserId()})}">
+
+								<button class="btn imagebtn btn-danger" type="submit" onClick="rejectUser()" data-toggle="tooltip" title="Remove user from system.">
+									<i class="fa fa-trash"></i>
+								</button>
+							</a> 
+							<a class="text-decoration-none" th:href="@{./validateUser(userId=${user.getUserId()})}">
+								<button class="btn imagebtn btn-success" type="submit" data-toggle="tooltip" title="Remove user from system.">
+									<i class="fa fa-plus"></i>
+								</button>
+							</a> 
+														
+							<span th:text="${user.getFullName()}"></span>
+					</td>
+					<td style="text-align: left;">
+							<a th:text="${user.getEmail()}" th:href="${'mailto:' + user.getEmail()}"></a>					
+					</td>
+					<td style="text-align: center;">
+							<a th:text="${user.getTelephoneNum()}" th:href="${'tel:' + user.getTelephoneNum()}"></a>					
+					</td>
+					<td style="text-align: center;" th:text="${user.getDateRequested()}">
+					
+					</td>
+				
+				
+				</tr>					
+			</table>			
 		</div>
 
 	</div>
