@@ -319,7 +319,7 @@ public class Student {
 	}
 	
 	public boolean healthQuestionaireValid() {
-		int cannotBeOlderThan = 90; //TODO should be a configurable value.
+		int cannotBeOlderThan = 365; //TODO should be a configurable value.
 		LocalDateTime today = LocalDateTime.now();
 		LocalDateTime questionaireExpires = this.getHealthQuestionnaireCompleted().plusDays(cannotBeOlderThan);
 		return questionaireExpires.isAfter(today);		
