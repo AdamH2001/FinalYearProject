@@ -19,7 +19,7 @@ import org.springframework.core.io.UrlResource;
 @Service
 public class PolicyService {
 
-    @Value("${file.policyDocuments}")
+    @Value("${asc.file.policyDocuments}")
     private String uploadDir;
     
 	public PolicyService() {

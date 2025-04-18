@@ -4,12 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,75 +109,11 @@ public class ParentController {
 			model.addAttribute("isEditing",false);
 			
 			this.setInDialogue(true,model);
-			returnPage = "createstudent";		
+			returnPage = "student";		
 		}
 		return returnPage;
 	}
 
-	@GetMapping("/editStudent")
-	public String createStudent(@RequestParam(name = "studentId") int studentId, Model model) {
-		String returnPage = validateIsParent(model);
-		if (returnPage == null) {
-			Student s = Student.findById(studentId);
-			model.addAttribute("student",s);			
-			Iterable<StudentClass> classNames = StudentClass.findAll();
-			model.addAttribute("classNames",classNames);
-			model.addAttribute("isEditing",true);			
-			this.setInDialogue(true,model);
-			returnPage = "createstudent";		
-		}
-		return returnPage;
-	}
-
-
-	
-	@PostMapping("/addStudent")
-	public String addStudent(
-			@RequestParam(name = "studentId") int studentId,
-			@RequestParam(name = "firstName") String firstName,
-			@RequestParam(name = "surname") String surname, @RequestParam(name = "className") int className,
-			@RequestParam(name = "dateOfBirth") LocalDate dateOfBirth,
-			@RequestParam(name = "allergyNote") String allergyNote,
-			@RequestParam(name = "healthNote") String healthNote, @RequestParam(name = "dietNote") String dietNote,
-			@RequestParam(name = "careNote") String careNote,
-			@RequestParam(name = "medicationNote") String medicationNote,
-			@RequestParam(name = "otherNote") String otherNote,
-			@RequestParam(name = "consentToShare", defaultValue = "false") boolean consentToShare, Model model) {
-		String returnPage = validateIsParent(model);
-		if (returnPage == null) {
-			Student student = null;
-			if (studentId == 0) {
-				student = new Student();
-				sessionBean.getLoggedOnParent().addStudent(student);				
-			}
-			else {
-				student = sessionBean.getLoggedOnParent().getStudentFromId(studentId);
-			}
-			student.setFirstName(firstName);
-			student.setSurname(surname);
-			student.setDateOfBirth(dateOfBirth);
-			student.setConsentToShare(consentToShare);
-			student.setClassId(AggregateReference.to(className));		
-			student.setAllergyNoteText(allergyNote);
-			student.setHealthNoteText(healthNote);
-			student.setDietNoteText(dietNote);
-			student.setCarePlanNoteText(careNote);
-			student.setMedicationNoteText(medicationNote);
-			student.setOtherNoteText(otherNote);
-			student.updateTimestamp();
-			
-			sessionBean.getLoggedOnUser().save();
-			if (studentId == 0) {
-				sessionBean.setFlashMessage("Added New Child.");
-			}
-			else {
-				sessionBean.setFlashMessage("Updated Child Details.");
-			}
-				
-			returnPage = setupCalendar(model);
-		}
-		return returnPage;
-	}
 
 
     @PostMapping("/updateFilters")
@@ -227,7 +160,7 @@ public class ParentController {
 			
 			model.addAttribute("transactions",transactions);
 						
-			sessionBean.setReturnTransactions();
+			sessionBean.setReturnUrl("./viewTransactions");
 
 			this.setInDialogue(false,model);
 			returnPage= "viewtransactions";
@@ -286,7 +219,7 @@ public class ParentController {
 					
 			List<String> selectedStudents = new ArrayList<String>();
 			
-			Set <Student> allChildren; 
+			List <Student> allChildren; 
 			if (sessionBean.isLoggedOn()) {
 				allChildren = sessionBean.getLoggedOnParent().getStudents();
 				for (Student student :allChildren) {
@@ -296,7 +229,7 @@ public class ParentController {
 				}
 			}
 			else {
-				allChildren = new HashSet<Student>();
+				allChildren = new ArrayList<Student>();
 			}
 			
 			
@@ -359,8 +292,12 @@ public class ParentController {
 		String returnPage = validateIsParent(model);		
 		if (returnPage == null) {	
 	        try {
-	            String cancelUrl = "http://localhost:8080/AfterSchoolClub/paymentcancel";
-	            String successUrl = "http://localhost:8080/AfterSchoolClub/paymentsuccess";
+	      //      String cancelUrl = "http://localhost:8080/AfterSchoolClub/paymentcancel";
+	       //     String successUrl = "http://localhost:8080/AfterSchoolClub/paymentsuccess";
+	            
+	            String cancelUrl = sessionBean.getHomePage().concat("/paymentcancel");
+	            String successUrl = sessionBean.getHomePage().concat("/paymentsuccess");
+	            
 	            Payment payment = paypalService.createPayment(
 	                    Integer.valueOf(amount),
 	                    "GBP",
@@ -533,7 +470,7 @@ public class ParentController {
 
 			int totalCost = 0;
 
-			Set<Student> students = loggedOnParent.getStudents();
+			List<Student> students = loggedOnParent.getStudents();
 
 			List <Student> bookedStudents = new ArrayList<Student>();
 			List<String> allErrorMessages = new ArrayList<String>();
@@ -703,6 +640,12 @@ public class ParentController {
 	}
 	
 
+	/**
+	 * 
+	 * @param allParams
+	 * @param model
+	 * @return
+	 */
 	@PostMapping("/confirmUpdateOptionsForSession")
 	public String confirmUpdateOptionsForSession(@RequestParam Map<String,String> allParams, Model model) {
 		String returnPage = validateIsParent(model);
@@ -717,7 +660,7 @@ public class ParentController {
 			int totalCost = 0;
 			int totalOriginalCost = 0;
 			
-			Set<Student> students = loggedOnParent.getStudents();
+			List<Student> students = loggedOnParent.getStudents();
 			for (Student student : students) {
 				int id = student.getStudentId();
 				String queryParamStudentAttending = "student-".concat(String.valueOf(id)).concat("-Attending"); 
@@ -803,7 +746,7 @@ public class ParentController {
 				List<Session> allIncidentSessions = Session.findAllWithIncidentsForStudent(currentStudent.getStudentId());
 				model.addAttribute("incidentSessions", allIncidentSessions);	
 				this.setInDialogue(false,model);	
-				sessionBean.setReturnIncidents();
+				sessionBean.setReturnUrl("./viewIncidents");
 				returnPage = "studentIncidents";				
 			}
 			else {
@@ -817,7 +760,7 @@ public class ParentController {
 	/**
 	 * Refund the current logged user their total cash balance  
 	 * @param model
-	 * @return return redirect back to the parentFinances view 
+	 * @return return redirect back to the userAccounts view 
 	 */
 	@GetMapping("/refund")
 	public String refund(Model model) {

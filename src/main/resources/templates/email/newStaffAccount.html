@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>After School Club New Administrator Account</title>
+</head>
+<body>
+	<div th:replace="~{email/fragments/emailheader :: emailheader}"></div>
+
+	<p> You have been allocated a new administrator account for After School Club. </p>
+	
+	<p> To set your password please click the link <a th:href="${link}">set your password</a>.</p>
+ 
+	<div th:replace="~{email/fragments/emailfooter :: emailfooter}"></div>
+</body>
+</html>

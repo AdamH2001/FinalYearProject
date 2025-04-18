@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" type="text/javascript"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" type="text/javascript"> </script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="./css/styles.css"/>
+	<link rel="stylesheet" href="./css/modal.css"/>	
+	<script src="./scripts/afterschoolclub.js" type="text/javascript"></script>
+	<script src="./scripts/students.js" type="text/javascript"></script>	
+	<script src="./scripts/filter.js" type="text/javascript"></script>
+	
+	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>
+		
+</head>
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<div th:replace="~{fragments/leftnav :: leftnav}"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/error :: error}"></div>
+
+
+	<div id="main" class="main container-flex no-margin ">
+		<div class="row col-sm-12 mb-2" style="text-align: center;">
+			<h1 class="asc-header">Students</h1>
+		</div>
+		<div class="row mb-2"></div>
+
+		<div class="row mb-2">				
+			<div class="col-sm-12">
+				<input class="form-control" id="filter" type="text" placeholder="Search.." data-toggle="tooltip" title="Type in names to filter parents being shown.">
+			</div>
+			
+		</div>		
+
+		<div class="row mb">				
+			<div class="col-sm-12">	
+				<ul class="nav nav-tabs" >				
+					<li class="nav-item">											
+					    <a th:class="${sessionBean.isNewStudentsTab()}? 'nav-link parentTab' : 'nav-link parentTab active'" aria-current="page" id="financesTab" href="javascript:activateStudentTab('finances')">Existing Students</a>						     								   					  
+					</li>		
+					<li class="nav-item">											
+					    <a th:class="${sessionBean.isNewStudentsTab()}? 'nav-link parentTab active' : 'nav-link parentTab'" aria-current="page" id="toBeValidatedTab" href="javascript:activateStudentTab('toBeValidated')">New Students (<span th:text="${validateStudents.size}"></span>)</a>						     								   					  
+					</li>	
+				</ul>
+			</div>
+		</div>		
+				
+				
+		<div class="row mb-4" >
+			
+			
+			<div class="col-sm-12" align="center">
+						<fieldset class="form-group border p-3">			
+
+				<table class="parentPane" id="finances" th:style="${sessionBean.isNewStudentsTab()}? 'display:none' : ''">
+					<thead>
+						<tr>
+							<td style="text-align: left;"><b>Name</b></td>
+							<td style="text-align: left;"><b>Parent/Guardian</b></td>
+							<td style="text-align: center;"><b>Date Of Birth</b></td>
+							<td style="text-align: center;"><b>Class</b></td>
+							<td style="text-align: center;"><b>Telephone Num</b></td>
+							<td style="text-align: center;"><b>Alt Contact Name</b></td>
+							<td style="text-align: center;"><b>Alt Contact Num</b></td>
+						</tr>
+					</thead>
+
+
+					<tr class="filterrow" th:each="student: ${students}">
+						<td style="text-align: left;"><a class="text-decoration-none" th:href="@{./deleteStudent(studentId=${student.getStudentId()})}">
+
+								<button class="btn imagebtn btn-danger" type="submit" onClick="deleteStudent()" data-toggle="tooltip" title="Remove student from system.">
+									<i class="fa fa-trash"></i>
+								</button>
+								
+								<button class="btn imagebtn btn-primary"  th:id="${student.getStudentId()}" onClick="showMedical(this)" data-toggle="tooltip" title="View Medical Notes.">
+									<i class="fa-solid fa-suitcase-medical"></i>
+								</button>
+								
+								</a> <a th:text="${student.getFullName()}" th:href="@{editStudent(studentId=${student.getStudentId()})}"></a>
+								
+								
+								
+								<input type="hidden"
+									name="allergyNote" th:id="${'allergyNote-' + student.getStudentId()}" th:value="${student.getAllergyNoteText()}"></input>
+							
+								<input type="hidden"
+									name="healthNote" th:id="${'healthNote-' + student.getStudentId()}" th:value="${student.getHealthNoteText()}"></input>
+							
+								<input type="hidden"
+									name="dietNote" th:id="${'dietNote-' + student.getStudentId()}" th:value="${student.getDietNoteText()}"></input>
+							
+								<input type="hidden"
+									name="careNote" th:id="${'careNote-' + student.getStudentId()}"  th:value="${student.getCarePlanNoteText()}"></input>
+					
+								<input type="hidden"
+									name="medicationNote" th:id="${'medicationNote-' + student.getStudentId()}"  th:value="${student.getMedicationNoteText()}"></input>
+					
+								<input type="hidden"
+									name="otherNote" th:id="${'otherNote-' + student.getStudentId()}"  th:value="${student.getOtherNoteText()}"></input>
+															
+								
+								
+								
+								
+								
+								
+								
+								
+								
+						</td>
+						
+						<td style="text-align: left;">
+								<a th:text="${student.getUser().getFullName}" th:href="@{./editUserDetails(userId=${student.getUser().getUserId()})}"></a>					
+						</td>
+						<td style="text-align: center;" th:text="${sessionBean.formatDate(student.getDateOfBirth())}">							
+						</td>
+						<td style="text-align: center;" th:text="${student.getStudentClass().getName()}">
+						</td>
+						<td style="text-align: center;" th:text="${student.getUser().getTelephoneNum()}">					
+						</td>
+						<td style="text-align: center;" th:text="${student.getParent().getAltContactName()}">					
+						</td>
+						<td style="text-align: center;" th:text="${student.getParent().getAltTelephoneNum()}">					
+						</td>
+						
+				
+			</table>
+			
+			<table th:if="${validateStudents.size==0}" class="parentPane"  id="toBeValidated" th:style="${sessionBean.isNewStudentsTab()}? '': 'display:none'">
+				<tr>
+					<td>
+						No outstanding new account requests requiring validation.
+					</td>
+				</tr>
+			</table>
+						
+			<table th:if="${validateStudents.size>0}" class="parentPane"  id="toBeValidated" th:style="${sessionBean.isNewStudentsTab()}? '': 'display:none'">
+				<thead>
+					<tr>
+						<td style="text-align: left;"><b>Student Name</b></td>
+						<td style="text-align: left;"><b>Parent/Guardian</b></td>
+						<td style="text-align: center;"><b>Date Of Birth</b></td>
+						<td style="text-align: center;"><b>Class</b></td>
+						<td style="text-align: center;"><b>Date Requested</b></td>
+
+					</tr>
+				</thead>
+
+
+				<tr class="filterrow" th:each="student: ${validateStudents}">
+					<td style="text-align: left;">
+					
+							<a class="text-decoration-none" th:href="@{./rejectStudent(studentId=${student.getStudentId()})}">
+
+								<button class="btn imagebtn btn-danger" type="submit" onClick="rejectStudent()" data-toggle="tooltip" title="Remove student from system.">
+									<i class="fa fa-trash"></i>
+								</button>
+							</a> 
+							<a class="text-decoration-none" th:href="@{./validateStudent(studentId=${student.getStudentId()})}">
+								<button class="btn imagebtn btn-success" type="submit" data-toggle="tooltip" title="Remove student from system.">
+									<i class="fa fa-plus"></i>
+								</button>
+							</a> 													
+							<a th:text="${student.getFullName()}" th:href="@{editStudent(studentId=${student.getStudentId()})}"></a>
+					</td>
+					<td style="text-align: left;">
+							<a th:text="${student.getUser().getFullName}" th:href="@{./editUserDetails(userId=${student.getUser().getUserId()})}"></a>
+					</td>
+					<td style="text-align: center;" th:text="${sessionBean.formatDate(student.getDateOfBirth())}">							
+					</td>
+					<td style="text-align: center;" th:text="${student.getStudentClass().getName()}">
+					</td>
+					<td style="text-align: center;" th:text="${sessionBean.formatDateTime(student.getDateRequested())}">					
+					</td>
+				</tr>					
+			</table>	
+			</fieldset>		
+		</div>
+
+	</div>
+	<div class="row mb-2">
+		<div class="col-sm-12" align="center">
+			<a href="./calendar" class="btn btn-secondary" role="button">Back</a>
+		</div>					
+	</div>
+	<div class="spacer">&nbsp;</div>
+	</div>
+
+	<!-- Overdraft Modal -->
+	<div id="overdraftModal" class="modal" >
+
+		<!-- Modal content -->
+		<div class="modal-content container-flex no-margin" style="width:30%">
+			<span class="close" onClick="$('#overdraftModal').hide()">&times;</span>
+			
+			<div class="row mb-2">
+				<div class="col-sm-12" align="center">
+				
+				
+					<h1 class="asc-header">Update Overdraft</h1>
+				</div>
+			</div>
+			<div class="afterschoolclubflash col mb-2"  style="display: none" id="overdraftFlash">					
+				<div class="col-sm-12"  align="center" id="overdraftValidationMessage"></div>
+			</div>	
+			<form action="./updateOverdraft" method="post" id="overdraftForm">			
+				<input type="hidden" name="studentId" id="overdraftStudentId"/>
+				<div class="row mb-2">
+					<div class="col-sm-2" align="right"></div>				
+									
+					<div class="col-sm-4 asc-form-label">
+						New Limit:
+					</div>		
+					<div class="col-sm-4">
+						<input type="text" id="overdraftLimitInput" for="overdraftLimit" required placeholder="Price without extras such as refreshments" maxlength=7 class="asc-moneyinput form-control" 
+					    	data-toggle="tooltip" title="Enter new overdraft limit in pounds." />
+					
+					
+						<input class="form-control mr-sm-2"  type="number" name="overdraftLimit" id="overdraftLimit" style="display:none"/>
+					</div>		
+				</div>
+				<div class="row mb-2">
+								
+					<div class="col-sm-6" align="right">
+						<button class="btn btn-primary" onClick="validateOverdraft()" type="button"  data-toggle="tooltip" title="Select to update overdraft.">Update</button>															
+					</div>								
+					<div class="col-sm-6" align="left">
+						<button class="btn btn-secondary" onClick="$('#overdraftModal').hide()" data-toggle="tooltip" title="Select to cancel any updates.">Cancel</button>
+					</div>
+				</div>
+			</form>				
+		</div>
+	</div>
+	
+	<!-- Voucher Modal -->
+	<div id="healthModal" class="modal" >
+		<!-- Modal content -->
+		<div class="modal-content container-flex no-margin" style="width:60%">
+			<span class="close" onClick="$('#healthModal').hide()">&times;</span>
+			
+			<div class="row mb-2">
+				<div class="col-sm-12" align="center">
+					<h1 class="asc-header">Health Notes</h1>
+				</div>
+			</div>
+			
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="allergyNote">Allergies:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="allergyNote" id="allergyNote" ></textarea>
+					</div>
+			</div>
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="healthNote">Health Notes:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="healthNote" id="healthNote" ></textarea>
+					</div>
+			</div>
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="dietNote">Diet Requirements:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="dietNote" id="dietNote"></textarea>
+					</div>
+			</div>
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="careNote">Care Plan:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="careNote" id="careNote" ></textarea>
+					</div>
+			</div>
+			
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="medicationNote">Medication:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="medicationNote" id="medicationNote" ></textarea>
+					</div>
+			</div>
+			
+			<div class="row mb-4">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="otherNote">Other:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="otherNote" id="otherNote" t></textarea>
+					</div>
+			</div>	
+			<div class="row mb-2">
+				<div class="col-sm-12" align="center">
+					<button class="btn btn-secondary" onClick="dismissMedical()" type="button" data-toggle="tooltip" title="Dismiss this window.">Back</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	
+		
+
+
+
+</body>
+</html>

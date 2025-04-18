@@ -1,0 +1,14 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>After School Club New Administrator Account</title>
+</head>
+<body>
+	<div th:replace="~{email/fragments/emailheader :: emailheader}"></div>
+
+	<p> Your staff account has been disabled. If you think this is in error please contact 
+	<a th:href="${'mailto:' + sessionBean.getContactEmail()}" th:text="${sessionBean.getContactEmail()}">Email</a>. </p>
+	
+	<div th:replace="~{email/fragments/emailfooter :: emailfooter}"></div>
+</body>
+</html>

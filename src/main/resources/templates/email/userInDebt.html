@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>AfterSchool Club Payment Reminder</title>
+</head>
+<body>
+	<div th:replace="~{email/fragments/emailheader :: emailheader}"></div>
+
+
+	<p>Your After School Club current overdraft limit is <span th:text="${sessionBean.formatMoney(user.getParent().getOverdraftLimit())}")></span>.</p>
+	
+	<p>Your After School Club account is currently overdrawn by <span th:text="${sessionBean.formatMoney(user.getParent().getCashDebt())}")></span>.<br/></p>
+	
+	<p>Can you please make a payment to resolve your current debt.</p>
+
+	<div th:replace="~{email/fragments/emailfooter :: emailfooter}"></div>
+</body>
+</html>

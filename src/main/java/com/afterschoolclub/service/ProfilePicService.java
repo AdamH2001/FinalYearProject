@@ -22,7 +22,7 @@ import org.springframework.core.io.UrlResource;
 @Service
 public class ProfilePicService {
 
-    @Value("${file.profilePics}")
+    @Value("${asc.file.profilePics}")
     private String uploadDir;
     
 	public ProfilePicService() {

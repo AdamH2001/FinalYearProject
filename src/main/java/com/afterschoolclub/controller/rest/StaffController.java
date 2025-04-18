@@ -15,16 +15,23 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
 import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.context.Context;
 
 import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.controller.AdminController;
+import com.afterschoolclub.data.Email;
 import com.afterschoolclub.data.Staff;
+import com.afterschoolclub.data.User;
+import com.afterschoolclub.service.EmailService;
+
+import jakarta.mail.MessagingException;
 
 
 
@@ -32,7 +39,8 @@ import com.afterschoolclub.data.Staff;
 @RequestMapping("api/staff")
 public class StaffController {
 	
-	
+	@Autowired
+	private EmailService mailService;	
 	
     private final SessionBean sessionBean;	
     
@@ -59,7 +67,22 @@ public class StaffController {
 
     @PostMapping(consumes = {"application/json"})
     public Staff createStaff(@RequestBody Staff staff) {
-    	staff.save();
+    	User user = staff.save();
+    	
+		
+		Context context = new Context();
+		context.setVariable("user", user);
+		context.setVariable("sessionBean", sessionBean);
+		String link = String.format("%s/alterPassword?userId=%d&validationKey=%d", sessionBean.getHomePage(), user.getUserId(), user.getValidationKey());
+		context.setVariable("link", link);			
+		
+		Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "After School Club New Staff Account", mailService.getHTML("email/newStaffAccount", context));
+		
+		try {
+			mailService.sendHTMLEmail(email);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         return staff;
     }
 
@@ -69,10 +92,30 @@ public class StaffController {
         return staff;
     }
     
+	@Transactional
     @DeleteMapping(value="/{id}")
     public void deleteStaff(@PathVariable long id) {    	
     	Staff staff = Staff.findById((int) id);
-    	staff.inActivate();
+    	User user = staff.inActivate();
+    	
+		try {
+			Context context = new Context();
+			context.setVariable("user", user);
+			context.setVariable("sessionBean", sessionBean);
+			String link = String.format("%s/alterPassword?userId=%d&validationKey=%d", sessionBean.getHomePage(), user.getUserId(), user.getValidationKey());
+			context.setVariable("link", link);
+			
+			Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "After School Club New Staff Removed", mailService.getHTML("email/staffAccountDisabled", context));
+			
+			try {
+				mailService.sendHTMLEmail(email);
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}    	
     	//staff.setState(Resource.State.INACTIVE);
     	//staff.save();    	
         return;

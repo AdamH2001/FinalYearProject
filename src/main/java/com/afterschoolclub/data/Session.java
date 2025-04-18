@@ -29,6 +29,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.transaction.annotation.Transactional;
 
 @Getter
 @Setter
@@ -459,6 +460,9 @@ public class Session {
 		if (this.getMaxAttendees() <= this.getAttendees().size() && !student.isAttendingSession(this))
 			result = false;
 		
+		if (!student.healthQuestionaireValid())
+			result = false;
+		
 		return result;				
 									
 					
@@ -694,6 +698,28 @@ public class Session {
 		}
 		return students;
 		
+	}
+
+	
+	public void delete() {
+		repository.delete(this);
+	}	
+
+	public void cancel() {
+		Set<Attendee> allAttendees = getAttendees();
+		for (Attendee attendee: allAttendees) {
+			Student student = attendee.getStudent();
+			User user = student.getUser();					
+			Parent parent = user.getParent();
+			int cost = student.getCostOfSession(this);														
+			ParentalTransaction pt = parent.recordRefundForClub(cost, getClub(), String.format("Refund for %s due to %s cancelled scheduled on %s", student.getFirstName(), getClub().getTitle(), this.getStartDate()));
+			pt.save();					
+		}		
+		delete();
+	}
+	
+	public List<User> getAllUsers() {
+		return User.repository.findAllForSession(this.sessionId);
 	}
 	
 }

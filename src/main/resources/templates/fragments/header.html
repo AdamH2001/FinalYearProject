@@ -63,7 +63,7 @@
 							<img src="./images/asc-logo.png" style="width:160px;height:100px"></a></div>	
 						</td>
 						<td style="vertical-align: top;" class="text-afterschoolclubmainheader">
-							<div th:if="${sessionBean.isAdminLoggedOn()}">After School Club Admin</div>
+							<div th:if="${sessionBean.isAdminLoggedOn()}">Administration</div>
 							<div th:unless="${sessionBean.isAdminLoggedOn()}">After School Club</div>					
 						</td>
 					</tr>
@@ -84,35 +84,64 @@
 					<div class="col-sm-4" align="right">Voucher Balance:</div>
 					<div class="col-sm-2" align="right" th:text="${sessionBean.formatMoney(sessionBean.getLoggedOnParent().getVoucherBalance())}"></div>
 
-					<div class="col-sm-4" align="right">
+					<div th:if="${sessionBean.getSelectedStudent()!=null}" class="col-sm-4" align="right">
 						For <span th:text="${sessionBean.getSelectedStudent().getFirstName()}"></span>:
 					</div>
-					<div class="col-sm-1" align="right" th:text="${sessionBean.getSelectedStudent().numFutureSessionsAttending()}"></div>
+					<div th:if="${sessionBean.getSelectedStudent()!=null}" class="col-sm-1" align="right" th:text="${sessionBean.getSelectedStudent().numFutureSessionsAttending()}"></div>
 				</div>
 			</div>
 			
-			<div th:if="${sessionBean.isAdminLoggedOn()}" class="col-sm-4 p-0">
-				<div class="row mb-1" align="center" >				
-					<div class="col-sm-12"> 				
-							<label for="financeSummary"> Show Financial Summary </label> 
-							<input id="financeSummary" class="asc-control form-check-input" type="checkbox" th:checked="${sessionBean.isFinanceSummaryVisible()}" 
-									onchange="updateFinanceSummary()" />							
+			<div th:if="${sessionBean.isAdminLoggedOn()}" class="col-sm-4  p-2">				
+				<th:block th:if="${sessionBean.isFinanceSummaryVisible()}">
+					<div class="row mb-1">
+						<div class="col-sm-1">
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" id="financeSummary" th:checked="${sessionBean.isFinanceSummaryVisible()}" onchange="updateFinanceSummary()">
+  								<label class="form-check-label" for="financeSummary"><i class="asc-icon fa-solid fa-file-invoice-dollar"></i></label>
+							</div>						
+						</div>
+						<div class="col-sm-4" align="right">Revenue:</div>
+						<div class="col-sm-1" align="right"><a href="./clubRevenue" th:text="${sessionBean.formatMoney(sessionBean.getTotalRevenue())}"></a></div>
+	
+						<div class="col-sm-4" align="right">Credit:</div>
+						<div class="col-sm-1" align="right" ><a href="./userAccounts" th:text="${sessionBean.formatMoney(sessionBean.getTotalCashCredit())}"></a></div>
 					</div>
-				</div>				
-				<div class="row mb-1">
-					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-4" align="right">Revenue:</div>
-					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-1" align="right"><a href="./clubRevenue" th:text="${sessionBean.formatMoney(sessionBean.getTotalRevenue())}"></a></div>
-
-					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-4" align="right">Credit:</div>
-					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-1" align="right" ><a href="./parentFinances" th:text="${sessionBean.formatMoney(sessionBean.getTotalCashCredit())}"></a></div>
-				</div>
-				<div class="row mb-1">
-					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-4" align="right">Vouchers:</div>
-					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-1" align="right" ><a href="./parentFinances" th:text="${sessionBean.formatMoney(sessionBean.getTotalVoucherBalance())}"></a></div>
+					<div class="col-sm-1"></div>
 					
-					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-4" align="right">Debt:</div>
-					<div th:if="${sessionBean.isFinanceSummaryVisible()}" class="col-sm-1" align="right" ><a href="./parentFinances"th:text="${sessionBean.formatMoney(sessionBean.getTotalOwed())}"></a></div>					
-				</div>			
+					<div class="row mb-1">
+						<div class="col-sm-1"></div>					
+					
+						<div class="col-sm-4" align="right">Vouchers:</div>
+						<div class="col-sm-1" align="right" ><a href="./userAccounts" th:text="${sessionBean.formatMoney(sessionBean.getTotalVoucherBalance())}"></a></div>
+						
+						<div class="col-sm-4" align="right">Debt:</div>
+						<div class="col-sm-1" align="right" ><a href="./userAccounts"th:text="${sessionBean.formatMoney(sessionBean.getTotalOwed())}"></a></div>					
+					</div>		
+				</th:block>	
+				
+				<th:block th:unless="${sessionBean.isFinanceSummaryVisible()}">
+					<div class="row mb-1">
+						 <div class="col-sm-1">
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" id="financeSummary" th:checked="${sessionBean.isFinanceSummaryVisible()}" onchange="updateFinanceSummary()">
+  								<label class="form-check-label" for="financeSummary"><i class="asc-icon fa-solid fa-file-invoice-dollar"></i></label>
+							</div>						
+						</div>					
+						<div class="col-sm-4" align="right">Users:</div>
+						<div class="col-sm-1" align="right"><a href="./userAccounts?newAccounts=0" th:text="${sessionBean.numUsers()}"></a></div>
+	
+						<div class="col-sm-4" align="right">Review:</div>
+						<div class="col-sm-1" align="right" ><a href="./userAccounts?newAccounts=1" th:text="${sessionBean.numNewAccountRequests()}"></a></div>
+					</div>
+					<div class="row mb-1">
+						<div class="col-sm-1"></div>					
+						<div class="col-sm-4" align="right">Students:</div>
+						<div class="col-sm-1" align="right" ><a href="./students?newAccounts=0" th:text="${sessionBean.numStudents()}"></a></div>
+						
+						<div class="col-sm-4" align="right">Review:</div>
+						<div class="col-sm-1" align="right" ><a href="./students?newAccounts=1" th:text="${sessionBean.numNewStudentRequests()}"></a></div>					
+					</div>		
+				</th:block>					
 			</div>
 
 			<div class="col-sm-2">

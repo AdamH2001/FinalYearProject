@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>After School Club Email Verified</title>
+</head>
+<body>
+	<div th:replace="~{email/fragments/emailheader :: emailheader}"></div>
+
+	<p> We are pleased to tell you that your email address has been verified for After School Club.</p>
+	
+	<p th:if="${user.isAdminVerified()}">  You are now able to login and start using the service here at <a th:href="${sessionBean.getHomePage()}">After School Club</a>.</p>
+	<p th:unless="${user.isAdminVerified()}">  However, your account is still waiting to be validated by our administration staff before you can start using our services. 
+		Please be patient this is usually completed within one working day and you will be notified at this email address when completed.
+	</p>
+
+	<div th:replace="~{email/fragments/emailfooter :: emailfooter}"></div>
+</body>
+</html>

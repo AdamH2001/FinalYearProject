@@ -82,16 +82,7 @@ function formatTime(date) {
   });
   
   
-  function shouldFilter(row, words) {
-  	filter = true;
-  	index = 0;
-  	while (index < words.length && filter) {
-  		value = words[index]
-  		index++
-  		filter = $(row).text().toLowerCase().indexOf(value) > -1;
-  	}
-  	return filter;
-  }
+
   
   function isLoggedOn() {
 	return $("#loggedOnUser")[0].innerText.length>0;

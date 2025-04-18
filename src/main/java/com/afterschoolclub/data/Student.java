@@ -14,6 +14,8 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +46,10 @@ public class Student {
 	private LocalDateTime healthQuestionnaireCompleted = LocalDateTime.now();
 	private boolean consentToShare = false;
 	
+	private LocalDateTime dateRequested = LocalDateTime.now();
+	private boolean adminVerified = false;
+	private State state = State.ACTIVE;	
+	
 	@MappedCollection(idColumn = "student_id")
 	private Set<Attendee> attendees = new HashSet<>();
 	
@@ -54,10 +60,22 @@ public class Student {
 	@Transient
 	private transient StudentClass studentClass = null;
 	
+	@ToString.Exclude
+	@Transient
+	private transient User user = null;
+	
 	
 	public static List<Student> findByAttendeeId(int attendeeId) {		
 		return repository.findByAttendeeId(attendeeId);
 	}	
+	
+	public static List<Student> findAll() {
+		return  new ArrayList<>((Collection<? extends Student>) repository.findAll());		
+	}	
+	
+	public static List<Student> findByStateVerified(State state, boolean verified) {
+		return repository.findByStateVerified(state, verified);		
+	}		
 	
 	public static Student findById(int studentId) {
 		Optional<Student> optional = repository.findById(studentId);
@@ -269,8 +287,42 @@ public class Student {
 	
 	public void updateTimestamp() {
 		healthQuestionnaireCompleted = LocalDateTime.now();
+	}	
+	
+	public User getUser() {
+		if (user == null) {
+			List<User> users = User.repository.findForStudentId(studentId); 		
+			if (users.size() > 0) {
+				user = users.get(0);
+			}		
+		}
+		return user;
 	}
 	
+	public Parent getParent() {
+		return getUser().getParent();
+		
+	}	
+
+	public void update() {
+		repository.update(studentId, classId.getId().intValue(), firstName, surname, dateOfBirth, state, adminVerified);
+	}
 	
+	public void delete()
+	{
+		repository.delete(this);
+	}	
 	
+	public void save()
+	{
+		repository.save(this);
+	}
+	
+	public boolean healthQuestionaireValid() {
+		int cannotBeOlderThan = 90; //TODO should be a configurable value.
+		LocalDateTime today = LocalDateTime.now();
+		LocalDateTime questionaireExpires = this.getHealthQuestionnaireCompleted().plusDays(cannotBeOlderThan);
+		return questionaireExpires.isAfter(today);		
+	}
+		
 }

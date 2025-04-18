@@ -3,6 +3,7 @@ package com.afterschoolclub.data;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +39,22 @@ public class ParentalTransaction {
 		return repository.getCashTopUps(parent.getParentId());		
 	}		
 
+	
+	public static ParentalTransaction findVoucherByReferenceId(String voucherReference) {
+		ParentalTransaction trans = null;
+		List<ParentalTransaction> allTrans = repository.findVoucherByReferenceId(voucherReference);
+		if (allTrans != null ) {
+			Iterator<ParentalTransaction> itr = allTrans.iterator();
+			if (itr.hasNext()) {
+				trans = itr.next();
+			}
+		}
+		return trans;
+	}		
+	
+
+	
+	
 	public static int getBalanceOn(Parent parent, LocalDate start) {
 		Integer balance =  repository.getBalance(parent.getParentId(), start);
 		int result = 0;
@@ -46,6 +63,8 @@ public class ParentalTransaction {
 		}
 		return result;
 	}		
+	
+	
 	
 
 	public static int getRemainingCreditForPayment(String paymentReference) {
@@ -257,5 +276,8 @@ public class ParentalTransaction {
 		return balanceType == BalanceType.VOUCHER;
 	}	
 	
-	
+	public void save()
+	{
+		repository.save(this);
+	}			
 }

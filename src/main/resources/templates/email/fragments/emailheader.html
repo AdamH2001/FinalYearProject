@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+ 	
+	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>		
+</head>
+<body>
+	<div  th:fragment="emailheader" id="emailheader" >
+		<p>
+			Dear <span th:text="${user.getFullName()}"></span>,
+		</p>
+	</div>	
+</body>
+</html>

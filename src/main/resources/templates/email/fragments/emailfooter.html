@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+ 
+	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>		
+</head>
+<body>
+	<div  th:fragment="emailfooter" id="emailfooter" >
+		Thank you, <br /> 
+		After School Club Administration Team <br />
+		<b>Email:</b>&nbsp;<a th:href="${'mailto:' + sessionBean.getContactEmail()}"><span th:text="${sessionBean.getContactEmail()}">Email</span></a><br/>	
+		<b>Tel:</b>&nbsp;<a th:href="${'tel:' + sessionBean.getContactTel()}"><span th:text="${sessionBean.getContactTel()}">Tel</span></a><br/>
+		<b>Website:</b>&nbsp;<a th:href="${sessionBean.getHomePage()}" th:text="${sessionBean.getHomePage()}"></a><br/>
+	</div>	
+</body>
+</html>

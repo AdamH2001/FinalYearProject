@@ -1,20 +1,30 @@
 package com.afterschoolclub.service;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
- 
+
+import com.afterschoolclub.data.Email;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
- 
+
+
 @Service
 public class EmailService {
  
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+	static Logger logger = LoggerFactory.getLogger(EmailService.class);
+    
  
     public EmailService(JavaMailSender emailSender, TemplateEngine templateEngine){
       this.mailSender = emailSender;
@@ -30,27 +40,35 @@ public class EmailService {
  
         mailSender.send(message);
     }
-    
-public void  sendHTMLEmail(String to, String from, String subject, String html) throws MessagingException {
-    MimeMessage message = mailSender.createMimeMessage();
-    message.setFrom(new InternetAddress(from));
-    message.setRecipients(MimeMessage.RecipientType.TO, to);
-    message.setSubject(subject);
  
-    message.setContent(html, "text/html; charset=utf-8");
+ @Async
+public void  sendHTMLEmail(Email email) throws MessagingException {
+    MimeMessage message = mailSender.createMimeMessage();
+    message.setFrom(new InternetAddress(email.getFrom()));
+    message.setRecipients(MimeMessage.RecipientType.TO, email.getRecipient());
+    message.setSubject(email.getSubject()); 
+    message.setContent(email.getHtmlMessage(), "text/html; charset=utf-8");
     mailSender.send(message);
 }
  
-public void  sendTemplateEmail(String to, String from, String subject, String template, Context context) throws MessagingException {
-    MimeMessage message = mailSender.createMimeMessage();
-    message.setFrom(new InternetAddress(from));
-    message.setRecipients(MimeMessage.RecipientType.TO, to);
-    message.setSubject(subject);
+ @Async
+public void  sendAllHTMLEmails(List<Email> allEmails) throws MessagingException {
+	 for (Email email : allEmails) {
+		 sendHTMLEmail(email);
+	 }
+} 
+
+ @Async
+ public void test() throws InterruptedException {
+	 for (int i = 0 ; i < 100; i++) {
+		 logger.info(String.format("Hello %d", i));
+		 Thread.sleep(1000);
+	 }
+ }
  
-    // Process the template with the given context
-        String html = templateEngine.process(template, context);
-    
-    message.setContent(html, "text/html; charset=utf-8");
-    mailSender.send(message);
-}
+ public String getHTML(String template, Context context) {
+	 return templateEngine.process(template, context);
+ }
+ 
+ 
 }

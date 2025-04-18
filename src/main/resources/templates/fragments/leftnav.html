@@ -95,9 +95,12 @@
 						<li><a href="./clubRevenue" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
 							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-money-bill-trend-up"></i>Club Revenue</span>
 						</a></li>
-						<li><a href="./parentFinances" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
-							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-file-invoice-dollar"></i>Parent Accounts</span>
-						</a></li>						
+						<li><a href="./userAccounts" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
+							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-file-invoice-dollar"></i>User Accounts</span>
+						</a></li>				
+						<li><a href="./students" th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'"> 
+							<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-file-invoice-dollar"></i>Students </span>
+						</a></li>		
 												
 					</ul>
 					<hr th:if="${sessionBean.isCalendarView()}">		
@@ -171,7 +174,8 @@
 						<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-user-plus"></i>Add Child</span>
 						</a></li>
 												
-						<li th:if="${sessionBean.getLoggedOnParent().hasChildren()}" class="nav-item"><a th:href="@{./editStudent(studentId=${sessionBean.getSelectedStudent().getStudentId()})}"
+						<li th:if="${sessionBean.getLoggedOnParent().hasChildren()}" class="nav-item"  data-toggle="tooltip" th:title="${sessionBean.getSelectedStudent().healthQuestionaireValid()} ? 'Select to review and update child details.' : 'Please review health details. You cannot book any further sessions for this child until this completed'">
+							<a th:href="@{./editStudent(studentId=${sessionBean.getSelectedStudent().getStudentId()})}" th:style="${sessionBean.getSelectedStudent().healthQuestionaireValid()} ? '': 'color:red'"
 							th:class="${sessionBean.isInDialogue()}? 'disabled nav-link align-middle px-0': 'nav-link align-middle px-0'">
 								<span class="ms-1 d-none d-sm-inline"><i class="asc-icon fa-solid fa-pencil"></i>Update Details</span>
 						</a></li>

@@ -3,6 +3,7 @@ import jakarta.mail.MessagingException;
 
 import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.data.Club;
+import com.afterschoolclub.data.Email;
 import com.afterschoolclub.data.Session;
 import com.afterschoolclub.data.Parent;
 import com.afterschoolclub.data.ParentalTransaction;
@@ -38,6 +39,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.ui.Model;
@@ -149,9 +151,12 @@ public class MainController {
 				user.save();
 				Context context = new Context();
 				context.setVariable("user", user);
+				context.setVariable("sessionBean", sessionBean);
+				
+				Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "Email Verified For After School Club",  mailService.getHTML("email/emailVerified", context));
+				
 				try {
-					mailService.sendTemplateEmail(user.getEmail(), "afterschooladmin@hattonsplace.co.uk",
-							"Email Verified For After School Club", "emailverifiedtemplate", context);
+					mailService.sendHTMLEmail(email);
 				} catch (MessagingException e) {
 					e.printStackTrace();
 				}
@@ -278,6 +283,7 @@ public class MainController {
 	
 	@GetMapping("/termsandconditions")
 	public String termsandconditions(Model model) {
+		sessionBean.setReturnUrl("./policiesandprocedures"); 
 		sessionBean.setReturnUrl("./termsandconditions");
 		this.setInDialogue(false,model);	  
 	    return "termsandconditions";
@@ -285,7 +291,7 @@ public class MainController {
 	
 	@GetMapping("/policiesandprocedures")
 	public String policiesandprocedures(Model model) {
-		sessionBean.setReturnUrl("./policiesandprocedures"); //TODO add to above
+		sessionBean.setReturnUrl("./policiesandprocedures"); 
 		this.setInDialogue(false,model);	  
 	    return "policiesandprocedures";
 	}
@@ -422,7 +428,7 @@ public class MainController {
 		}
 		this.setInDialogue(false,model);
 		sessionBean.setCalendarView(true);
-		sessionBean.setReturnCalendar();
+		sessionBean.setReturnUrl("./calendar");
 		return initialiseCalendar(model);			
 	}
 	
@@ -452,13 +458,16 @@ public class MainController {
 				existingUser.update();
 				Context context = new Context();
 				context.setVariable("user", existingUser);
-				String link = "http://localhost:8080/AfterSchoolClub/alterPassword?userId=" + existingUser.getUserId()
-						+ "&validationKey=" + existingUser.getValidationKey();
+				context.setVariable("sessionBean", sessionBean);
+				
+				
+				String link = String.format("%s/alterPassword?userId=%d&validationKey=%d", sessionBean.getHomePage(), existingUser.getUserId(), existingUser.getValidationKey());
 				context.setVariable("link", link);
 
+				Email emailToSend = new Email(existingUser.getEmail(), sessionBean.getContactEmail(), "Reset Your Password For Afterschool Club",  mailService.getHTML("email/forgottenPassword", context));
+				
 				try {
-					mailService.sendTemplateEmail(existingUser.getEmail(), "afterschooladmin@hattonsplace.co.uk",
-							"Reset Your Password For Afterschool Club", "forgottenpasswordtemplate", context);
+					mailService.sendHTMLEmail(emailToSend);
 					sessionBean.setFlashMessage("Forgotten password email sent.");				
 
 				} catch (MessagingException e) {
@@ -484,23 +493,36 @@ public class MainController {
 		this.setInDialogue(false,model);	  
 		List<Club> allClubs = Club.findActive();
 		model.addAttribute("allClubs",allClubs);
-		sessionBean.setReturnClubs();
+		sessionBean.setReturnUrl("./viewClubs");
 		return "viewClubs";	
 	}	
 
 	
 	
 	@GetMapping("/editUserDetails") 
-	public String editUserDetails(Model model) {
+	public String editUserDetails(Model model, 
+			@RequestParam(name = "userId", required=false, defaultValue="0") int userId) {
 		
 		String returnPage = validateIsLoggedOn(model);
 		if (returnPage == null) {
-			User loggedOnUser = sessionBean.getLoggedOnUser();
-			model.addAttribute("isEditing",true);
-			model.addAttribute("user", loggedOnUser);			
-			this.setInDialogue(true,model);
-			model.addAttribute("tempFilename", profilePicService.getTempfilename());
-			returnPage = "user";
+			User user = null;
+			if (userId == 0) {
+				user = sessionBean.getLoggedOnUser();
+			}
+			else {
+				user = User.findById(userId); 
+			}
+			if (user != null) {
+				model.addAttribute("isEditing",true);
+				model.addAttribute("user", user);			
+				this.setInDialogue(true,model);
+				model.addAttribute("tempFilename", profilePicService.getTempfilename());
+				returnPage = "user";
+			}
+			else {
+				sessionBean.setFlashMessage("Invalid Link");
+				returnPage = sessionBean.getRedirectUrl();				
+			}
 		} 
 		return returnPage;
 	}
@@ -522,6 +544,7 @@ public class MainController {
 
 	@PostMapping("/saveUserDetails")
 	public String saveUserDetails(
+			@RequestParam(name = "userId") int userId,			
 			@RequestParam(name = "title") String title,			
 			@RequestParam(name = "firstName") String firstName,
 			@RequestParam(name = "surname") String surname, 
@@ -540,23 +563,36 @@ public class MainController {
 		String returnPage = sessionBean.getRedirectUrl();
 		boolean newUser = false;
 		
-		User user = sessionBean.getLoggedOnUser();	
+		User user = User.findById(userId);	
 		
 		if (user == null) {
-			user = new User();								
-			user.addParent(new Parent());
-			newUser = true;
+			User existingUser = User.findByEmail(email);
+			if (existingUser != null && existingUser.getState()==State.INACTIVE && existingUser.isParent()) {
+				user = existingUser;
+				user.setState(State.ACTIVE);	
+				user.setEmailVerified(false);
+				user.setAdminVerified(false);
+				user.setValidationKey();			
+			}
+			else {
+				user = new User();								
+				user.addParent(new Parent());
+				newUser = true;
+			}
+			user.setPassword(password);				
 		}
-		boolean emailChanged = !email.equals(user.getEmail());
+		boolean emailChanged=false;
+		if (!email.equals(user.getEmail())) {
+			user.setValidationKey();			
+			user.setEmailVerified(false);
+			emailChanged = true;
+		};
 
 		user.setTitle(title);
 		user.setFirstName(firstName);
 		user.setSurname(surname);
 		user.setEmail(email);
 		user.setTelephoneNum(telephoneNum);
-		if (newUser) {
-			user.setPassword(password);
-		}
 		
 		if (user.isParent()) {
 			Parent parent = user.getParent();
@@ -582,10 +618,7 @@ public class MainController {
 			// Ensure passwords match
 			boolean passwordOk = (newUser && conPassword.equals(password)) || !newUser;
 			if (passwordOk) {
-				if (emailChanged) {
-					user.setValidationKey();// Update validation key to use in email
-					user.setEmailVerified(false);
-				}
+
 				profilePicService.renameImage(tempFilename, user);
 
 				if (newUser) {
@@ -595,22 +628,19 @@ public class MainController {
 					user.update();											
 				}
 				
-				if (emailChanged || newUser) {
+				if (!user.isEmailVerified()) {
 					// Send email
-
-					//TODO used config for domain
 					
 					Context context = new Context();
 					context.setVariable("user", user);
-					String link = "http://localhost:8080/AfterSchoolClub/validateEmail?userId=" + user.getUserId()
-							+ "&validationKey=" + user.getValidationKey();
+					context.setVariable("sessionBean", sessionBean);	
+					String link = String.format("%s/validateEmail?userId=%d&validationKey=%d", sessionBean.getHomePage(), user.getUserId(), user.getValidationKey());
 					context.setVariable("link", link);
 
+					Email emailToSend = new Email(user.getEmail(), sessionBean.getContactEmail(), "Verify Email For Afterschool Club",  mailService.getHTML("email/verifyEmail", context));					
 					try {
-						mailService.sendTemplateEmail(user.getEmail(), "afterschooladmin@hattonsplace.co.uk",
-								"Verify Email For Afterschool Club", "verifyemailtemplate", context);
-						sessionBean.setFlashMessage("Please verify your email address");
-
+						mailService.sendHTMLEmail(emailToSend);
+						sessionBean.setFlashMessage("Please verify your email address before attempting to login.");
 					} catch (MessagingException e) {
 						sessionBean.setFlashMessage("Failed to send verication email.");
 						e.printStackTrace();
@@ -624,15 +654,13 @@ public class MainController {
 						sessionBean.setFlashMessage("Profile has been updated");
 					}
 				}
-				returnPage = setupCalendar(model);
 			}
 			else {
 				model.addAttribute("isEditing",!newUser);
 				sessionBean.setFlashMessage("Passwords do not match");
 				model.addAttribute("user",user);
 				this.setInDialogue(true,model);
-				model.addAttribute("tempFilename", tempFilename);
-				
+				model.addAttribute("tempFilename", tempFilename);				
 				returnPage = "user";					
 			}					
 		}
@@ -640,8 +668,7 @@ public class MainController {
 			sessionBean.setFlashMessage("Email already in use");
 			model.addAttribute("user", user);
 			model.addAttribute("isEditing", !newUser);
-			model.addAttribute("tempFilename", tempFilename);
-			
+			model.addAttribute("tempFilename", tempFilename);			
 			this.setInDialogue(true, model);
 			returnPage = "user";
 		}
@@ -686,6 +713,89 @@ public class MainController {
 	}	
 	
 	
+
+	@GetMapping("/editStudent")
+	public String editStudent(@RequestParam(name = "studentId") int studentId, Model model) {
+		String returnPage = validateIsLoggedOn(model);
+		if (returnPage == null) {
+			Student s = Student.findById(studentId);
+			if (sessionBean.isAdminLoggedOn() || s.getParent().getParentId() == s.getParentId().getId().intValue()) {
+				model.addAttribute("student",s);			
+				Iterable<StudentClass> classNames = StudentClass.findAll();
+				model.addAttribute("classNames",classNames);
+				model.addAttribute("isEditing",true);			
+				this.setInDialogue(true,model);
+				returnPage = "student";		
+			}
+			else {
+				sessionBean.setFlashMessage("Not authorised to edit this student");
+				returnPage = sessionBean.getRedirectUrl();
+			}
+		}
+		return returnPage;
+	}
+
+
 	
+	@PostMapping("/addStudent")
+	public String addStudent(
+			@RequestParam(name = "studentId") int studentId,
+			@RequestParam(name = "firstName") String firstName,
+			@RequestParam(name = "surname") String surname, @RequestParam(name = "className") int className,
+			@RequestParam(name = "dateOfBirth") LocalDate dateOfBirth,
+			@RequestParam(name = "allergyNote", required=false, defaultValue="") String allergyNote,
+			@RequestParam(name = "healthNote", required=false, defaultValue="") String healthNote,
+			@RequestParam(name = "dietNote", defaultValue="") String dietNote,
+			@RequestParam(name = "careNote", required=false, defaultValue="") String careNote,
+			@RequestParam(name = "medicationNote", required=false, defaultValue="") String medicationNote,
+			@RequestParam(name = "otherNote", required=false, defaultValue="") String otherNote,
+			@RequestParam(name = "consentToShare", defaultValue = "false") boolean consentToShare, Model model) {
+		String returnPage = validateIsLoggedOn(model);
+		if (returnPage == null) {
+			Student student = null;
+			if (studentId == 0) {
+				student = new Student();
+				sessionBean.getLoggedOnParent().addStudent(student);				
+			}
+			else {
+				if (sessionBean.isParentLoggedOn()) {
+					student = sessionBean.getLoggedOnParent().getStudentFromId(studentId);
+				}
+				else {
+					student = Student.findById(studentId);
+				}
+			}
+			student.setFirstName(firstName);
+			student.setSurname(surname);
+			student.setDateOfBirth(dateOfBirth);
+			student.setClassId(AggregateReference.to(className));	
+			if (sessionBean.isParentLoggedOn()) {
+				student.setConsentToShare(consentToShare);				
+				student.setAllergyNoteText(allergyNote);
+				student.setHealthNoteText(healthNote);
+				student.setDietNoteText(dietNote);
+				student.setCarePlanNoteText(careNote);
+				student.setMedicationNoteText(medicationNote);
+				student.setOtherNoteText(otherNote);
+				student.updateTimestamp();
+			}
+			
+			if (sessionBean.isParentLoggedOn()) {			
+				sessionBean.getLoggedOnUser().save();
+			}
+			else {
+				student.update();
+			}
+			
+			if (studentId == 0) {
+				sessionBean.setFlashMessage("Added New Child.");
+			}
+			else {
+				sessionBean.setFlashMessage("Updated Child Details.");
+			}				
+			returnPage = sessionBean.getRedirectUrl();
+		}
+		return returnPage;
+	}	
 	
 }

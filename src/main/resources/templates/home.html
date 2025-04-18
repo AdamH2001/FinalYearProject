@@ -31,8 +31,8 @@
 						environment for your child outside of school hours. We have a wide range of engaging and enriching activities
 						available including sports, team games, art and craft, music and dance. It’s easy to find the perfect club to help
 						you child develop new skills, make friends and have fun.</p>
-					<p>If you need more information, please contact the school office on 01256 888888 or email us on
-						<a href="mailto:admin@afterschoolclub.com">admin@afterschoolclub.com</a></p>
+					<p>If you need more information, please contact the school office on <span th:text="${sessionBean.getContactTel()}">TelNo</span> or email us on
+						<a th:href="${'mailto:' + sessionBean.getContactEmail()}"><span th:text="${sessionBean.getContactEmail()}">Email</span> </a></p>
 				</div>			
 			</td>
 			<td colspan=6 width="50%" style="padding:5px">

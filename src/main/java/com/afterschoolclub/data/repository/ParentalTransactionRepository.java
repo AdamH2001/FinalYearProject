@@ -51,6 +51,10 @@ public interface ParentalTransactionRepository extends CrudRepository<ParentalTr
 			
 	@Query("SELECT * FROM parental_transaction WHERE parent_id = :parentId AND balance_type ='CASH' AND transaction_type = 'DEPOSIT' ORDER BY date_time DESC") 
 	List<ParentalTransaction> getCashTopUps(int parentId);	
-		
+	
+	@Query("SELECT * FROM parental_transaction WHERE payment_reference = :voucherReference") 
+	List<ParentalTransaction> findVoucherByReferenceId(String  voucherReference);	
+
+	
 }
 	   

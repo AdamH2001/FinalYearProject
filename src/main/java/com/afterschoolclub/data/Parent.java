@@ -49,11 +49,25 @@ public class Parent {
 		super();		
 	}
 	
+	
 	public Student getFirstStudent() {
+		List<Student> allActiveVerifiedStudents = getStudents();
 		Student result = null;
-		if (students.size() > 0)
-			result = (Student) students.toArray()[0];
+		if (allActiveVerifiedStudents.size() > 0) {
+			result = allActiveVerifiedStudents.get(0);
+		}
 		return result;
+	}
+	
+	public List<Student> getStudents() {
+		List<Student> allActiveVerifiedStudents = new ArrayList<Student>();
+		for (Student student : students) {
+			if (student.isAdminVerified() && student.getState() == State.ACTIVE) {
+				allActiveVerifiedStudents.add(student);
+			}
+				
+		}
+		return allActiveVerifiedStudents;
 	}
 	
 	static public int getTotalOverdraftLmit() {		
@@ -185,22 +199,25 @@ public class Parent {
 		return;
 	}
 	
-	public void recordRefundForClub(int totalRefund, Club club, String description) {
+	public ParentalTransaction recordRefundForClub(int totalRefund, Club club, String description) {
 		int remaining = totalRefund;
 		int voucherBalance = this.getVoucherBalance();
 		int totalCashPaidForClub = ParentalTransaction.getCashPaidForClub(this.getParentId(), club.getClubId());
 		int cashRefund = (totalCashPaidForClub > remaining) ? remaining :totalCashPaidForClub;
+		ParentalTransaction pt = null;
 		if (cashRefund > 0) {
 			remaining -= cashRefund;
-			ParentalTransaction pt = new ParentalTransaction(cashRefund, LocalDateTime.now(), ParentalTransaction.Type.REFUND, description, club);
+			pt = new ParentalTransaction(cashRefund, LocalDateTime.now(), ParentalTransaction.Type.REFUND, description, club);			
 			addTransaction(pt);
 		}
 		if (remaining > 0 && club.isAcceptsVouchers()) {
-			ParentalTransaction pt = new ParentalTransaction(remaining, LocalDateTime.now(), ParentalTransaction.Type.REFUND, description, club);
-			pt.setBalanceType(BalanceType.VOUCHER);
+			pt = new ParentalTransaction(remaining, LocalDateTime.now(), ParentalTransaction.Type.REFUND, description, club);
+			pt.setBalanceType(BalanceType.VOUCHER);			
 			addTransaction(pt);
 		}
-		return;
+		pt.setParentId(AggregateReference.to(this.getParentId()));
+		
+		return pt;
 	}	
 
 	public List<ParentalTransaction> getCashTopUps() {

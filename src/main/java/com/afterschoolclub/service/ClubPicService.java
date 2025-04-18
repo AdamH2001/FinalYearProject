@@ -27,7 +27,7 @@ import org.springframework.core.io.UrlResource;
 @Service
 public class ClubPicService {
 
-    @Value("${file.clubPics}")
+    @Value("${asc.file.clubPics}")
     private String uploadDir;
     
 	public ClubPicService() {

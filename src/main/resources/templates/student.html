@@ -28,7 +28,7 @@
 
 				<div class="row mb-2">
 					<div class="col-sm-12" align="center">
-						<h1 class="asc-header" th:if="${isEditing}">Update Child Details</h1>
+						<h1 class="asc-header" th:if="${isEditing}">Child Details</h1>
 						<h1 class="asc-header" th:unless="${isEditing}">Add Child</h1>
 					</div>					
 				</div>
@@ -70,82 +70,83 @@
 							type="date" name="dateOfBirth" id="dateOfBirth" th:value="${student.getDateOfBirth()}"/>
 					</div>
 				</div>
-				<div class="row mb-2">
-						<div class="col-sm-2 asc-form-label" align="center">
-							<label for="allergyNote">Allergies:</label>
-						</div>
-						<div class="col-sm-9">
-							<textarea class="form-control mr-sm-2" 
-								name="allergyNote" id="allergyNote" th:text="${student.getAllergyNoteText()}"></textarea>
-						</div>
-				</div>
-				<div class="row mb-2">
-						<div class="col-sm-2 asc-form-label" align="center">
-							<label for="healthNote">Health Notes:</label>
-						</div>
-						<div class="col-sm-9">
-							<textarea class="form-control mr-sm-2" 
-								name="healthNote" id="healthNote" th:text="${student.getHealthNoteText()}"></textarea>
-						</div>
-				</div>
-				<div class="row mb-2">
-						<div class="col-sm-2 asc-form-label" align="center">
-							<label for="dietNote">Diet Requirements:</label>
-						</div>
-						<div class="col-sm-9">
-							<textarea class="form-control mr-sm-2" 
-								name="dietNote" id="dietNote" th:text="${student.getDietNoteText()}"></textarea>
-						</div>
-				</div>
-				<div class="row mb-2">
-						<div class="col-sm-2 asc-form-label" align="center">
-							<label for="careNote">Care Plan:</label>
-						</div>
-						<div class="col-sm-9">
-							<textarea class="form-control mr-sm-2" 
-								name="careNote" id="careNote" th:text="${student.getCarePlanNoteText()}"></textarea>
-						</div>
-				</div>
-				
-				<div class="row mb-2">
-						<div class="col-sm-2 asc-form-label" align="center">
-							<label for="medicationNote">Medication:</label>
-						</div>
-						<div class="col-sm-9">
-							<textarea class="form-control mr-sm-2" 
-								name="medicationNote" id="medicationNote" th:text="${student.getMedicationNoteText()}"></textarea>
-						</div>
-				</div>
-				
-				<div class="row mb-4">
-						<div class="col-sm-2 asc-form-label" align="center">
-							<label for="otherNote">Other:</label>
-						</div>
-						<div class="col-sm-9">
-							<textarea class="form-control mr-sm-2" 
-								name="otherNote" id="otherNote" th:text="${student.getOtherNoteText()}"></textarea>
-						</div>
-				</div>
-				
-				<div class="row mb-2">
-					<div class="col-sm-2 asc-form-label" align="center">
+				<th:block th:if="${!sessionBean.isAdminLoggedOn()}">
+					<div class="row mb-2">
+							<div class="col-sm-2 asc-form-label" align="center">
+								<label for="allergyNote">Allergies:</label>
+							</div>
+							<div class="col-sm-9">
+								<textarea class="form-control mr-sm-2" 
+									name="allergyNote" id="allergyNote" th:text="${student.getAllergyNoteText()}"></textarea>
+							</div>
 					</div>
-					<div class="col-sm-9">
-						I confirm this is an up to date and accurate record of my child's medical records &nbsp;	
-						<input class="asc-control form-check-input" type="checkbox" required name="confirmation"  />
-					</div>					
-				</div>				
-
-				
-				<div class="row mb-4">
-					<div class="col-sm-2 asc-form-label" align="center">
+					<div class="row mb-2">
+							<div class="col-sm-2 asc-form-label" align="center">
+								<label for="healthNote">Health Notes:</label>
+							</div>
+							<div class="col-sm-9">
+								<textarea class="form-control mr-sm-2" 
+									name="healthNote" id="healthNote" th:text="${student.getHealthNoteText()}"></textarea>
+							</div>
 					</div>
-					<div class="col-sm-9">
-						I give consent for these details to be shared with with medical professionals in case of emergency &nbsp;																			
-						<input class="asc-control form-check-input" type="checkbox" required name="consentToShare" th:checked="${student.isConsentToShare()}" id="consentToShare" />
+					<div class="row mb-2">
+							<div class="col-sm-2 asc-form-label" align="center">
+								<label for="dietNote">Diet Requirements:</label>
+							</div>
+							<div class="col-sm-9">
+								<textarea class="form-control mr-sm-2" 
+									name="dietNote" id="dietNote" th:text="${student.getDietNoteText()}"></textarea>
+							</div>
 					</div>
-				</div>
-				
+					<div class="row mb-2">
+							<div class="col-sm-2 asc-form-label" align="center">
+								<label for="careNote">Care Plan:</label>
+							</div>
+							<div class="col-sm-9">
+								<textarea class="form-control mr-sm-2" 
+									name="careNote" id="careNote" th:text="${student.getCarePlanNoteText()}"></textarea>
+							</div>
+					</div>
+					
+					<div class="row mb-2">
+							<div class="col-sm-2 asc-form-label" align="center">
+								<label for="medicationNote">Medication:</label>
+							</div>
+							<div class="col-sm-9">
+								<textarea class="form-control mr-sm-2" 
+									name="medicationNote" id="medicationNote" th:text="${student.getMedicationNoteText()}"></textarea>
+							</div>
+					</div>
+					
+					<div class="row mb-4">
+							<div class="col-sm-2 asc-form-label" align="center">
+								<label for="otherNote">Other:</label>
+							</div>
+							<div class="col-sm-9">
+								<textarea class="form-control mr-sm-2" 
+									name="otherNote" id="otherNote" th:text="${student.getOtherNoteText()}"></textarea>
+							</div>
+					</div>
+					
+					<div class="row mb-2">
+						<div class="col-sm-2 asc-form-label" align="center">
+						</div>
+						<div class="col-sm-9">
+							I confirm this is an up to date and accurate record of my child's medical records &nbsp;	
+							<input class="asc-control form-check-input" type="checkbox" required name="confirmation"  />
+						</div>					
+					</div>				
+	
+					
+					<div class="row mb-4">
+						<div class="col-sm-2 asc-form-label" align="center">
+						</div>
+						<div class="col-sm-9">
+							I give consent for these details to be shared with with medical professionals in case of emergency &nbsp;																			
+							<input class="asc-control form-check-input" type="checkbox" required name="consentToShare" th:checked="${student.isConsentToShare()}" id="consentToShare" />
+						</div>
+					</div>
+				</th:block>	
 				
 
 				

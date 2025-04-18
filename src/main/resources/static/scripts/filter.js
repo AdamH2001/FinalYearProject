@@ -1,6 +1,19 @@
+
+	function shouldFilter(row, words) {
+		filter = true;
+		index = 0;
+		rowText = $(row)[0].innerText.toLowerCase();
+		while (index < words.length && filter) {
+			value = words[index]
+			index++
+			filter = rowText.indexOf(value) > -1;
+		}
+		return filter;
+	}
+
 	function reapplyStripes() {
 		$(".stripedrow:visible").each(function (index) {
-			  if ( index % 2 == 0) {
+			  if (index % 2 == 0) {
 			            $(this).addClass('evenStripe').removeClass('oddStripe');
 			  }
 			else {

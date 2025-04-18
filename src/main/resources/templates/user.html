@@ -28,7 +28,8 @@
 				<div class="row mb-2">
 					<div class="col-sm-12" align="right">
 						<h1 class="asc-header" th:unless="${isEditing}">New User</h1>
-						<h1 class="asc-header" th:if="${isEditing}">Update Profile</h1>
+						<h1 class="asc-header" th:if="${isEditing} and ${user.isParent()}">Parent/Guardian Details</h1>
+						<h1 class="asc-header" th:if="${isEditing} and ${!user.isParent()}">User Details</h1>
 					</div>
 				</div>
 				<div class="row mb-2">
@@ -71,7 +72,7 @@
 							name="surname" id="surname" />
 					</div>					
 										
-				</div>
+				</div>			
 
 				<div class="row mb-2">
 					<div class="col-sm-2 asc-form-label">

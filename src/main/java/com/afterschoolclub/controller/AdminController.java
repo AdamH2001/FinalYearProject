@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +26,7 @@ import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.data.Attendee;
 import com.afterschoolclub.data.AttendeeIncident;
 import com.afterschoolclub.data.Club;
+import com.afterschoolclub.data.Email;
 import com.afterschoolclub.data.Session;
 import com.afterschoolclub.data.SessionMenu;
 import com.afterschoolclub.data.SessionResource;
@@ -429,11 +433,35 @@ public class AdminController {
 	
 	
 	@GetMapping("/cancelSession")
+	@Transactional
 	public String cancelSession(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {	
-				Session.deleteById(sessionId);
-				sessionBean.setFlashMessage("Session cancelled.");			
+		if (returnPage == null) {
+				Session session = Session.findById(sessionId);			
+				List<User> allUsers = session.getAllUsers();
+				List<Email> allEmails = new ArrayList<Email>();
+				
+				Context context = new Context();			
+				for (User user:allUsers) {
+					context.setVariable("user", user);
+					context.setVariable("session", session);
+					
+					context.setVariable("sessionBean", sessionBean);
+					
+					Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "AfterSchool Club Session Cancelled",  mailService.getHTML("email/sessionCancelled", context));
+					allEmails.add(email);
+					
+				}
+				session.cancel();
+				try {
+					mailService.sendAllHTMLEmails(allEmails);
+					sessionBean.setFlashMessage("Session cancelled and all attendeees refunded and notified.");			
+				}
+				catch (MessagingException e) {
+					e.printStackTrace();
+					sessionBean.setFlashMessage("Session cancelled and all attendeees refunded but failed to notify attendees.");			
+					
+				}				
 				returnPage = setupCalendar(model);						
 		}
 		return returnPage;
@@ -864,7 +892,7 @@ public class AdminController {
 			model.addAttribute("clubs",Club.findAll());			
 			model.addAttribute("totalRevenue",ParentalTransaction.getTotalRevenueBetween(sessionBean.getFinanceStartDate(), sessionBean.getFinanceEndDate()));				
 			
-			sessionBean.setReturnClubRevenue();
+			sessionBean.setReturnUrl("./clubRevenue");
 			this.setInDialogue(false,model);
 			returnPage= "clubRevenue";
 		}
@@ -873,26 +901,53 @@ public class AdminController {
 		
 	}
 	
-	@GetMapping("/parentFinances")
-	public String parentFinances(Model model) {
+	@GetMapping("/userAccounts")
+	public String userAccounts(@RequestParam(name = "newAccounts", required=false, defaultValue="2") int newAaccountsTab,
+			Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {	
 			model.addAttribute("users",User.findParents());
-			model.addAttribute("validateUsers",User.findToBeAdminValidated());
-
+			model.addAttribute("validateUsers",User.findParentByStateVerified(State.ACTIVE, false));
+			model.addAttribute("totalOverdraftLimit",Parent.getTotalOverdraftLmit());	
 			
+			if (newAaccountsTab == 1) {
+				sessionBean.setNewAccountsTab(true);
+			} 
+			else if (newAaccountsTab == 0) {
+				sessionBean.setNewAccountsTab(false);				
+			}
 			
-			model.addAttribute("totalOverdraftLimit",Parent.getTotalOverdraftLmit());				
-			
-			sessionBean.setReturnParentFinances(); 
+			sessionBean.setReturnUrl("./userAccounts"); 
 			this.setInDialogue(false,model);
-			returnPage= "parentFinance";
+			returnPage= "userAccounts";
 		}
 		return returnPage;
-		
-		
 	}
-	
+
+	@GetMapping("/students")
+	public String students(@RequestParam(name = "newAccounts", required=false, defaultValue="2") int newAaccountsTab,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {	
+			model.addAttribute("students",Student.findByStateVerified(State.ACTIVE, true));
+			model.addAttribute("validateStudents",Student.findByStateVerified(State.ACTIVE, false));
+			
+			if (newAaccountsTab == 1) {
+				sessionBean.setNewStudentsTab(true);
+			} 
+			else if (newAaccountsTab == 0) {
+				sessionBean.setNewStudentsTab(false);				
+			}
+			
+			sessionBean.setReturnUrl("./students"); 
+			this.setInDialogue(false,model);
+			returnPage= "students";
+		}
+		return returnPage;
+	}
+		
+		
+		
 	
 	
 	@GetMapping("/clubRevenueBack")
@@ -942,7 +997,7 @@ public class AdminController {
 			model.addAttribute("user",user);
 			
 			sessionBean.setReturnUrl("./adminViewTransactions?userId=".concat(String.valueOf(userId))); 
-
+			sessionBean.setNewAccountsTab(false);
 			this.setInDialogue(false,model);
 			returnPage= "viewtransactions";
 		}
@@ -951,6 +1006,7 @@ public class AdminController {
 		
 	}
 	
+	@Transactional
 	@GetMapping("/deleteUser")
 	public String deleteUser(	@RequestParam(name = "userId") int userId,
 			Model model) {
@@ -961,13 +1017,53 @@ public class AdminController {
 			user.update();		
 			user.refund();
 			
-			//TODO send an email
-			
-			sessionBean.setFlashMessage("User successfully deleted.");
-			returnPage= "redirect:parentFinances";
+			Context context = new Context();
+			context.setVariable("user", user);
+			context.setVariable("sessionBean", sessionBean);	
+			Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "AfterSchool Club Account Cancelled", mailService.getHTML("email/accountCancelled", context));
+
+			try {
+				mailService.sendHTMLEmail(email);
+				sessionBean.setFlashMessage("User successfully deleted.");
+			} catch (Exception e) {
+				e.printStackTrace();
+				sessionBean.setFlashMessage("Failed to notify user.");
+			}						
+			returnPage= "redirect:userAccounts";
 		}
 		return returnPage;				
 	}	
+	
+	@GetMapping("/deleteStudent")
+	public String deleteStudent(@RequestParam(name = "studentId") int studentId,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {				
+			Student student = Student.findById(studentId);
+			student.setState(State.INACTIVE);			
+			student.update();		
+			
+			User user = student.getUser();
+			
+			Context context = new Context();
+			context.setVariable("user", user);
+			context.setVariable("student", student);			
+			context.setVariable("sessionBean", sessionBean);	
+			Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "AfterSchool Club Account Cancelled", mailService.getHTML("email/studentDeleted", context));
+
+			try {
+				mailService.sendHTMLEmail(email);
+				sessionBean.setFlashMessage(String.format("%s successfully deleted and parent notified.", student.getFullName()));
+			} catch (Exception e) {
+				e.printStackTrace();
+				sessionBean.setFlashMessage("Failed to notify user.");
+			}						
+			returnPage= "redirect:students";
+		}
+		return returnPage;				
+	}	
+	
+	
 	
 	@GetMapping("/validateUser")
 	public String validateUser(	@RequestParam(name = "userId") int userId,
@@ -977,14 +1073,102 @@ public class AdminController {
 			User user = User.findById(userId);
 			user.setAdminVerified(true);
 			user.update();		
+			sessionBean.setNewAccountsTab(true);
 			
-			//TODO send email to user
+			Context context = new Context();
+			context.setVariable("user", user);
+			String link = String.format("%s/validateEmail?userId=%d&validationKey=%d", sessionBean.getHomePage(), user.getUserId(), user.getValidationKey());
+			context.setVariable("link", link);
 			
-			sessionBean.setFlashMessage("User approved and notified.");
+			context.setVariable("sessionBean", sessionBean);
+			
+			Email email = new Email(user.getEmail(), sessionBean.getContactEmail(),"AfterSchool Club Account Validated",  mailService.getHTML("email/validatedUser", context));
+			
+			try {
+				mailService.sendHTMLEmail(email);
+				sessionBean.setFlashMessage(String.format("%s approved and notified.", user.getFullName()));
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				sessionBean.setFlashMessage(String.format("Failed to notify %s.", user.getFullName()));
+			}
+
+			
 			returnPage= sessionBean.getRedirectUrl();
 		}
 		return returnPage;				
 	}	
+	
+	@GetMapping("/validateStudent")
+	public String validateStudent(	@RequestParam(name = "studentId") int studentId,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {				
+			Student student = Student.findById(studentId);
+			student.setAdminVerified(true);
+			student.update();		
+			sessionBean.setNewStudentsTab(true);
+			
+			User user = student.getUser();
+			Context context = new Context();
+			context.setVariable("user", user);
+			context.setVariable("student", student);			
+			context.setVariable("sessionBean", sessionBean);
+			
+			Email email = new Email(user.getEmail(), sessionBean.getContactEmail(),"AfterSchool Club Student Validated",  mailService.getHTML("email/validatedStudent", context));
+			
+			try {
+				mailService.sendHTMLEmail(email);
+				sessionBean.setFlashMessage(String.format("%s approved and parent notified.", student.getFullName()));
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				sessionBean.setFlashMessage(String.format("Failed to notify parent of %s.", student.getFullName()));
+			}
+
+			
+			returnPage= sessionBean.getRedirectUrl();
+		}
+		return returnPage;				
+	}		
+	
+	@GetMapping("/rejectStudent")
+	public String rejectStudent(	@RequestParam(name = "studentId") int studentId,
+			Model model) {
+		String returnPage = validateIsAdmin(model);
+		if (returnPage == null) {				
+			Student student = Student.findById(studentId);			
+						
+			sessionBean.setNewStudentsTab(true);
+			
+			User user = student.getUser();
+			
+			Context context = new Context();
+			context.setVariable("user", user);
+			context.setVariable("student", student);			
+			
+			context.setVariable("sessionBean", sessionBean);
+			
+			Email email = new Email(user.getEmail(), sessionBean.getContactEmail(),"AfterSchool Club Student Not Approved",  mailService.getHTML("email/rejectedStudent", context));
+			
+			student.delete();		
+			sessionBean.setNewAccountsTab(true);
+			
+			try {
+				mailService.sendHTMLEmail(email);
+				sessionBean.setFlashMessage(String.format("%s rejected and parent notified.", user.getFullName()));
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				sessionBean.setFlashMessage(String.format("Failed to notify parent of %s.", user.getFullName()));
+			}			
+			returnPage= sessionBean.getRedirectUrl();
+		}
+		return returnPage;				
+	}		
+	
+	
+	
 	
 	@GetMapping("/rejectUser")
 	public String rejectUser(	@RequestParam(name = "userId") int userId,
@@ -994,11 +1178,22 @@ public class AdminController {
 			User user = User.findById(userId);
 			user.setAdminVerified(true);
 			
-			//TODO send email to user
+			Context context = new Context();
+			context.setVariable("user", user);
+			context.setVariable("sessionBean", sessionBean);
 			
-			
+			Email email = new Email(user.getEmail(), sessionBean.getContactEmail(),"AfterSchool Club Account Not Approved",  mailService.getHTML("email/rejectedUser", context));
 			user.delete();		
-			sessionBean.setFlashMessage("User rejected and notified.");
+			sessionBean.setNewAccountsTab(true);
+			
+			try {
+				mailService.sendHTMLEmail(email);
+				sessionBean.setFlashMessage(String.format("%s rejected and notified.", user.getFullName()));
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				sessionBean.setFlashMessage(String.format("Failed to notify %s.", user.getFullName()));
+			}			
 			returnPage= sessionBean.getRedirectUrl();
 		}
 		return returnPage;				
@@ -1017,7 +1212,7 @@ public class AdminController {
 			parent.setOverdraftLimit(overdraftLimit);
 			parent.update();		
 			sessionBean.setFlashMessage("Overdraft successfully updated.");
-			returnPage= "redirect:parentFinances";
+			returnPage= "redirect:userAccounts";
 		}
 		return returnPage;
 	}		
@@ -1029,20 +1224,21 @@ public class AdminController {
 			Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {			
-			
-			User user = User.findById(userId);
-			Parent parent = user.getParent();									
-			ParentalTransaction pt = new ParentalTransaction(voucherAmount, LocalDateTime.now(), ParentalTransaction.Type.DEPOSIT, "Voucher Registered");
-			pt.setPaymentReference(voucherReference);
-			pt.setBalanceType(ParentalTransaction.BalanceType.VOUCHER);			
-
-			// TODO check reference not already used			
-			
-			parent.addTransaction(pt);			
-			user.save();
-			sessionBean.setFlashMessage("Voucher successfully registered.");
-			
-			returnPage= "redirect:parentFinances";
+			ParentalTransaction oldPt = ParentalTransaction.findVoucherByReferenceId(voucherReference);
+			if (oldPt == null) {
+				User user = User.findById(userId);
+				Parent parent = user.getParent();									
+				ParentalTransaction pt = new ParentalTransaction(voucherAmount, LocalDateTime.now(), ParentalTransaction.Type.DEPOSIT, "Voucher Registered");
+				pt.setPaymentReference(voucherReference);
+				pt.setBalanceType(ParentalTransaction.BalanceType.VOUCHER);					
+				parent.addTransaction(pt);			
+				user.save();
+				sessionBean.setFlashMessage("Voucher successfully registered.");				
+			}
+			else {
+				sessionBean.setFlashMessage("Voucher has already been used.");
+			}
+			returnPage= "redirect:userAccounts";
 		}
 		return returnPage;
 	}		
@@ -1051,8 +1247,10 @@ public class AdminController {
 	 * Refund a user their total cash balance 
 	 * @param userId - the user identifier of the user to be refunded
 	 * @param model
-	 * @return return redirect back to the parentFinances view 
+	 * @return return redirect back to the userAccounts view 
 	 */
+
+	
 	@GetMapping("/refundUser")
 	public String refundUser(@RequestParam(name = "userId") int userId,
 			Model model) {
@@ -1065,7 +1263,7 @@ public class AdminController {
 			else {
 				sessionBean.setFlashMessage("Failed to refund user.");												
 			}
-			returnPage= "redirect:parentFinances";
+			returnPage= "redirect:userAccounts";
 		}
 		return returnPage;
 	}	
@@ -1077,15 +1275,13 @@ public class AdminController {
 		if (returnPage == null) {				
 			User user = User.findById(userId);
 			if (user!=null) {
-				Parent parent = user.getParent();
 				Context context = new Context();
 				context.setVariable("user", user);
-				context.setVariable("parent", parent);
-				context.setVariable("sessionBean", sessionBean);
+				context.setVariable("sessionBean", sessionBean);	
 				
-				try {//TODO use config for email etc... 
-					mailService.sendTemplateEmail(user.getEmail(), "afterschooladmin@hattonsplace.co.uk",
-							"AfterSchool Club Payment Reminder", "emailUserInDebt", context);
+				Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "AfterSchool Club Payment Reminder",  mailService.getHTML("email/userInDebt", context));
+				try {
+					mailService.sendHTMLEmail(email);							
 				} catch (MessagingException e) {
 					e.printStackTrace();
 				}
@@ -1106,21 +1302,23 @@ public class AdminController {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {
 			List<User> allUsersInDebt = User.findInDebt();
+			List<Email> allEmails = new ArrayList<Email>();
+			Context context = new Context();			
 			for (User user:allUsersInDebt) {
-				Parent parent = user.getParent();
-				Context context = new Context();
 				context.setVariable("user", user);
-				context.setVariable("parent", parent);
 				context.setVariable("sessionBean", sessionBean);
 				
-				try {//TODO use config for email etc... 
-					mailService.sendTemplateEmail(user.getEmail(), "afterschooladmin@hattonsplace.co.uk",
-							"AfterSchool Club Payment Reminder", "emailUserInDebt", context);
-				} catch (MessagingException e) {
-					e.printStackTrace();
-				}
+				Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "AfterSchool Club Payment Reminder",  mailService.getHTML("email/userInDebt", context));
+				allEmails.add(email);				
+			}	
+			try {
+				mailService.sendAllHTMLEmails(allEmails);
 				sessionBean.setFlashMessage("Email(s) sent");
-			}						
+			}
+			catch (MessagingException e) {
+				e.printStackTrace();
+			}
+			
 			returnPage = sessionBean.getRedirectUrl();
 		}
 		

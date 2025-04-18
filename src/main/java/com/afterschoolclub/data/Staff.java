@@ -64,19 +64,27 @@ public class Staff {
 		maxDemand = user.getResourceObject().getMaxDemand();
 	}
 	
-	public void save()
+	public User save()
 	{
 		User user = null;
 		Resource resource = null;
 		if (userId == 0) {
-			user = new User();
-						
-			resource = new Resource();
-			user.addResource(resource);
-			
-			user.setDateRequested(LocalDateTime.now());
-			user.setEmailVerified(true);
-			user.setPassword("somecrap");	//TODO set to random value		
+			user = User.findByEmail(email);
+			if (user != null && user.isAdmin() && user.getState() == State.INACTIVE) {
+				user.setState(State.ACTIVE);
+				resource = user.getResourceObject();
+			}
+			else {
+				user = new User();
+							
+				resource = new Resource();
+				user.addResource(resource);
+				
+				user.setDateRequested(LocalDateTime.now());
+				user.setEmailVerified(true);
+				user.setAdminVerified(true);
+				user.setPassword("somecrap");	//TODO set to random value
+			}
 		} 
 		else {
 			user = User.findById(userId);
@@ -102,16 +110,20 @@ public class Staff {
 		}
 		else {
 			user.update(); // Don't want to force all the resources to update. 
-		}				
+		}	
+		return user;
 	}
 	
-	public void inActivate()
+	public User inActivate()
 	{
 		User  user = User.findById(userId);
+		user.setState(State.INACTIVE);
+		user.update();
+		
 		Resource resource = user.getResourceObject();
 		resource.setState(State.INACTIVE);
 		resource.save();
-
+		return user;
 	}
 	
 	public boolean isParent() {

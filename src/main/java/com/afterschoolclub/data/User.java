@@ -32,7 +32,7 @@ import lombok.ToString;
 public class User {
 
 	
-    @Value("${file.upload-dir}")
+    @Value("${asc.file.upload-dir}")
     private String uploadDir;
     
 	static Logger logger = LoggerFactory.getLogger(User.class);
@@ -76,6 +76,12 @@ public class User {
 		
 	}	
 	
+	
+	public static List<User> findParentByStateVerified(State state, boolean verified) {
+		return repository.findParentByStateVerified(state, verified);		
+	}		
+	
+	
 	public static User findByEmail(String email) {
 		List<User> users = repository.findByEmail(email);
 		User user = null;
@@ -89,10 +95,6 @@ public class User {
 	public static List<User> findStaffBySessionId(int sessionId) {
 		return repository.findStaffBySessionId(sessionId);
 		
-	}		
-	
-	public static List<User> findToBeAdminValidated() {
-		return repository.findToBeAdminValidated();		
 	}		
 	
 	

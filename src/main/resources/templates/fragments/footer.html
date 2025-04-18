@@ -18,15 +18,19 @@
 				<div class="row" >
 					<div class="col-sm-2"></div>
 					
-					<div class="col-sm-2"><a class="nav-link footer-link" href="./privacypolicy"> Privacy Policy</a></div>
+					<div class="col-sm-2"><a class="nav-link footer-link" href="./privacypolicy"> Privacy Statement</a></div>
 					<div class="col-sm-2"><a class="nav-link footer-link" href="./termsandconditions">Terms and Conditions</a></div>
 					<div class="col-sm-2"><a class="nav-link footer-link" href="./policiesandprocedures">Policies and Procedures</a></div>
 					
 					<div class="col-sm-1 footer-link" style="text-align:right">Contact:</div>
 					<div class="col-sm-3" align="left">
 						<table>
-							<tr><td><a class="nav-link footer-link" style="text-align:left"  href="mailto:admin@afterschoolclub.com"><i class="fa-regular fa-envelope"></i>&nbsp; admin@afterschoolclub.com</a></td></tr>
-							<tr><td><a class="nav-link footer-link" style="text-align:left" href="tel:01256888888"><i class="fa-solid fa-phone"></i>&nbsp; 01256888888</a></td></tr>
+							<tr><td>
+								<a class="nav-link footer-link" th:href="${'mailto:' + sessionBean.getContactEmail()}">
+								<i class="fa-regular fa-envelope"></i>&nbsp;<span th:text="${sessionBean.getContactEmail()}">Email</span></a></td></tr>
+							<tr><td>
+								<a class="nav-link footer-link" th:href="${'tel:' + sessionBean.getContactTel()}">
+									<i class="fa-solid fa-phone"></i>&nbsp;<span th:text="${sessionBean.getContactTel()}">Tel</span></a></td></tr>
 						</table>
 					</div>
 				</div>

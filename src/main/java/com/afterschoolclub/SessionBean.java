@@ -8,17 +8,21 @@ import com.afterschoolclub.service.PolicyService;
 import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Filter;
 import com.afterschoolclub.data.Policy;
+import com.afterschoolclub.data.State;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -31,6 +35,16 @@ import org.springframework.context.annotation.ScopedProxyMode;
 
 public class SessionBean {
 
+    @Value("${asc.contactEmail}")
+    private String contactEmail;	
+
+    @Value("${asc.contactTel}")
+    private String contactTel;	
+
+    @Value("${asc.homepage}")
+    private String homePage;	
+    
+    
 	@Autowired
     private PolicyService policyService;
 	
@@ -46,6 +60,10 @@ public class SessionBean {
     
     private boolean inDialogue = false;
     private boolean financeSummaryVisible = false;
+    private boolean newAccountsTab = false;
+    private boolean newStudentsTab = false;
+
+    
     
     private String returnUrl = "./";
     private String previousReturnUrl = "./";
@@ -109,35 +127,7 @@ public class SessionBean {
     	calendarView = false;
     }
     
-    public void setReturnCalendar()  {
-    	this.setReturnUrl("./calendar");
-    	return;
-    }
-    
-    public void setReturnClubs()  {
-    	this.setReturnUrl("./viewClubs");
-    	return;
-    }
 
-    public void setReturnIncidents()  {
-    	this.setReturnUrl("./viewIncidents");
-    	return;
-    }
-    
-    public void setReturnParentFinances()  {
-    	this.setReturnUrl("./parentFinances");
-    	return;
-    }    
-    
-    public void setReturnClubRevenue()  {
-    	this.setReturnUrl("./clubRevenue");
-    	return;
-    }        
-
-    public void setReturnTransactions()  {
-    	this.setReturnUrl("./viewTransactions");
-    	return;
-    }    
     
     public void setReturnUrl(String newReturn) {
     	if (!returnUrl.equals(newReturn)) {
@@ -232,5 +222,35 @@ public class SessionBean {
 		List<Policy> allPolicies = policyProperties.policies(); 
 		return allPolicies;
 	}
+
+	public int numNewAccountRequests() {
+		return User.findParentByStateVerified(State.ACTIVE, false).size();
+	}
+
+	public int numUsers() {		
+		return User.findParentByStateVerified(State.ACTIVE, true).size();
+	}
+	
+	public int numStudents() {
+		return Student.findByStateVerified(State.ACTIVE, true).size();
+	}
+	
+	public int numNewStudentRequests() {
+		return Student.findByStateVerified(State.ACTIVE, false).size();
+	}
+	
+	
+    public String formatDate(LocalDate d) {
+		return d.format(DateTimeFormatter.ofPattern("dd/MM/YYYY"));		
+
+    }	
+	
+    public String formatDateTime(LocalDateTime dt) {
+		return dt.format(DateTimeFormatter.ofPattern("dd/MM/YYYY HH:mm"));		
+
+    }
+	
+	
+
 }
 
