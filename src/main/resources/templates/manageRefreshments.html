@@ -119,7 +119,7 @@
 									th:orig-data="${menuOption.getAllergyInformation()}" th:text="${menuOption.getAllergyInformation()}"
 									edittype="textarea">Allergy Information</div>
 								<div style="padding-left: 0px" id="additionalCost" class="col-sm-1 editable menuOption"
-									th:orig-data="${menuOption.getAdditionalCost()}" th:text="${menuOption.getAdditionalCost()}" edittype="number"
+									th:orig-data="${menuOption.getAdditionalCost()}" th:text="${sessionBean.formatMoney(menuOption.getAdditionalCost())}" edittype="number"
 									align=center>Cost</div>
 								<div style="padding-left: 0px" class="col-sm-1 asc-menuitembutton">
 									<button class="btn asc-control imagebtn btn-danger" type="button" onclick="deleteMenuItem(this)" th:id="${'delete-' + menuOption.getMenuOptionId()}"><i class="fa fa-trash"></i></button>

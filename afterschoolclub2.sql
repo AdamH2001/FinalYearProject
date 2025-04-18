@@ -17,6 +17,7 @@ CREATE TABLE `User` (
   `validation_key` INT,
   `date_requested` DATETIME NOT NULL,
   `email_verified` BOOLEAN NOT NULL,
+  `admin_verified` BOOLEAN NOT NULL,
   `state` ENUM('ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE' 
 
 );
@@ -97,7 +98,10 @@ CREATE TABLE `Student` (
   `surname` VARCHAR(64) NOT NULL,
   `date_of_birth` DATE NOT NULL,
   `health_questionnaire_completed` DATETIME NOT NULL,
-  `consent_to_share` BOOLEAN NOT NULL
+  `consent_to_share` BOOLEAN NOT NULL,
+  `date_requested` DATETIME NOT NULL,
+  `admin_verified` BOOLEAN NOT NULL,
+  `state` ENUM('ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE'   
 );
 
 CREATE TABLE `Attendee` (
@@ -274,20 +278,18 @@ VALUES ((SELECT menu_option_id from after_school_club2.menu_option WHERE name="M
 ,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Banana"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Fruit Selection"))
 ,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Pear"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Fruit Selection"));
 
-INSERT into after_school_club2.user (email,password,first_name,surname,validation_key,date_requested,email_verified, telephone_num, title)
-VALUES ("adam@hattonsplace.co.uk","TWFuVXRkMDE=","Adam","Hatton","6000000",'2022-12-27',True, "01256812734", "Mr"),
-("chris@hattonsplace.co.uk","TWFuVXRkMDE=","Christine","Smith","6000000",'2022-12-27',True,"01256812734", "Mrs"),
-("peterjones@hattonsplace.co.uk","TWFuVXRkMDE=","Peter","Jones","6000000",'2022-12-27',True, "01256812734", "Mr"),
-("brian@hattonsplace.co.uk","TWFuVXRkMDE=","Brian","Guest","6000000",'2022-12-27',True, "01256812734", "Mr");
+INSERT into after_school_club2.user (email,password,first_name,surname,validation_key,date_requested,email_verified, admin_verified, telephone_num, title)
+VALUES ("adam@hattonsplace.co.uk","$2a$12$BxEkNwY9N4klFidhNOC9ieLljbn3IEaDFiGHROEjBU4.m3vWv4sS6","Adam","Hatton","6000000",'2022-12-27',True, True, "01256812734", "Mr"),
+("chris@hattonsplace.co.uk","$2a$12$BxEkNwY9N4klFidhNOC9ieLljbn3IEaDFiGHROEjBU4.m3vWv4sS6","Christine","Smith","6000000",'2022-12-27',True, True, "01256812734", "Mrs"),
+("peterjones@hattonsplace.co.uk","$2a$12$BxEkNwY9N4klFidhNOC9ieLljbn3IEaDFiGHROEjBU4.m3vWv4sS6","Peter","Jones","6000000",'2022-12-27',True,True,  "01256812734", "Mr"),
+("brian@hattonsplace.co.uk","$2a$12$BxEkNwY9N4klFidhNOC9ieLljbn3IEaDFiGHROEjBU4.m3vWv4sS6","Brian","Guest","6000000",'2022-12-27',True, True, "01256812734", "Mr");
 
 
  
 INSERT into after_school_club2.resource(name, description, quantity, type, keywords, state, capacity, user_id)
 VALUES ("Mr A Hatton", "Sports Teacher", 1, "STAFF", "sport",  'ACTIVE', 30, (SELECT user_id from user  WHERE first_name="Adam")),
  ("Mrs C Smith", "Computer Teacher", 1, "STAFF", "technology", 'ACTIVE', 30, (SELECT user_id from user  WHERE first_name="Christine"));
-        
-        
-
+       
 
 INSERT into after_school_club2.parent (user_id, alt_contact_name,alt_telephone_num)
 VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Peter"),"Smithy","1234");
@@ -296,15 +298,15 @@ INSERT into after_school_club2.parent (user_id, alt_contact_name,alt_telephone_n
 VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Brian"),"Smithy","2345");
 
 
-INSERT into after_school_club2.student (parent_id, class_id, first_name, surname, date_of_birth, health_questionnaire_completed, consent_to_share)
-VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Ruth", "Jones", "2014-01-01", "2025-01-01", true), 
-		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=0), "Jonny", "Jones", "2019-02-01", "2025-01-01", true), 
-		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Tom", "Jones", "2014-01-01", "2025-01-01", true); 
+INSERT into after_school_club2.student (parent_id, class_id, first_name, surname, date_of_birth, health_questionnaire_completed, consent_to_share, state, admin_verified, date_requested)
+VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Ruth", "Jones", "2014-01-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01"), 
+		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=0), "Jonny", "Jones", "2019-02-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01"), 
+		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Tom", "Jones", "2014-01-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01");
         
-INSERT into after_school_club2.student (parent_id, class_id, first_name, surname, date_of_birth, health_questionnaire_completed, consent_to_share)
-VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Melanie", "Guest", "2014-01-01", "2025-01-01", true), 
-		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=0), "Hazel", "Guest", "2019-02-01", "2025-01-01", true), 
-		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Chris", "Guest", "2014-01-01", "2025-01-01", true); 
+INSERT into after_school_club2.student (parent_id, class_id, first_name, surname, date_of_birth, health_questionnaire_completed, consent_to_share, state, admin_verified, date_requested)
+VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Melanie", "Guest", "2014-01-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01"), 
+		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=0), "Hazel", "Guest", "2019-02-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01"), 
+		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Chris", "Guest", "2014-01-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01");
         
 
 INSERT into after_school_club2.club(title, description, base_price, year_r_can_attend, year_1_can_attend, year_2_can_attend, year_3_can_attend, year_4_can_attend, year_5_can_attend, year_6_can_attend, keywords, accepts_vouchers)
