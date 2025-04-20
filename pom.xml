@@ -88,6 +88,14 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>			
 		</dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+        </dependency>	
+       	<dependency>
+	        <groupId>org.seleniumhq.selenium</groupId>
+	        <artifactId>selenium-java</artifactId>
+	    </dependency>
 	</dependencies>
 
 	<build>
@@ -96,7 +104,24 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+              <!-- plugin to create a maven site -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>4.0.0-M12</version>
+            </plugin>			
 		</plugins>
+		
 	</build>
 
+      <!-- Junit reporting plugin -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>3.2.2</version>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

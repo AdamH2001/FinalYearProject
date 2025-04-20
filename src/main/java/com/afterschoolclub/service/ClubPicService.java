@@ -113,10 +113,9 @@ public class ClubPicService {
 		Path filePath = Paths.get(uploadDir).resolve(filename);
 		return new UrlResource(filePath.toUri());
 	}
-
+ 
     
-	public void deleteTempImage(User user) {		
-		String sourceFilename = String.format("u%d.jpg", user.getUserId()) ;
+	public void deleteTempImage(String sourceFilename) {				
 		Path sourceFilePath = Paths.get(uploadDir).resolve(sourceFilename);
 		File sourceFile = new File(sourceFilePath.toUri());
         if (sourceFile.exists()) {

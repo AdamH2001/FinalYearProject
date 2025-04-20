@@ -12,5 +12,9 @@ public interface ClubRepository extends CrudRepository<Club, Integer> {
 	List<Club> findAll();
 	
 	@Query("SELECT * FROM club  where state=:state ORDER BY title")	
-	List<Club> findByState(State state);		
+	List<Club> findByState(State state);	
+	
+	@Query("SELECT * FROM club  where title=:title AND state='ACTIVE'")	
+	List<Club> findByTitle(String title);	
+	
 }

@@ -379,7 +379,7 @@ function addVoucher(userId) {
 
 function validateOverdraft(userId) {
 	if (Number($("#overdraftLimit").val()) < Number($("#overdraftLimit")[0].getAttribute("min"))) {
-		$("#overdraftValidationMessage")[0].innerText="Cannot have an overdraft below cash debt.";
+		$("#overdraftValidationMessage")[0].innerText="Cannot have an overdraft below cash debt";
 		$("#overdraftFlash").show();
 		$("#overdraftLimitInput").val(pounds.format( Number($("#overdraftLimit")[0].getAttribute("min"))/100));
 		$("#overdraftLimit").val(Number($("#overdraftLimit")[0].getAttribute("min")));

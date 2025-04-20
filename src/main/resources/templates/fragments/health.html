@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"> </script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/styles.css"/>
+	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>
+	
+</head>
+<body>
+		
+	<!-- Health Modal -->
+	<div id="healthModal" class="modal" th:fragment="health"  >
+		<!-- Modal content -->
+		<div class="modal-content container-flex no-margin" style="width:60%">
+			<span class="close" onClick="$('#healthModal').hide()">&times;</span>
+			
+			<div class="row mb-2">
+				<div class="col-sm-12" align="center">
+					<h1 class="asc-header">Health Notes</h1>
+				</div>
+			</div>
+			
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="allergyNote">Allergies:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="allergyNote" id="allergyNote" ></textarea>
+					</div>
+			</div>
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="healthNote">Health Notes:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="healthNote" id="healthNote" ></textarea>
+					</div>
+			</div>
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="dietNote">Diet Requirements:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="dietNote" id="dietNote"></textarea>
+					</div>
+			</div>
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="careNote">Care Plan:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="careNote" id="careNote" ></textarea>
+					</div>
+			</div>
+			
+			<div class="row mb-2">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="medicationNote">Medication:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="medicationNote" id="medicationNote" ></textarea>
+					</div>
+			</div>
+			
+			<div class="row mb-4">
+					<div class="col-sm-2 asc-form-label" align="center">
+						<label for="otherNote">Other:</label>
+					</div>
+					<div class="col-sm-9">
+						<textarea class="form-control mr-sm-2" readonly
+							name="otherNote" id="otherNote" t></textarea>
+					</div>
+			</div>	
+			<div class="row mb-2">
+				<div class="col-sm-12" align="center">
+					<button class="btn btn-secondary" onClick="dismissMedical()" type="button" data-toggle="tooltip" title="Dismiss this window.">Back</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+
+</body>
+</html>

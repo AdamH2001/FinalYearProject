@@ -29,6 +29,35 @@ function getDataFromRow(id) {
 	return data;
 }
 
+function getOrigDataFromRow(id) {
+	var data = {};
+	$("#row-" + id).find(".editable").each(function() {
+		data[this.id] = this.getAttribute("orig-data");			
+	});
+	data["state"] = "ACTIVE";
+	var isLocation = $("#locationList").find("#row-"+id).length > 0;
+	if (isLocation) {
+		data["quantity"] = "1";
+		data["type"] = "LOCATION";
+		data["resourceId"] = id;				
+		data["url"] = "./api/resources/" + id;
+	}
+	else {
+		var isEquipment = $("#equipmentList").find("#row-"+id).length > 0;
+		if (isEquipment) {
+			data["type"] = "EQUIPMENT";
+			data["resourceId"] = id;				
+			data["url"] = "./api/resources/" + id;
+		}
+		else {			
+			data["type"] = "STAFF";
+			data["userId"] = id.substring(1);				
+			data["url"] = "./api/staff/" + id.substring(1);
+		}
+	}	
+	return data;
+}
+
 function setOrigDataFromRow(id) {
 	$("#row-" + id).find(".editable").each(function() {
 		if (this.getAttribute("editType") != "file") {
@@ -44,18 +73,9 @@ function setOrigDataFromRow(id) {
 
 function undoChanges(button) {
 	resourceId=button.id.replace("undo-", "");
-	$("#row-" + resourceId).find(".editable").each(function() {
-		if (this.getAttribute("editType") != "file") {
-			this.innerHTML = this.getAttribute("orig-data");
-			this.style.removeProperty("background-color");
-		}
-		else {
-			id = resourceId.replace("u","");
-			$("#profilePicImage-"+id)[0].setAttribute("src", this.getAttribute("orig-data"));						
-		}
-	});
 
-	var data = getDataFromRow(resourceId);
+
+	var data = getOrigDataFromRow(resourceId);
 			
 	$.ajax({
 		url: data.url,
@@ -67,13 +87,26 @@ function undoChanges(button) {
 			console.log("PUT");
 			console.log(updatedData);
 			showValidationMessage("Successfully undone changes to " + data.type.toLowerCase());
-			$("#undo-"+resourceId).hide();					
+			
+			
+			$("#row-" + resourceId).find(".editable").each(function() {
+				if (this.getAttribute("editType") != "file") {
+					this.innerHTML = this.getAttribute("orig-data");
+					this.style.removeProperty("background-color");
+				}
+				else {
+					id = resourceId.replace("u","");
+					$("#profilePicImage-"+id)[0].setAttribute("src", this.getAttribute("orig-data"));						
+				}
+			});
+			validateRow("#row-"+resourceId)								
 		},
 		
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log("PUT ERROR");
 			console.log(jqXHR);
-			showValidationMessage("Failed to update " + data.type.toLowerCase());
+			validateRow("#row-"+resourceId)								
+			showValidationMessage("Failed to update already exists with same name");
 		}
 	});
 		
@@ -350,13 +383,9 @@ function insertEditControl(parent) {
 	            td.removeAttribute('data-text');
 	            
 	            
+				putDataAndDisplay(td.parentElement.id.replace("row-", ""), td)	            
 	            
-	            
-	            if (origText != current_text) {
-	            		                
-	                putDataAndDisplay(td.parentElement.id.replace("row-", ""), td)
-	            }
-	            else {
+	        /*    if (origText == current_text) {
 	            	td.style.removeProperty("background-color");	              
 	            	rowId = "#" + td.parentElement.id;
 	            	
@@ -366,7 +395,7 @@ function insertEditControl(parent) {
 	            		$(rowId).find("#keywords")[0].innerHTML == $(rowId).find("#keywords")[0].getAttribute("orig-data")) {
 	            		$(rowId).find("#button").hide(); 	
 	            	}	                
-	            }
+	            } */
 	            	
 	            
 	            console.log(preEditText + ' is changed to ' + current_text);
@@ -423,56 +452,6 @@ function setUpEditHandlers() {
 
 
 
-function fetchDataAndDisplay() {
-	$.ajax({
-		url:"./api/resources",
-		method:"GET", 
-		success: function(data){
-			console.log("GET");
-			console.log(data);
-			
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log("GET ERROR");
-			console.log(jqXHR);
-			
-		}
-	});	
-}
-
-function undoDataAndDisplay(resourceId) {
-	
-	data = {
-			"description": $("#row-" + resourceId).find("#description")[0].innerText,
-			"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
-			"name": $("#row-" + resourceId).find("#name")[0].innerText,
-			"quantity": $("#row-" + resourceId).find("#quantity")[0].innerText,
-			"type": "EQUIPMENT",
-			"resourceId": resourceId
-		}
-	
-	$.ajax({
-		url:"./api/resources/" + resourceId,
-		method:"PUT",
-	    dataType : "json",
-	    contentType: "application/json; charset=utf-8",
-		data: JSON.stringify(data), 
-		success: function(data,  textStatus, jqXHR){
-			console.log("PUT");
-			console.log(data);
-			showValidationMessage("Successfully updated equipment");
-		},
-		
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log("PUT ERROR");
-			console.log(jqXHR);
-			showValidationMessage("Failed to update equipment");
-		}
-	});
-}
-
-
-
 function putDataAndDisplay(resourceId, parentCell) {	
 	
 	
@@ -491,11 +470,7 @@ function putDataAndDisplay(resourceId, parentCell) {
 				shouldEdit = confirm("Existing demand is greater than new quantity. \n Are you sure you want to update?");				  
 			}
 			if (shouldEdit) {
-				if (parentCell != null) {
-					parentCell.setAttribute("latest-data", parentCell.children[0].value);				
-					parentCell.innerHTML = parentCell.children[0].value;
-					parentCell.style.backgroundColor="LightGoldenRodYellow";
-				}
+
 				
 				$.ajax({
 					url: data.url,
@@ -504,16 +479,27 @@ function putDataAndDisplay(resourceId, parentCell) {
 				    contentType: "application/json; charset=utf-8",
 					data: JSON.stringify(data), 
 					success: function(updatedData,  textStatus, jqXHR){
+						if (parentCell != null) {
+							parentCell.setAttribute("latest-data", parentCell.children[0].value);				
+							parentCell.innerHTML = parentCell.children[0].value;
+						}
+												
 						console.log("PUT");
 						console.log(updatedData);
-						showValidationMessage("Successfully updated " + data.type.toLowerCase());						
-						$("#undo-"+resourceId).show();					
+						showValidationMessage("Successfully updated " + data.type.toLowerCase());
+						validateRow("#"+parentCell.parentElement.id);											
 					},
 					
 					error: function(jqXHR, textStatus, errorThrown) {
 						console.log("PUT ERROR");						
 						console.log(jqXHR);
-						showValidationMessage("Failed to update " + data.type.toLowerCase());						
+						showValidationMessage("Failed to update already exists with same name");
+						
+						//parentCell.style.removeProperty("background-color");	              
+						rowId = "#" + parentCell.parentElement.id;
+						$(rowId).find("#name")[0].innerHTML = getRestoreValue($(rowId).find("#name")[0]);	
+						validateRow(rowId);
+											            	
 					}
 				});								
 			}
@@ -535,6 +521,64 @@ function putDataAndDisplay(resourceId, parentCell) {
 	
 
 }
+
+function getRestoreValue(element) {
+	value = null;
+	latestValue = element.getAttribute("latest-data");
+	origValue = element.getAttribute("orig-data");
+	if (latestValue == null) {
+		value = origValue;
+	}
+	else {
+		value = latestValue;
+	}
+	return value;
+	
+}
+
+function validateCell(cell) {
+	result = true; //indicates changed or not
+	if (cell.length > 0) {
+		if (cell[0].innerHTML == cell[0].getAttribute("orig-data")) {
+			result = false;
+			cell[0].style.removeProperty("background-color");
+		}
+		else {
+			cell[0].style.backgroundColor="LightGoldenRodYellow";
+		}
+	}
+	else {
+		result = false; //Doesn't exist so not changed
+	}
+	return result;
+}
+
+
+
+
+function validateRow(rowId) {
+	changed = false;
+	changed |= validateCell($(rowId).find("#name"));
+	changed |= validateCell($(rowId).find("#description"));
+	changed |= validateCell($(rowId).find("#keywords"));
+	changed |= validateCell($(rowId).find("#quantity"));
+	changed |= validateCell($(rowId).find("#capacity"));
+	
+	changed |= validateCell($(rowId).find("#title"));
+	changed |= validateCell($(rowId).find("#firstName"));
+	changed |= validateCell($(rowId).find("#surname"));
+	changed |= validateCell($(rowId).find("#email"));
+	changed |= validateCell($(rowId).find("#telephoneNum"));
+	
+	if (!changed) {
+		$(rowId).find(".undoButton").hide();
+	}
+	else {
+		$(rowId).find(".undoButton").show();
+	}		 	
+}
+	                
+
 
 function postDataAndDisplay(data, type) {
 
@@ -593,9 +637,7 @@ function postDataAndDisplay(data, type) {
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log("POST ERROR");
 			console.log(jqXHR);
-			showValidationMessage("Failed to record new " + type);
-
-			
+			showValidationMessage("Failed to create already exists with same name");
 		}
 	});
 }

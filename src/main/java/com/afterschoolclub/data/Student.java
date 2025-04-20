@@ -324,5 +324,11 @@ public class Student {
 		LocalDateTime questionaireExpires = this.getHealthQuestionnaireCompleted().plusDays(cannotBeOlderThan);
 		return questionaireExpires.isAfter(today);		
 	}
-		
+
+	
+			
+	public boolean hasMedicalNotes() {
+		return getAllergyNoteText().length()>0 || getHealthNoteText().length() > 0 || getDietNoteText().length() > 0 ||
+				getCarePlanNoteText().length() > 0 || getMedicationNoteText().length()>0 || getOtherNoteText().length() > 0;
+	}
 }

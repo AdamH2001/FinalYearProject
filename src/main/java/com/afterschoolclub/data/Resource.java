@@ -73,6 +73,16 @@ public class Resource {
 		
 	}
 	
+	public static Resource findByNameAndType(String name, Type type) {
+		List<Resource> nameMatched  = repository.findByNameAndType(name, type);
+		Resource result = null; 
+		if (nameMatched != null && nameMatched.size() > 0) {
+			result = nameMatched.get(0);
+		}
+		return result;		
+	}	
+	
+	
 	public static void cleanUpInactiveResources() {
 		List<Resource> allInactive = repository.findByState(State.INACTIVE);
 		for (Resource resource : allInactive) {

@@ -573,7 +573,7 @@ public class ParentController {
 			}
 
 			if (!loggedOnParent.canAfford(totalCost, session.getClub())) {
-				allErrorMessages.add("Not enough funds to attend this session. Please top up your account.");
+				allErrorMessages.add("Not enough funds to attend this session, please top up your account.");
 			}
 
 			if (allErrorMessages.size() == 0) {
@@ -594,7 +594,7 @@ public class ParentController {
 					studentNames += student.getFirstName();
 				}
 				
-				
+				 
 				if (totalCost > 0) {
 					
 					String description = session.getClub().getTitle().concat(" for ").concat(studentNames);

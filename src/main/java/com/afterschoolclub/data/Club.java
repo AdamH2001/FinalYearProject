@@ -62,6 +62,15 @@ public class Club {
 		return repository.findByState(State.ACTIVE);		
 	}	
 	
+	public static Club findByTitle(String title) {
+		List<Club> titleMatched = repository.findByTitle(title);
+		Club result = null; 
+		if (titleMatched != null && titleMatched.size() > 0) {
+			result = titleMatched.get(0);
+		}
+		return result;		
+	}	
+	
 	
 	public static Club findById(int sessionId) {
 		Optional<Club> optional = repository.findById(sessionId);

@@ -15,12 +15,12 @@
 	<div  id="errorcontainer" th:fragment="error" class="container-flex no-margin errorbar" style="top:110px; left:210px; position:relative">
 		<th:block th:if="${sessionBean.hasMessage()}" >
 			<div th:each="message : ${sessionBean.getFlashMessages()}"  class="afterschoolclubflash col"  id="error">
-				<div class="col-sm-12" th:text="${message}" align="center"></div>
+				<div class="col-sm-12" th:text="${sessionBean.formatMessage(message)}" align="center"></div>
 			</div>
 		</th:block>		
 		<th:block th:if="${resourceStatus}">
 			<div th:each="status : ${resourceStatus}" th:unless="${status.isSufficient()}" class="afterschoolclubflash col">
-				<div class="col-sm-12" th:text="${status.getMessage()}" align="center">FlashMessage</div>
+				<div class="col-sm-12" th:text="${sessionBean.formatMessage(status.getMessage())}" align="center">FlashMessage</div>
 			</div>						
 		</th:block>
 		<div class="afterschoolclubflash col mb-2"  style="display: none" id="validationContainer">					

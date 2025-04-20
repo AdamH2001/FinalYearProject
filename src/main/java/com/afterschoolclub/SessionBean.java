@@ -204,9 +204,23 @@ public class SessionBean {
 		return result;
 	}		
 	
+	public String formatMessage(String message) {
+		String formattedMessage = message.trim().toLowerCase();
+		if (formattedMessage.length() > 0) {
+			formattedMessage = formattedMessage.substring(0,1).toUpperCase().concat(formattedMessage.substring(1));
+		    if (formattedMessage.charAt(formattedMessage.length() - 1) == '.') {
+		    	formattedMessage = formattedMessage.substring(0, formattedMessage.length() - 1);
+		    }			
+			
+		}
+		return formattedMessage;
+	}
+
+		
 	public void  setFlashMessage(String message) {
 		flashMessages = new ArrayList<String>();
-		flashMessages.add(message);
+
+		flashMessages.add(formatMessage(message));
 		return ;
 	}
 	

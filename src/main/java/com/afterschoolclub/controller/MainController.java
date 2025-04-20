@@ -788,7 +788,7 @@ public class MainController {
 			}
 			
 			if (studentId == 0) {
-				sessionBean.setFlashMessage("Added New Child.");
+				sessionBean.setFlashMessage("Child added you will be notified by email when validated by an administrator.");
 			}
 			else {
 				sessionBean.setFlashMessage("Updated Child Details.");

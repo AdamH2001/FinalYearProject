@@ -26,6 +26,8 @@ public interface ResourceRepository extends CrudRepository<Resource, Integer> {
 	@Query("SELECT *  FROM resource where state=:state order by name")
 	List<Resource> findByState(State state);		
 	
+	@Query("SELECT *  FROM resource where type=:type AND name=:name AND state='ACTIVE' order by name")
+	List<Resource> findByNameAndType(String name, Resource.Type type);		
 
 	@Modifying
 	@Query("Update resource r set r.name=:name, r.description=:description, r.quantity=:quantity, r.type=:type, state=:state, capacity=:capacity, keywords=:keywords where r.resource_id = :resourceId")	

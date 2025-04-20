@@ -415,7 +415,7 @@ public class AdminController {
 				
 				
 				model.addAttribute("clubSession",newSession);								
-				model.addAttribute("clubs",Club.findAll());				
+				model.addAttribute("clubs",Club.findActive());				
 				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
@@ -455,7 +455,13 @@ public class AdminController {
 				session.cancel();
 				try {
 					mailService.sendAllHTMLEmails(allEmails);
-					sessionBean.setFlashMessage("Session cancelled and all attendeees refunded and notified.");			
+					if (allEmails.size() > 0) {
+						sessionBean.setFlashMessage("Session cancelled and all attendeees refunded and notified.");
+					}
+					else {
+						sessionBean.setFlashMessage("Session cancelled");
+					}
+						
 				}
 				catch (MessagingException e) {
 					e.printStackTrace();
@@ -471,6 +477,7 @@ public class AdminController {
 
 
 	@PostMapping("/addSession")
+	@Transactional
 	public String addSession(@RequestParam(name = "club") int clubId,
 			@RequestParam(name = "location") int location,
 			@RequestParam(name = "startDate") LocalDate startDate,
@@ -647,7 +654,16 @@ public class AdminController {
 			
 			
 			if (allResourcesOk) {
-				Session.saveAll(allSessions);				
+				Session.saveAll(allSessions);	
+				if (sessionId == 0) {
+					String message = String.format("Added %d session(s).", allSessions.size());
+					sessionBean.setFlashMessage(message);
+				}
+				else {
+					sessionBean.setFlashMessage("Updated Session");
+				}
+				
+
 				returnPage = setupCalendar(model);
 			}
 			else {
@@ -668,7 +684,7 @@ public class AdminController {
 				}
 					
 				model.addAttribute("clubSession",allSessions.get(0));								
-				model.addAttribute("clubs",Club.findAll());				
+				model.addAttribute("clubs",Club.findActive());				
 				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
@@ -694,7 +710,7 @@ public class AdminController {
 			model.addAttribute("takingRegister",false);			
 			
 			model.addAttribute("clubSession",session);								
-			model.addAttribute("clubs",Club.findAll());				
+			model.addAttribute("clubs",Club.findActive());				
 			model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
 			model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 			model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
@@ -854,11 +870,17 @@ public class AdminController {
 		this.setInDialogue(false,model);
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {
-			Club club;
-			if (clubId == 0) {
+			Club club = null;			
+			Club existingClub = Club.findByTitle(title);
+			if (existingClub != null && existingClub.getClubId() != clubId) {
+				sessionBean.setFlashMessage("Club with this title already exists. Please choose another title.");
+				clubPicService.deleteTempImage(tempFilename);
+			}
+			else if (clubId == 0) {				
 				club = new Club(title, description, basePrice, yearRCanAttend, yearOneCanAttend, yearTwoCanAttend, yearThreeCanAttend, yearFourCanAttend, yearFiveCanAttend, yearSixCanAttend, keywords);
 				club.setAcceptsVouchers(acceptsVouchers);
 				club.save();
+				clubPicService.renameImage(tempFilename, club);				
 				sessionBean.setFlashMessage("Created Club.");
 			}
 			else {
@@ -876,9 +898,9 @@ public class AdminController {
 				club.setKeywords(keywords);
 				club.setAcceptsVouchers(acceptsVouchers);				
 				club.save();
+				clubPicService.renameImage(tempFilename, club);				
 				sessionBean.setFlashMessage("Updated Club.");	
 			}
-			clubPicService.renameImage(tempFilename, club);
 			returnPage = sessionBean.getRedirectUrl();
 		}
 		return returnPage;

@@ -557,9 +557,8 @@ function addMenuGroup(event) {
 								console.log("DELETE");
 								console.log(data);
 								id = this.url.substr(this.url.lastIndexOf("/")+1);
-								$("#row-"+id)[0].outerHTML="";	
-								message = " Menu item deleted."; 						
-								showValidationMessage(message);						
+								$("#row-"+id)[0].outerHTML="";												
+								showValidationMessage("Menu item deleted");						
 							},
 							error: function(jqXHR, textStatus, errorThrown) {
 								console.log("DELETE ERROR");
