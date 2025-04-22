@@ -81,7 +81,7 @@
 						<label for="basepriceinput">Base Price:</label>
 					</div>
 					<div class="col-sm-2 ">
-					    <input type="text" id="basepriceinput" for="baseprice" required placeholder="Price without extras such as refreshments" maxlength=6 class="asc-moneyinput form-control" 
+					    <input type="text" id="basepriceinput"  for="baseprice" required placeholder="Price without extras such as refreshments" maxlength=6 class="asc-moneyinput form-control" 
 					    	th:value="${sessionBean.formatMoney(club.getBasePrice())}" data-toggle="tooltip" title="Price without extras such as refreshments." style="width:110px;"/>
 					
 						<input class="form-control mr-sm-2"  type="number" th:value="${club.getBasePrice()}"
@@ -174,15 +174,13 @@
 
 
 	$('.asc-moneyinput').change(function(e) {
-	    value=e.target.value.replace("£", "").trim();
-	    if(isNaN(value)){
-	        e.target.value = ''
-	    }else{		
-	  	$("#" + e.target.getAttribute("for")).val(Math.round(value * 100))
-	      e.target.value = pounds.format(value);
-	    }
-	  })
-	  	
+		validateMoneyChange(e);		
+	  });
+	
+	$('.asc-moneyinput').keydown(function(e) {
+		validateMoneyEntry(e);	   
+	  });
+	  
 			
 	
 	</script>

@@ -1,59 +1,120 @@
 
+function validateInput(data) {	
+	validateRow("#row-", data.menuOptionId);
+		
+}
+
+function getRestoreValue(element) {
+	value = null;
+	latestValue = element.getAttribute("latest-data");
+	origValue = element.getAttribute("orig-data");
+	if (latestValue == null) {
+		value = origValue;
+	}
+	else {
+		value = latestValue;
+	}
+	return value;
+	
+}
+
+function validateRow(rowPrefix, rowId) {
+	changed = false;
+	changed |= validateCell($("#name-" + rowId));
+	changed |= validateCell($("#description-" + rowId));
+	changed |= validateCell($("#allergyInformation-" + rowId));
+	changed |= validateCell($("#additionalCost-" + rowId));
+	
+	if (!changed) {
+		$(rowPrefix+rowId).find("#undo-"+ rowId).hide();
+	}
+	else {
+		$(rowPrefix+rowId).find("#undo-" + rowId).show();
+	}		 	
+}
+	           
+function validateCell(cell) {
+	result = true; //indicates changed or not
+	if (cell.length > 0) {
+		if (cell[0].innerHTML == cell[0].getAttribute("orig-data")) {
+			result = false;
+			cell[0].style.removeProperty("background-color");
+		}
+		else {
+			cell[0].style.backgroundColor="LightGoldenRodYellow";
+		}
+	}
+	else {
+		result = false; //Doesn't exist so not changed
+	}
+	return result;
+}
+
+function copyValue(fieldName, newData) {
+	id = newData.menuOptionId;
+	
+	if ($("#"+fieldName)[0].getAttribute("edittype") == "money") {
+		$("#row-" + id).find("#"+fieldName)[0].innerHTML= pounds.format(newData[fieldName]/100);
+	}
+	else {
+		$("#row-" + id).find("#"+fieldName)[0].innerHTML=newData[fieldName];	
+	}		
+		
+	$("#row-" + id).find("#"+fieldName)[0].id=fieldName + "-" + id;	
+	
+}
+
+
+function getDataFromControl(control)
+{
+	result =control.value;
+	if (control.getAttribute("money") == "yes") {
+		result = result.replace(".", "").replace("£", "");			
+	}
+	return result;
+}
+
 
 function getDataFromRow(id) {
 	var data = {};
 	$("#row-" + id).find(".editable").each(function() {
-		data[this.id] = this.innerText;			
+		fieldName=this.id.substring(0, this.id.indexOf("-"));
+		data[fieldName] = this.innerText;		
+		if (this.getAttribute("edittype") == "money") {
+			data[fieldName] = data[fieldName].replace(".", "").replace("£", "");			
+		}			
 	});
 	data["state"] = "ACTIVE";
-	var isLocation = $("#locationList").find("#row-"+id).length > 0;
-	if (isLocation) {
-		data["quantity"] = "1";
-		data["type"] = "LOCATION";
-		data["resourceId"] = id;				
-		data["url"] = "./api/resources/" + id;
-	}
-	else {
-		var isEquipment = $("#equipmentList").find("#row-"+id).length > 0;
-		if (isEquipment) {
-			data["type"] = "EQUIPMENT";
-			data["resourceId"] = id;				
-			data["url"] = "./api/resources/" + id;
-		}
-		else {
-			var isStaff = $("#staffList").find("#row-"+id).length > 0;
-			if (isStaff) {
-			
-				data["type"] = "STAFF";
-				data["userId"] = id.substring(1);				
-				data["url"] = "./api/staff/" + id.substring(1);
-			}
-			else {
-				data["type"] = "MENUOPTION";
-				data["menuOptionId"] = id;
-				data["url"] = "./api/menuoption/" + id;
-			}
-		}
-	}	
+
+	data["type"] = "MENUOPTION";
+	data["menuOptionId"] = id;
+	data["url"] = "./api/menuoption/" + id;
+	
+	return data;
+}
+
+function getOrigDataFromRow(id) {
+	var data = {};
+	$("#row-" + id).find(".editable").each(function() {
+		fieldName=this.id.substring(0, this.id.indexOf("-"));		
+		data[fieldName] = this.getAttribute("orig-data");	
+		if (this.getAttribute("edittype") == "money") {
+			data[fieldName] = data[fieldName].replace(".", "").replace("£", "");			
+		}			
+	});
+	data["state"] = "ACTIVE";
+
+	data["type"] = "MENUOPTION";
+	data["menuOptionId"] = id;
+	data["url"] = "./api/menuoption/" + id;
+	
 	return data;
 }
 
 
-
 function undoChanges(button) {
 	resourceId=button.id.replace("undo-", "");
-	$("#row-" + resourceId).find(".editable").each(function() {
-		if (this.getAttribute("editType") != "file") {
-			this.innerHTML = this.getAttribute("orig-data");
-			this.style.removeProperty("background-color");
-		}
-		else {
-			innerHTML = "<img src='" + this.getAttribute("orig-data") + "' width='30' height='30' class='rounded-circle'/>";
-			this.innerHTML = innerHTML;
-		}
-	});
-
-	var data = getDataFromRow(resourceId);
+	var data = getOrigDataFromRow(resourceId);
 			
 	$.ajax({
 		url: data.url,
@@ -64,104 +125,25 @@ function undoChanges(button) {
 		success: function(updatedData,  textStatus, jqXHR){
 			console.log("PUT");
 			console.log(updatedData);
+			
+			$("#row-" + resourceId).find(".editable").each(function() {
+				this.innerHTML = this.getAttribute("orig-data");
+			});			
+			
 			showValidationMessage("Successfully undone changes to " + data.type.toLowerCase());
-			$("#undo-"+resourceId).hide();					
+			validateInput(data);								
+			
 		},
 		
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log("PUT ERROR");
 			console.log(jqXHR);
-			showValidationMessage("Failed to update " + data.type.toLowerCase());
+			showValidationMessage("Failed to undo changes to menu item, original name re-used");
 		}
 	});
 		
 }
 
-
-function deleteResource(button, type) {	
-	id=button.id.replace("delete-", "");
-
-	$.ajax({
-		url:"./api/resources/" + id,
-		method:"GET", 
-		success: function(data){
-			console.log("GET");
-			console.log(data);
-			shouldDelete = true;
-			if (data.maxDemand > 0) {
-				message = type.toUpperCase().substring(0,1) + type.substring(1) + " required to support already scheduled sessions. \n Do you really want to delete?"; 
-				shouldDelete = confirm(message);
-			}
-			if (shouldDelete) {				
-				$.ajax({
-					url:"./api/resources/" +id,
-					method:"DELETE",
-					success: function(data,  textStatus, jqXHR){
-						console.log("DELETE");
-						console.log(data);
-						id = this.url.substr(this.url.lastIndexOf("/")+1);
-						$("#row-"+id)[0].outerHTML="";	
-						message = type.toUpperCase().substring(0,1) + type.substring(1) + " deleted."; 						
-						showValidationMessage(message);						
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						console.log("DELETE ERROR");
-						console.log(jqXHR);						 					
-						showValidationMessage("Failed to delete " + type);						
-					}
-				});																
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log("GET ERROR");
-			console.log(jqXHR);
-			
-		}
-	});	
-	return;		
-}
-
-function deleteStaff(button) {	
-	id=button.id.replace("delete-", "");
-
-	$.ajax({
-		url:"./api/staff/" + id,
-		method:"GET", 
-		success: function(data){
-			console.log("GET");
-			console.log(data);
-			shouldDelete = true;
-			if (data.maxDemand > 0) {				
-				shouldDelete = confirm("Staff member required to support already scheduled sessions. \n Do you really want to delete?");				
-			}
-			if (shouldDelete) {								
-				$.ajax({
-					url:"./api/staff/" +id,
-					method:"DELETE",
-					success: function(data,  textStatus, jqXHR){
-						console.log("DELETE");
-						console.log(data);
-						id = this.url.substr(this.url.lastIndexOf("/")+1);
-						$("#row-u"+id)[0].outerHTML="";
-						showValidationMessage("Staff member Deleted");
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						console.log("DELETE ERROR");
-						console.log(jqXHR);
-						showValidationMessage("Failed to delete staff member");
-
-					}
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log("GET ERROR");
-			console.log(jqXHR);
-			
-		}
-	});	
-	return;		
-}
 
 
 
@@ -170,16 +152,40 @@ function insertEditControl(parent) {
 	parent.setAttribute('data-clicked', 'yes');
     parent.setAttribute('data-text', parent.innerHTML);
     editType =  parent.getAttribute('edittype')
+	editlength =  parent.getAttribute('editlength')
+	
     var input = null;
     
     if (editType != "file") {
 	    if (editType == "textarea") {
 	    	input = document.createElement('textarea');
+			input.setAttribute("maxlength", "1024")
 	    }
 	    else {
 	    	input = document.createElement('input');
-	    	input.setAttribute('type',editType);
+			
+			if (editType == "money") {
+
+				input.onchange = function() {
+					validateMoneyChange(event);			
+				  };
+				input.setAttribute("maxlength", "6")
+				input.setAttribute("money", "yes")
+			}
+			else {
+				
+				if (editType=="number") {
+					input.setAttribute('min',"0");	
+				}					
+	    		input.setAttribute('type',editType);
+			}
+			
+			
 	    }
+		if (editlength != null && editlength != "") {
+			input.setAttribute("maxlength", editlength)
+		}
+				
 	    input.classList.add("form-control");
 	    input.value = parent.innerHTML;
 	    input.style.width = parent.offsetWidth - (parent.clientLeft * 2) - 5 + "px";
@@ -195,10 +201,7 @@ function insertEditControl(parent) {
 	        var origText = input.parentElement.getAttribute('orig-data');
 	
 	        var current_text = this.value;
-	        
-	
-	        
-	        if (preEditText != current_text) {
+	         if (preEditText != current_text) {
 	            //there are changes; save to geojson
 	
 	            td.removeAttribute('data-clicked');
@@ -233,6 +236,9 @@ function insertEditControl(parent) {
 	        }
 	    }
 	    input.onkeydown = function() {
+			
+			
+						
 	        if (event.key == "Enter") {
 	            this.blur();
 				event.preventDefault();		
@@ -243,7 +249,10 @@ function insertEditControl(parent) {
 	            var td = input.parentElement;
 	            input.value= input.parentElement.getAttribute('data-text');
 	            this.blur();                
-	        }
+	        } else
+			if (this.getAttribute("money") == "yes") {
+				validateMoneyEntry(event);					
+			}
 	    }
 	    parent.innerHTML = '';
 	    parent.append(input);
@@ -276,234 +285,381 @@ function setUpEditHandlers() {
 
 
 
-function fetchDataAndDisplay() {
-	$.ajax({
-		url:"./api/resources",
-		method:"GET", 
-		success: function(data){
-			console.log("GET");
-			console.log(data);
-			
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log("GET ERROR");
-			console.log(jqXHR);
-			
-		}
-	});	
-}
-
-function undoDataAndDisplay(resourceId) {
-	
-	data = {
-			"description": $("#row-" + resourceId).find("#description")[0].innerText,
-			"keywords": $("#row-" + resourceId).find("#keywords")[0].innerText,
-			"name": $("#row-" + resourceId).find("#name")[0].innerText,
-			"quantity": $("#row-" + resourceId).find("#quantity")[0].innerText,
-			"type": "EQUIPMENT",
-			"resourceId": resourceId
-		}
+function putDataAndDisplay(resourceId, parentCell) {	
+	var data = getDataFromRow(resourceId);	
+	fieldName=parentCell.id.substring(0, parentCell.id.indexOf("-"));
+	data[fieldName] = getDataFromControl(parentCell.children[0]);
 	
 	$.ajax({
-		url:"./api/resources/" + resourceId,
+		url: data.url,
 		method:"PUT",
 	    dataType : "json",
 	    contentType: "application/json; charset=utf-8",
 		data: JSON.stringify(data), 
-		success: function(data,  textStatus, jqXHR){
+		success: function(updatedData,  textStatus, jqXHR){
 			console.log("PUT");
-			console.log(data);
-			showValidationMessage("Successfully updated equipment");
+			console.log(updatedData);
+			if (parentCell != null) {
+				parentCell.setAttribute("latest-data", parentCell.children[0].value);				
+				parentCell.innerHTML = parentCell.children[0].value;
+			}
+			showValidationMessage("Successfully updated menu item");
+			validateInput(data);						
 		},
 		
 		error: function(jqXHR, textStatus, errorThrown) {
-			console.log("PUT ERROR");
+			console.log("PUT ERROR");						
 			console.log(jqXHR);
-			showValidationMessage("Failed to update equipment");
+			
+			rowId = "#" + parentCell.parentElement.id;
+			$("#name-"+data.menuOptionId)[0].innerHTML = getRestoreValue($("#name-"+data.menuOptionId)[0]);											
+			validateInput(data);										            	
+			
+			
+			showValidationMessage("Failed to update menu item name already in use");						
 		}
-	});
+	});											
+
 }
 
 
 
-function putDataAndDisplay(resourceId, parentCell) {	
+
+function addItems() {
+	
+	newMenuItem ={
+			"menuOptionId" : 3,
+			"menuGroupId" : 1					
+		}
 	
 	
-	var data = getDataFromRow(resourceId);	
-	data[parentCell.id] = parentCell.children[0].value;
-			
 	
-	$.ajax({
-		url: data.url,
-		method:"GET", 
-		success: function(origResource){
-			console.log("GET");
-			console.log(origResource);
-			shouldEdit = true;
-			if (origResource.maxDemand > data.quantity) {
-				shouldEdit = confirm("Existing demand is greater than new quantity. \n Are you sure you want to update?");				  
-			}
-			if (shouldEdit) {
-				if (parentCell != null) {
-					parentCell.setAttribute("latest-data", parentCell.children[0].value);				
-					parentCell.innerHTML = parentCell.children[0].value;
-					parentCell.style.backgroundColor="LightGoldenRodYellow";
+	
+	$('#myModal').hide();
+	menuGroupId = $(".accordion-collapse:visible")[0].id.replace("flush-collapse-", "");
+	templateHTML = $("#row-MENUGROUPID-MENUOPTIONID")[0].outerHTML;
+	outerHTML = ""
+	
+	
+	rows = $("#menuOptionList2").find(".filterrow").find("input:checked").parent().parent();
+	names = rows.find(".name")
+
+	
+	thisMenuGroup = $("#menuGroupList").find("#row-" + menuGroupId); 
+	
+	for (let i = 0;  i<rows.length; i++) {
+		name = names[i].innerText;
+		menuItemId = rows[i].id.replace("row-", "");
+		if (thisMenuGroup.find("#row-"+menuGroupId+"-"+menuItemId).length==0) { // Ensure not already Added
+			outerHTML += templateHTML.replaceAll("MENUGROUPID", menuGroupId).replaceAll("MENUOPTIONID", menuItemId).replaceAll("MENUITEMNAME", name);
+		
+			newMenuItem ={
+					"menuOptionId" : menuItemId,
+					"menuGroupId" : menuGroupId					
+				}		
+		
+			$.ajax({
+				url:"./api/menugroupoption",
+				method:"POST",
+			    dataType : "json",
+			    contentType: "application/json; charset=utf-8",
+				data: JSON.stringify(newMenuItem),
+		
+				success: function(data,  textStatus, jqXHR){
+					$(".ascmenuitem[id='row-"+data.menuGroupId+"-"+data.menuOptionId+"']")[0].id="row-"+data.menuGroupOptionId;
+					$("#delete-"+data.menuGroupId+"-"+data.menuOptionId)[0].id="delete-"+data.menuGroupOptionId;
+					showValidationMessage("Successfully added new menu item");
+
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log("POST ERROR");
+					console.log(jqXHR);
+					showValidationMessage("Failed to add new menu item");				
 				}
-				
-				$.ajax({
-					url: data.url,
-					method:"PUT",
-				    dataType : "json",
-				    contentType: "application/json; charset=utf-8",
-					data: JSON.stringify(data), 
-					success: function(updatedData,  textStatus, jqXHR){
-						console.log("PUT");
-						console.log(updatedData);
-						showValidationMessage("Successfully updated " + data.type.toLowerCase());						
-						$("#undo-"+resourceId).show();					
-					},
-					
-					error: function(jqXHR, textStatus, errorThrown) {
-						console.log("PUT ERROR");						
-						console.log(jqXHR);
-						showValidationMessage("Failed to update " + data.type.toLowerCase());						
-					}
-				});								
-			}
-			else {
-				origValue = parentCell.getAttribute("latest-data");
-				if (origValue == null) {
-					origValue = parentCell.getAttribute('orig-data');
-				}
-				parentCell.innerHTML = origValue;
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log("GET ERROR");
-			console.log(jqXHR);
-			
-		}
-	});	
-	
-	
-
-}
-
-function postDataAndDisplay(data, type) {
-
-	
-	$.ajax({
-		url:"./api/resources",
-		method:"POST",
-	    dataType : "json",
-	    contentType: "application/json; charset=utf-8",
-		data: JSON.stringify(data),
-
-		success: function(data,  textStatus, jqXHR){
-			console.log("POST");
-			console.log(data);
-			
-			outerHTML = $("."+type+ "TemplateRow")[0].outerHTML;
-			
-			
-			$("#" + type + "NewRow")[0].insertAdjacentHTML("beforeBegin", outerHTML);
-			
-			newRow = $("."+type+ "TemplateRow")[1];
-			newRow.id ="row-" + data.resourceId;
-			newRow.classList.add("filterrow");
-			newRow.classList.remove(type+ "TemplateRow");
-			
-			// Copy value from input fields to new row
-			$("#row-"+data.resourceId).find("#name")[0].innerHTML=data.name;
-			$("#row-"+data.resourceId).find("#description")[0].innerHTML=data.description;
-			$("#row-"+data.resourceId).find("#keywords")[0].innerHTML=data.keywords;
-			if (type =="equipment") {
-				$("#row-"+data.resourceId).find("#quantity")[0].innerHTML=data.quantity;
-			}
-			else {
-				$("#row-"+data.resourceId).find("#capacity")[0].innerHTML=data.capacity;
-			}
-			
-			
-			undoButton = $("#row-"+data.resourceId).find("#newUndo")[0]; 
-			undoButton.id ="undo-" + data.resourceId;
-			
-			deleteButton = $("#row-"+data.resourceId).find("#newDelete")[0];
-			deleteButton.id = "delete-" + data.resourceId;
-			$("#"+deleteButton.id).show();
-			
-				
-			
-			setUpEditHandlersForType(type);
-			
-			//Clear input fields			
-			$("." + type + "Input").val("");			
-			$("#row-"+data.resourceId).show();			
-			showValidationMessage("Successfully recorded new " + type);
-			
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log("POST ERROR");
-			console.log(jqXHR);
-			showValidationMessage("Failed to record new " + type);
-
-			
-		}
-	});
-}
-
-
-
-
-
-
-
-
-function uploadFile(file, id) {
-	var data = new FormData();
-    
-    // Add the uploaded image content to the form data collection
-
-    data.append("file", file);     
-    data.append("id", id);
-
-    // Make Ajax request with the contentType = false, and procesDate = false
-    var ajaxRequest = $.ajax({
-         type: "POST",
-         url: "./profilePics",
-         contentType: false,
-         processData: false,
-         data: data,
-        });
-    ajaxRequest.done(function (xhr, textStatus) {
-     			console.log("Uploaded Image");
-     			src = "./profilePics/" +id + ".jpg";
-     			$("#profilePicImage-"+id)[0].setAttribute("src", src);
-     			reloadImg(src);
-		   });
-}
-
-
-function uploadImage(){
-    var files = event.target.files;
-    if (files.length > 0) {
-    	id = event.target.parentElement.getAttribute("for").replace("profilePic-", "");
-		uploadFile(files[0], id);
-    }	
-  }
-  
-function uploadNewImage(){
-    var files = event.target.files;
-    if (files.length > 0) {    	
-		uploadFile(files[0], 0);
-    }	
-  }  
-
-async function reloadImg(url) {
-	  await fetch(url, { cache: 'reload', mode: 'no-cors' })
-	  document.body.querySelectorAll(`img[src='${url}']`)
-	    .forEach(img => img.src = url)
+			});
+		
+		
+		}				
 	}
+	
+	
+	$("#newItem-" + menuGroupId)[0].insertAdjacentHTML("beforeBegin", outerHTML);
+	
+}
+
+function addMenuGroup(event) {
+	event.preventDefault();
+	
+	menuGroup = {
+			"name": $("input[name=menuGroupName]").val()
+		}		
+	
+	if (menuGroup.name != "") {
+
+			
+		$.ajax({
+			url:"./api/menugroup",
+			method:"POST",
+		    dataType : "json",
+		    contentType: "application/json; charset=utf-8",
+			data: JSON.stringify(menuGroup),
+	
+			success: function(data,  textStatus, jqXHR){
+				templateHTML = $("#row-MENUGROUPID")[0].outerHTML;
+				outerHTML = templateHTML.replaceAll("MENUGROUPNAME", data.name).replaceAll("MENUGROUPID", data.menuGroupId);
+				$("#row-NewMenuGroup")[0].insertAdjacentHTML("beforeBegin", outerHTML);
+				value = $("input[name=menuGroupName]").val("");	
+				showValidationMessage("Successfully added new menu group");
+
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log("POST ERROR");
+				console.log(jqXHR);
+				showValidationMessage("Failed to save new menu group anme already in use");				
+			}
+		});
+	}		
+}
+
+		function modalShow() {
+			$("#menuOptionList2")[0].innerHTML = $("#menuOptionList")[0].innerHTML;
+			
+			// Remove items already in menu
+			menuGroupId = $(".accordion-collapse:visible")[0].id.replace("flush-collapse-", "");
+			$(".accordion-collapse:visible").find(".ascmenuitem").each(function() {
+					alreadyExistingRow = this.getAttribute("orig-id").replace("row-"+menuGroupId + "-", "#row-");
+					$("#menuOptionList2").find(alreadyExistingRow)[0].outerHTML="";
+				});
+
+			$("#menuOptionList2").find(".filterrow").show();	// Original list may have been filtered need to undo impact of that		
+
+
+
+			
+			$("#menuOptionList2").find(".filterrow").find("input").prop("checked", false);			
+			$("#menuOptionList2").find(".asc-menuitembutton").hide();
+			$("#menuOptionList2").find(".asc-menuitemcheckbox").show();
+			$("#menuOptionList2").find("#menuOptionNewRow").hide();			
+			$('#myModal').show();
+			
+		}
+
+		function modalHide() {
+			$('#myModal').hide();
+			
+		}
+		
+
+		function addMenuItem(button) {
+
+			modalShow();
+		}
+		
+		
+		
+		
+
+		function deleteMenuGroup(image) {
+			window.event.cancelBubble = true;
+			window.event.preventDefault();
+			id = image.id.replace("delete-", "");
+
+			$.ajax({
+						url : "./api/menugroup/" + id,
+						method : "DELETE",
+
+						success : function(data, textStatus, jqXHR) {
+							$(".accordion-item[id='row-" + id + "']")[0].outerHTML = "";
+
+							showValidationMessage("Successfully deleted menu group");
+
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+							console.log("DELETE ERROR");
+							console.log(jqXHR);
+							showValidationMessage("Failed to delete menu group");
+						}
+					});
+
+		}
+
+		function removeMenuItemFromGroup(image) {
+			window.event.cancelBubble = true;
+			window.event.preventDefault();
+			id = image.id.replace("delete-", "")
+			
+			$.ajax({
+				url : "./api/menugroupoption/" + id,
+				method : "DELETE",
+
+				success : function(data, textStatus, jqXHR) {
+					$(".ascmenuitem[id='row-" + id + "']")[0].outerHTML=""					
+					showValidationMessage("Successfully removed menu item");
+
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					console.log("DELETE ERROR");
+					console.log(jqXHR);
+					showValidationMessage("Failed to remove menu item");
+				}
+			});			
+		}
+
+		
+
+		
+		function addNewmenuOption(event) {
+			event.preventDefault();		
+			data = {
+					"name": $("input[name='menuOptionName']").val(),					
+					"description": $("input[name='menuOptionDescription']").val(),
+					"additionalCost": $("input[name='menuOptionAdditionalCost']").val().replace(".", "").replace("£", ""),
+					"allergyInformation": $("input[name='menuOptionAllergyInformation']").val(),
+					"state": "ACTIVE"
+				}		
+
+			
+			$.ajax({
+				url:"./api/menuoption",
+				method:"POST",
+			    dataType : "json",
+			    contentType: "application/json; charset=utf-8",
+				data: JSON.stringify(data),
+
+				success: function(data,  textStatus, jqXHR){
+					console.log("POST");
+					console.log(data);
+					
+					outerHTML = $("#row-MENUOPTIONID")[0].outerHTML;
+					outerHTML = outerHTML.replaceAll("MENUOPTIONID", data.menuOptionId)
+					
+					
+					$("#menuOptionNewRow")[0].insertAdjacentHTML("beforeBegin", outerHTML);
+					
+					// Copy value from input fields to new row
+					
+					copyValue("name", data);
+					copyValue("description", data);
+					copyValue("additionalCost", data);
+					copyValue("allergyInformation", data);
+					
+		
+					setUpEditHandlersForType("menuOption");
+					
+					//Clear input fields			
+					$(".menuOptionInput").val("");			
+					$("#row-"+data.menuOptionId).show();			
+					showValidationMessage("Successfully recorded new menu item");
+					
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log("POST ERROR");
+					console.log(jqXHR);
+					showValidationMessage("Failed to record new menu item ");
+
+					
+				}
+			});			
+		}
+		
+		function deleteMenuItem(button) {	
+			id=button.id.replace("delete-", "");
+
+			$.ajax({
+				url:"./api/menuoption/" + id,
+				method:"GET", 
+				success: function(data){
+					console.log("GET");
+					console.log(data);
+					shouldDelete = true;
+					/*if (data.maxDemand > 0) {
+						message = type.toUpperCase().substring(0,1) + type.substring(1) + " required to support already scheduled sessions. \n Do you really want to delete?"; 
+						shouldDelete = confirm(message);
+					}*/
+					if (shouldDelete) {				
+						$.ajax({
+							url:"./api/menuoption/" +id,
+							method:"DELETE",
+							success: function(data,  textStatus, jqXHR){
+								console.log("DELETE");
+								console.log(data);
+								id = this.url.substr(this.url.lastIndexOf("/")+1);
+								$("#row-"+id)[0].outerHTML="";												
+								showValidationMessage("Menu item deleted");						
+							},
+							error: function(jqXHR, textStatus, errorThrown) {
+								console.log("DELETE ERROR");
+								console.log(jqXHR);						 					
+								showValidationMessage("Failed to delete menu item" );						
+							}
+						});																
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log("GET ERROR");
+					console.log(jqXHR);
+					
+				}
+			});	
+			return;		
+		}
+		
+		$(document).ready(function(){
+			  $("#addFilter").on("keyup", function() {
+			    var words = $(this).val().toLowerCase().trim().split(/\s+/);
+			    
+			    $("#menuOptionList2").find(".filterrow").filter(function() {
+			    	$(this).toggle(shouldFilter(this, words))
+			    });			    			    
+			  });
+			  
+			  $("#mainFilter").on("keyup", function() {
+				    var words = $(this).val().toLowerCase().trim().split(/\s+/);
+				    
+				    $("#menuOptionList").find(".filterrow").filter(function() {
+				    	$(this).toggle(shouldFilter(this, words))
+				    });
+				    
+				    $("#menuGroupList").find(".filterrow").filter(function() {
+				    	$(this).toggle(shouldFilter(this, words))
+				    });
+
+				    
+				  });
+			  $('.asc-moneyinput').change(function(e) {
+					validateMoneyChange(e);			
+				  });
+
+				$('.asc-moneyinput').keydown(function(e) {
+					validateMoneyEntry(e);	
+				  });			  
+			  
+			});
+		
+		
+		
+		function activateResourceTab(tabId)
+		{	
+			$("#mainFilter").val("");
+			$("#menuOptionList").find(".filterrow").show();
+			$("#menuGroupList").find(".filterrow").show();
+			 
+			$(".resourceTab").each(function() {
+				this.classList.remove("active");			
+			});
+
+			$("#"+tabId)[0].classList.add("active");
+			
+			$(".resourcePane").hide();
+			
+			$("#" + tabId.replace("Tab", "List")).show();
+			
+			
+			
+		}
+
+
+
 	
 
 	

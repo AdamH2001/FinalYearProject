@@ -392,15 +392,15 @@ function validateOverdraft(userId) {
 }
 
 
+
 $('.asc-moneyinput').change(function(e) {
-    value=e.target.value.replace("£", "").trim();
-    if(isNaN(value)){
-        e.target.value = ''
-    }else{		
-  	$("#" + e.target.getAttribute("for")).val(Math.round(value * 100))
-      e.target.value = pounds.format(value);
-    }
-  })
+	validateMoneyChange(e);		
+  });
+
+$('.asc-moneyinput').keydown(function(e) {
+	validateMoneyEntry(e);	
+  });
+  
 
 function activateParentTab(tabId)
 {	

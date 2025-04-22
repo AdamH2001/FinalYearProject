@@ -65,6 +65,9 @@ function formatTime(date) {
     $("#main").css({top: mainTop , left: $("#leftnav").outerWidth()});
   $("#leftnav").css({top: $("#header").outerHeight()});	
   $(".main").show();
+  if ($(".spacer").length==0) {
+	window.alert("Missing Spacer"); //TODO remove
+  }
    newPaddingHeight =  $("#footer").outerHeight() - $(".spacer").outerHeight() + parseFloat($(".spacer").css("padding-bottom").replace("px", ""))
   $(".spacer").css("padding-bottom",  newPaddingHeight);
   if ( $("#calendarTable")> 0)  
@@ -109,3 +112,59 @@ function formatTime(date) {
 			window.location.href = "./showFinanceSummary?show=false";
 		}
    }
+   
+   
+   	function validateMoneyEntry(e) {
+		switch (e.key) {
+			case "0":
+			case "1":
+			case "2":
+			case "3":
+			case "4":
+			case "5":
+			case "6":
+			case "7":
+			case "8":
+			case "9":	
+			case "ArrowLeft":
+			case "ArrowRight":
+			case "ArrowUp":
+			case "ArrowDown":
+			case "Shift":
+			case "CapsLock":
+			case "Home":
+			case "End":
+			case "Delete":
+			case "Tab":	
+			case "Backspace":
+				break;
+			case ".":
+				if (e.target.value.indexOf(".") >=0  && e.target.value.substring(e.target.selectionStart, e.target.selectionEnd).indexOf(".") < 0)	{
+					e.preventDefault();
+				}
+				break;
+			case "£":
+				if (e.target.value.indexOf("£") >=0 && e.target.value.substring(e.target.selectionStart, e.target.selectionEnd).indexOf("£") < 0) {
+					e.preventDefault();
+				}
+				break;			
+			default:	
+				e.preventDefault();
+				break;
+
+								
+		}
+
+     }
+	 
+	 function validateMoneyChange(e) {		
+	     value=e.target.value.replace("£", "").trim();
+	     if(isNaN(value)){
+	         e.target.value = ''
+	     }else{		
+	   	$("#" + e.target.getAttribute("for")).val(Math.round(value * 100))
+	       e.target.value = pounds.format(value);
+	     }
+	   }
+	   
+	   	 

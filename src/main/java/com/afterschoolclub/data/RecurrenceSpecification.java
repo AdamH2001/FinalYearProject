@@ -1,10 +1,15 @@
 package com.afterschoolclub.data;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
+
+import com.afterschoolclub.controller.AdminController;
 import com.afterschoolclub.data.repository.RecurrenceSpecificationRepository;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +21,10 @@ import lombok.ToString;
 @Setter
 @ToString
 public class RecurrenceSpecification {
+	
+	static Logger logger = LoggerFactory.getLogger(RecurrenceSpecification.class);
+	
+	
 	public static RecurrenceSpecificationRepository repository = null;
 
 	
@@ -52,7 +61,7 @@ public class RecurrenceSpecification {
 	boolean occursSunday = false;
 	boolean termTimeOnly = false;
 	
-	
+	 
 	
 	public void save()
 	{
@@ -161,4 +170,69 @@ public class RecurrenceSpecification {
 	public String getFormattedEndDate() {
 		return endDate.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));		
 	}	
+	
+	public List<Session> getAllRecurringSessions(Session session) {
+		List<Holiday> allHolidays = Holiday.findAll();
+		
+		List<Session> allSessions = new ArrayList<Session>();
+
+		if (!session.isRecurring()) {
+			allSessions.add(session);
+		}			
+		
+		
+		logger.info("Recurrence Specfication Id = {}", getRecurrenceSpecificationId());
+
+		
+		int copiedSessions = 0;
+		LocalDate nextDate = this.startDate;
+						
+		while (session.isRecurring() && nextDate.compareTo(endDate) <= 0) {
+			Boolean copy; 
+			switch (nextDate.getDayOfWeek()) {
+			case MONDAY:
+				copy = occursMonday;
+				break;
+			case TUESDAY:
+				copy = occursTuesday;
+				break;
+				
+			case WEDNESDAY:
+				copy = occursWednesday;
+				break;
+				
+			case THURSDAY:
+				copy = isOccursThursday();
+				break;
+				
+			case FRIDAY:
+				copy = occursFriday;
+				break;
+
+			case SATURDAY:
+				copy = occursSaturday;
+				break;
+
+			case SUNDAY:
+				copy = occursSunday;
+				break;
+
+			default:
+				copy = Boolean.FALSE;
+				break;
+			}
+			boolean isRecurringDay = (copy == null) ? false:copy.booleanValue();
+				
+			if (isRecurringDay && (!termTimeOnly || !Holiday.isDateInHolidays(nextDate, allHolidays))) {						
+				Session newSession = new Session(session);
+				
+				newSession.setStartDateTime(nextDate.atTime(session.getStartDateTime().toLocalTime()));
+				newSession.setEndDateTime(nextDate.atTime(session.getEndDateTime().toLocalTime()));
+				allSessions.add(newSession);
+				copiedSessions++;						
+			}
+			nextDate = nextDate.plusDays(1);					
+		}				
+		return allSessions;
+	}		
 }

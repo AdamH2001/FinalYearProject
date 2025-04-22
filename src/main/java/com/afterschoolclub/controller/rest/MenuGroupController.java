@@ -14,13 +14,17 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.afterschoolclub.data.MenuGroup;
+import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.SimpleMenuGroup;
 import com.afterschoolclub.data.repository.SimpleMenuGroupRepository;
 import com.afterschoolclub.SessionBean;
@@ -58,14 +62,28 @@ public class MenuGroupController {
 
     @PostMapping(consumes = {"application/json"})
     public SimpleMenuGroup createMenuGroup(@RequestBody SimpleMenuGroup menuGroup) {
-    	menuGroup.save();
+    	MenuGroup mg = MenuGroup.findByName(menuGroup.getName());
+    	if (mg != null) {
+			throw new ResponseStatusException(
+		           HttpStatus.BAD_REQUEST, "Already exists with same name");
+    	}  
+    	else {    	
+    		menuGroup.save();
+    	}
         return menuGroup;
     }
 
     @PutMapping(value="/{id}", consumes = {"application/json"})
     public SimpleMenuGroup updateMenuGroup(@PathVariable long id, @RequestBody SimpleMenuGroup menuGroup) {
-    	menuGroup.save();
-        return menuGroup;
+    	MenuGroup mg = MenuGroup.findByName(menuGroup.getName());
+    	if (mg != null && id != mg.getMenuGroupId()) {
+			throw new ResponseStatusException(
+		           HttpStatus.BAD_REQUEST, "Already exists with same name");
+    	}  
+    	else {    	
+    		menuGroup.save();
+    	}
+    	return menuGroup;
     }
     
     @DeleteMapping(value="/{id}")

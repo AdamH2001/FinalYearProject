@@ -708,3 +708,8 @@ body {
 .underline {
     text-decoration: underline;
 }
+
+
+.editable {
+	overflow: hidden;
+}

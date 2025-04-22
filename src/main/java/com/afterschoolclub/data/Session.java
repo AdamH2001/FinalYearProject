@@ -721,5 +721,56 @@ public class Session {
 	public List<User> getAllUsers() {
 		return User.repository.findAllForSession(this.sessionId);
 	}
+
+	public void addStaff(List<Integer>newStaff) {		
+		for (Integer staffMember : newStaff) {
+			SessionResource er = new SessionResource(AggregateReference.to(staffMember), 1, false);
+			this.addResource(er);
+		}				
+	}
+	
+	public void addEquipment(List<Integer>equipment, List<Integer>equipmentQuantity,  List<Boolean>perAttendee  ) {
+		int counter = 0;				
+		for (Integer item : equipment) {					
+			if ( item.intValue() != 0) {
+				int quantity = equipmentQuantity.get(counter).intValue();
+				if (quantity > 0) {
+					boolean bPerAttendee = perAttendee.get(counter).booleanValue();
+					
+					SessionResource er = new SessionResource(AggregateReference.to(item), quantity, bPerAttendee);
+					this.addResource(er);
+				}
+			}
+			counter++;
+		}					
+	}	
+	
+	public void setMenuGroups(List<Integer>menuGroups) {
+		clearMenu();
+		if (menuGroups != null)
+		{
+			for (Integer menu : menuGroups) {
+			
+				SessionMenu newMenu = new SessionMenu(AggregateReference.to(menu));
+				this.addSessionMenu(newMenu);						
+			}
+		}	
+	}
+	
+	public List<ResourceStatus> getResourceChallenges() {
+		List<ResourceStatus> allStatus = this.getResourceStatus();
+		List<ResourceStatus> allChallenges = new ArrayList();
+	
+		Iterator<ResourceStatus> rsIterator = allStatus.iterator();
+		while (rsIterator.hasNext()) {
+			ResourceStatus nextStatus = rsIterator.next();
+			if (!nextStatus.isSufficient()) {																	
+				allChallenges.add(nextStatus);						
+			}		
+		}
+		return allChallenges;
+	}
+	
+	
 	
 }

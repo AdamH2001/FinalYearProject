@@ -7,6 +7,7 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import com.afterschoolclub.data.MenuGroup;
+import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.State;
 
 public interface MenuGroupRepository extends CrudRepository<MenuGroup, Integer> {
@@ -20,5 +21,7 @@ public interface MenuGroupRepository extends CrudRepository<MenuGroup, Integer> 
 	@Query("UPDATE Menu_Group SET name = :name, state = :state where menu_group_id = :menuGroupId")	
 	void update(int menuGroupId, String name, State state);	
 	
+	@Query("SELECT * FROM menu_group where name=:name AND state='ACTIVE' order by name")
+	List<MenuGroup> findByName(String name);		
 	
 }

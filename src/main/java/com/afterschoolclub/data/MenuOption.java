@@ -1,10 +1,12 @@
 package com.afterschoolclub.data;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 import org.springframework.data.annotation.Id;
 
+import com.afterschoolclub.data.Resource.Type;
 import com.afterschoolclub.data.repository.MenuOptionRepository;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +25,15 @@ public class MenuOption {
 	
 
 	private State state = State.ACTIVE;
+	
+	public static MenuOption findByName(String name) {
+		List<MenuOption> nameMatched  = repository.findByName(name);
+		MenuOption result = null; 
+		if (nameMatched != null && nameMatched.size() > 0) {
+			result = nameMatched.get(0);
+		}
+		return result;		
+	}	
 	
 	
 	public String getFormattedCost() {

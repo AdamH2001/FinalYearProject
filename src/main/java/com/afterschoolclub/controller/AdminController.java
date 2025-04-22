@@ -506,154 +506,53 @@ public class AdminController {
 		if (returnPage == null) {
 			LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
 			LocalDateTime endDateTime = LocalDateTime.of(startDate, endTime);
-			List<Session> allSessions = new ArrayList<Session>();
+			List<Session> allSessions = null; 
 			RecurrenceSpecification rs = null;
 			
+			Session session = null;
+			
 			if (sessionId != 0 ) {
-				Session session = Session.findById(sessionId);				
+				session = Session.findById(sessionId);
+				
 				session.clearResources();
 				session.clearMenu();
 				
 				session.setStartDateTime(startDateTime);
 				session.setEndDateTime(endDateTime);				
 				session.setMaxAttendees(maxAttendees);
-				session.setParentNotes(parentNotes);
-				session.setAdministratorNotes(organiserNotes);
+
+				
+				allSessions = new ArrayList<Session>();
 				allSessions.add(session);
 			}
 			else {
-				List<Holiday> allHolidays = Holiday.findAll();
-				Session session = new Session(AggregateReference.to(clubId),  startDateTime, endDateTime, maxAttendees);
-				session.setParentNotes(parentNotes);
-				session.setAdministratorNotes(organiserNotes);
-
-				
-				
-				
-				rs = new RecurrenceSpecification(startDateTime.toLocalDate(),  recurringEndDate, MonRecurring, TueRecurring, WedRecurring, ThurRecurring, FriRecurring, SatRecurring, SunRecurring, termTimeOnly);				
+				rs = new RecurrenceSpecification(startDateTime.toLocalDate(),  recurringEndDate, MonRecurring, TueRecurring, WedRecurring, ThurRecurring, FriRecurring, SatRecurring, SunRecurring, termTimeOnly);								
 				rs.save(); // Need to save so get set the aggregate Id for each session
+				
+				session = new Session(AggregateReference.to(clubId),  startDateTime, endDateTime, maxAttendees);
+				session.setRecurrenceSpecification(rs);														
+			}
 
-				session.setRecurrenceSpecification(rs);
-				
-				if (!session.isRecurring()) {
-					allSessions.add(session);
-				}			
-				
-				
-				logger.info("Recurrence Specfication Id = {}",rs.getRecurrenceSpecificationId());
-
-				
-				int copiedSessions = 0;
-				LocalDate nextDate = startDateTime.toLocalDate(); //.plusDays(1);
+			session.setParentNotes(parentNotes);
+			session.setAdministratorNotes(organiserNotes);
+			session.addStaff(staff);
+			session.addEquipment(equipment, equipmentQuantity, perAttendee);
+			session.setMenuGroups(menuGroups);		
+			session.addResource(new SessionResource(AggregateReference.to(location), 1, false));			
+			
+			if (allSessions == null) {
+				allSessions = rs.getAllRecurringSessions(session);	
+			}
 								
-				while (session.isRecurring() && nextDate.compareTo(recurringEndDate) <= 0) {
-					Boolean copy; 
-					switch (nextDate.getDayOfWeek()) {
-					case MONDAY:
-						copy = MonRecurring;
-						break;
-					case TUESDAY:
-						copy = TueRecurring;
-						break;
-						
-					case WEDNESDAY:
-						copy = WedRecurring;
-						break;
-						
-					case THURSDAY:
-						copy = ThurRecurring;
-						break;
-						
-					case FRIDAY:
-						copy = FriRecurring;
-						break;
-
-					case SATURDAY:
-						copy = SatRecurring;
-						break;
-
-					case SUNDAY:
-						copy = SunRecurring;
-						break;
-
-					default:
-						copy = Boolean.FALSE;
-						break;
-					}
-					boolean isRecurringDay = (copy == null) ? false:copy.booleanValue();
-					boolean copyTermTimeOnly = (termTimeOnly == null) ? false : termTimeOnly.booleanValue();
-						
-					if (isRecurringDay && (!copyTermTimeOnly || !Holiday.isDateInHolidays(nextDate, allHolidays))) {						
-						Session newSession = new Session(session);
-						
-						newSession.setStartDateTime(nextDate.atTime(startDateTime.toLocalTime()));
-						newSession.setEndDateTime(nextDate.atTime(endDateTime.toLocalTime()));
-						allSessions.add(newSession);
-						copiedSessions++;						
-					}
-					nextDate = nextDate.plusDays(1);					
-				}								
-			}
 			
-			boolean allResourcesOk = true;
 			List <ResourceStatus> allResourceChallenges = new ArrayList<ResourceStatus>();
-
+		
+			for (Session proposedSession: allSessions) {				
+				List <ResourceStatus> proposedSessionChallenges = proposedSession.getResourceChallenges();
+				allResourceChallenges.addAll(proposedSessionChallenges);			
+			}			
 			
-			for (Session session: allSessions) {
-
-				for (Integer staffMember : staff) {
-					SessionResource er = new SessionResource(AggregateReference.to(staffMember), 1, false);
-					session.addResource(er);
-				}
-				
-				logger.info("Selected equipment = {}",equipment);
-				logger.info("Selected equipmentQuantity = {}",equipmentQuantity);
-				logger.info("Selected perAttendee = {}",perAttendee);
-	
-				int counter = 0;				
-				for (Integer item : equipment) {					
-					if ( item.intValue() != 0) {
-						int quantity = equipmentQuantity.get(counter).intValue();
-						if (quantity > 0) {
-							boolean bPerAttendee = perAttendee.get(counter).booleanValue();
-							
-							SessionResource er = new SessionResource(AggregateReference.to(item), quantity, bPerAttendee);
-							
-							logger.info("Selected perAtSessionResource= {}",er);
-							session.addResource(er);
-						}
-					}
-					counter++;
-				}			
-				SessionResource er = new SessionResource(AggregateReference.to(location), 1, false);
-				session.addResource(er);
-				if (menuGroups != null)
-				{
-					for (Integer menu : menuGroups) {
-					
-						SessionMenu newMenu = new SessionMenu(AggregateReference.to(menu));
-						session.addSessionMenu(newMenu);						
-					}
-				}
-				
-				List <ResourceStatus> resourceStatus = session.getResourceStatus();
-				
-				
-				
-				logger.info("ResourceStatus = {}", resourceStatus);
-				Iterator<ResourceStatus> rsIterator = resourceStatus.iterator();
-				while (rsIterator.hasNext()) {
-					ResourceStatus nextStatus = rsIterator.next();
-					if (!nextStatus.isSufficient()) {																	
-						allResourcesOk = false;
-						allResourceChallenges.add(nextStatus);
-						
-					}		
-				}
-			}
-			
-			
-			if (allResourcesOk) {
+			if (allResourceChallenges.size() == 0) {
 				Session.saveAll(allSessions);	
 				if (sessionId == 0) {
 					String message = String.format("Added %d session(s).", allSessions.size());
@@ -662,8 +561,6 @@ public class AdminController {
 				else {
 					sessionBean.setFlashMessage("Updated Session");
 				}
-				
-
 				returnPage = setupCalendar(model);
 			}
 			else {
@@ -678,8 +575,7 @@ public class AdminController {
 					model.addAttribute("scheduling",true);					
 					model.addAttribute("editing",false);
 					model.addAttribute("takingRegister",false);					
-					model.addAttribute("viewing",false);					
-					
+					model.addAttribute("viewing",false);										
 					rs.delete();
 				}
 					

@@ -13,7 +13,8 @@
 	
 	<script src="./scripts/managerefreshments.js" type="text/javascript"></script>
 	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>
-	
+	<script src="./scripts/filter.js" type="text/javascript"></script>
+		
 <style>
 
 
@@ -111,15 +112,15 @@
 
 							<div class="row mb-2 filterrow" th:each="menuOption : ${allMenuOptions}"
 								th:id="${'row-' + menuOption.getMenuOptionId()}">
-								<div style="padding-left: 0px" id="name" class="col-sm-2 editable menuOption"
+								<div style="padding-left: 0px" class="col-sm-2 editable menuOption name" th:id="${'name-' + menuOption.getMenuOptionId()}"
 									th:orig-data="${menuOption.getName()}" th:text="${menuOption.getName()}" edittype="text">Name</div>
-								<div style="padding-left: 0px" id="description" class="col-sm-4 editable menuOption"
+								<div style="padding-left: 0px" class="col-sm-4 editable menuOption" th:id="${'description-' + menuOption.getMenuOptionId()}"
 									th:orig-data="${menuOption.getDescription()}" th:text="${menuOption.getDescription()}" edittype="textarea">Description</div>
-								<div style="padding-left: 0px" id="allergyInformation" class="col-sm-4 editable menuOption"
+								<div style="padding-left: 0px" class="col-sm-4 editable menuOption" th:id="${'allergyInformation-' + menuOption.getMenuOptionId()}"
 									th:orig-data="${menuOption.getAllergyInformation()}" th:text="${menuOption.getAllergyInformation()}"
 									edittype="textarea">Allergy Information</div>
-								<div style="padding-left: 0px" id="additionalCost" class="col-sm-1 editable menuOption"
-									th:orig-data="${menuOption.getAdditionalCost()}" th:text="${sessionBean.formatMoney(menuOption.getAdditionalCost())}" edittype="number"
+								<div style="padding-left: 0px" class="col-sm-1 editable menuOption"  th:id="${'additionalCost-' + menuOption.getMenuOptionId()}"
+									th:orig-data="${sessionBean.formatMoney(menuOption.getAdditionalCost())}" th:text="${sessionBean.formatMoney(menuOption.getAdditionalCost())}" edittype="money"
 									align=center>Cost</div>
 								<div style="padding-left: 0px" class="col-sm-1 asc-menuitembutton">
 									<button class="btn asc-control imagebtn btn-danger" type="button" onclick="deleteMenuItem(this)" th:id="${'delete-' + menuOption.getMenuOptionId()}"><i class="fa fa-trash"></i></button>
@@ -137,23 +138,28 @@
 							<div class="row mb-2" id="menuOptionNewRow">
 								<div style="padding-left: 0px" class="col-sm-2 " orig-data=""
 									edittype="text">
-									<input class="form-control menuOptionInput"
+									<input class="form-control menuOptionInput"  maxlength="64"
 										name="menuOptionName" type="text" required />
 								</div>
 								<div style="padding-left: 0px" class="col-sm-4 " orig-data=""
 									edittype="text">
-									<input class="form-control menuOptionInput"
-										name="menuOptionDescription" type="text" required />
+									<input class="form-control menuOptionInput" maxlength="1024"
+										name="menuOptionDescription" type="text" required/>  
 								</div>
 								<div style="padding-left: 0px" class="col-sm-4 " orig-data=""
 									edittype="text">
-									<input class="form-control menuOptionInput"
-										name="menuOptionAllergyInformation" type="text" required />
+									<input class="form-control menuOptionInput" maxlength="1024"
+										name="menuOptionAllergyInformation" type="text" required.>
 								</div>
 								<div style="padding-left: 0px" class="col-sm-1 " orig-data=""
-									edittype="number">
-									<input class="form-control menuOptionInput" min=0
-										name="menuOptionAdditionalCost" type="number" required />
+									edittype="money">
+				<!-- <input class="form-control menuOptionInput" min=0
+										name="menuOptionAdditionalCost" type="number" required /> -->
+										
+								    <input type="text" id="menuOptionAdditionalCostInput" required placeholder="Cost" maxlength=6 class="asc-moneyinput form-control menuOptionInput" 
+								    	name="menuOptionAdditionalCost"  data-toggle="tooltip" title="Price for menu item in addition to base price of session." style="width:110px;"/>
+								
+										
 								</div>
 								<div style="padding-left: 0px" class="col-sm-1">								
 									<button  class="btn asc-control imagebtn btn-success" type="submit"><i class="fa fa-plus"></i></button>
@@ -197,7 +203,7 @@
 											th:id="${'row-' + menuGroupOption.getMenuGroupOptionId()}" th:orig-id="${'row-' + menuGroupOption.getMenuGroupIdAsInt() + '-' + menuGroupOption.getMenuOptionIdAsInt()}">
 											<div class="col-sm-1"></div>
 											<div class="col-sm-5" >
-												<button class="btn asc-control imagebtn btn-danger" type="button" onclick="removeMenuItemFromGroup(this)" th:id="${'delete-' + menuGroupOption.getMenuGroupOptionId()}"><i class="fa fa-trash"></i></button>
+												<button class="btn imagebtn btn-danger" type="button" onclick="removeMenuItemFromGroup(this)" th:id="${'delete-' + menuGroupOption.getMenuGroupOptionId()}"><i class="fa fa-trash"></i></button>
 												<span>&nbsp;</span>
 												<span th:text="${menuGroupOption.getMenuOption().getName()}"></span>			
 											</div>
@@ -230,7 +236,7 @@
 										aria-controls="flush-collapseNew">						
 												<button  class="btn imagebtn btn-success"  onClick="addMenuGroup(event)"><i class="fa fa-plus"></i></button>
 												<span>&nbsp;</span>																			
-												<span><input style="width:300" class="form-control" name="menuGroupName" type="text" placeholder="Enter name for new group"/></span>	
+												<span><input style="width:300" maxlength="64" class="form-control" name="menuGroupName" type="text" placeholder="Enter name for new group"/></span>	
 									</div>
 								</div>
 
@@ -297,333 +303,6 @@
 
 
 	<script>
-
-function addItems() {
-	
-	newMenuItem ={
-			"menuOptionId" : 3,
-			"menuGroupId" : 1					
-		}
-	
-	
-	
-	
-	$('#myModal').hide();
-	menuGroupId = $(".accordion-collapse:visible")[0].id.replace("flush-collapse-", "");
-	templateHTML = $("#row-MENUGROUPID-MENUOPTIONID")[0].outerHTML;
-	outerHTML = ""
-	
-	
-	rows = $("#menuOptionList2").find(".filterrow").find("input:checked").parent().parent();
-	names = rows.find("[id=name]")
-
-	
-	thisMenuGroup = $("#menuGroupList").find("#row-" + menuGroupId); 
-	
-	for (let i = 0;  i<rows.length; i++) {
-		name = names[i].innerText;
-		menuItemId = rows[i].id.replace("row-", "");
-		if (thisMenuGroup.find("#row-"+menuGroupId+"-"+menuItemId).length==0) { // Ensure not already Added
-			outerHTML += templateHTML.replaceAll("MENUGROUPID", menuGroupId).replaceAll("MENUOPTIONID", menuItemId).replaceAll("MENUITEMNAME", name);
-		
-			newMenuItem ={
-					"menuOptionId" : menuItemId,
-					"menuGroupId" : menuGroupId					
-				}		
-		
-			$.ajax({
-				url:"./api/menugroupoption",
-				method:"POST",
-			    dataType : "json",
-			    contentType: "application/json; charset=utf-8",
-				data: JSON.stringify(newMenuItem),
-		
-				success: function(data,  textStatus, jqXHR){
-					$(".ascmenuitem[id='row-"+data.menuGroupId+"-"+data.menuOptionId+"']")[0].id="row-"+data.menuGroupOptionId;
-					$("#delete-"+data.menuGroupId+"-"+data.menuOptionId)[0].id="delete-"+data.menuGroupOptionId;
-					showValidationMessage("Successfully added new menu item");
-
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					console.log("POST ERROR");
-					console.log(jqXHR);
-					showValidationMessage("Failed to add new menu item");				
-				}
-			});
-		
-		
-		}				
-	}
-	
-	
-	$("#newItem-" + menuGroupId)[0].insertAdjacentHTML("beforeBegin", outerHTML);
-	
-}
-
-function addMenuGroup(event) {
-	event.preventDefault();
-	
-	menuGroup = {
-			"name": $("input[name=menuGroupName]").val()
-		}		
-	
-	if (menuGroup.name != "") {
-
-			
-		$.ajax({
-			url:"./api/menugroup",
-			method:"POST",
-		    dataType : "json",
-		    contentType: "application/json; charset=utf-8",
-			data: JSON.stringify(menuGroup),
-	
-			success: function(data,  textStatus, jqXHR){
-				templateHTML = $("#row-MENUGROUPID")[0].outerHTML;
-				outerHTML = templateHTML.replaceAll("MENUGROUPNAME", data.name).replaceAll("MENUGROUPID", data.menuGroupId);
-				$("#row-NewMenuGroup")[0].insertAdjacentHTML("beforeBegin", outerHTML);
-				value = $("input[name=menuGroupName]").val("");	
-				showValidationMessage("Successfully added new menu group");
-
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				console.log("POST ERROR");
-				console.log(jqXHR);
-				showValidationMessage("Failed to save new menu group");				
-			}
-		});
-	}		
-}
-
-		function modalShow() {
-			$("#menuOptionList2")[0].innerHTML = $("#menuOptionList")[0].innerHTML;
-			
-			// Remove items already in menu
-			menuGroupId = $(".accordion-collapse:visible")[0].id.replace("flush-collapse-", "");
-			$(".accordion-collapse:visible").find(".ascmenuitem").each(function() {
-					alreadyExistingRow = this.getAttribute("orig-id").replace("row-"+menuGroupId + "-", "#row-");
-					$("#menuOptionList2").find(alreadyExistingRow)[0].outerHTML="";
-				});
-
-			$("#menuOptionList2").find(".filterrow").show();	// Original list may have been filtered need to undo impact of that		
-
-
-
-			
-			$("#menuOptionList2").find(".filterrow").find("input").prop("checked", false);			
-			$("#menuOptionList2").find(".asc-menuitembutton").hide();
-			$("#menuOptionList2").find(".asc-menuitemcheckbox").show();
-			$("#menuOptionList2").find("#menuOptionNewRow").hide();			
-			$('#myModal').show();
-			
-		}
-
-		function modalHide() {
-			$('#myModal').hide();
-			
-		}
-		
-
-		function addMenuItem(button) {
-
-			modalShow();
-		}
-		
-		
-		
-		
-
-		function deleteMenuGroup(image) {
-			window.event.cancelBubble = true;
-			window.event.preventDefault();
-			id = image.id.replace("delete-", "");
-
-			$.ajax({
-						url : "./api/menugroup/" + id,
-						method : "DELETE",
-
-						success : function(data, textStatus, jqXHR) {
-							$(".accordion-item[id='row-" + id + "']")[0].outerHTML = "";
-
-							showValidationMessage("Successfully deleted menu group");
-
-						},
-						error : function(jqXHR, textStatus, errorThrown) {
-							console.log("DELETE ERROR");
-							console.log(jqXHR);
-							showValidationMessage("Failed to delete menu group");
-						}
-					});
-
-		}
-
-		function removeMenuItemFromGroup(image) {
-			window.event.cancelBubble = true;
-			window.event.preventDefault();
-			id = image.id.replace("delete-", "")
-			
-			$.ajax({
-				url : "./api/menugroupoption/" + id,
-				method : "DELETE",
-
-				success : function(data, textStatus, jqXHR) {
-					$(".ascmenuitem[id='row-" + id + "']")[0].outerHTML=""					
-					showValidationMessage("Successfully deleted menu item");
-
-				},
-				error : function(jqXHR, textStatus, errorThrown) {
-					console.log("DELETE ERROR");
-					console.log(jqXHR);
-					showValidationMessage("Failed to delete menu item");
-				}
-			});			
-		}
-
-		
-
-		
-		function addNewmenuOption(event) {
-			event.preventDefault();		
-			data = {
-					"name": $("input[name='menuOptionName']").val(),					
-					"description": $("input[name='menuOptionDescription']").val(),
-					"additionalCost": $("input[name='menuOptionAdditionalCost']").val(),
-					"allergyInformation": $("input[name='menuOptionAllergyInformation']").val(),
-					"state": "ACTIVE"
-				}		
-
-			
-			$.ajax({
-				url:"./api/menuoption",
-				method:"POST",
-			    dataType : "json",
-			    contentType: "application/json; charset=utf-8",
-				data: JSON.stringify(data),
-
-				success: function(data,  textStatus, jqXHR){
-					console.log("POST");
-					console.log(data);
-					
-					outerHTML = $("#row-MENUOPTIONID")[0].outerHTML;
-					outerHTML = outerHTML.replaceAll("MENUOPTIONID", data.menuOptionId)
-					
-					
-					$("#menuOptionNewRow")[0].insertAdjacentHTML("beforeBegin", outerHTML);
-					
-
-					
-					// Copy value from input fields to new row
-					$("#row-"+data.menuOptionId).find("#name")[0].innerHTML=data.name;
-					$("#row-"+data.menuOptionId).find("#description")[0].innerHTML=data.description;
-					$("#row-"+data.menuOptionId).find("#additionalCost")[0].innerHTML=data.additionalCost;
-					$("#row-"+data.menuOptionId).find("#allergyInformation")[0].innerHTML=data.allergyInformation;
-		
-					setUpEditHandlersForType("menuOption");
-					
-					//Clear input fields			
-					$(".menuOptionInput").val("");			
-					$("#row-"+data.menuOptionId).show();			
-					showValidationMessage("Successfully recorded new menu item nmenu item");
-					
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					console.log("POST ERROR");
-					console.log(jqXHR);
-					showValidationMessage("Failed to record new menu item ");
-
-					
-				}
-			});			
-		}
-		
-		function deleteMenuItem(button) {	
-			id=button.id.replace("delete-", "");
-
-			$.ajax({
-				url:"./api/menuoption/" + id,
-				method:"GET", 
-				success: function(data){
-					console.log("GET");
-					console.log(data);
-					shouldDelete = true;
-					/*if (data.maxDemand > 0) {
-						message = type.toUpperCase().substring(0,1) + type.substring(1) + " required to support already scheduled sessions. \n Do you really want to delete?"; 
-						shouldDelete = confirm(message);
-					}*/
-					if (shouldDelete) {				
-						$.ajax({
-							url:"./api/menuoption/" +id,
-							method:"DELETE",
-							success: function(data,  textStatus, jqXHR){
-								console.log("DELETE");
-								console.log(data);
-								id = this.url.substr(this.url.lastIndexOf("/")+1);
-								$("#row-"+id)[0].outerHTML="";												
-								showValidationMessage("Menu item deleted");						
-							},
-							error: function(jqXHR, textStatus, errorThrown) {
-								console.log("DELETE ERROR");
-								console.log(jqXHR);						 					
-								showValidationMessage("Failed to delete menu item" );						
-							}
-						});																
-					}
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					console.log("GET ERROR");
-					console.log(jqXHR);
-					
-				}
-			});	
-			return;		
-		}
-		
-		$(document).ready(function(){
-			  $("#addFilter").on("keyup", function() {
-			    var words = $(this).val().toLowerCase().trim().split(/\s+/);
-			    
-			    $("#menuOptionList2").find(".filterrow").filter(function() {
-			    	$(this).toggle(shouldFilter(this, words))
-			    });			    			    
-			  });
-			  
-			  $("#mainFilter").on("keyup", function() {
-				    var words = $(this).val().toLowerCase().trim().split(/\s+/);
-				    
-				    $("#menuOptionList").find(".filterrow").filter(function() {
-				    	$(this).toggle(shouldFilter(this, words))
-				    });
-				    
-				    $("#menuGroupList").find(".filterrow").filter(function() {
-				    	$(this).toggle(shouldFilter(this, words))
-				    });
-
-				    
-				  });
-			  
-			  
-			});
-		
-		
-		
-		function activateResourceTab(tabId)
-		{	
-			$("#mainFilter").val("");
-			$("#menuOptionList").find(".filterrow").show();
-			$("#menuGroupList").find(".filterrow").show();
-			 
-			$(".resourceTab").each(function() {
-				this.classList.remove("active");			
-			});
-
-			$("#"+tabId)[0].classList.add("active");
-			
-			$(".resourcePane").hide();
-			
-			$("#" + tabId.replace("Tab", "List")).show();
-			
-			
-			
-		}
 		
 	</script>
 	
@@ -668,11 +347,11 @@ function addMenuGroup(event) {
 
 
 	<div class="row mb-2 filterrow" id="row-MENUOPTIONID" style="display:none">
-		<div style="padding-left: 0px" id="name" class="col-sm-2 editable menuOption" orig-data="" edittype="text">Name</div>
+		<div style="padding-left: 0px" id="name" class="col-sm-2 editable menuOption name" orig-data="" edittype="text">Name</div>
 		<div style="padding-left: 0px" id="description" class="col-sm-4 editable menuOption" orig-data="" edittype="textarea">Description</div>
 		<div style="padding-left: 0px" id="allergyInformation" class="col-sm-4 editable menuOption" orig-data="" edittype="textarea">Allergy
 			Information</div>
-		<div style="padding-left: 0px" id="additionalCost" class="col-sm-1 editable menuOption" orig-data="" edittype="number"
+		<div style="padding-left: 0px" id="additionalCost" class="col-sm-1 editable menuOption" orig-data="" edittype="money"
 			align=center>Cost</div>
 		<div style="padding-left: 0px" class="col-sm-1 asc-menuitembutton">		
 				<button class="btn asc-control imagebtn btn-danger" type="button" onclick="deleteMenuItem(this)"  id="delete-MENUOPTIONID"><i class="fa fa-trash"></i></button>
@@ -686,7 +365,7 @@ function addMenuGroup(event) {
 
 
 
-</div>	
+</div>
 
 </body>
 </html>

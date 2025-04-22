@@ -74,28 +74,21 @@
 								
 								
 								<div class="row mb-2 equipmentTemplateRow" style="display:none">
-									<div style="padding-left:0px" id="name" class="col-sm-2 editable equipment" orig-data="" edittype="text">Name</div>
-									<div style="padding-left:0px" id="description" class="col-sm-4 editable equipment" orig-data="" edittype="textarea">Description</div>						
-									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable equipment" orig-data="" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable equipment" orig-data="" edittype="text" editlength="64">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable equipment" orig-data="" edittype="textarea" editlength="1024">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable equipment" orig-data="" edittype="text" editlength="256">Keywords</div>
 									<div style="padding-left:0px" id="quantity"  class="col-sm-1 editable equipment" orig-data="" edittype="number" align=center>Quantity</div>						
 									<div style="padding-left:0px" id="delete" class="col-sm-1">
 										<button class="btn imagebtn btn-danger deleteButton"  type="button" id="newDelete" onclick="deleteResource(this, 'equipment')"><i class="fa fa-trash"></i></button>
-										
-										
-
-										
-										
-										
-										
 										<button class="btn imagebtn btn-primary undoButton"  type="button" id="newUndo" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
 									</div>												
 								</div>
 								
 								<div class="row mb-2 filterrow" th:each="resource : ${allEquipment}" th:id="${'row-' + resource.getResourceId()}">
-									<div style="padding-left:0px" id="name" class="col-sm-2 editable equipment" th:orig-data="${resource.getName()}" th:text="${resource.getName()}" edittype="text">Name</div>
-									<div style="padding-left:0px" id="description" class="col-sm-4 editable equipment" th:orig-data="${resource.getDescription()}" th:text="${resource.getDescription()}" edittype="textarea">Description</div>						
-									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable equipment" th:orig-data="${resource.getKeywords()}" th:text="${resource.getKeywords()}" edittype="text">Keywords</div>
-									<div style="padding-left:0px" id="quantity" class="col-sm-1 editable equipment" th:orig-data="${resource.getQuantity()}" th:text="${resource.getQuantity()}" edittype="number" align=center>Quantity</div>						
+									<div style="padding-left:0px" th:id="${'name-' + resource.getResourceId()}"  class="col-sm-2 editable equipment" th:orig-data="${resource.getName()}" th:text="${resource.getName()}" edittype="text"  editlength="64">Name</div>
+									<div style="padding-left:0px" th:id="${'description-' + resource.getResourceId()}" id="description" class="col-sm-4 editable equipment" th:orig-data="${resource.getDescription()}" th:text="${resource.getDescription()}" edittype="textarea"  editlength="1024">Description</div>						
+									<div style="padding-left:0px" th:id="${'keywords-' + resource.getResourceId()}" class="col-sm-4 editable equipment" th:orig-data="${resource.getKeywords()}" th:text="${resource.getKeywords()}" edittype="text"  editlength="256">Keywords</div>
+									<div style="padding-left:0px"  th:id="${'quantity-' + resource.getResourceId()}" class="col-sm-1 editable equipment" th:orig-data="${resource.getQuantity()}" th:text="${resource.getQuantity()}" edittype="number" align=center>Quantity</div>						
 									<div style="padding-left:0px" class="col-sm-1">
 										<button class="btn imagebtn btn-danger deletebutton"  type="button" th:id="${'delete-' + resource.getResourceId()}" onclick="deleteResource(this, 'equipment')"><i class="fa fa-trash"></i></button>
 										<button class="btn imagebtn btn-primary undoButton"  type="button" th:id="${'undo-' + resource.getResourceId()}" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
@@ -103,9 +96,9 @@
 								</div>
 								
 								<div class="row mb-2" id="equipmentNewRow">
-										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"><input class="form-control equipmentInput" name="equipmentName" type="text" required /></div>
-										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control equipmentInput" name="equipmentDescription" type="text" required /></div>							
-										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control equipmentInput" name="equipmentKeywords" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"  editlength="64"><input class="form-control equipmentInput" name="equipmentName" type="text" required maxlength="64"/></div>
+										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"  editlength="1024"><input class="form-control equipmentInput" name="equipmentDescription" type="text" required maxlength="1024"/></div>							
+										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"  editlength="256"><input class="form-control equipmentInput" name="equipmentKeywords" type="text" required maxlength="256"/></div>
 										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number"><input class="form-control equipmentInput" min=0 name="equipmentQuantity" type="number" required /></div>							
 										<div style="padding-left:0px" class="col-sm-1"><button class="btn imagebtn btn-success" type="submit" ><i class="fa fa-plus"></i></button></div>
 								</div>	
@@ -147,13 +140,13 @@
 									</div>												
 												
 								
-									<div style="padding-left:0px" id="title" class="col-sm-1 editable staff" orig-data="" edittype="text">Title</div>
-									<div style="padding-left:0px" id="firstName" class="col-sm-1 editable staff" orig-data="" edittype="text">First Name</div>
-									<div style="padding-left:0px" id="surname" class="col-sm-1 editable staff" orig-data="" edittype="text">Surname</div>
-									<div style="padding-left:0px" id="email" class="col-sm-2 editable staff" orig-data="" edittype="email">email</div>
-									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable staff" orig-data="" edittype="text">Telephone Number</div>
-									<div style="padding-left:0px" id="description" class="col-sm-2 editable staff" orig-data="" edittype="textarea">Description</div>
-									<div style="padding-left:0px" id="keywords" class="col-sm-2 editable staff" orig-data="" edittype="textarea">Keywords</div>
+									<div style="padding-left:0px" id="title" class="col-sm-1 editable staff" orig-data="" edittype="text"  editlength="20">Title</div>
+									<div style="padding-left:0px" id="firstName" class="col-sm-1 editable staff" orig-data="" edittype="text"  editlength="64">First Name</div>
+									<div style="padding-left:0px" id="surname" class="col-sm-1 editable staff" orig-data="" edittype="text"  editlength="64">Surname</div>
+									<div style="padding-left:0px" id="email" class="col-sm-2 editable staff" orig-data="" edittype="email"  editlength="64">email</div>
+									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable staff" orig-data="" edittype="text"  editlength="20">Telephone Number</div>
+									<div style="padding-left:0px" id="description" class="col-sm-2 editable staff" orig-data="" edittype="textarea"  editlength="1024">Description</div>
+									<div style="padding-left:0px" id="keywords" class="col-sm-2 editable staff" orig-data="" edittype="textarea"  editlength="256">Keywords</div>
 					
 									<div style="padding-left:0px" class="col-sm-1">
 										<button class="btn imagebtn btn-danger deletebutton"  type="button" id="newDelete" onclick="deleteStaff(this)"><i class="fa fa-trash"></i></button>
@@ -172,13 +165,13 @@
 											</label>
 									</div>
 								
-									<div style="padding-left:0px" id="title" class="col-sm-1 editable staff" th:orig-data="${staff.getTitle()}" th:text="${staff.getTitle()}" edittype="text">Title</div>
-									<div style="padding-left:0px" id="firstName" class="col-sm-1 editable staff" th:orig-data="${staff.getFirstName()}" th:text="${staff.getFirstName()}" edittype="text">First Name</div>
-									<div style="padding-left:0px" id="surname" class="col-sm-1 editable staff" th:orig-data="${staff.getSurname()}" th:text="${staff.getSurname()}" edittype="text">Surname</div>
-									<div style="padding-left:0px" id="email" class="col-sm-2 editable staff" th:orig-data="${staff.getEmail()}" th:text="${staff.getEmail()}" edittype="email">email</div>
-									<div style="padding-left:0px" id="telephoneNum" class="col-sm-1 editable staff" th:orig-data="${staff.getTelephoneNum()}" th:text="${staff.getTelephoneNum()}" edittype="text">Telephone Number</div>
-									<div style="padding-left:0px" id="description" class="col-sm-2 editable staff" th:orig-data="${staff.getResourceObject().getDescription()}" th:text="${staff.getResourceObject().getDescription()}" edittype="textarea">Description</div>
-									<div style="padding-left:0px" id="keywords" class="col-sm-2 editable staff" th:orig-data="${staff.getResourceObject().getKeywords()}" th:text="${staff.getResourceObject().getKeywords()}" edittype="textarea">Keywords</div>
+									<div style="padding-left:0px"  th:id="${'title-' + staff.getUserId()}" class="col-sm-1 editable staff" th:orig-data="${staff.getTitle()}" th:text="${staff.getTitle()}" edittype="text"  editlength="20">Title</div>
+									<div style="padding-left:0px"  th:id="${'firstName-' + staff.getUserId()}" class="col-sm-1 editable staff" th:orig-data="${staff.getFirstName()}" th:text="${staff.getFirstName()}" edittype="text"  editlength="64">First Name</div>
+									<div style="padding-left:0px"  th:id="${'surname-' + staff.getUserId()}" class="col-sm-1 editable staff" th:orig-data="${staff.getSurname()}" th:text="${staff.getSurname()}" edittype="text"  editlength="64">Surname</div>
+									<div style="padding-left:0px"  th:id="${'email-' + staff.getUserId()}"  class="col-sm-2 editable staff" th:orig-data="${staff.getEmail()}" th:text="${staff.getEmail()}" edittype="email"  editlength="64">email</div>
+									<div style="padding-left:0px"  th:id="${'telephoneNum-' +staff.getUserId()}"  class="col-sm-1 editable staff" th:orig-data="${staff.getTelephoneNum()}" th:text="${staff.getTelephoneNum()}" edittype="text"  editlength="20">Telephone Number</div>
+									<div style="padding-left:0px"  th:id="${'description-' + staff.getUserId()}" class="col-sm-2 editable staff" th:orig-data="${staff.getResourceObject().getDescription()}" th:text="${staff.getResourceObject().getDescription()}" edittype="textarea"  editlength="1024">Description</div>
+									<div style="padding-left:0px"  th:id="${'keywords-' + staff.getUserId()}"  class="col-sm-2 editable staff" th:orig-data="${staff.getResourceObject().getKeywords()}" th:text="${staff.getResourceObject().getKeywords()}" edittype="textarea"  editlength="256">Keywords</div>
 					
 									<div style="padding-left:0px" class="col-sm-1">
 										<button class="btn imagebtn btn-danger deletebutton"  type="button" th:id="${'delete-' + staff.getUserId()}" onclick="deleteStaff(this)"><i class="fa fa-trash"></i></button>
@@ -193,13 +186,13 @@
 												<input class="form-control staffInput" name="staffProfilePic" id="newStaffProfilePic" accept=".jpg"  type="file" style="display:none" onchange="uploadNewImage()"/>
 											</label>
 										</div>																				
-										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffTitle" type="text" required /></div>
-										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffFirstName" type="text" required /></div>
-										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffSurname" type="text" required /></div>
-										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffEmail" type="email" required /></div>
-										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"><input class="form-control staffInput" name="staffTelephoneNum" type="tel" required /></div>
-										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffDescription" type="text" required /></div>
-										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="textarea"><input class="form-control staffInput" name="staffKeywords" type="text" required /></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"  editlength="20"><input class="form-control staffInput" name="staffTitle" type="text" required maxlength="20"/></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"  editlength="64"><input class="form-control staffInput" name="staffFirstName" type="text" required maxlength="64"/></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"  editlength="64"><input class="form-control staffInput" name="staffSurname" type="text" required maxlength="64"/></div>
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"  editlength="64"><input class="form-control staffInput" name="staffEmail" type="email" required maxlength="64"/></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="text"  editlength="20"><input class="form-control staffInput" name="staffTelephoneNum" type="tel" required maxlength="20"/></div>
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="textarea"  editlength="1024"><input class="form-control staffInput" name="staffDescription" type="text" required maxlength="1024"/></div>
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="textarea"  editlength="1024"><input class="form-control staffInput" name="staffKeywords" type="text" required maxlength="1024"/></div>
 										<div style="padding-left:0px" class="col-sm-1"><button class="btn imagebtn btn-success" type="submit" ><i class="fa fa-plus"></i></button></div>
 								</div>	
 							</div>	
@@ -226,9 +219,9 @@
 								
 								
 								<div class="row mb-2 locationTemplateRow" style="display:none">
-									<div style="padding-left:0px" id="name" class="col-sm-2 editable location" orig-data="" edittype="text">Name</div>
-									<div style="padding-left:0px" id="description" class="col-sm-4 editable location" orig-data="" edittype="textarea">Description</div>						
-									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable location" orig-data="" edittype="text">Keywords</div>
+									<div style="padding-left:0px" id="name" class="col-sm-2 editable location" orig-data="" edittype="text"  editlength="64">Name</div>
+									<div style="padding-left:0px" id="description" class="col-sm-4 editable location" orig-data="" edittype="textarea"  editlength="1024">Description</div>						
+									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable location" orig-data="" edittype="text"  editlength="256">Keywords</div>
 									<div style="padding-left:0px" id="capacity"  class="col-sm-1 editable location" orig-data="" edittype="number" align=center>Capacity</div>						
 									<div style="padding-left:0px" id="delete" class="col-sm-1">
 										<button class="btn imagebtn btn-danger deletebutton"  type="button" id="newDelete" onclick="deleteResource(this, 'location')"><i class="fa fa-trash"></i></button>
@@ -239,10 +232,10 @@
 								
 								
 								<div class="row mb-2 filterrow" th:each="location : ${allLocations}" th:id="${'row-' + location.getResourceId()}">
-									<div style="padding-left:0px" id="name" class="col-sm-2 editable location" th:orig-data="${location.getName()}" th:text="${location.getName()}" edittype="text">Name</div>
-									<div style="padding-left:0px" id="description" class="col-sm-4 editable location" th:orig-data="${location.getDescription()}" th:text="${location.getDescription()}" edittype="textarea">Description</div>						
-									<div style="padding-left:0px" id="keywords" class="col-sm-4 editable location" th:orig-data="${location.getKeywords()}" th:text="${location.getKeywords()}" edittype="text">Keywords</div>
-									<div style="padding-left:0px" id="capacity" class="col-sm-1 editable location" th:orig-data="${location.getCapacity()}" th:text="${location.getCapacity()}" edittype="number" align=center>Capacity</div>						
+									<div style="padding-left:0px"  th:id="${'name-' + location.getResourceId()}"  class="col-sm-2 editable location" th:orig-data="${location.getName()}" th:text="${location.getName()}" edittype="text"  editlength="64">Name</div>
+									<div style="padding-left:0px"  th:id="${'description-' + location.getResourceId()}"  class="col-sm-4 editable location" th:orig-data="${location.getDescription()}" th:text="${location.getDescription()}" edittype="textarea"  editlength="1024">Description</div>						
+									<div style="padding-left:0px"  th:id="${'keywords-' + location.getResourceId()}"  class="col-sm-4 editable location" th:orig-data="${location.getKeywords()}" th:text="${location.getKeywords()}" edittype="text"  editlength="256">Keywords</div>
+									<div style="padding-left:0px"  th:id="${'capacity-' + location.getResourceId()}"  class="col-sm-1 editable location" th:orig-data="${location.getCapacity()}" th:text="${location.getCapacity()}" edittype="number" align=center>Capacity</div>						
 									<div style="padding-left:0px" class="col-sm-1">
 										<button class="btn imagebtn btn-danger deletebutton"  type="button" th:id="${'delete-' + location.getResourceId()}" onclick="deleteResource(this, 'location')"><i class="fa fa-trash"></i></button>
 										<button class="btn imagebtn btn-primary undoButton"  type="button" th:id="${'undo-' + location.getResourceId()}" onclick="undoChanges(this)" style="display:none"><i class="fa fa-rotate-left"></i></button>
@@ -250,10 +243,10 @@
 								</div>
 								
 								<div class="row mb-2" id="locationNewRow">
-										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"><input class="form-control locationInput" name="locationName" type="text" required /></div>
-										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control locationInput" name="locationDescription" type="text" required /></div>							
-										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"><input class="form-control locationInput" name="locationKeywords" type="text" required /></div>
-										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number"><input class="form-control locationInput" min=0 name="locationCapacity" type="number" required /></div>							
+										<div style="padding-left:0px" class="col-sm-2 " orig-data="" edittype="text"  editlength="64"><input class="form-control locationInput" name="locationName" type="text" required maxlength="64"/></div>
+										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"  editlength="1024"><input class="form-control locationInput" name="locationDescription" type="text" required maxlength="1024"/></div>							
+										<div style="padding-left:0px" class="col-sm-4 " orig-data="" edittype="text"  editlength="256"><input class="form-control locationInput" name="locationKeywords" type="text" required maxlength="256"/></div>
+										<div style="padding-left:0px" class="col-sm-1 " orig-data="" edittype="number" ><input class="form-control locationInput" min=0 name="locationCapacity" type="number" required /></div>							
 										<div style="padding-left:0px" class="col-sm-1"><button class="btn imagebtn btn-success" type="submit" ><i class="fa fa-plus"></i></button></div>
 								</div>	
 							</div>	

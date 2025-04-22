@@ -30,6 +30,16 @@ public class MenuGroup {
 	
 	private State state = State.ACTIVE;
 	
+
+	public static MenuGroup findByName(String name) {
+		List<MenuGroup> nameMatched  = repository.findByName(name);
+		MenuGroup result = null; 
+		if (nameMatched != null && nameMatched.size() > 0) {
+			result = nameMatched.get(0);
+		}
+		return result;		
+	}	
+	
 	
 	@MappedCollection(idColumn = "menu_group_id")
 	private Set<MenuGroupOption> menuGroupOptions = new HashSet<>();

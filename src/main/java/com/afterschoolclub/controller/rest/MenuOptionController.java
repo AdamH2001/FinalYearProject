@@ -14,14 +14,17 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.afterschoolclub.data.MenuOption;
+import com.afterschoolclub.data.Resource;
 import com.afterschoolclub.data.repository.MenuOptionRepository;
 import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.controller.AdminController;
@@ -46,7 +49,7 @@ public class MenuOptionController {
     
 	
     @GetMapping
-    public Iterable<MenuOption> getAllMenuGroups() {
+    public Iterable<MenuOption> getAllMenuOptions() {
     	return MenuOption.findAll();
     }
 
@@ -57,19 +60,36 @@ public class MenuOptionController {
     }
 
     @PostMapping(consumes = {"application/json"})
-    public MenuOption createMenuGroup(@RequestBody MenuOption menuOption) {
+    public MenuOption createMenuOption(@RequestBody MenuOption menuOption) {
+    	MenuOption o = MenuOption.findByName(menuOption.getName());
+    	if (o != null) {
+			throw new ResponseStatusException(
+		           HttpStatus.BAD_REQUEST, "Already exists with same name");
+    	}    		
+    	else {
+    		menuOption.save();
+    	}
+    	
+    	
     	menuOption.save();
         return menuOption;
     }
 
     @PutMapping(value="/{id}", consumes = {"application/json"})
-    public MenuOption updateMenuGroup(@PathVariable long id, @RequestBody MenuOption menuOption) {
-    	menuOption.save();
+    public MenuOption updateMenuOption(@PathVariable long id, @RequestBody MenuOption menuOption) {
+    	MenuOption o = MenuOption.findByName(menuOption.getName());
+    	if (o != null && id != o.getMenuOptionId()) {
+			throw new ResponseStatusException(
+		           HttpStatus.BAD_REQUEST, "Already exists with same name");
+    	}  
+    	else {
+    		menuOption.save();
+    	}
         return menuOption;
     }
     
     @DeleteMapping(value="/{id}")
-    public void deleteMenuGroup(@PathVariable long id) {    	
+    public void deleteMenuOption(@PathVariable long id) {    	
     	MenuOption menuOption = MenuOption.findById((int) id);
     	menuOption.setState(State.INACTIVE);
     	menuOption.save();

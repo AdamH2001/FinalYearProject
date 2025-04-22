@@ -87,7 +87,10 @@ public class Resource {
 		List<Resource> allInactive = repository.findByState(State.INACTIVE);
 		for (Resource resource : allInactive) {
 			try {
-				Resource.deleteById(resource.getResourceId());
+				
+				if (resource.getType() != Type.STAFF) {
+					Resource.deleteById(resource.getResourceId());
+				}
 			}
 			catch (Exception e) {
 				

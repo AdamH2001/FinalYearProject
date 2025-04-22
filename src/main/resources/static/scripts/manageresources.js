@@ -3,7 +3,10 @@
 function getDataFromRow(id) {
 	var data = {};
 	$("#row-" + id).find(".editable").each(function() {
-		data[this.id] = this.innerText;			
+		fieldName=this.id.substring(0, this.id.indexOf("-"));
+		
+		
+		data[fieldName] = this.innerText;			
 	});
 	data["state"] = "ACTIVE";
 	var isLocation = $("#locationList").find("#row-"+id).length > 0;
@@ -32,7 +35,8 @@ function getDataFromRow(id) {
 function getOrigDataFromRow(id) {
 	var data = {};
 	$("#row-" + id).find(".editable").each(function() {
-		data[this.id] = this.getAttribute("orig-data");			
+		fieldName=this.id.substring(0, this.id.indexOf("-"));		
+		data[fieldName] = this.getAttribute("orig-data");			
 	});
 	data["state"] = "ACTIVE";
 	var isLocation = $("#locationList").find("#row-"+id).length > 0;
@@ -70,6 +74,14 @@ function setOrigDataFromRow(id) {
 	});		
 }
 
+function validateInput(data) {	
+	if (data.resourceId!= null) {
+		validateRow("#row-", data.resourceId);
+	}
+	else {
+		validateRow("#row-u",data.userId);
+	}		
+}
 
 function undoChanges(button) {
 	resourceId=button.id.replace("undo-", "");
@@ -92,20 +104,19 @@ function undoChanges(button) {
 			$("#row-" + resourceId).find(".editable").each(function() {
 				if (this.getAttribute("editType") != "file") {
 					this.innerHTML = this.getAttribute("orig-data");
-					this.style.removeProperty("background-color");
 				}
 				else {
 					id = resourceId.replace("u","");
 					$("#profilePicImage-"+id)[0].setAttribute("src", this.getAttribute("orig-data"));						
 				}
 			});
-			validateRow("#row-"+resourceId)								
+			validateInput(data);								
 		},
 		
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log("PUT ERROR");
-			console.log(jqXHR);
-			validateRow("#row-"+resourceId)								
+			console.log(jqXHR);			
+			validateInput(data);
 			showValidationMessage("Failed to update already exists with same name");
 		}
 	});
@@ -230,6 +241,21 @@ function addNewLocation(event) {
 	
 }
 
+function copyValue(fieldName, newData) {
+	if (newData.userId == null) {
+		prefix = "#row-";
+		id = newData.resourceId;
+	}
+	else {
+		prefix = "#row-u";
+		id = newData.userId;
+	}
+	$(prefix + id).find("#"+fieldName)[0].innerHTML=newData[fieldName];	
+	$(prefix + id).find("#"+fieldName)[0].id=fieldName + "-" + id;	
+	
+}
+
+
 function addNewStaff(event) {
 	event.preventDefault();		
 	
@@ -268,13 +294,16 @@ function addNewStaff(event) {
 			newRow.classList.remove(type+ "TemplateRow");
 			
 			// Copy value from input fields to new row
-			$("#row-u"+data.userId).find("#title")[0].innerHTML=data.title;
-			$("#row-u"+data.userId).find("#firstName")[0].innerHTML=data.firstName;
-			$("#row-u"+data.userId).find("#surname")[0].innerHTML=data.surname;
-			$("#row-u"+data.userId).find("#email")[0].innerHTML=data.email;
-			$("#row-u"+data.userId).find("#telephoneNum")[0].innerHTML=data.telephoneNum;
-			$("#row-u"+data.userId).find("#description")[0].innerHTML=data.description;
-			$("#row-u"+data.userId).find("#keywords")[0].innerHTML=data.keywords;
+			
+			copyValue("title", data);
+			copyValue("firstName", data);
+			copyValue("surname", data);
+			copyValue("email", data);
+			copyValue("telephoneNum", data);
+			copyValue("description", data);
+			copyValue("keywords", data);
+			
+
 			
 			//Resolve image
 			$("#row-u"+data.userId).find("#staffProfilePicTemplate")[0].setAttribute("id", "profilePic-" + data.userId);
@@ -345,6 +374,7 @@ function addNewStaff(event) {
 
 function insertEditControl(parent) {
 	editType =  parent.getAttribute('edittype')
+	editlength =  parent.getAttribute('editlength')
 	
 	if (editType != "file") {
 		parent.setAttribute('data-clicked', 'yes');
@@ -352,12 +382,18 @@ function insertEditControl(parent) {
 	    var input = null;
     
 	    if (editType == "textarea") {
-	    	input = document.createElement('textarea');
+	    	input = document.createElement('textarea');			
 	    }
 	    else {
 	    	input = document.createElement('input');
 	    	input.setAttribute('type',editType);
+			if (editType=="number") {
+				input.setAttribute('min',"0");	
+			}						
 	    }
+		if (editlength != null && editlength != "") {
+			input.setAttribute("maxlength", editlength)
+		}
 	    input.classList.add("form-control");
 	    input.value = parent.innerHTML;
 	    input.style.width = parent.offsetWidth - (parent.clientLeft * 2) - 5 + "px";
@@ -384,20 +420,7 @@ function insertEditControl(parent) {
 	            
 	            
 				putDataAndDisplay(td.parentElement.id.replace("row-", ""), td)	            
-	            
-	        /*    if (origText == current_text) {
-	            	td.style.removeProperty("background-color");	              
-	            	rowId = "#" + td.parentElement.id;
-	            	
-	            	if ($(rowId).find("#name")[0].innerHTML == $(rowId).find("#name")[0].getAttribute("orig-data") &&
-	            		$(rowId).find("#description")[0].innerHTML == $(rowId).find("#description")[0].getAttribute("orig-data") &&
-	            		$(rowId).find("#quantity")[0].innerHTML == $(rowId).find("#quantity")[0].getAttribute("orig-data") &&
-	            		$(rowId).find("#keywords")[0].innerHTML == $(rowId).find("#keywords")[0].getAttribute("orig-data")) {
-	            		$(rowId).find("#button").hide(); 	
-	            	}	                
-	            } */
-	            	
-	            
+	                       		            
 	            console.log(preEditText + ' is changed to ' + current_text);
 	        } else {
 	            td.removeAttribute('data-clicked');
@@ -455,9 +478,10 @@ function setUpEditHandlers() {
 function putDataAndDisplay(resourceId, parentCell) {	
 	
 	
-	var data = getDataFromRow(resourceId);	
-	data[parentCell.id] = parentCell.children[0].value;
-			
+	var data = getDataFromRow(resourceId);
+	fieldName=parentCell.id.substring(0, parentCell.id.indexOf("-"));
+	data[fieldName] = parentCell.children[0].value;
+	
 	
 	$.ajax({
 		url: data.url,
@@ -487,19 +511,19 @@ function putDataAndDisplay(resourceId, parentCell) {
 						console.log("PUT");
 						console.log(updatedData);
 						showValidationMessage("Successfully updated " + data.type.toLowerCase());
-						validateRow("#"+parentCell.parentElement.id);											
+						validateInput(data);
+										
 					},
 					
 					error: function(jqXHR, textStatus, errorThrown) {
 						console.log("PUT ERROR");						
 						console.log(jqXHR);
-						showValidationMessage("Failed to update already exists with same name");
 						
-						//parentCell.style.removeProperty("background-color");	              
+						
+						showValidationMessage("Failed to update already exists with same name");																		
 						rowId = "#" + parentCell.parentElement.id;
-						$(rowId).find("#name")[0].innerHTML = getRestoreValue($(rowId).find("#name")[0]);	
-						validateRow(rowId);
-											            	
+						$(rowId).find("#name")[0].innerHTML = getRestoreValue($("#name"+data.resourceId));											
+						validateInput(data);										            	
 					}
 				});								
 			}
@@ -556,25 +580,25 @@ function validateCell(cell) {
 
 
 
-function validateRow(rowId) {
+function validateRow(rowPrefix, rowId) {
 	changed = false;
-	changed |= validateCell($(rowId).find("#name"));
-	changed |= validateCell($(rowId).find("#description"));
-	changed |= validateCell($(rowId).find("#keywords"));
-	changed |= validateCell($(rowId).find("#quantity"));
-	changed |= validateCell($(rowId).find("#capacity"));
+	changed |= validateCell($("#name-" + rowId));
+	changed |= validateCell($("#description-" + rowId));
+	changed |= validateCell($("#keywords-" + rowId));
+	changed |= validateCell($("#quantity-" + rowId));
+	changed |= validateCell($("#capacity-" + rowId));
 	
-	changed |= validateCell($(rowId).find("#title"));
-	changed |= validateCell($(rowId).find("#firstName"));
-	changed |= validateCell($(rowId).find("#surname"));
-	changed |= validateCell($(rowId).find("#email"));
-	changed |= validateCell($(rowId).find("#telephoneNum"));
+	changed |= validateCell($("#title-" + rowId));
+	changed |= validateCell($("#firstName-" + rowId));
+	changed |= validateCell($("#surname-" + rowId));
+	changed |= validateCell($("#email-" + rowId));
+	changed |= validateCell($("#telephoneNum-" + rowId));
 	
 	if (!changed) {
-		$(rowId).find(".undoButton").hide();
+		$(rowPrefix+rowId).find(".undoButton").hide();
 	}
 	else {
-		$(rowId).find(".undoButton").show();
+		$(rowPrefix+rowId).find(".undoButton").show();
 	}		 	
 }
 	                
@@ -605,14 +629,15 @@ function postDataAndDisplay(data, type) {
 			newRow.classList.remove(type+ "TemplateRow");
 			
 			// Copy value from input fields to new row
-			$("#row-"+data.resourceId).find("#name")[0].innerHTML=data.name;
-			$("#row-"+data.resourceId).find("#description")[0].innerHTML=data.description;
-			$("#row-"+data.resourceId).find("#keywords")[0].innerHTML=data.keywords;
+			copyValue("name", data);
+			copyValue("description", data);
+			copyValue("keywords", data);
+							
 			if (type =="equipment") {
-				$("#row-"+data.resourceId).find("#quantity")[0].innerHTML=data.quantity;
+				copyValue("quantity", data);				
 			}
 			else {
-				$("#row-"+data.resourceId).find("#capacity")[0].innerHTML=data.capacity;
+				copyValue("capacity", data);												
 			}
 			
 			
@@ -684,6 +709,8 @@ function uploadFile(file, id) {
      			src = "./profilePics/" +id + ".jpg";
      			$("#profilePicImage-"+id)[0].setAttribute("src", src);
      			reloadImg(src);
+				showValidationMessage("Successfully updated profile picture");
+
 		   });
 }
 
