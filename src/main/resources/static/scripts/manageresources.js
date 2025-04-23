@@ -123,6 +123,25 @@ function undoChanges(button) {
 		
 }
 
+function deleteResourceItem(data, type) {
+	$.ajax({
+		url:"./api/resources/" +id,
+		method:"DELETE",
+		success: function(data,  textStatus, jqXHR){
+			console.log("DELETE");
+			console.log(data);
+			id = this.url.substr(this.url.lastIndexOf("/")+1);
+			$("#row-"+id)[0].outerHTML="";	
+			message = type.toUpperCase().substring(0,1) + type.substring(1) + " deleted."; 						
+			showValidationMessage(message);						
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("DELETE ERROR");
+			console.log(jqXHR);						 					
+			showValidationMessage("Failed to delete " + type);						
+		}
+	});	
+}
 
 function deleteResource(button, type) {	
 	id=button.id.replace("delete-", "");
@@ -133,30 +152,25 @@ function deleteResource(button, type) {
 		success: function(data){
 			console.log("GET");
 			console.log(data);
-			shouldDelete = true;
 			if (data.maxDemand > 0) {
-				message = type.toUpperCase().substring(0,1) + type.substring(1) + " required to support already scheduled sessions. \n Do you really want to delete?"; 
-				shouldDelete = confirm(message);
+				message = type.toUpperCase().substring(0,1) + type.substring(1) + " required to support already scheduled sessions. \n Do you really want to delete?"; 				
+				$('#confirmMessage')[0].innerText = message;
+				$('.confirmYes').off('click').on('click', function(e) {
+						e.preventDefault();
+		
+						deleteResourceItem(data, type)					
+						$('#confirmModal').hide()											
+					})
+				$('.confirmNo').off('click').on('click',  function(e) {
+						e.preventDefault();					
+						$('#confirmModal').hide()							
+					})						
+				$('#confirmModal').show()					
 			}
-			if (shouldDelete) {				
-				$.ajax({
-					url:"./api/resources/" +id,
-					method:"DELETE",
-					success: function(data,  textStatus, jqXHR){
-						console.log("DELETE");
-						console.log(data);
-						id = this.url.substr(this.url.lastIndexOf("/")+1);
-						$("#row-"+id)[0].outerHTML="";	
-						message = type.toUpperCase().substring(0,1) + type.substring(1) + " deleted."; 						
-						showValidationMessage(message);						
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						console.log("DELETE ERROR");
-						console.log(jqXHR);						 					
-						showValidationMessage("Failed to delete " + type);						
-					}
-				});																
+			else {
+				deleteResourceItem(data, type)									
 			}
+
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log("GET ERROR");
@@ -176,28 +190,37 @@ function deleteStaff(button) {
 		success: function(data){
 			console.log("GET");
 			console.log(data);
-			shouldDelete = true;
 			if (data.maxDemand > 0) {				
-				shouldDelete = confirm("Staff member required to support already scheduled sessions. \n Do you really want to delete?");				
-			}
-			if (shouldDelete) {								
-				$.ajax({
-					url:"./api/staff/" +id,
-					method:"DELETE",
-					success: function(data,  textStatus, jqXHR){
-						console.log("DELETE");
-						console.log(data);
-						id = this.url.substr(this.url.lastIndexOf("/")+1);
-						$("#row-u"+id)[0].outerHTML="";
-						showValidationMessage("Staff member Deleted");
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						console.log("DELETE ERROR");
-						console.log(jqXHR);
-						showValidationMessage("Failed to delete staff member");
+				
+				$('#confirmMessage')[0].innerText = "Staff member required to support already scheduled sessions. \n Do you really want to delete?";
 
-					}
-				});
+				$('.confirmYes').off('click').on('click', function(e) {
+						e.preventDefault();
+						$.ajax({
+							url:"./api/staff/" +id,
+							method:"DELETE",
+							success: function(data,  textStatus, jqXHR){
+								console.log("DELETE");
+								console.log(data);
+								id = this.url.substr(this.url.lastIndexOf("/")+1);
+								$("#row-u"+id)[0].outerHTML="";
+								showValidationMessage("Staff member Deleted");
+							},
+							error: function(jqXHR, textStatus, errorThrown) {
+								console.log("DELETE ERROR");
+								console.log(jqXHR);
+								showValidationMessage("Failed to delete staff member");
+
+							}
+						});						
+						$('#confirmModal').hide()											
+					})
+				$('.confirmNo').off('click').on('click',  function(e) {
+						e.preventDefault();					
+						$('#confirmModal').hide()							
+					})						
+				$('#confirmModal').show()					
+								
 			}
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
@@ -472,7 +495,35 @@ function setUpEditHandlers() {
 }
 
 
-
+function putResource(data, parentCell) {
+						$.ajax({
+							url: data.url,
+							method:"PUT",
+						    dataType : "json",
+						    contentType: "application/json; charset=utf-8",
+							data: JSON.stringify(data), 
+							success: function(updatedData,  textStatus, jqXHR){
+								if (parentCell != null) {
+									parentCell.setAttribute("latest-data", parentCell.children[0].value);				
+									parentCell.innerHTML = parentCell.children[0].value;
+								}
+														
+								console.log("PUT");
+								console.log(updatedData);
+								showValidationMessage("Successfully updated " + data.type.toLowerCase());
+								validateInput(data);
+												
+							},							
+							error: function(jqXHR, textStatus, errorThrown) {
+								console.log("PUT ERROR");						
+								console.log(jqXHR);
+								showValidationMessage("Failed to update already exists with same name");																		
+								rowId = "#" + parentCell.parentElement.id;
+								$(rowId).find("#name")[0].innerHTML = getRestoreValue($("#name"+data.resourceId));											
+								validateInput(data);										            	
+							}
+						})		
+}
 
 
 function putDataAndDisplay(resourceId, parentCell) {	
@@ -489,51 +540,29 @@ function putDataAndDisplay(resourceId, parentCell) {
 		success: function(origResource){
 			console.log("GET");
 			console.log(origResource);
-			shouldEdit = true;
 			if (origResource.maxDemand > data.quantity) {
-				shouldEdit = confirm("Existing demand is greater than new quantity. \n Are you sure you want to update?");				  
-			}
-			if (shouldEdit) {
-
 				
-				$.ajax({
-					url: data.url,
-					method:"PUT",
-				    dataType : "json",
-				    contentType: "application/json; charset=utf-8",
-					data: JSON.stringify(data), 
-					success: function(updatedData,  textStatus, jqXHR){
-						if (parentCell != null) {
-							parentCell.setAttribute("latest-data", parentCell.children[0].value);				
-							parentCell.innerHTML = parentCell.children[0].value;
+				$('#confirmMessage')[0].innerText = "Existing demand is greater than new quantity specified. \n Are you sure you want to update?";
+				
+				$('.confirmYes').off('click').on('click', function(e) {
+						e.preventDefault();
+						putResource(data, parentCell)					
+						$('#confirmModal').hide()											
+					})
+				$('.confirmNo').off('click').on('click',  function(e) {
+						e.preventDefault();					
+						$('#confirmModal').hide()							
+						origValue = parentCell.getAttribute("latest-data");
+						if (origValue == null) {
+							origValue = parentCell.getAttribute('orig-data');
 						}
-												
-						console.log("PUT");
-						console.log(updatedData);
-						showValidationMessage("Successfully updated " + data.type.toLowerCase());
-						validateInput(data);
-										
-					},
-					
-					error: function(jqXHR, textStatus, errorThrown) {
-						console.log("PUT ERROR");						
-						console.log(jqXHR);
-						
-						
-						showValidationMessage("Failed to update already exists with same name");																		
-						rowId = "#" + parentCell.parentElement.id;
-						$(rowId).find("#name")[0].innerHTML = getRestoreValue($("#name"+data.resourceId));											
-						validateInput(data);										            	
-					}
-				});								
-			}
+						parentCell.innerHTML = origValue;
+					})						
+				$('#confirmModal').show()							
+			}	
 			else {
-				origValue = parentCell.getAttribute("latest-data");
-				if (origValue == null) {
-					origValue = parentCell.getAttribute('orig-data');
-				}
-				parentCell.innerHTML = origValue;
-			}
+				putResource(data, parentCell);				
+			}		
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log("GET ERROR");

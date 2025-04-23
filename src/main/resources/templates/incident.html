@@ -20,14 +20,14 @@
 	
 	<div id="main" class="main container-flex no-margin ">
 			<form action="./addIncident" method="post">
-				<input type=hidden name="sessionId" th:value="${session.getSessionId()}"/>							
+				<input type=hidden name="sessionId" th:value="${incidentSession.getSessionId()}"/>							
 				<input type=hidden name="incidentId" th:value="${incident.getIncidentId()}"/>							
 			
 			
 				<div class="col py-3">
-					<h1 class="asc-header" th:if="${isViewing}">Incident for <span th:text="${session.getClub().getTitle()}"></span></h1>
-					<h1 class="asc-header" th:if="${isEditing}">Update Incident for <span th:text="${session.getClub().getTitle()}"></span></h1>
-					<h1 class="asc-header" th:if="${isCreating}">Record Incident for <span th:text="${session.getClub().getTitle()}"></span></h1>
+					<h1 class="asc-header" th:if="${isViewing}">Incident for <span th:text="${incidentSession.getClub().getTitle()}"></span></h1>
+					<h1 class="asc-header" th:if="${isEditing}">Update Incident for <span th:text="${incidentSession.getClub().getTitle()}"></span></h1>
+					<h1 class="asc-header" th:if="${isCreating}">Record Incident for <span th:text="${incidentSession.getClub().getTitle()}"></span></h1>
 					<div class="row mb-2">
 						<div class="col-sm-2 asc-form-label" align="center">
 							<label for="summary">Incident Summary:</label>
@@ -46,7 +46,7 @@
 							<fieldset class="form-group border p-3">
 								<div class="container-fluid no-margin">
 									<div th:each="attendeeIncident : ${incident.getAttendeeIncidents()}" class="row mb-2" th:id="${attendeeIncident.getAttendeeId().getId().intValue()}" th:studentName="${attendeeIncident.getStudent(session).getFullName()}">
-										<div class="col-sm-2" style="padding-top:12px" th:text="${attendeeIncident.getStudent(session).getFullName()}"></div>
+										<div class="col-sm-2" style="padding-top:12px" th:text="${attendeeIncident.getStudent(incidentSession).getFullName()}"></div>
 										<input type="hidden" name="attendeeId" th:value="${attendeeIncident.getAttendeeId().getId().intValue()}" />
 										<div th:class="${isViewing? 'col-sm-10' : 'col-sm-9'}">
 											<textarea class="form-control mr-sm-2" th:readonly="${isViewing}" name="attendeeNotes" id="attendeeNotes" th:text="${attendeeIncident.getSummary()}"></textarea>
@@ -61,8 +61,8 @@
 										<div class="col-sm-2" style="padding-top:12px">
 											<select name="attendeeId" id="newAttendee"  onChange="changedStudent()">
 											    <option value="0">Select Student...</option> 
-												<option th:each="attendee : ${session.getSortedAttendees()}"
-													th:disabled="${incident.involves(attendee.getAttendeeId())}  or ${!session.didAttend(attendee.getStudent())}" th:value="${attendee.getAttendeeId()}" th:text="${attendee.getStudent().getFullName()}">AttendeeId</option>
+												<option th:each="attendee : ${incidentSession.getSortedAttendees()}"
+													th:disabled="${incident.involves(attendee.getAttendeeId())}  or ${!incidentSession.didAttend(attendee.getStudent())}" th:value="${attendee.getAttendeeId()}" th:text="${attendee.getStudent().getFullName()}">AttendeeId</option>
 											</select>
 										</div>
 										<div class="col-sm-9">

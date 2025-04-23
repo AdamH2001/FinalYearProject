@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 
-import com.afterschoolclub.controller.AdminController;
 import com.afterschoolclub.data.repository.RecurrenceSpecificationRepository;
 
 import java.time.LocalDate;

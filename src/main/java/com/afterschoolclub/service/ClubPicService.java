@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.afterschoolclub.data.Club;
-import com.afterschoolclub.data.User;
-
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 

@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.springframework.data.annotation.Id;
 
-import com.afterschoolclub.data.Resource.Type;
 import com.afterschoolclub.data.repository.MenuOptionRepository;
 import lombok.Getter;
 import lombok.Setter;

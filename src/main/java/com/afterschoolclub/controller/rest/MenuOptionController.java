@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.afterschoolclub.data.MenuOption;
-import com.afterschoolclub.data.Resource;
 import com.afterschoolclub.data.repository.MenuOptionRepository;
 import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.controller.AdminController;

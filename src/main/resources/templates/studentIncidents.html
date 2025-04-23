@@ -51,11 +51,11 @@
 						</tr>
 					</thead>
 					<tbody>
-						<th:block th:each="session : ${incidentSessions}">
-							<tr class="filterrow stripedrow" th:each="incident : ${session.getIncidents()}">
-								<td class="filtercenter"><span th:text="${session.getDisplayStartDate()}"></span>&nbsp;<span th:text="${session.getStartTime()}"></span></td>
-								<td th:text="${session.getClub().getTitle()}"></td>
-								<td th:text="${incident.getSummaryForAttendee(session.getAttendee(sessionBean.getSelectedStudent()))}"></td>								
+						<th:block th:each="incidentSession : ${incidentSessions}">
+							<tr class="filterrow stripedrow" th:each="incident : ${incidentSession.getIncidents()}">
+								<td class="filtercenter"><span th:text="${incidentSession.getDisplayStartDate()}"></span>&nbsp;<span th:text="${incidentSession.getStartTime()}"></span></td>
+								<td th:text="${incidentSession.getClub().getTitle()}"></td>
+								<td th:text="${incident.getSummaryForAttendee(incidentSession.getAttendee(sessionBean.getSelectedStudent()))}"></td>								
 							</tr>
 						</th:block>
 					</tbody>

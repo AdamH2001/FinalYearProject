@@ -569,31 +569,25 @@ function addMenuGroup(event) {
 				url:"./api/menuoption/" + id,
 				method:"GET", 
 				success: function(data){
-					console.log("GET");
 					console.log(data);
-					shouldDelete = true;
-					/*if (data.maxDemand > 0) {
-						message = type.toUpperCase().substring(0,1) + type.substring(1) + " required to support already scheduled sessions. \n Do you really want to delete?"; 
-						shouldDelete = confirm(message);
-					}*/
-					if (shouldDelete) {				
-						$.ajax({
-							url:"./api/menuoption/" +id,
-							method:"DELETE",
-							success: function(data,  textStatus, jqXHR){
-								console.log("DELETE");
-								console.log(data);
-								id = this.url.substr(this.url.lastIndexOf("/")+1);
-								$("#row-"+id)[0].outerHTML="";												
-								showValidationMessage("Menu item deleted");						
-							},
-							error: function(jqXHR, textStatus, errorThrown) {
-								console.log("DELETE ERROR");
-								console.log(jqXHR);						 					
-								showValidationMessage("Failed to delete menu item" );						
-							}
-						});																
-					}
+				
+					$.ajax({
+						url:"./api/menuoption/" +id,
+						method:"DELETE",
+						success: function(data,  textStatus, jqXHR){
+							console.log("DELETE");
+							console.log(data);
+							id = this.url.substr(this.url.lastIndexOf("/")+1);
+							$("#row-"+id)[0].outerHTML="";												
+							showValidationMessage("Menu item deleted");						
+						},
+						error: function(jqXHR, textStatus, errorThrown) {
+							console.log("DELETE ERROR");
+							console.log(jqXHR);						 					
+							showValidationMessage("Failed to delete menu item" );						
+						}
+					});																
+					
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					console.log("GET ERROR");

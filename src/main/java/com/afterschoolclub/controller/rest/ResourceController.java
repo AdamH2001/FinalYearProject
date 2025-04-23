@@ -27,7 +27,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.controller.AdminController;
 import com.afterschoolclub.data.Resource;
-import com.afterschoolclub.data.Resource.Type;
 import com.afterschoolclub.data.State;
 import com.afterschoolclub.data.repository.ResourceRepository;
 @RestController

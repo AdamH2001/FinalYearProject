@@ -213,7 +213,7 @@
 										<div class="row" th:id="${'newItem-' + menuGroup.getMenuGroupId()}">
 											<div class="col-sm-1"></div>
 											<div class="col-sm-5">
-												<button  class="btn asc-control imagebtn btn-success" type="button" th:id="${'add-' + menuGroup.getMenuGroupId()}" onclick="addMenuItem(this)"><i class="fa fa-plus"></i></button>
+												<button  class="btn imagebtn btn-success" type="button" th:id="${'add-' + menuGroup.getMenuGroupId()}" onclick="addMenuItem(this)"><i class="fa fa-plus"></i></button>
 												<span>&nbsp;</span>										
 												<span>Click to Add New Item</span>
 												
@@ -315,7 +315,7 @@
 				data-bs-target="#flush-collapse-MENUGROUPID" aria-expanded="false"
 				aria-controls="flush-collapse-MENUGROUPID">
 				
-				<button class="btn asc-control imagebtn btn-danger" onClick="deleteMenuGroup(this)" id="delete-MENUGROUPID"><i class="fa fa-trash"></i></button>
+				<button class="btn imagebtn btn-danger" onClick="deleteMenuGroup(this)" id="delete-MENUGROUPID"><i class="fa fa-trash"></i></button>
 				<span>&nbsp;</span>	
 				<span>MENUGROUPNAME</span>				
 			</div>
@@ -327,7 +327,7 @@
 				<div class="row" id="newItem-MENUGROUPID">
 					<div class="col-sm-1"></div>
 					<div class="col-sm-5">					
-						<button  class="btn asc-control imagebtn btn-success" type="submit"  id="add-MENUGROUPID" onclick="addMenuItem(this)" ><i class="fa fa-plus"></i></button>
+						<button  class="btn imagebtn btn-success" type="submit"  id="add-MENUGROUPID" onclick="addMenuItem(this)" ><i class="fa fa-plus"></i></button>
 						<span>&nbsp;</span>	
 						<span>Click to Add New Item</span>
 					</div>

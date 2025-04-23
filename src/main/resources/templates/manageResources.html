@@ -10,6 +10,7 @@
 	<script src="./scripts/afterschoolclub.js" type="text/javascript"></script>
 	<script src="./scripts/manageresources.js" type="text/javascript"></script>
 	<script src="./scripts/filter.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="./css/modal.css"/>	
 	
 	<script src="https://kit.fontawesome.com/d152a1d4a4.js" crossorigin="anonymous"></script>
 	
@@ -260,7 +261,7 @@
 
 			<div class="row mb-2">	
 				<div class="col-sm-12" align="center">
-					<a href="javascript:history.back()" class="btn btn-secondary" role="button" >Back</a>
+					<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button" >Back</a>
 				</div>				
 			</div>						
 			<div class="spacer">&nbsp;</div>
@@ -269,6 +270,33 @@
 
 	</div>
 	
+	<!-- The Modal -->
+	<div id="confirmModal" class="modal">
+
+		<!-- Modal content -->
+		<div class="modal-content container-flex no-margin"  style="width:30%" >
+			<span class="close confirmNo">&times;</span>			
+			<div class="row mb-2">
+				<div class="col-sm-12" align="center">
+					<h1 class="asc-header">Manage Resources</h1>
+				</div>
+			</div>
+			<div  class="row mb-4">
+				<div class="col-sm-12" align="center" id="confirmMessage">
+					Test Message
+				</div>		
+			</div>
+			<div class="row mb-2">
+				<div class="col-sm-6" align="right">
+					<button class="btn btn-primary confirmYes" name="submit" >Yes</button>															
+				</div>								
+				<div class="col-sm-6" align="left">
+					<button class="btn btn-secondary confirmNo" type=button>No</button>
+				</div>
+			</div>				
+		</div>
+
+	</div>	
 
 </body>
 </html>

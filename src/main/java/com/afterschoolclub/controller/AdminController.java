@@ -4,11 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +25,8 @@ import com.afterschoolclub.data.AttendeeIncident;
 import com.afterschoolclub.data.Club;
 import com.afterschoolclub.data.Email;
 import com.afterschoolclub.data.Session;
-import com.afterschoolclub.data.SessionMenu;
 import com.afterschoolclub.data.SessionResource;
 import com.afterschoolclub.data.Filter;
-import com.afterschoolclub.data.Holiday;
 import com.afterschoolclub.data.Incident;
 import com.afterschoolclub.data.MenuGroup;
 import com.afterschoolclub.data.MenuOption;
@@ -169,17 +164,48 @@ public class AdminController {
 				else { // We are updating an existing incident
 					incident = session.getIncident(incidentId);					
 					incident.resetAttendees();
-				}				
-				incident.setSummary(summary);				
-				for (int i = 0; i < allAttendees.size(); i++) {
+				}		
+				
+
+				
+				incident.setSummary(summary);
+				Context context = new Context();
+				context.setVariable("sessionBean", sessionBean);
+				context.setVariable("session", session);
+				
+				List<Email> allEmails = new ArrayList<Email>();
+				
+				for (int i = 0; i < allAttendees.size(); i++) {					
 					int attendeeId = allAttendees.get(i).intValue();
+					
 					if (attendeeId != 0) {
-						String attendeeNotes = allAttendeeNotes.get(i);					
+						Attendee attendee = session.getAttendee(attendeeId);
+						String attendeeNotes = allAttendeeNotes.get(i);
+						
+						if (incidentId == 0) { // New incident ensure we send an email to parents of all involved parties
+							Student student = attendee.getStudent();				
+							User user = student.getUser();
+							context.setVariable("user", user);
+							context.setVariable("student", student);
+							context.setVariable("incidentNotes", attendeeNotes);
+							
+							Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "AfterSchool Club Incident",  mailService.getHTML("email/incident", context));
+							allEmails.add(email);
+						}
 						incident.addAttendeeIncident(new AttendeeIncident(AggregateReference.to(attendeeId), attendeeNotes));
 					}
 				}
-				session.save();
-				sessionBean.setFlashMessage("Incident has been added");
+				session.save();							
+				try {
+					mailService.sendAllHTMLEmails(allEmails);
+					sessionBean.setFlashMessage("Incident has been recorded and all parents notified");
+				}
+				catch (MessagingException e) {
+					e.printStackTrace();
+					sessionBean.setFlashMessage("Incident has been recorded but failed to notify parents");			
+					
+				}				
+				returnPage = setupCalendar(model);					
 			}
 			else {
 				sessionBean.setFlashMessage("Link out of date");
@@ -249,10 +275,10 @@ public class AdminController {
 				model.addAttribute("isViewing", false);
 				model.addAttribute("isEditing", false);
 				model.addAttribute("isCreating", true);
-				model.addAttribute("session",session);				
+				model.addAttribute("incidentSession",session);				
 				model.addAttribute("incident", new Incident());
 				this.setInDialogue(true,model);				
-				returnPage = "createincident";			
+				returnPage = "incident";			
 			}
 			else {
 				sessionBean.setFlashMessage("Link out of date");
@@ -282,11 +308,11 @@ public class AdminController {
 					model.addAttribute("isViewing", true);
 					model.addAttribute("isEditing", false);
 					model.addAttribute("isCreating", false);
-					model.addAttribute("session",session);				
+					model.addAttribute("incidentSession",session);				
 					model.addAttribute("incident", incident);
 					this.setInDialogue(false,model);
 					
-					returnPage = "createincident";		
+					returnPage = "incident";		
 				}
 				else {
 					sessionBean.setFlashMessage("Link out of date");
@@ -321,11 +347,11 @@ public class AdminController {
 					model.addAttribute("isViewing", false);
 					model.addAttribute("isEditing", true);
 					model.addAttribute("isCreating", false);
-					model.addAttribute("session",session);				
+					model.addAttribute("incidentSession",session);				
 					model.addAttribute("incident", incident);
 					this.setInDialogue(true,model);
 					
-					returnPage = "createincident";								
+					returnPage = "incident";								
 				}
 				else {
 					sessionBean.setFlashMessage("Link out of date");
@@ -444,7 +470,7 @@ public class AdminController {
 				Context context = new Context();			
 				for (User user:allUsers) {
 					context.setVariable("user", user);
-					context.setVariable("session", session);
+					context.setVariable("${cancelledSession", session);
 					
 					context.setVariable("sessionBean", sessionBean);
 					
@@ -769,7 +795,7 @@ public class AdminController {
 			Club club = null;			
 			Club existingClub = Club.findByTitle(title);
 			if (existingClub != null && existingClub.getClubId() != clubId) {
-				sessionBean.setFlashMessage("Club with this title already exists. Please choose another title.");
+				sessionBean.setFlashMessage("Club with this title already exists - please choose another title.");
 				clubPicService.deleteTempImage(tempFilename);
 			}
 			else if (clubId == 0) {				

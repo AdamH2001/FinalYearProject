@@ -9,7 +9,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.afterschoolclub.data.User;
 import com.afterschoolclub.data.State;
-import com.afterschoolclub.data.Student;
 public interface UserRepository extends CrudRepository<User, Integer> {
 
 	List<User> findByEmail(String email);
