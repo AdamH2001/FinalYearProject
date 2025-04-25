@@ -1,7 +1,20 @@
+
+-- Script to create initial database tables and setup initial
+-- administrator user and holiday dates
+
 USE after_school_club2;
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS `attendee`, `Attendee_Menu_Choice`, `Holiday`, `Recurrence_Specification`, `class`,  `club`, `Session`, `Session_Menu`, `Session_Resource`, `incident`, `Attendee_Incident`,  `Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`, `parent`, `resource`, `student`, `Parental_Transaction`, `user`;
+
+-- Drop all the tables if they already exist
+
+DROP TABLE IF EXISTS `attendee`, `Attendee_Menu_Choice`, `Holiday`, 
+	`Recurrence_Specification`, `class`,  `club`, `Session`, 
+	`Session_Menu`, `Session_Resource`, `incident`, `Attendee_Incident`,  
+	`Medical_Note`, `Menu_Group`, `Menu_Group_Option`, `Menu_Option`,
+	`parent`, `resource`, `student`, 
+	`Parental_Transaction`, `user`;
+	
 SET FOREIGN_KEY_CHECKS=1;
 
 
@@ -40,7 +53,8 @@ CREATE TABLE `Club` (
 );
 
 CREATE TABLE `Recurrence_Specification` (
-  `recurrence_specification_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `recurrence_specification_id` INT PRIMARY KEY 
+  					NOT NULL AUTO_INCREMENT,
   `start_date` DATE NOT NULL,
   `end_date` DATE NOT NULL,
   `occurs_monday` BOOLEAN NOT NULL,
@@ -77,7 +91,8 @@ CREATE TABLE `Parental_Transaction` (
   `balance_type` ENUM('VOUCHER','CASH') NOT NULL,
   `amount` INT NOT NULL,
   `date_time` DATETIME NOT NULL,
-  `transaction_type` ENUM('DEPOSIT','WITHDRAWAL','REFUND','PAYMENT') NOT NULL,
+  `transaction_type` 
+  		ENUM('DEPOSIT','WITHDRAWAL','REFUND','PAYMENT') NOT NULL,
   `description` VARCHAR(1024) NOT NULL,
   `parent_id` INT NOT NULL
 );
@@ -170,7 +185,8 @@ CREATE TABLE `Class` (
 CREATE TABLE `Medical_Note` (
   `medical_note_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `student_id` INT NOT NULL,
-  `note_type` ENUM('ALLERGY','HEALTH','DIET','CAREPLAN','MEDICATION','OTHER') NOT NULL,
+  `note_type` ENUM('ALLERGY','HEALTH','DIET','CAREPLAN',
+  		'MEDICATION','OTHER') NOT NULL,
   `note` VARCHAR(1024) NOT NULL
 );
 
@@ -194,54 +210,76 @@ CREATE TABLE `Attendee_Menu_Choice` (
   `menu_group_option_id` INT NOT NULL
 );
 
+-- Add all the foreign key relations
 
-ALTER TABLE `Student` ADD FOREIGN KEY (`parent_id`) REFERENCES `Parent` (`parent_id`);
+ALTER TABLE `Student` ADD FOREIGN KEY (`parent_id`) 
+	REFERENCES `Parent` (`parent_id`);
 
-ALTER TABLE `Parent` ADD FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`);
+ALTER TABLE `Parent` ADD FOREIGN KEY (`user_id`) 
+	REFERENCES `User` (`user_id`);
 
-ALTER TABLE `Attendee` ADD FOREIGN KEY (`student_id`) REFERENCES `Student` (`student_id`);
+ALTER TABLE `Attendee` ADD FOREIGN KEY (`student_id`) 
+	REFERENCES `Student` (`student_id`);
 
-ALTER TABLE `Attendee` ADD FOREIGN KEY (`session_id`) REFERENCES `Session` (`session_id`);
+ALTER TABLE `Attendee` ADD FOREIGN KEY (`session_id`) 
+	REFERENCES `Session` (`session_id`);
 
-ALTER TABLE `Parental_Transaction` ADD FOREIGN KEY (`parent_id`) REFERENCES `Parent` (`parent_id`);
+ALTER TABLE `Parental_Transaction` ADD FOREIGN KEY (`parent_id`) 
+	REFERENCES `Parent` (`parent_id`);
 
-ALTER TABLE `Incident` ADD FOREIGN KEY (`session_id`) REFERENCES `Session` (`session_id`);
+ALTER TABLE `Incident` ADD FOREIGN KEY (`session_id`) 
+	REFERENCES `Session` (`session_id`);
 
-ALTER TABLE `Attendee_Incident` ADD FOREIGN KEY (`incident_id`) REFERENCES `Incident` (`incident_id`);
+ALTER TABLE `Attendee_Incident` ADD FOREIGN KEY (`incident_id`) 
+	REFERENCES `Incident` (`incident_id`);
 
-ALTER TABLE `Attendee_Incident` ADD FOREIGN KEY (`attendee_id`) REFERENCES `Attendee` (`attendee_id`);
+ALTER TABLE `Attendee_Incident` ADD FOREIGN KEY (`attendee_id`) 
+	REFERENCES `Attendee` (`attendee_id`);
 
+ALTER TABLE `Session_Resource` ADD FOREIGN KEY (`session_id`) 
+	REFERENCES `Session` (`session_id`);
 
-ALTER TABLE `Session_Resource` ADD FOREIGN KEY (`session_id`) REFERENCES `Session` (`session_id`);
+ALTER TABLE `Session_Resource` ADD FOREIGN KEY (`resource_id`) 
+	REFERENCES `Resource` (`resource_id`);
 
-ALTER TABLE `Session_Resource` ADD FOREIGN KEY (`resource_id`) REFERENCES `Resource` (`resource_id`);
+ALTER TABLE `Student` ADD FOREIGN KEY (`class_id`) 
+	REFERENCES `Class` (`class_id`);
 
-ALTER TABLE `Student` ADD FOREIGN KEY (`class_id`) REFERENCES `Class` (`class_id`);
+ALTER TABLE `Medical_Note` ADD FOREIGN KEY (`student_id`) 
+	REFERENCES `Student` (`student_id`);
 
-ALTER TABLE `Medical_Note` ADD FOREIGN KEY (`student_id`) REFERENCES `Student` (`student_id`);
+ALTER TABLE `Menu_Group_Option` ADD FOREIGN KEY (`menu_group_id`) 
+	REFERENCES `Menu_Group` (`menu_group_id`);
 
-ALTER TABLE `Menu_Group_Option` ADD FOREIGN KEY (`menu_group_id`) REFERENCES `Menu_Group` (`menu_group_id`);
+ALTER TABLE `Menu_Group_Option` ADD FOREIGN KEY (`menu_option_id`) 
+	REFERENCES `Menu_Option` (`menu_option_id`);
 
-ALTER TABLE `Menu_Group_Option` ADD FOREIGN KEY (`menu_option_id`) REFERENCES `Menu_Option` (`menu_option_id`);
+ALTER TABLE `Session_Menu` ADD FOREIGN KEY (`session_id`) 
+	REFERENCES `Session` (`session_id`);
 
-ALTER TABLE `Session_Menu` ADD FOREIGN KEY (`session_id`) REFERENCES `Session` (`session_id`);
+ALTER TABLE `Session_Menu` ADD FOREIGN KEY (`menu_group_id`) 
+	REFERENCES `Menu_Group` (`menu_group_id`);
 
-ALTER TABLE `Session_Menu` ADD FOREIGN KEY (`menu_group_id`) REFERENCES `Menu_Group` (`menu_group_id`);
+ALTER TABLE `Attendee_Menu_Choice` ADD FOREIGN KEY (`attendee_id`) 
+	REFERENCES `Attendee` (`attendee_id`);
 
-ALTER TABLE `Attendee_Menu_Choice` ADD FOREIGN KEY (`attendee_id`) REFERENCES `Attendee` (`attendee_id`);
+ALTER TABLE `Attendee_Menu_Choice` ADD FOREIGN KEY (`menu_group_option_id`) 
+	REFERENCES `Menu_Group_Option` (`menu_group_option_id`);
 
-ALTER TABLE `Attendee_Menu_Choice` ADD FOREIGN KEY (`menu_group_option_id`) REFERENCES `Menu_Group_Option` (`menu_group_option_id`);
+ALTER TABLE `Session` ADD FOREIGN KEY (`club_id`) 
+	REFERENCES `Club` (`club_id`);
 
-ALTER TABLE `Session` ADD FOREIGN KEY (`club_id`) REFERENCES `Club` (`club_id`);
+ALTER TABLE `Resource` ADD FOREIGN KEY (`user_id`) 
+	REFERENCES `User` (`user_id`);
 
-ALTER TABLE `Resource` ADD FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`);
+ALTER TABLE `Session` ADD FOREIGN KEY (`recurrence_specification_id`) 
+	REFERENCES `Recurrence_Specification` (`recurrence_specification_id`);
 
-ALTER TABLE `Session` ADD FOREIGN KEY (`recurrence_specification_id`) REFERENCES `Recurrence_Specification` (`recurrence_specification_id`);
+ALTER TABLE `Parental_Transaction` ADD FOREIGN KEY (`club_id`) 
+	REFERENCES `Club` (`club_id`);
 
-ALTER TABLE `Parental_Transaction` ADD FOREIGN KEY (`club_id`) REFERENCES `Club` (`club_id`);
+-- Insert the default class structures
 
-
-# Inserts
 INSERT into after_school_club2.class (name,year_group)
 VALUES ("Year R", 0)
 ,("Year 1", 1)
@@ -251,90 +289,8 @@ VALUES ("Year R", 0)
 ,("Year 5", 5)
 ,("Year 6", 6);
 
-INSERT into after_school_club2.menu_group (name)
-VALUES ("Drinks Selection")
-,("Breakfast Menu")
-,("Fruit Selection");
+-- Insert the default holidays for academic year 25/26
 
-INSERT into after_school_club2.menu_option (name,description,additional_cost,allergy_information)
-VALUES ("Milk","A glass of milk",50,"Contains dairy")
-,("Water","A glass of water",0,"N/A")
-,("Orange Juice","A glass of orange juice",100,"Contains real fruit")
-,("Ham Sandwich","Buttered ham Sandwich",100,"Contains dairresourcey")
-,("Cheese Sandwich","Buttered cheese Sandwich",100,"Contains dairy")
-,("Bacon Sandwich","Roll with Bacon",200,"Contains pork meat")
-,("Apple","A pink lady apple",50,"Contains Mal d 1")
-,("Banana","A fairtrade banana",40,"Contains proteins found in latex")
-,("Pear","A fairtrade pear",30,"N/A");
-
-INSERT into after_school_club2.menu_group_option(menu_option_id, menu_group_id)
-VALUES ((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Milk"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Drinks Selection"))
-,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Water"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Drinks Selection"))
-,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Orange Juice"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Drinks Selection"))
-,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Ham Sandwich"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Breakfast Menu"))
-,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Cheese Sandwich"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Breakfast Menu"))
-,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Bacon Sandwich"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Breakfast Menu"))
-,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Apple"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Fruit Selection"))
-,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Banana"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Fruit Selection"))
-,((SELECT menu_option_id from after_school_club2.menu_option WHERE name="Pear"),(SELECT menu_group_id from after_school_club2.menu_group WHERE name="Fruit Selection"));
-
-INSERT into after_school_club2.user (email,password,first_name,surname,validation_key,date_requested,email_verified, admin_verified, telephone_num, title)
-VALUES ("adam@hattonsplace.co.uk","$2a$12$BxEkNwY9N4klFidhNOC9ieLljbn3IEaDFiGHROEjBU4.m3vWv4sS6","Adam","Hatton","6000000",'2022-12-27',True, True, "01256812734", "Mr"),
-("chris@hattonsplace.co.uk","$2a$12$BxEkNwY9N4klFidhNOC9ieLljbn3IEaDFiGHROEjBU4.m3vWv4sS6","Christine","Smith","6000000",'2022-12-27',True, True, "01256812734", "Mrs"),
-("peterjones@hattonsplace.co.uk","$2a$12$BxEkNwY9N4klFidhNOC9ieLljbn3IEaDFiGHROEjBU4.m3vWv4sS6","Peter","Jones","6000000",'2022-12-27',True,True,  "01256812734", "Mr"),
-("brian@hattonsplace.co.uk","$2a$12$BxEkNwY9N4klFidhNOC9ieLljbn3IEaDFiGHROEjBU4.m3vWv4sS6","Brian","Guest","6000000",'2022-12-27',True, True, "01256812734", "Mr");
-
-
- 
-INSERT into after_school_club2.resource(name, description, quantity, type, keywords, state, capacity, user_id)
-VALUES ("Mr A Hatton", "Sports Teacher", 1, "STAFF", "sport",  'ACTIVE', 30, (SELECT user_id from user  WHERE first_name="Adam")),
- ("Mrs C Smith", "Computer Teacher", 1, "STAFF", "technology", 'ACTIVE', 30, (SELECT user_id from user  WHERE first_name="Christine"));
-       
-
-INSERT into after_school_club2.parent (user_id, alt_contact_name,alt_telephone_num)
-VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Peter"),"Smithy","1234");
-
-INSERT into after_school_club2.parent (user_id, alt_contact_name,alt_telephone_num)
-VALUES ((SELECT user_id from after_school_club2.user WHERE first_name="Brian"),"Smithy","2345");
-
-
-INSERT into after_school_club2.student (parent_id, class_id, first_name, surname, date_of_birth, health_questionnaire_completed, consent_to_share, state, admin_verified, date_requested)
-VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Ruth", "Jones", "2014-01-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01"), 
-		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=0), "Jonny", "Jones", "2019-02-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01"), 
-		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="1234"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Tom", "Jones", "2014-01-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01");
-        
-INSERT into after_school_club2.student (parent_id, class_id, first_name, surname, date_of_birth, health_questionnaire_completed, consent_to_share, state, admin_verified, date_requested)
-VALUES ((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Melanie", "Guest", "2014-01-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01"), 
-		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=0), "Hazel", "Guest", "2019-02-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01"), 
-		((SELECT parent_id from after_school_club2.parent WHERE alt_telephone_num="2345"), (SELECT class_id from after_school_club2.class WHERE year_group=6), "Chris", "Guest", "2014-01-01", "2025-01-01", true, 'ACTIVE', true,  "2014-01-01");
-        
-
-INSERT into after_school_club2.club(title, description, base_price, year_r_can_attend, year_1_can_attend, year_2_can_attend, year_3_can_attend, year_4_can_attend, year_5_can_attend, year_6_can_attend, keywords, accepts_vouchers)
-VALUES ("Football Club", "Football Club for Year 6", 250, false, false, false, false, false, false, true, "Sport, Football, Soccer", true);
-	
-INSERT into after_school_club2.resource(name, description, quantity, type, keywords, state, capacity)
-VALUES ("Football Pitch 1", "Left hand football pitch at the back of the main building", 1, "LOCATION", "sport football", 'ACTIVE', 20),
-	("Football Pitch 2", "Right hand football pitch at the back of the main building", 1, "LOCATION", "sport football", 'ACTIVE', 30),
-	("Canteen", "Main canteen", 1, "LOCATION", "food",  'ACTIVE', 100),
-    ("Music Room", "Room linked to assembly hall", 1, "LOCATION", "music classroom", 'ACTIVE', 15),
-    ("Classroom 1", "First classroom off the main corridor", 1, "LOCATION", "classroom", 'ACTIVE', 30),
-    ("Sports Hall", "The gym", 1, "LOCATION", "classroom",  'ACTIVE', 50),
-    ("Classroom 2", "Second classroom off the main corridor", 1, "LOCATION", "classroom", 'ACTIVE', 30);
-    
-
-              
-        
-INSERT into after_school_club2.resource(name, description, quantity, type, keywords, state, capacity)
-VALUES ("Football", "Regular sized football", 10, "Equipment", "sport football ball", 'ACTIVE', 0),
-		("Red Bibs", "Red bibs", 30, "Equipment", "sport red bib", 'ACTIVE', 0),
-        ("Blue Bibs", "Blue bibs", 30, "Equipment", "sport blue bib", 'ACTIVE', 0),
-        ("Yellow Bibs", "Yellow bibs", 30, "Equipment", "sport yellow bib", 'ACTIVE', 0),
-        ("Green Bibs", "Green bibs", 30, "Equipment", "sport green bib", 'ACTIVE', 0),
-		("Football Goal", "Football Goal", 4, "Equipment", "football goal", 'ACTIVE', 0),
-        ("Violin", "Violin", 5, "Equipment", "violin music", 'ACTIVE', 0),
-        ("Guitar", "guitar", 3, "Equipment", "guitar music", 'ACTIVE', 0),
-        ("Recorder", "recorder", 10, "Equipment", "record music", 'ACTIVE', 0);
-        
 INSERT into after_school_club2.holiday(start_date, end_date) 
 	VALUES ("2025-4-7", "2025-4-21"), 
 			("2025-5-26", "2025-5-30"), 
@@ -345,6 +301,20 @@ INSERT into after_school_club2.holiday(start_date, end_date)
             ("2026-3-30", "2026-4-10"), 
             ("2026-5-25", "2026-5-29"), 
             ("2026-7-23", "2026-8-31");
+
+-- Insert the a default adminsitrator account and set up as a resource             
             
-            
-            
+INSERT into after_school_club2.user alter(email,password,first_name,surname,
+	validation_key,date_requested,email_verified, admin_verified, 
+	telephone_num, title)
+VALUES ("admin@afterschool-club.com",
+	"$2a$12$BxEkNwY9N4klFidhNOC9ieLljbn3IEaDFiGHROEjBU4.m3vWv4sS6",
+	"Adam","Hatton","6000000",'2025-03-31',True, True,
+	"01256812734", "Mr");
+
+INSERT into after_school_club2.resource(name, description, 
+	quantity, type, keywords, state, capacity, user_id)
+VALUES ("Mr A Hatton", "Club Administrator", 1, 
+	"STAFF", "Finance Club Administration",  'ACTIVE', 30, 
+	(SELECT user_id from user  WHERE first_name="Adam"));
+       

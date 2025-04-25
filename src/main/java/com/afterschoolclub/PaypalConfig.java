@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Class used to retrieve the configuration for PayPal
+ */
 @Configuration
 
 public class PaypalConfig {
@@ -17,6 +20,11 @@ public class PaypalConfig {
 	
 	@Value("${paypal.mode}")
 	private String mode;
+	
+	/**
+	 * Return an api context for calling PayPal 
+	 * @return
+	 */
 	
 	@Bean
 	public APIContext apiContext() {

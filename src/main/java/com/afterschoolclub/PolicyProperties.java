@@ -6,6 +6,9 @@ import java.util.List;
 
 
 
+/**
+ * Property class to return list of configured policies 
+ */
 @ConfigurationProperties("asc")
 
 public record PolicyProperties(List<Policy> policies) {

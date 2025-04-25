@@ -238,13 +238,13 @@
 							<li class="nav-item" th:each="student : ${parent.getStudents()}">
 							
 							
-							    <a th:class="${displayHelper.getStudentClass(sessionBean.getSelectedStudent(), student, clubSession, editOptions, viewOnly)+'nav-link studentTab'}"
+							    <a th:class="${sessionBean.getStudentClass(student, clubSession, editOptions, viewOnly)+'nav-link studentTab'}"
 							    	 aria-current="page" th:id="${'student-'+student.getStudentId()}" th:href="${'javascript:activateStudent(&quot;student-'+ student.getStudentId()+'&quot;)'}">
 							    	   	<span th:text="${student.getFullName()}"></span>	
 							
 
 								    	<input type="checkbox" th:disabled="${viewOnly or editOptions or clubSession.registered(student)}"
-									    	th:class="${displayHelper.getStudentCheckContainerClass(sessionBean.getLoggedOnUser(), sessionBean.getSelectedStudent(), student, clubSession, editOptions, viewOnly, sessionBean.getFilter()) + ' form-check-input'}" 
+									    	th:class="${sessionBean.getStudentCheckContainerClass(student, clubSession) + ' form-check-input'}" 
 									    	th:checked="${selectedStudents.contains(student.getIdAsString())}" th:id="${'student-'+student.getStudentId()+'-Attending'}" th:name="${'student-'+student.getStudentId()+'-Attending'}" onChange="changedAttendance(this)"/>										    	
 									        	
 								    	
@@ -285,7 +285,7 @@
 									<div class="col-sm-2" align="left">
 										<span th:id="${'student-'+student.getStudentId() + '-OptionNone-FormattedCost'}">£0.00</span><span>&nbsp;&nbsp;&nbsp;</span>
 										<input onChange="refreshBookingSummary()"   type="radio"
-											th:checked="${displayHelper.checkedOption(menu, 0, student, clubSession, editOptions, viewOnly)}"  
+											th:checked="${sessionBean.checkedOption(menu, 0, student, clubSession)}"  
 											th:disabled="${viewOnly}" th:readOnly="${viewOnly}"
 											class="asc-control form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" 
 											value="None" th:id="${'student-'+student.getStudentId() + '-OptionNone'}"/>
@@ -302,7 +302,7 @@
 										<div class="col-sm-2" align="left">
 											<span th:id="${'student-'+student.getStudentId() + '-Option' +menuGroupOption.getMenuOptionIdAsInt()+'-FormattedCost'}" th:text="${menuGroupOption.getMenuOption().getFormattedCost()}"></span><span>&nbsp;&nbsp;&nbsp;</span>
 											<input onChange="refreshBookingSummary()"  type="radio"
-												th:checked="${displayHelper.checkedOption(menu, menuGroupOption.getMenuOptionIdAsInt(), student, clubSession, editOptions, viewOnly)}"
+												th:checked="${sessionBean.checkedOption(menu, menuGroupOption.getMenuOptionIdAsInt(), student, clubSession)}"
 												th:disabled="${viewOnly}" th:readOnly="${viewOnly}" 
 												
 												class="asc-control form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" th:value="${menuGroupOption.getMenuOptionIdAsInt()}" th:id="${'student-'+student.getStudentId() + '-Option'+menuGroupOption.getMenuOptionIdAsInt()}"/>

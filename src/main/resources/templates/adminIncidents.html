@@ -65,17 +65,17 @@
 								</td>
 								<td class="filtercenter">
 									<a class="text-decoration-none" th:href="@{./adminViewIncident(sessionId=${incidentSession.getSessionId()}, incidentId=${incident.getIncidentId()})}">
-										<button class="btn asc-control imagebtn btn-success" type="button">
+										<button class="btn imagebtn btn-success" type="button">
 											<i class="fa-regular fa-eye"></i>
 										</button>
 									</a>
 									<a class="text-decoration-none"  th:href="@{./adminEditIncident(sessionId=${incidentSession.getSessionId()}, incidentId=${incident.getIncidentId()})}">																	
-										<button class="btn asc-control imagebtn btn-primary" type="button">
+										<button class="btn imagebtn btn-primary" type="button">
 											<i class="fa-solid fa-pencil"></i>
 										</button>
 									</a>
 									<a class="text-decoration-none"  th:href="@{./adminDeleteIncident(sessionId=${incidentSession.getSessionId()}, incidentId=${incident.getIncidentId()})}">
-										<button class="btn asc-control imagebtn btn-danger" type="button" onClick="deleteIncident()">
+										<button class="btn imagebtn btn-danger" type="button" onClick="deleteIncident()">
 											<i class="fa fa-trash"></i>
 										</button>
 									</a>

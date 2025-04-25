@@ -281,13 +281,11 @@ public class User {
 					if (refundedAmount > 0) {
 						ParentalTransaction withdrawTrans = new ParentalTransaction(-refundedAmount, LocalDateTime.now(), ParentalTransaction.Type.WITHDRAWAL, "Withdrawn Cash");
 						withdrawTrans.setPaymentReference(pt.getPaymentReference());
-						parent.addTransaction(withdrawTrans);					
+						withdrawTrans.setParent(parent);
+						withdrawTrans.save();
+						result = true;
 					}
 				}
-			}
-			if (remainingRefund != balance) {
-				this.save();
-				result=true;
 			}
 		}
 		return result;

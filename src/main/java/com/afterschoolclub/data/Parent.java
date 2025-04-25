@@ -215,7 +215,7 @@ public class Parent {
 			pt.setBalanceType(BalanceType.VOUCHER);			
 			addTransaction(pt);
 		}
-		pt.setParentId(AggregateReference.to(this.getParentId()));
+		pt.setParent(this);
 		
 		return pt;
 	}	

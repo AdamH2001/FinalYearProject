@@ -16,16 +16,32 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
 
+/**
+ * Services that allows the upload of new policies
+ */
 @Service
 public class PolicyService {
 
+    /**
+     * Directory where policies should be stored
+     */
     @Value("${asc.file.policyDocuments}")
     private String uploadDir;
     
+	/**
+	 * 
+	 */
 	public PolicyService() {
 		super();
 	}
 
+    /**
+     * Save a policy identified by file 
+     * @param file - the policy
+     * @param filename - the filename where to save the policy
+     * @return the path to the policy
+     * @throws IOException
+     */
     public String savePolicy(MultipartFile file, String filename) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
@@ -41,6 +57,11 @@ public class PolicyService {
     
 	
     
+	/**
+	 * Get the policy urk for a given filename
+	 * @param filename - filename of policy
+	 * @return the full url to policy
+	 */
 	public String getPolicyURL(String filename) {
 		String url;
 		if (policyExists(filename)) {
@@ -53,6 +74,11 @@ public class PolicyService {
 		return url;
 	}    
 	
+	/**
+	 *  Returns true if policy exists otherwise returns false
+	 * @param filename - fiename of policy
+	 * @return true if policy exists otherwise returns false
+	 */
 	public boolean policyExists(String filename) {
 		String url;
 		Path filePath = Paths.get(uploadDir).resolve(filename);
@@ -64,6 +90,12 @@ public class PolicyService {
 	
 	
 	
+	/**
+	 * Return the resource for the filename
+	 * @param filename - filename of the resource
+	 * @return the policy resource for the specific filename i.e. the pdf file
+	 * @throws MalformedURLException
+	 */
 	public Resource getResource(String filename) throws MalformedURLException {	
 		Path filePath = Paths.get(uploadDir).resolve(filename);
 		return new UrlResource(filePath.toUri());

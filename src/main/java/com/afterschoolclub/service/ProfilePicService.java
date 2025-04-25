@@ -19,17 +19,34 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
 
+/**
+ * Service to manage the profile pictures for users
+ * 
+ */
 @Service
 public class ProfilePicService {
 
+    /**
+     * Directory where images will be stored
+     */
     @Value("${asc.file.profilePics}")
     private String uploadDir;
     
+	/**
+	 * Default constructor
+	 */
 	public ProfilePicService() {
 		super();
 	}
 
     
+    /**
+     * save the image in file to the filename
+     * @param file image to save
+     * @param filename place where to save it
+     * @return the path to the new image
+     * @throws IOException
+     */
     public String saveImage(MultipartFile file, String filename) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
@@ -44,12 +61,20 @@ public class ProfilePicService {
     }
     
     
+    /**
+     * @return a temporary filename for upload
+     */
     public String getTempfilename() {
     	String result = String.format("tmp-%d", new Random().nextInt(1000000, 9999999));
     	return result;
     }
     
     
+	/**
+	 * Rename the temporary imag to the correct image for the user
+	 * @param tempFile tempgilename
+	 * @param user user to assign the image to 
+	 */
 	public void renameImage(String tempFile, User user) {		
 		String sourceFilename = String.format("%s.jpg", tempFile) ;
 		String destFilename = String.format("%d.jpg", user.getUserId()) ;
@@ -70,8 +95,11 @@ public class ProfilePicService {
         
 	}    	
 	
-	public void deleteTempImage(User user) {		
-		String sourceFilename = String.format("u%d.jpg", user.getUserId()) ;
+	/**
+	 * Deletes any temp image specified by filename  
+	 * @param sourceFilename delete this image
+	 */
+	public void deleteTempImage(String sourceFilename) {				
 		Path sourceFilePath = Paths.get(uploadDir).resolve(sourceFilename);
 		File sourceFile = new File(sourceFilePath.toUri());
         if (sourceFile.exists()) {
@@ -80,9 +108,13 @@ public class ProfilePicService {
         return; 
         
 	}    	
-	
-	
+
     
+	/**
+	 * Returns the image url for a user
+	 * @param id - primary key for user require url for
+	 * @return the image url for a given user id 
+	 */
 	public String getImageURL(int id) {
 		String filename = String.format("%d.jpg", id) ;
 		String url;
@@ -100,6 +132,12 @@ public class ProfilePicService {
 		return url;
 	}    
     
+	/**
+	 * Returns the resource foa given filename 
+	 * @param filename
+	 * @return the url resource for a given filename 
+	 * @throws MalformedURLException
+	 */
 	public Resource getResource(String filename) throws MalformedURLException {	
 		Path filePath = Paths.get(uploadDir).resolve(filename);
 		return new UrlResource(filePath.toUri());

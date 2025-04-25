@@ -56,7 +56,7 @@ public class Student {
 	@MappedCollection(idColumn = "student_id")
 	private Set<MedicalNote> medicalNotes = new HashSet<>();
 
-	
+
 	@Transient
 	private transient StudentClass studentClass = null;
 	

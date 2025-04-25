@@ -22,16 +22,32 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
 
+/**
+ * Service to manage the pictures for clubs
+ */
 @Service
 public class ClubPicService {
 
+    /**
+     * Upload directory for club pictures
+     */
     @Value("${asc.file.clubPics}")
     private String uploadDir;
     
+	/**
+	 * Default constructor
+	 */
 	public ClubPicService() {
 		super();
 	}
 
+    /**
+     * Save the image identified by file to the filename
+     * @param file - mage to be saved
+     * @param filename - the filename to save it as
+     * @return the path of the file
+     * @throws IOException
+     */
     public String saveImage(MultipartFile file, String filename) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
@@ -46,6 +62,10 @@ public class ClubPicService {
     }
     
     
+	/**
+	 * Reutrns a list of images that can be used on promotional pages e.g. homepage
+	 * @return a list of urls to all the images to be used as club images. 
+	 */
 	public List<String> getAllURLs() {
 	    List<String> urlList = new ArrayList<>();
 	    try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(uploadDir))) {
@@ -63,6 +83,11 @@ public class ClubPicService {
 	}    
 	
     
+	/**
+	 * Return the url for the clbu identified by the id
+	 * @param id - primary key for the club
+	 * @return url for image
+	 */
 	public String getImageURL(int id) {
 		String filename = String.format("%d.jpg", id) ;
 		String url;
@@ -80,6 +105,11 @@ public class ClubPicService {
 		return url;
 	}    
 	
+	/**
+	 * Rename the temporary imag to the correct image for the user
+	 * @param tempFile tempgilename
+	 * @param user user to assign the image to 
+	 */	
 	public void renameImage(String tempFile, Club club) {		
 		String sourceFilename = String.format("%s.jpg", tempFile) ;
 		String destFilename = String.format("%d.jpg", club.getClubId()) ;
@@ -100,19 +130,32 @@ public class ClubPicService {
         
 	}    	
 	
+    /**
+     * @return a temporary filename for upload
+     */
     public String getTempfilename() {
     	String result = String.format("tmp-%d", new Random().nextInt(1000000, 9999999));
     	return result;
     }
-    
+    	
+	/**
+	 * Returns the resource foa given filename 
+	 * @param filename
+	 * @return the url resource for a given filename 
+	 * @throws MalformedURLException
+	 */    
 	
 	
 	public Resource getResource(String filename) throws MalformedURLException {	
 		Path filePath = Paths.get(uploadDir).resolve(filename);
 		return new UrlResource(filePath.toUri());
 	}
+	
  
-    
+	/**
+	 * Deletes any temp image specified by filename  
+	 * @param sourceFilename delete this image
+	 */    
 	public void deleteTempImage(String sourceFilename) {				
 		Path sourceFilePath = Paths.get(uploadDir).resolve(sourceFilename);
 		File sourceFile = new File(sourceFilePath.toUri());

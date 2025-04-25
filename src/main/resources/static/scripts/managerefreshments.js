@@ -415,7 +415,7 @@ function addMenuGroup(event) {
 			error: function(jqXHR, textStatus, errorThrown) {
 				console.log("POST ERROR");
 				console.log(jqXHR);
-				showValidationMessage("Failed to save new menu group anme already in use");				
+				showValidationMessage("Failed to save new menu group name already in use");				
 			}
 		});
 	}		

@@ -33,7 +33,7 @@
 				<form class="form-inline" action="./processlogin" method="POST">
 					<div class="row mb-1">
 						<div class="col-sm-6">
-							<input type="email" name="username" placeholder="username" autocomplete="email"
+							<input type="email" name="username" placeholder="username" autocomplete="email" maxlength="64"
 								class="form-control mr-sm-2" id="inputEmail" required data-toggle="tooltip" title="Enter username to log in. This is your email address.">
 						</div>
 						<div class="col-sm-6">
@@ -42,7 +42,7 @@
 					</div>
 					<div class="row mb-1">
 						<div class="col-sm-6">
-							<input type="password" name="password" placeholder="password" class="form-control mr-sm-2"
+							<input type="password" name="password" placeholder="password" class="form-control mr-sm-2" maxlength="64"
 								id="inputPassword" required data-toggle="tooltip" title="Enter password to be able to login.">
 						</div>
 						<div class="col-sm-6">
@@ -55,7 +55,7 @@
 
 
 		<div th:if="${sessionBean.isLoggedOn()}" class="row p-2">
-			<div class="col-sm-6 p-0" align="left">
+			<div class="col-sm-6 p-0" align="left" style="overflow:hidden; text-overflow:ellipsis">
 				<table class="p-0" style="width:100%">
 					<tr>
 						<td width="210px"  style="vertical-align: top; text-align:center">

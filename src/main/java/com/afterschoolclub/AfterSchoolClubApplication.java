@@ -11,18 +11,30 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
+/**
+ * Main Application class for AfterSchoolCLub
+ */
 @EnableConfigurationProperties(PolicyProperties.class)
 @SpringBootApplication
 @EnableAsync
 @EnableTransactionManagement
 public class AfterSchoolClubApplication {
 
+	/**
+	 * main program for AfterSchoolClub Applicaiton 
+	 * @param args
+	 */
+	
 	public static void main(String[] args) {
 		SpringApplication.run(AfterSchoolClubApplication.class, args);
 	}
 	
 
+    /**
+     * get the asynchronous configuration for any asynchronous processing need to implement
+     * @return
+     */
+	
     @Bean
     public Executor getAsyncExecutor() {
        ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();

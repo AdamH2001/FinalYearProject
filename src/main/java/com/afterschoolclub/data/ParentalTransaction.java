@@ -279,5 +279,9 @@ public class ParentalTransaction {
 	public void save()
 	{
 		repository.save(this);
-	}			
+	}
+	
+	public void setParent(Parent parent) {
+		this.setParentId(AggregateReference.to(parent.getParentId()));		
+	}
 }

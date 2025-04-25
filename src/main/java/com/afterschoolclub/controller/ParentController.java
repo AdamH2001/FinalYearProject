@@ -30,20 +30,18 @@ import com.afterschoolclub.data.ParentalTransaction;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.StudentClass;
 import com.afterschoolclub.data.User;
-import com.afterschoolclub.service.DisplayHelperService;
 import com.afterschoolclub.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.PayPalRESTException; 
-  
+import org.springframework.transaction.annotation.Transactional;
+
+
 @Controller
 @SessionAttributes({"sessionBean"})
 public class ParentController {
 
-	@Autowired	
-    private DisplayHelperService displayHelper;
-	
 	@Autowired	
     private MainController mainController;
 	
@@ -245,7 +243,6 @@ public class ParentController {
 			model.addAttribute("recurringSessions", recurringSessions);
 			
 			model.addAttribute("viewOnly", viewOnly);						
-			model.addAttribute("displayHelper", displayHelper);			
 			this.setInDialogue(true,model);
 
 			returnPage = "parentSession";
@@ -325,6 +322,7 @@ public class ParentController {
 		return returnView;
     }
 
+    @Transactional 
     @GetMapping("/paymentsuccess")
     public String paymentSuccess(
             @RequestParam("paymentId") String paymentId,
@@ -348,10 +346,10 @@ public class ParentController {
 						String transId = transaction.getRelatedResources().get(0).getSale().getId();
 						
 						ParentalTransaction pt = new ParentalTransaction(amountInPence, paymentDateTime,ParentalTransaction.Type.DEPOSIT, "Paypal");
-						pt.setPaymentReference(transId);						
-						sessionBean.getLoggedOnParent().addTransaction(pt);						
-					}
-	        		sessionBean.getLoggedOnUser().save();					
+						pt.setPaymentReference(transId);
+						pt.setParent(sessionBean.getLoggedOnParent());
+						pt.save();
+					}				
 					sessionBean.setFlashMessage("Payment Successful");					
 	            }
 	        } catch (PayPalRESTException e) {	   
@@ -603,12 +601,10 @@ public class ParentController {
 
 				tmpUser.save();						
 				
-				String message = String.format("Booked %d session(s) at %s for %s", sessionCount, session.getClub().getTitle(), studentNames); 
-						
-				sessionBean.setFlashMessage(message);
-
-				Student selectedStudent = sessionBean.getSelectedStudent();
-				sessionBean.setSelectedStudent(loggedOnParent.getStudentFromId(selectedStudent.getStudentId()));
+				String message = String.format("Booked %d session(s) at %s for %s", sessionCount, session.getClub().getTitle(), studentNames); 						
+				sessionBean.setFlashMessagePreserve(message);
+				sessionBean.setLoggedOnUser(tmpUser);
+				
 				returnPage = setupCalendar(model);
 			} else {
 				sessionBean.setFlashMessages(allErrorMessages);
@@ -696,14 +692,12 @@ public class ParentController {
 					loggedOnParent.recordRefundForClub(costDifference*-1, session.getSessionClub(), "Option changes for ".concat(session.getClub().getTitle()));									
 				}				
 				tmpUser.save();				
-				sessionBean.setFlashMessage("Updated Options for ".concat(session.getClub().getTitle()));
+				sessionBean.setFlashMessagePreserve("Updated Options for ".concat(session.getClub().getTitle()));				
 				sessionBean.setLoggedOnUser(tmpUser);
 				
-				Student selectedStudent = sessionBean.getSelectedStudent();
-				sessionBean.setSelectedStudent(loggedOnParent.getStudentFromId(selectedStudent.getStudentId()));
 			}
 			else {
-				sessionBean.setFlashMessage("Not enough funds to attend this session. Please top up your account.");
+				sessionBean.setFlashMessage("Not enough funds to attend this session - please top up your account.");
 			}		
 			returnPage = setupCalendar(model); 
 		}				

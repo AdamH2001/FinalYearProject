@@ -148,7 +148,7 @@ public class MainController {
 		if (user!=null) {
 			if (user.getValidationKey() == validationKey) {
 				user.setEmailVerified(true);
-				user.save();
+				user.update();
 				Context context = new Context();
 				context.setVariable("user", user);
 				context.setVariable("sessionBean", sessionBean);
@@ -219,7 +219,7 @@ public class MainController {
 								returnPage = setupCalendar(model);
 							}
 							else {
-								sessionBean.setFlashMessage("Account is no longer active. Contact administrator if you think this is an error.");
+								sessionBean.setFlashMessage("Account is no longer active - contact administrator if you think this is an error.");
 								returnPage = sessionBean.getRedirectUrl();									
 							}
 						}
@@ -619,7 +619,6 @@ public class MainController {
 			boolean passwordOk = (newUser && conPassword.equals(password)) || !newUser;
 			if (passwordOk) {
 
-				profilePicService.renameImage(tempFilename, user);
 
 				if (newUser) {
 					user.save();
@@ -627,6 +626,7 @@ public class MainController {
 				else {
 					user.update();											
 				}
+				profilePicService.renameImage(tempFilename, user);
 				
 				if (!user.isEmailVerified()) {
 					// Send email

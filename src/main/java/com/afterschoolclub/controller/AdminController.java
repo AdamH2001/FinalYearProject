@@ -36,7 +36,6 @@ import com.afterschoolclub.data.RecurrenceSpecification;
 import com.afterschoolclub.data.Resource;
 import com.afterschoolclub.data.Resource.Type;
 import com.afterschoolclub.service.ClubPicService;
-import com.afterschoolclub.service.DisplayHelperService;
 import com.afterschoolclub.service.EmailService;
 import jakarta.mail.MessagingException;
 
@@ -49,10 +48,7 @@ import com.afterschoolclub.data.User;
 @SessionAttributes({"sessionBean"})
 public class AdminController {
 
-	
-	@Autowired	
-    private DisplayHelperService displayHelper;
-	
+		
 	@Autowired
     private ClubPicService clubPicService;
 	
@@ -502,124 +498,200 @@ public class AdminController {
 	
 
 
-	@PostMapping("/addSession")
-	@Transactional
-	public String addSession(@RequestParam(name = "club") int clubId,
-			@RequestParam(name = "location") int location,
-			@RequestParam(name = "startDate") LocalDate startDate,
-			@RequestParam(name = "startTime") LocalTime startTime,
-			@RequestParam(name = "endTime") LocalTime endTime,
-			@RequestParam(name = "maxAttendees") int maxAttendees,			
-			@RequestParam(name = "recurringEndDate", required=false) LocalDate recurringEndDate,
-			@RequestParam(name = "MonRecurring", required=false) Boolean MonRecurring,
-			@RequestParam(name = "TueRecurring", required=false) Boolean TueRecurring,
-			@RequestParam(name = "WedRecurring", required=false) Boolean WedRecurring,
-			@RequestParam(name = "ThurRecurring", required=false) Boolean ThurRecurring,
-			@RequestParam(name = "FriRecurring", required=false) Boolean FriRecurring,
-			@RequestParam(name = "SatRecurring", required=false) Boolean SatRecurring,
-			@RequestParam(name = "SunRecurring", required=false) Boolean SunRecurring,
-			@RequestParam(name = "termTimeOnly", required=false) Boolean termTimeOnly,			 
-			@RequestParam(name = "staff") List<Integer> staff,	
-			@RequestParam(name = "menu", required=false) List<Integer> menuGroups,			
-			@RequestParam(name = "equipment") List<Integer> equipment,
-			@RequestParam(name = "equipmentQuantity") List<Integer> equipmentQuantity,
-			@RequestParam(name = "hiddenPerAttendee") List<Boolean> perAttendee,
-			@RequestParam(name = "sessionId") int sessionId,
-			@RequestParam(name = "parentNotes") String parentNotes,
-			@RequestParam(name = "organiserNotes") String organiserNotes,			
-			Model model) {
-		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {
-			LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
-			LocalDateTime endDateTime = LocalDateTime.of(startDate, endTime);
-			List<Session> allSessions = null; 
-			RecurrenceSpecification rs = null;
-			
-			Session session = null;
-			
-			if (sessionId != 0 ) {
-				session = Session.findById(sessionId);
-				
-				session.clearResources();
-				session.clearMenu();
-				
-				session.setStartDateTime(startDateTime);
-				session.setEndDateTime(endDateTime);				
-				session.setMaxAttendees(maxAttendees);
+/**
+ * Administration function to create or update a club session. Receives all 
+ * the requirements for the session from the form the user has completed. 
+ *  
+ * @param clubId - primary key of club that session needs to be created for 
+ * @param location - primary key of location where the session will occur
+ * @param startDate - date the session should start
+ * @param startTime - time the session should start
+ * @param endTime - end time for the session
+ * @param maxAttendees - max number of attendees allowed
+ * @param recurringEndDate - - end date for the last recurring session
+ * @param MonRecurring - if recurring should it occur on a Monday
+ * @param TueRecurring - if recurring should it occur on a Tuesday
+ * @param WedRecurring - if recurring should it occur on a Wednesday
+ * @param ThurRecurring - if recurring should it occur on a Thursday
+ * @param FriRecurring- if recurring should it occur on a Friday 
+ * @param SatRecurring- if recurring should it occur on a Saturday
+ * @param SunRecurring- if recurring should it occur on a Sunday
+ * @param termTimeOnly- if recurring should it only occur during term time
+ * @param staff - array of all the primary keys of all the staff required to 
+ * 			support the session
+ * @param menuGroups - array of all the primary keys of the different menus
+ * 			 available for selection 
+ * @param equipment - array of all the primary keys for equipment
+ * @param equipmentQuantity - array of all the quantities for equipment
+ * @param perAttendee - array specifies if quantity is per attendee or not
+ * @param sessionId - the primary key for the session if we are editing the 
+ * 		session
+ * @param parentNotes - any notes for the parents 
+ * @param organiserNotes - any notes for the organiser
+ * @param model - holder of context data from view 
+ * @return the page user should see after updating the session
+ */
 
-				
-				allSessions = new ArrayList<Session>();
-				allSessions.add(session);
-			}
-			else {
-				rs = new RecurrenceSpecification(startDateTime.toLocalDate(),  recurringEndDate, MonRecurring, TueRecurring, WedRecurring, ThurRecurring, FriRecurring, SatRecurring, SunRecurring, termTimeOnly);								
-				rs.save(); // Need to save so get set the aggregate Id for each session
-				
-				session = new Session(AggregateReference.to(clubId),  startDateTime, endDateTime, maxAttendees);
-				session.setRecurrenceSpecification(rs);														
-			}
-
-			session.setParentNotes(parentNotes);
-			session.setAdministratorNotes(organiserNotes);
-			session.addStaff(staff);
-			session.addEquipment(equipment, equipmentQuantity, perAttendee);
-			session.setMenuGroups(menuGroups);		
-			session.addResource(new SessionResource(AggregateReference.to(location), 1, false));			
-			
-			if (allSessions == null) {
-				allSessions = rs.getAllRecurringSessions(session);	
-			}
-								
-			
-			List <ResourceStatus> allResourceChallenges = new ArrayList<ResourceStatus>();
+@PostMapping("/addSession")
+@Transactional
+public String addSession(@RequestParam(name = "club") int clubId,
+		@RequestParam(name = "location") int location,
+		@RequestParam(name = "startDate") LocalDate startDate,
+		@RequestParam(name = "startTime") LocalTime startTime,
+		@RequestParam(name = "endTime") LocalTime endTime,
+		@RequestParam(name = "maxAttendees") int maxAttendees,
+		@RequestParam(name = "recurringEndDate", required=false) 
+			LocalDate recurringEndDate,
+		@RequestParam(name = "MonRecurring", required=false) 
+			Boolean MonRecurring,
+		@RequestParam(name = "TueRecurring", required=false) 
+			Boolean TueRecurring,
+		@RequestParam(name = "WedRecurring", required=false) 
+			Boolean WedRecurring,
+		@RequestParam(name = "ThurRecurring", required=false) 
+			Boolean ThurRecurring,
+		@RequestParam(name = "FriRecurring", required=false) 
+			Boolean FriRecurring,
+		@RequestParam(name = "SatRecurring", required=false) 
+			Boolean SatRecurring,
+		@RequestParam(name = "SunRecurring", required=false) 
+			Boolean SunRecurring,
+		@RequestParam(name = "termTimeOnly", required=false) 
+			Boolean termTimeOnly,			 
+		@RequestParam(name = "staff") List<Integer> staff,	
+		@RequestParam(name = "menu", required=false) 
+			List<Integer> menuGroups,			
+		@RequestParam(name = "equipment") List<Integer> equipment,
+		@RequestParam(name = "equipmentQuantity") 
+			List<Integer> equipmentQuantity,
+		@RequestParam(name = "hiddenPerAttendee") 
+			List<Boolean> perAttendee,
+		@RequestParam(name = "sessionId") int sessionId,
+		@RequestParam(name = "parentNotes") 
+			String parentNotes,
+		@RequestParam(name = "organiserNotes") 
+			String organiserNotes,
+		Model model) {
+	
+	// Ensure user is an administrator to perform this operation
+	String returnPage = validateIsAdmin(model);
+	if (returnPage == null) {
+		LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
+		LocalDateTime endDateTime = LocalDateTime.of(startDate, endTime);
+		List<Session> allSessions = null; 
+		RecurrenceSpecification rs = null;
 		
-			for (Session proposedSession: allSessions) {				
-				List <ResourceStatus> proposedSessionChallenges = proposedSession.getResourceChallenges();
-				allResourceChallenges.addAll(proposedSessionChallenges);			
-			}			
+		Session session = null;
+		if (sessionId != 0 ) {
+			// We are editing an already existing session so reset the
+			// equipment, menu etc..
+			 
+			session = Session.findById(sessionId);				
+			session.clearResources();
+			session.clearMenu();				
+			session.setStartDateTime(startDateTime);
+			session.setEndDateTime(endDateTime);				
+			session.setMaxAttendees(maxAttendees);
+			allSessions = new ArrayList<Session>();
 			
-			if (allResourceChallenges.size() == 0) {
-				Session.saveAll(allSessions);	
-				if (sessionId == 0) {
-					String message = String.format("Added %d session(s).", allSessions.size());
-					sessionBean.setFlashMessage(message);
-				}
-				else {
-					sessionBean.setFlashMessage("Updated Session");
-				}
-				returnPage = setupCalendar(model);
+			// when editing we are only editing the single session not the 
+			// recurring group				
+			allSessions.add(session);
+		}
+		else {
+			// We are creating a new session so setup 
+			// recurrence specification 				
+			rs = new RecurrenceSpecification(startDateTime.toLocalDate(),  
+					recurringEndDate, MonRecurring, TueRecurring, 
+					WedRecurring, ThurRecurring, FriRecurring, 
+					SatRecurring, SunRecurring,	termTimeOnly);
+			
+			// Need to save so get set the aggregate Id for each session
+			rs.save(); 			
+			session = new Session(AggregateReference.to(clubId),  startDateTime, 
+					endDateTime, maxAttendees);
+			session.setRecurrenceSpecification(rs);
+		}
+
+		// set all the other attributes in the session object 
+		session.setParentNotes(parentNotes);
+		session.setAdministratorNotes(organiserNotes);
+		session.addStaff(staff);
+		session.addEquipment(equipment, equipmentQuantity, perAttendee);
+		session.setMenuGroups(menuGroups);		
+		session.addResource(new 
+				SessionResource(AggregateReference.to(location), 
+				1, false));
+		
+		if (allSessions == null) {
+			// get a list of all the recurring sessions using session as a 
+			// template 
+			allSessions = rs.getAllRecurringSessions(session);	
+		}		
+		
+		List <ResourceStatus> allResourceChallenges = 
+				new ArrayList<ResourceStatus>();
+		
+		// Iterate over each session collecting all the resource challenges
+			for (Session proposedSession: allSessions) {
+				List <ResourceStatus> proposedSessionChallenges = 
+						proposedSession.getResourceChallenges();
+				allResourceChallenges.addAll(proposedSessionChallenges);
+			}	
+			 
+			if (allResourceChallenges.size() == 0) {				
+				// If no resource challenges save the session 
+			Session.saveAll(allSessions);	
+			if (sessionId == 0) {
+				String message = String.format("Added %d session(s).",
+						allSessions.size());
+				sessionBean.setFlashMessagePreserve(message);
 			}
 			else {
-								
-				if (allSessions.get(0).getSessionId() != 0) {
-					model.addAttribute("editing",true);
-					model.addAttribute("scheduling",false);		
-					model.addAttribute("takingRegister",false);					
-					model.addAttribute("viewing",false);					
-				}
-				else {
-					model.addAttribute("scheduling",true);					
-					model.addAttribute("editing",false);
-					model.addAttribute("takingRegister",false);					
-					model.addAttribute("viewing",false);										
-					rs.delete();
-				}
-					
-				model.addAttribute("clubSession",allSessions.get(0));								
-				model.addAttribute("clubs",Club.findActive());				
-				model.addAttribute("locations", Resource.findActiveByType(Resource.Type.LOCATION));							
-				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
-				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
-				model.addAttribute("menus", MenuGroup.findAll());
-				model.addAttribute("resourceStatus", allResourceChallenges);		
-				this.setInDialogue(true,model);				
-				returnPage = "adminsession";				
+				sessionBean.setFlashMessage("Updated Session");
 			}
 			
-							
+			// return back to calendar page
+			returnPage = setupCalendar(model);
 		}
-		return returnPage;
+		else {
+			// otherwise there are resource challenges and need to inform 
+			// the user of these set all information back in context to 
+			// send back to view 
+			
+			if (allSessions.get(0).getSessionId() != 0) {
+				model.addAttribute("editing",true);
+				model.addAttribute("scheduling",false);	
+				model.addAttribute("takingRegister",false);	
+				model.addAttribute("viewing",false);
+			}
+			else {
+				model.addAttribute("scheduling",true);
+				model.addAttribute("editing",false);
+				model.addAttribute("takingRegister",false);	
+				model.addAttribute("viewing",false);
+				rs.delete();
+			}				
+			model.addAttribute("clubSession",allSessions.get(0));
+			model.addAttribute("clubs",Club.findActive());
+			model.addAttribute("locations",
+					Resource.findActiveByType(Resource.Type.LOCATION));	
+			model.addAttribute("staff", 
+					Resource.findActiveByType(Resource.Type.STAFF));
+			model.addAttribute("equipment", 
+					Resource.findActiveByType(Resource.Type.EQUIPMENT));
+			model.addAttribute("menus", 
+					MenuGroup.findAll());
+			model.addAttribute("resourceStatus", 
+					allResourceChallenges);
+			this.setInDialogue(true,model);
+			
+			// return back to session page
+			returnPage = "adminsession";				
+		}
 	}
+	return returnPage;
+}
 
 	@GetMapping("/createSession")
 	public String createSession(Model model) {
@@ -694,7 +766,6 @@ public class AdminController {
 				model.addAttribute("staff", Resource.findByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
-				model.addAttribute("displayHelper", displayHelper);			
 				model.addAttribute("resourceStatus", session.getResourceStatus());		
 				returnPage = "adminsession";
 			}
@@ -724,7 +795,6 @@ public class AdminController {
 				model.addAttribute("staff", Resource.findActiveByType(Resource.Type.STAFF));				
 				model.addAttribute("equipment", Resource.findActiveByType(Resource.Type.EQUIPMENT));							
 				model.addAttribute("menus", MenuGroup.findAll());
-				model.addAttribute("displayHelper", displayHelper);			
 				setInDialogue(true, model);
 				
 				returnPage = "adminsession";
@@ -997,7 +1067,7 @@ public class AdminController {
 
 			try {
 				mailService.sendHTMLEmail(email);
-				sessionBean.setFlashMessage(String.format("%s successfully deleted and parent notified.", student.getFullName()));
+				sessionBean.setFlashMessagePreserve(String.format("%s successfully deleted and parent notified", student.getFullName()));
 			} catch (Exception e) {
 				e.printStackTrace();
 				sessionBean.setFlashMessage("Failed to notify user.");
@@ -1030,11 +1100,11 @@ public class AdminController {
 			
 			try {
 				mailService.sendHTMLEmail(email);
-				sessionBean.setFlashMessage(String.format("%s approved and notified.", user.getFullName()));
+				sessionBean.setFlashMessagePreserve(String.format("%s approved and notified", user.getFullName()));
 				
 			} catch (Exception e) {
 				e.printStackTrace();
-				sessionBean.setFlashMessage(String.format("Failed to notify %s.", user.getFullName()));
+				sessionBean.setFlashMessagePreserve(String.format("Failed to notify %s", user.getFullName()));
 			}
 
 			
@@ -1063,11 +1133,11 @@ public class AdminController {
 			
 			try {
 				mailService.sendHTMLEmail(email);
-				sessionBean.setFlashMessage(String.format("%s approved and parent notified.", student.getFullName()));
+				sessionBean.setFlashMessagePreserve(String.format("%s approved and parent notified", student.getFullName()));
 				
 			} catch (Exception e) {
 				e.printStackTrace();
-				sessionBean.setFlashMessage(String.format("Failed to notify parent of %s.", student.getFullName()));
+				sessionBean.setFlashMessagePreserve(String.format("Failed to notify parent of %s", student.getFullName()));
 			}
 
 			
@@ -1100,11 +1170,11 @@ public class AdminController {
 			
 			try {
 				mailService.sendHTMLEmail(email);
-				sessionBean.setFlashMessage(String.format("%s rejected and parent notified.", user.getFullName()));
+				sessionBean.setFlashMessagePreserve(String.format("%s rejected and parent notified", user.getFullName()));
 				
 			} catch (Exception e) {
 				e.printStackTrace();
-				sessionBean.setFlashMessage(String.format("Failed to notify parent of %s.", user.getFullName()));
+				sessionBean.setFlashMessagePreserve(String.format("Failed to notify parent of %s", user.getFullName()));
 			}			
 			returnPage= sessionBean.getRedirectUrl();
 		}
@@ -1132,11 +1202,11 @@ public class AdminController {
 			
 			try {
 				mailService.sendHTMLEmail(email);
-				sessionBean.setFlashMessage(String.format("%s rejected and notified.", user.getFullName()));
+				sessionBean.setFlashMessagePreserve(String.format("%s rejected and notified", user.getFullName()));
 				
 			} catch (Exception e) {
 				e.printStackTrace();
-				sessionBean.setFlashMessage(String.format("Failed to notify %s.", user.getFullName()));
+				sessionBean.setFlashMessagePreserve(String.format("Failed to notify %s", user.getFullName()));
 			}			
 			returnPage= sessionBean.getRedirectUrl();
 		}
@@ -1174,9 +1244,9 @@ public class AdminController {
 				Parent parent = user.getParent();									
 				ParentalTransaction pt = new ParentalTransaction(voucherAmount, LocalDateTime.now(), ParentalTransaction.Type.DEPOSIT, "Voucher Registered");
 				pt.setPaymentReference(voucherReference);
-				pt.setBalanceType(ParentalTransaction.BalanceType.VOUCHER);					
-				parent.addTransaction(pt);			
-				user.save();
+				pt.setBalanceType(ParentalTransaction.BalanceType.VOUCHER);
+				pt.setParent(parent);
+				pt.save();							
 				sessionBean.setFlashMessage("Voucher successfully registered.");				
 			}
 			else {

@@ -487,7 +487,7 @@
 									</div>
 																											
 									<div th:if="${clubSession.includesMenuGroup(menu.getMenuGroupId())}" th:each="menu : ${menus}" class="col-sm-2">
-										<div th:text="${displayHelper.getOptionText(menu, attendee.getStudent(), clubSession)}" class="col-sm-2" align="left" >Menu Option Text</div>
+										<div th:text="${sessionBean.getOptionText(menu, attendee.getStudent(), clubSession)}" class="col-sm-2" align="left" >Menu Option Text</div>
 									</div>
 																		
 								</div>
@@ -511,13 +511,9 @@
 						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button" data-toggle="tooltip" title="Return to previous screen.">Back</a>
 					</div>
 				</div>
-				
-								
-				<div th:unless="${viewing} and ${not takingRegister}" class="row mb-2 p-3">
-				
-					 <div th:switch="${true}" class="col-sm-6" align="right">
-				
-					
+												
+				<div th:unless="${viewing} and ${not takingRegister}" class="row mb-2 p-3">				
+					 <div th:switch="${true}" class="col-sm-6" align="right">									
 						<button th:case="${editing}" class="btn btn-primary" name="submit"
 							onclick="copyPerAttendee();" data-toggle="tooltip" title="Press to update the session.">Update</button>
 						<button th:case="${scheduling}" class="btn btn-primary"

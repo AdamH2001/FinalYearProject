@@ -52,7 +52,7 @@
 											<textarea class="form-control mr-sm-2" th:readonly="${isViewing}" name="attendeeNotes" id="attendeeNotes" th:text="${attendeeIncident.getSummary()}"></textarea>
 										</div>						
 										<div th:unless="${isViewing}" style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
-											<button  class="btn asc-control imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
+											<button  class="btn imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
 										</div>														
 									</div>									
 								
@@ -69,7 +69,7 @@
 											<textarea class="form-control mr-sm-2" name="attendeeNotes" id="attendeeNotes"></textarea>
 										</div>						
 										<div style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
-											<button  id="addButton" disabled class="btn asc-control imagebtn btn-success" type="button" onClick="insertAttendeeNotes(this)"><i class="fa fa-plus"></i></button>
+											<button  id="addButton" disabled class="btn imagebtn btn-success" type="button" onClick="insertAttendeeNotes(this)"><i class="fa fa-plus"></i></button>
 										</div>					
 									
 									</div>
@@ -110,7 +110,7 @@
 			<textarea class="form-control mr-sm-2" name="attendeeNotes" id="attendeeNotes"></textarea>
 		</div>						
 		<div style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
-			<button  class="btn asc-control imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
+			<button  class="btn imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
 		</div>					
 	
 	</div>	

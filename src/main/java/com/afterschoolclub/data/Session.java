@@ -574,47 +574,7 @@ public class Session {
 		return repository.findOverlappingSessions(getSessionId(), getStartDateTime(), getEndDateTime());		
 	}	
 	
-	public List<ResourceStatus> getResourceStatus() {
-		Map<Integer, Integer> resourceRequirements = new HashMap<>(); //maps resourceId to quantity
-				
-		//get list map of all resourceid and quantities needed
-		for (SessionResource er : sessionResources) {
-			if (!resourceRequirements.containsKey(er.getResourceId().getId())) {
-				resourceRequirements.put(er.getResourceId().getId(), getRequiredResourceQuantity(er.getResourceId().getId().intValue()));
-			}
-		}
-		
-		// list of all resource objects requested
-		List <Resource> allResources = getRequiredResources();
-
-		OverlappingTimeline overlapTimeline = new OverlappingTimeline(this); 
-				
-		List<ResourceStatus> result = new ArrayList<ResourceStatus>();
-		
-		// for each type of resource requested creat a resource status
-		for (Integer resourceId : resourceRequirements.keySet()) {
-			
-			// find the resource object from the id
-			
-			Resource r = null;
-			Iterator<Resource> resourceIterator = allResources.iterator();
-			while (r == null && resourceIterator.hasNext()) {
-				Resource tmp = resourceIterator.next();
-				if (tmp.getResourceId() == resourceId.intValue()) {
-					r = tmp;
-				}
-			}
-			
-			// determine existing demand for resource
-			int committedResource = overlapTimeline.getRequiredResourceQuantity(resourceId.intValue());			
-			int quantityRequested = resourceRequirements.get(resourceId);
-			
-			// create a resource status for each resource requested
-			result.add(new ResourceStatus(r, committedResource, quantityRequested, overlapTimeline));						
-		}
-
-		return result; 
-	}		
+	
 	
 	public boolean hasSufficientResources() {
 		boolean result = true;
@@ -758,7 +718,7 @@ public class Session {
 	
 	public List<ResourceStatus> getResourceChallenges() {
 		List<ResourceStatus> allStatus = this.getResourceStatus();
-		List<ResourceStatus> allChallenges = new ArrayList();
+		List<ResourceStatus> allChallenges = new ArrayList<ResourceStatus>();
 	
 		Iterator<ResourceStatus> rsIterator = allStatus.iterator();
 		while (rsIterator.hasNext()) {
@@ -770,6 +730,46 @@ public class Session {
 		return allChallenges;
 	}
 	
-	
+	public List<ResourceStatus> getResourceStatus() {
+		Map<Integer, Integer> resourceRequirements = new HashMap<>(); //maps resourceId to quantity
+				
+		//get  map of all resourceid and quantities needed
+		for (SessionResource er : sessionResources) {
+			if (!resourceRequirements.containsKey(er.getResourceId().getId())) {
+				resourceRequirements.put(er.getResourceId().getId(), getRequiredResourceQuantity(er.getResourceId().getId().intValue()));
+			}
+		}
+		
+		// list of all resource objects requested
+		List <Resource> allResources = getRequiredResources();
+
+		OverlappingTimeline overlapTimeline = new OverlappingTimeline(this); 
+				
+		List<ResourceStatus> result = new ArrayList<ResourceStatus>();
+		
+		// for each type of resource requested creat a resource status
+		for (Integer resourceId : resourceRequirements.keySet()) {
+			
+			// find the resource object from the id
+			
+			Resource r = null;
+			Iterator<Resource> resourceIterator = allResources.iterator();
+			while (r == null && resourceIterator.hasNext()) {
+				Resource tmp = resourceIterator.next();
+				if (tmp.getResourceId() == resourceId.intValue()) {
+					r = tmp;
+				}
+			}
+			
+			// determine existing demand for resource
+			int committedResource = overlapTimeline.getRequiredResourceQuantity(resourceId.intValue());			
+			int quantityRequested = resourceRequirements.get(resourceId);
+			
+			// create a resource status for each resource requested
+			result.add(new ResourceStatus(r, committedResource, quantityRequested, overlapTimeline));						
+		}
+
+		return result; 
+	}		
 	
 }
