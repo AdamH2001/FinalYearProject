@@ -306,8 +306,7 @@ public class AdminController {
 					model.addAttribute("isCreating", false);
 					model.addAttribute("incidentSession",session);				
 					model.addAttribute("incident", incident);
-					this.setInDialogue(false,model);
-					
+					this.setInDialogue(false,model);					
 					returnPage = "incident";		
 				}
 				else {
@@ -357,24 +356,6 @@ public class AdminController {
 			else {
 				sessionBean.setFlashMessage("Link out of date");
 				returnPage = "redirect:adminViewIncidents";
-			}
-		}
-		return returnPage;
-	}		
-	
-	@GetMapping("/adminDeleteIncident")
-	public String adminDeleteIncident(@RequestParam (name="sessionId") int sessionId, @RequestParam (name="incidentId") int incidentId,  Model model) {
-		String returnPage = validateIsAdmin(model);
-		if (returnPage == null) {
-			Session session = Session.findById(sessionId);
-			if (session != null) {
-				session.removeIncident(incidentId);
-				session.save();
-				returnPage = "redirect:/adminViewIncidents";									
-			}
-			else {
-				sessionBean.setFlashMessage("Link out of date");
-				returnPage = "redirect:adminViewIncidents";	
 			}
 		}
 		return returnPage;

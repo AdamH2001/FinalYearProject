@@ -45,11 +45,11 @@
 						<div class="col-sm-9" align="center">
 							<fieldset class="form-group border p-3">
 								<div class="container-fluid no-margin">
-									<div th:each="attendeeIncident : ${incident.getAttendeeIncidents()}" class="row mb-2" th:id="${attendeeIncident.getAttendeeId().getId().intValue()}" th:studentName="${attendeeIncident.getStudent(session).getFullName()}">
+									<div th:each="attendeeIncident, iStat : ${incident.getAttendeeIncidents()}" class="row mb-2" th:id="${attendeeIncident.getAttendeeId().getId().intValue()}" th:studentName="${attendeeIncident.getStudent(incidentSession).getFullName()}">
 										<div class="col-sm-2" style="padding-top:12px" th:text="${attendeeIncident.getStudent(incidentSession).getFullName()}"></div>
 										<input type="hidden" name="attendeeId" th:value="${attendeeIncident.getAttendeeId().getId().intValue()}" />
 										<div th:class="${isViewing? 'col-sm-10' : 'col-sm-9'}">
-											<textarea class="form-control mr-sm-2" th:readonly="${isViewing}" name="attendeeNotes" id="attendeeNotes" th:text="${attendeeIncident.getSummary()}"></textarea>
+											<textarea class="form-control mr-sm-2" th:readonly="${isViewing}" name="attendeeNotes" th:id="${'attendeeNotes-' + iStat.index}" th:text="${attendeeIncident.getSummary()}"></textarea>
 										</div>						
 										<div th:unless="${isViewing}" style="padding-left: 0px; padding-top:12px" class="col-sm-1">								
 											<button  class="btn imagebtn btn-danger" type="button" onClick="removeAttendeeNotes(this)"><i class="fa fa-trash"></i></button>
@@ -84,7 +84,7 @@
 				</div>
 				<div th:if="${isViewing}" class="row mb-2">
 					<div class="col-sm-12" align="center">
-						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Back</a>
+						<a href="/adminViewIncidents" class="btn btn-secondary" role="button">Back</a>
 					</div>					
 				</div>
 				
@@ -94,7 +94,7 @@
 						<button th:if="${isCreating}" class="btn btn-primary" name="submit">Submit</button>
 					</div>
 					<div class="col-sm-6" align="left">
-						<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Cancel</a>
+						<a href="/adminViewIncidents" class="btn btn-secondary" role="button">Cancel</a>
 					</div>					
 				</div>
 				<div class="spacer">&nbsp;</div>

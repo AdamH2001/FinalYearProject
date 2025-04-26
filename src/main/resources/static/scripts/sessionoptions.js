@@ -41,7 +41,7 @@ function refreshBookingSummary() {
 		
 		// Calculate cost for all options chosen
 		$("input.menuOption").each(function() {						
-				var attendingControl = $("#" + this.id.substring(0, this.id.indexOf("-Option")) + "-Attending")[0];			
+				var attendingControl = $("#" + this.id.substring(0, this.id.indexOf("-mg")) + "-Attending")[0];			
 				if (attendingControl.checked) {
 					if (viewOnly) {
 						this.disabled=true;	
@@ -53,7 +53,7 @@ function refreshBookingSummary() {
 						this.readOnly=false;					
 					}		
 					if (this.checked) {					
-						var totalHidden = $("#"+this.id.substring(0, this.id.indexOf("-Option")) + "-TotalHiddenCost")[0];				
+						var totalHidden = $("#"+this.id.substring(0, this.id.indexOf("-mg")) + "-TotalHiddenCost")[0];				
 						var optionValue = $("#"+this.id + "-Value")[0].value;						
 						totalHidden.value = Number(totalHidden.value) + Number(optionValue);					
 					}

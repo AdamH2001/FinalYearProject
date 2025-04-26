@@ -434,6 +434,21 @@
 								</div>
 								
 								<div th:each="attendee: ${clubSession.getSortedAttendees()}" class="row mb-2" >
+
+										<input type="hidden" name="allergyNote" th:id="${'allergyNote-' + attendee.getStudent().getStudentId()}"
+											th:value="${attendee.getStudent().getAllergyNoteText()}"></input> 
+										<input type="hidden" name="healthNote"
+											th:id="${'healthNote-' + attendee.getStudent().getStudentId()}" th:value="${attendee.getStudent().getHealthNoteText()}"></input> 
+										<input
+											type="hidden" name="dietNote" th:id="${'dietNote-' + attendee.getStudent().getStudentId()}"
+											th:value="${attendee.getStudent().getDietNoteText()}"></input>
+										<input type="hidden" name="careNote"
+											th:id="${'careNote-' + attendee.getStudent().getStudentId()}" th:value="${attendee.getStudent().getCarePlanNoteText()}"></input>
+										<input
+											type="hidden" name="medicationNote" th:id="${'medicationNote-' + attendee.getStudent().getStudentId()}"
+											th:value="${attendee.getStudent().getMedicationNoteText()}"></input> 
+										<input type="hidden" name="otherNote"
+											th:id="${'otherNote-' + attendee.getStudent().getStudentId()}" th:value="${attendee.getStudent().getOtherNoteText()}"></input>
 																	
 									<div th:if="${takingRegister}" class="col-sm-2" align="left">	
 										<th:block th:switch="${true}">																	
@@ -452,20 +467,7 @@
 											<input th:case="*" th:name="'attendee_' + ${attendee.getAttendeeId()}" th:id="'attendee_' + ${attendee.getAttendeeId()}" value="NotRecorded'" type="hidden" />
 										</th:block>
 
-										<input type="hidden" name="allergyNote" th:id="${'allergyNote-' + attendee.getStudent().getStudentId()}"
-											th:value="${attendee.getStudent().getAllergyNoteText()}"></input> 
-										<input type="hidden" name="healthNote"
-											th:id="${'healthNote-' + attendee.getStudent().getStudentId()}" th:value="${attendee.getStudent().getHealthNoteText()}"></input> 
-										<input
-											type="hidden" name="dietNote" th:id="${'dietNote-' + attendee.getStudent().getStudentId()}"
-											th:value="${attendee.getStudent().getDietNoteText()}"></input>
-										<input type="hidden" name="careNote"
-											th:id="${'careNote-' + attendee.getStudent().getStudentId()}" th:value="${attendee.getStudent().getCarePlanNoteText()}"></input>
-										<input
-											type="hidden" name="medicationNote" th:id="${'medicationNote-' + attendee.getStudent().getStudentId()}"
-											th:value="${attendee.getStudent().getMedicationNoteText()}"></input> 
-										<input type="hidden" name="otherNote"
-											th:id="${'otherNote-' + attendee.getStudent().getStudentId()}" th:value="${attendee.getStudent().getOtherNoteText()}"></input>
+
 									</div>
 																																													
 									<div class="col-sm-2" align="left">
@@ -487,7 +489,7 @@
 									</div>
 																											
 									<div th:if="${clubSession.includesMenuGroup(menu.getMenuGroupId())}" th:each="menu : ${menus}" class="col-sm-2">
-										<div th:text="${sessionBean.getOptionText(menu, attendee.getStudent(), clubSession)}" class="col-sm-2" align="left" >Menu Option Text</div>
+										<div th:text="${sessionBean.getOptionText(menu, attendee.getStudent(), clubSession)}"  align="left" >Menu Option Text</div>
 									</div>
 																		
 								</div>

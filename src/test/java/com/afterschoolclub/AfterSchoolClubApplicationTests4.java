@@ -293,23 +293,27 @@ class AfterSchoolClubApplicationTests4 {
 	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 	    sleep() ; 	    
 	    
-	    driver.findElement(By.id("student-1-Option8")).click();
+	    driver.findElement(By.id("student-1-mg-1-mo-5")).click();
 	    
 	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 	    sleep() ; 
 	    
-	    driver.findElement(By.id("student-1-Option10")).click();
+	    driver.findElement(By.id("student-1-mg-2-mo-10")).click();
 	    
 	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 	    sleep() ; 
 	    
-	    driver.findElement(By.id("student-1-Option1")).click();
+	    driver.findElement(By.id("student-1-mg-3-mo-9")).click();
 	    
 	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 	    sleep() ; 
+	
+	    assertThat(driver.findElement(By.id("totalCost")).getText(), is("£1.80"));
+	    assertThat(driver.findElement(By.id("student-1-TotalCost")).getText(), is("£6.30"));
+	    
 	    
 	    driver.findElement(By.id("submitButton")).click();
-	    assertThat(driver.findElement(By.cssSelector(".mb-1:nth-child(1) > .col-sm-2")).getText(), is("£93.30"));
+	    assertThat(driver.findElement(By.cssSelector(".mb-1:nth-child(1) > .col-sm-2")).getText(), is("£93.70"));
 	    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Updated Options for Breakfast Club"));
 	    driver.findElement(By.linkText("07:30 Breakfast Club")).click();
 	    driver.findElement(By.linkText("Cancel Booking")).click();
@@ -320,64 +324,82 @@ class AfterSchoolClubApplicationTests4 {
 	    driver.close();
 	  }	  
 	  
+
+	  
 	  @Test
 	  @Order(320)	  
-	  public void t320BookingRecurringSessionForMultipleStudents() {
+	  
+	  public void t320EditPriceofClubBookingRecurringSessionForMultipleStudents() {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
+	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
+	    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
+	    driver.findElement(By.cssSelector(".btn")).click();
+	    driver.findElement(By.cssSelector("li:nth-child(2) .ms-1")).click();
+	    driver.findElement(By.cssSelector(".row:nth-child(4) .row:nth-child(2) > a")).click();
+	    driver.findElement(By.id("basepriceinput")).click();
+	    driver.findElement(By.id("basepriceinput")).sendKeys("£2.50");
+	    driver.findElement(By.name("submit")).click();
+	    driver.findElement(By.cssSelector(".mx-1")).click();
+	    driver.findElement(By.linkText("Sign out")).click();
 	    driver.findElement(By.id("inputEmail")).click();
 	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
 	    driver.findElement(By.id("inputEmail")).sendKeys("peterjones@hattonsplace.co.uk");
 	    driver.findElement(By.cssSelector(".btn")).click();
 	    driver.findElement(By.cssSelector(".fa-right-long")).click();
-	    driver.findElement(By.cssSelector(".fa-left-long")).click();
-	    driver.findElement(By.cssSelector(".monthlydate:nth-child(3) #dropdownUser1")).click();
+	    driver.findElement(By.cssSelector(".days:nth-child(1) > .monthlydate:nth-child(4) > .Available:nth-child(2) .sessionTitle")).click();	    
 	    driver.findElement(By.linkText("Book Attendance")).click();
 	    driver.findElement(By.id("bookingEndDate")).click();
 	    driver.findElement(By.id("bookingEndDate")).sendKeys("2025-07-31");
+	    
+	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+	    sleep() ;	    
+	    
 	    driver.findElement(By.id("student-2-Attending")).click();
 	    driver.findElement(By.id("student-3-Attending")).click();
+	    driver.findElement(By.id("student-3-mg-3-mo-8")).click();
+	    driver.findElement(By.id("student-3-mg-2-mo-12")).click();
+	    driver.findElement(By.id("student-3-mg-1-mo-4")).click();
+	    driver.findElement(By.cssSelector("#student-2 > span")).click();
+	    driver.findElement(By.id("student-2-mg-3-mo-8")).click();
+	    driver.findElement(By.id("student-2-mg-2-mo-12")).click();
+	    driver.findElement(By.id("student-2-mg-1-mo-4")).click();
+	    driver.findElement(By.cssSelector("#student-1 > span")).click();
+	    driver.findElement(By.id("student-1-mg-3-mo-9")).click();
+	    driver.findElement(By.id("student-1-mg-2-mo-14")).click();
+	    driver.findElement(By.id("student-1-mg-1-mo-4")).click();
+	    assertThat(driver.findElement(By.id("totalCost")).getText(), is("£13.95"));
+	    driver.findElement(By.id("totalCost")).click();
+	    assertThat(driver.findElement(By.id("totalCost")).getText(), is("£13.95"));
+	    assertThat(driver.findElement(By.id("totalCostForAllSessions")).getText(), is("£753.30"));
+	    
+	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+	    sleep() ;
+	    
 	    driver.findElement(By.id("student-3-Attending")).click();
-	    
-	    
-	    driver.findElement(By.cssSelector("#student-1 > span")).click();	    
-	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-	    sleep() ; 
-	    
-	    driver.findElement(By.id("student-1-Option9")).click();
-	    driver.findElement(By.cssSelector("#student-2 > span")).click();
-	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-	    sleep() ; 
-	    
-	    
-	    driver.findElement(By.id("student-2-Option6")).click();
-	    
-	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-	    sleep() ; 
-	    
-	    assertThat(driver.findElement(By.id("totalCostForAllSessions")).getText(), is("£607.75"));
-	    assertThat(driver.findElement(By.id("numberSessions")).getText(), is("55"));
-	    driver.findElement(By.cssSelector("#submitButton > span")).click();
-	    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Not enough funds to attend this session, please top up your account."));
 	    driver.findElement(By.id("TueRecurring")).click();
+	    driver.findElement(By.cssSelector(".col-sm-1:nth-child(6)")).click();
 	    driver.findElement(By.id("WedRecurring")).click();
-	    driver.findElement(By.id("ThurRecurring")).click();
 	    driver.findElement(By.id("FriRecurring")).click();
-	    driver.findElement(By.id("student-1-OptionNone")).click();
+	    driver.findElement(By.id("student-1-mg-2-mo-0")).click();
 	    driver.findElement(By.cssSelector("#student-2 > span")).click();
-	    driver.findElement(By.id("student-2-OptionNone")).click();
+	    driver.findElement(By.id("student-2-mg-3-mo-9")).click();
+	    driver.findElement(By.id("student-2-mg-2-mo-0")).click();
+	    driver.findElement(By.id("student-2-mg-1-mo-3")).click();
+	    driver.findElement(By.id("ThurRecurring")).click();
 	    
 	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-	    sleep() ; 
-
+	    sleep() ;
 	    
+	    assertThat(driver.findElement(By.id("totalCostForAllSessions")).getText(), is("£78.65"));
 	    driver.findElement(By.cssSelector("#submitButton > span")).click();
 	    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Booked 11 session(s) at Breakfast Club for Ruth and Jonny"));
-	    assertThat(driver.findElement(By.cssSelector(".mb-1:nth-child(1) > .col-sm-2")).getText(), is("£1.00"));	    
+	    assertThat(driver.findElement(By.cssSelector(".mb-1:nth-child(1) > .col-sm-2")).getText(), is("£21.35"));
+	    assertThat(driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-1")).getText(), is("11"));
+	    assertThat(driver.findElement(By.cssSelector(".mb-1:nth-child(1) > .col-sm-1")).getText(), is("22"));
 	    driver.findElement(By.id("dropdownUser1")).click();
 	    driver.findElement(By.linkText("Sign out")).click();
 	    driver.close();
-	  }
-	  
+	  }	  
 	
 }

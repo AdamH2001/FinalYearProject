@@ -74,11 +74,7 @@
 											<i class="fa-solid fa-pencil"></i>
 										</button>
 									</a>
-									<a class="text-decoration-none"  th:href="@{./adminDeleteIncident(sessionId=${incidentSession.getSessionId()}, incidentId=${incident.getIncidentId()})}">
-										<button class="btn imagebtn btn-danger" type="button" onClick="deleteIncident()">
-											<i class="fa fa-trash"></i>
-										</button>
-									</a>
+
 								</td>
 							</tr>
 					</tbody>
@@ -89,7 +85,7 @@
 		
 		<div class="row mb-2">
 			<div class="col-sm-12" align="center">
-				<a href="javascript:history.back()" class="btn btn-secondary" role="button">Back</a>
+				<a th:href="${sessionBean.getReturnUrl()}" class="btn btn-secondary" role="button">Back</a>
 			</div>
 			
 		</div>

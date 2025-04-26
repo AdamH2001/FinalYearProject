@@ -287,9 +287,14 @@
 										<input onChange="refreshBookingSummary()"   type="radio"
 											th:checked="${sessionBean.checkedOption(menu, 0, student, clubSession)}"  
 											th:disabled="${viewOnly}" th:readOnly="${viewOnly}"
-											class="asc-control form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" 
-											value="None" th:id="${'student-'+student.getStudentId() + '-OptionNone'}"/>
-										<input type="hidden" th:name="${'student-'+student.getStudentId() + '-None-Value'}" value="0"  th:id="${'student-'+student.getStudentId() + '-OptionNone-Value'}"/>
+											th:id="${'student-'+student.getStudentId() + '-mg-' + menu.getMenuGroupId() + '-mo-0'}"
+											class="asc-control form-check-input menuOption" 
+											th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" 
+											value="None" />
+											
+											
+										<input type="hidden" th:name="${'student-'+student.getStudentId() + '-None-Value'}" value="0"  
+												th:id="${'student-'+student.getStudentId() + '-mg-' + menu.getMenuGroupId() + '-mo-0-Value'}"/>
 									</div>
 								</div>
 								
@@ -304,9 +309,12 @@
 											<input onChange="refreshBookingSummary()"  type="radio"
 												th:checked="${sessionBean.checkedOption(menu, menuGroupOption.getMenuOptionIdAsInt(), student, clubSession)}"
 												th:disabled="${viewOnly}" th:readOnly="${viewOnly}" 
-												
-												class="asc-control form-check-input menuOption" th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" th:value="${menuGroupOption.getMenuOptionIdAsInt()}" th:id="${'student-'+student.getStudentId() + '-Option'+menuGroupOption.getMenuOptionIdAsInt()}"/>
-											<input type="hidden" th:name="${'student-'+student.getStudentId() + '-' + menuGroupOption.getMenuOptionIdAsInt()+'-Value'}" th:value="${menuGroupOption.getMenuOption().getAdditionalCost()}"  th:id="${'student-'+student.getStudentId() + '-Option' + menuGroupOption.getMenuOptionIdAsInt()+'-Value'}"/>
+												th:id="${'student-'+student.getStudentId() + '-mg-' + menu.getMenuGroupId() + '-mo-'  + menuGroupOption.getMenuOptionIdAsInt()}"	
+												class="asc-control form-check-input menuOption" 
+												th:name="${'student-'+student.getStudentId() + '-' + menu.getName().replace(' ','-')}" th:value="${menuGroupOption.getMenuOptionIdAsInt()}"/> 
+											<input type="hidden" th:name="${'student-'+student.getStudentId() + '-' + menuGroupOption.getMenuOptionIdAsInt()+'-Value'}" 
+														th:value="${menuGroupOption.getMenuOption().getAdditionalCost()}"  
+														th:id="${'student-'+student.getStudentId() + '-mg-' + menu.getMenuGroupId() + '-mo-'  + menuGroupOption.getMenuOptionIdAsInt()+'-Value'}"/>
 										</div>
 									</div>
 								</div>
@@ -342,17 +350,20 @@
 						
 									<div class="container-fluid col-sm-11" style="padding:0px">
 													
-										<div  class="row mb-2">					
-					
+										<div  class="row mb-2">										
 											<div class="col-sm-2 asc-refreshmentheader">Item</div>
 											<div class="col-sm-4 asc-refreshmentheader">Description</div>
 											<div class="col-sm-4 asc-refreshmentheader">Allergy Information</div>
 											<div class="col-sm-2 asc-refreshmentheader" align="left">Cost</div>
 										</div>
-										<div th:each="menu : ${clubSession.getMenuGroups()}" >																	
-											<div th:each="menuGroupOption,iterStat : ${menu.getMenuGroupOptions}">
+										<div th:each="menu : ${clubSession.getMenuGroups()}" >		
+											
 											<div class="row mb-2"  >
-						
+												<div class="col-sm-2 asc-refreshmentheader" th:text="${menu.getName()}" align="left"></div>											
+											</div>
+																																				
+											<div th:each="menuGroupOption,iterStat : ${menu.getMenuGroupOptions}">
+											<div class="row mb-2"  >						
 													<div class="col-sm-2" th:text="${menuGroupOption.getMenuOption().getName()}"></div>
 													<div class="col-sm-4" th:text="${menuGroupOption.getMenuOption().getDescription()}"></div>
 													<div class="col-sm-4" th:text="${menuGroupOption.getMenuOption().getAllergyInformation()}"></div>

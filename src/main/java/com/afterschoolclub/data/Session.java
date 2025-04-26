@@ -643,12 +643,25 @@ public class Session {
 
 	public List<Student> getStudentsForIncident(Incident incident) {
 		
+		Comparator<Student> comparator = new Comparator<Student>(){
+			 
+		    @Override
+		    public int compare(final Student o1, final Student o2){
+		    	String s1 = o1.getSurname().toLowerCase().concat(o1.getFirstName().toLowerCase());
+		    	String s2 = o2.getSurname().toLowerCase().concat(o2.getFirstName().toLowerCase());
+		    	return s1.compareTo(s2);
+		    }
+		};
+				
+	
 		List <Student> students = new ArrayList<>();
 		Set<AttendeeIncident> allAttendeeIncidents = incident.getAttendeeIncidents();
 		for (AttendeeIncident ai : allAttendeeIncidents) {
 			Student s = this.getAttendee(ai.getAttendeeId().getId().intValue()).getStudent();
 			students.add(s);
 		}
+		Collections.sort(students, comparator);
+
 		return students;
 		
 	}

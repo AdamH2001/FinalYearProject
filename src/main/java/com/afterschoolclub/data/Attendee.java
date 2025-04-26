@@ -33,10 +33,6 @@ public class Attendee {
 	@MappedCollection(idColumn = "attendee_id")
 	private Set<AttendeeMenuChoice> menuChoices = new HashSet<>();
 	
-	@MappedCollection(idColumn = "attendee_id")
-	private Set<AttendeeIncident> attendeeIncident = new HashSet<>();
-	
-	
     @ToString.Exclude
 	@Transient
 	private transient Student student;
