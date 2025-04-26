@@ -67,7 +67,7 @@ public class StaffController {
 
     @PostMapping(consumes = {"application/json"})
     public Staff createStaff(@RequestBody Staff staff) {
-    	//TODO ahndle duplicate email exception gracefully
+    	//TODO whilst this works could handle it better. Should handle duplicate email address better.
     	User user = staff.save();
     	
 		

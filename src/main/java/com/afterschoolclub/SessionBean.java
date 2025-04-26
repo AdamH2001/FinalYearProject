@@ -188,6 +188,18 @@ public class SessionBean {
         return;
     }
     
+    /**
+     * Refresh the logged on user with details from the database
+     */
+    public void refreshLoggedOnUser() {
+    	if (loggedOnUser != null) {
+    		loggedOnUser = User.findById(loggedOnUser.getUserId());
+    		if (selectedStudent != null) {
+        		selectedStudent = loggedOnUser.getParent().getStudentFromId(selectedStudent.getStudentId());    			
+    		}
+    	}
+        return;
+    }    
     
     
     /**
@@ -200,7 +212,7 @@ public class SessionBean {
     
     
     /**
-     * @return true if parent is loggedOn otherwsie return false
+     * @return true if parent is loggedOn otherwise return false
      */
     public boolean isParentLoggedOn() {
     	return isLoggedOn() && getLoggedOnUser().isParent() ;

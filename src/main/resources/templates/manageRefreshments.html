@@ -184,7 +184,7 @@
 						<div class="accordion accordion-flush" id="accordionFlushExample">
 						
 							<th:block  th:each="menuGroup : ${allMenuGroups}" >
-								  <div class="accordion-item filterRow" th:id="${'row-' + menuGroup.getMenuGroupId()}">
+								  <div class="accordion-item filterRow" th:id="${'mgrow-' + menuGroup.getMenuGroupId()}">
 								    <div class="accordion-header">
 								    
 								      <div class="accordion-button collapsed"  data-bs-toggle="collapse" th:data-bs-target="${'#flush-collapse-' + menuGroup.getMenuGroupId()}" aria-expanded="false" th:aria-controls="${'flush-collapse-' + menuGroup.getMenuGroupId()}"   >
@@ -200,7 +200,7 @@
 								    <div class="accordion-body">
 								    
 										<div class="row ascmenuitem" th:each="menuGroupOption : ${menuGroup.getAllActiveMenuGroupOptions()}"
-											th:id="${'row-' + menuGroupOption.getMenuGroupOptionId()}" th:orig-id="${'row-' + menuGroupOption.getMenuGroupIdAsInt() + '-' + menuGroupOption.getMenuOptionIdAsInt()}">
+											th:id="${'mgorow-' + menuGroupOption.getMenuGroupOptionId()}" th:orig-id="${'mgorow-' + menuGroupOption.getMenuGroupIdAsInt() + '-' + menuGroupOption.getMenuOptionIdAsInt()}">
 											<div class="col-sm-1"></div>
 											<div class="col-sm-5" >
 												<button class="btn imagebtn btn-danger" type="button" onclick="removeMenuItemFromGroup(this)" th:id="${'delete-' + menuGroupOption.getMenuGroupOptionId()}"><i class="fa fa-trash"></i></button>
@@ -227,7 +227,7 @@
 								  </div>							
 							</th:block>
 
-							<div class="accordion-item" id="row-NewMenuGroup">
+							<div class="accordion-item" id="mgrow-NewMenuGroup">
 								<div class="accordion-header">
 									<div class="accordion-button collapsed"
 										data-bs-toggle="collapse"
@@ -308,7 +308,7 @@
 	
 	
 <div id="template" style="display:none">
-	<div class="accordion-item filterRow" id="row-MENUGROUPID">
+	<div class="accordion-item filterRow" id="mgrow-MENUGROUPID">
 		<div class="accordion-header">
 			<div class="accordion-button collapsed" 
 				data-bs-toggle="collapse"
@@ -336,7 +336,7 @@
 		</div>
 	</div>
 
-	<div class="row ascmenuitem" id="row-MENUGROUPID-MENUOPTIONID" orig-id="row-MENUGROUPID-MENUOPTIONID">
+	<div class="row ascmenuitem" id="mgorow-MENUGROUPID-MENUOPTIONID" orig-id="mgorow-MENUGROUPID-MENUOPTIONID">
 		<div class="col-sm-1"></div>
 		<div class="col-sm-5">
 			<button class="btn asc-control imagebtn btn-danger" onclick="removeMenuItemFromGroup(this)" id="delete-MENUGROUPID-MENUOPTIONID"><i class="fa fa-trash"></i></button>

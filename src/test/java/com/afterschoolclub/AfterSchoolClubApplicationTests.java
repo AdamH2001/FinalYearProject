@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.TestClassOrder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
@@ -20,8 +22,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +31,10 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import com.afterschoolclub.controller.MainController;
 
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@Order(10)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
-
 class AfterSchoolClubApplicationTests {
 
 	@Autowired
@@ -47,24 +48,43 @@ class AfterSchoolClubApplicationTests {
 	JavascriptExecutor js;
 	WebDriverWait wait;	
 
-  public void WaitForTextToBeChanged(final WebElement element){
+  public void WaitForTextToBeChanged(final WebElement element, String oldValue){
       try {
-          String oldValueOfCTextOfWebElement = element.getText();
-          wait.until(ExpectedConditions.not(ExpectedConditions.textToBePresentInElement(element,oldValueOfCTextOfWebElement)));
+    	  
+          // String oldValueOfCTextOfWebElement = element.getText();
+          wait.until(ExpectedConditions.not(ExpectedConditions.textToBePresentInElement(element,oldValue)));
       }
       catch (Exception e){
       }
   }
+  
+  public void WaitForTextToBeChanged(final WebElement element){
+	  WaitForTextToBeChanged(element, "");      
+  }  
 
 	public String is(String s) {
 		return s;
 	}
+	
+	public void sleep() {
+		try {
+			Thread.sleep(1000);
+		}
+		catch (Exception e) {
+			
+		}
+	}	
 
 	public void assertThat(String found, String expected) {
 		assertEquals(expected, found);
 		
 	}
-	
+
+	public void login() {	
+	    sendKeys(driver.findElement(By.id("inputEmail")), "admin@afterschool-club.com");
+	    sendKeys(driver.findElement(By.id("inputPassword")), "ManUtd01");
+	    driver.findElement(By.cssSelector(".btn")).click();
+	}
 	
 	public List<WebElement> findElements(By selector) {
 		
@@ -83,6 +103,12 @@ class AfterSchoolClubApplicationTests {
 	    return driver.findElement(selector);
 	}
 	
+	public void sendKeys(WebElement element, String string) {
+		String jScript = String.format("arguments[0].value='%s';", string);
+		js.executeScript(jScript, element);
+	}
+	
+
 	
 	@BeforeEach
 	public void setUp() {
@@ -104,7 +130,7 @@ class AfterSchoolClubApplicationTests {
 			e.printStackTrace();
 		}
 	    // 2 | setWindowSize | 1983x1231 | 
-	    driver.manage().window().setSize(new Dimension(1983, 1231));
+	    driver.manage().window().maximize();
 	    js = (JavascriptExecutor) driver;
 	}
 
@@ -121,8 +147,6 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(10)
   public void T010HomePage() {
-	    driver.get("http://afterschool-club.com/");
-	    driver.manage().window().setSize(new Dimension(1983, 1231));
 	    {
 	      List<WebElement> elements = driver.findElements(By.cssSelector("a > img"));
 	      assert(elements.size() > 0);
@@ -229,8 +253,7 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(30)
   public void T030AdministratorLogonLogoff() {
-	    driver.get("http://afterschool-club.com/");
-	    driver.manage().window().setSize(new Dimension(1983, 1347));
+
 	    driver.findElement(By.cssSelector(".btn")).click();
 	    {
 	      List<WebElement> elements = driver.findElements(By.cssSelector(".btn"));
@@ -238,20 +261,20 @@ class AfterSchoolClubApplicationTests {
 	    }
 	    driver.findElement(By.cssSelector(".btn")).click();
 	    driver.findElement(By.id("inputEmail")).click();
-	    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-	    driver.findElement(By.id("inputPassword")).sendKeys("wrongpassword");
+	    sendKeys(driver.findElement(By.id("inputEmail")), "admin@afterschool-club.com");
+	    sendKeys(driver.findElement(By.id("inputPassword")), "wrongpassword");
 	    driver.findElement(By.cssSelector(".btn")).click();
 	    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
 	    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Email or password incorrect"));
 	    driver.findElement(By.linkText("Forgot password")).click();
 	    driver.findElement(By.id("email")).click();
-	    driver.findElement(By.id("email")).sendKeys("admin@hattonsplace.com");
+	    sendKeys(driver.findElement(By.id("email")), "admin@hattonsplace.com");
 	    driver.findElement(By.name("submit")).click();
 	    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
 	    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("User with that email address does not exist"));
 	    driver.findElement(By.id("inputEmail")).click();
-	    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
+	    sendKeys(driver.findElement(By.id("inputEmail")), "admin@afterschool-club.com");
+	    sendKeys(driver.findElement(By.id("inputPassword")), "ManUtd01");
 	    driver.findElement(By.cssSelector(".btn")).click();
 	    driver.findElement(By.cssSelector(".asc-header")).click();
 	    assertThat(driver.findElement(By.cssSelector(".asc-header")).getText(), is("Club Timetable"));
@@ -276,99 +299,26 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(40)
   public void T040CreateEditFootballClub() {
-	    driver.get("http://afterschool-club.com/");
-	    driver.manage().window().setSize(new Dimension(1983, 1347));
-	    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-	    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
 	    driver.findElement(By.cssSelector("li:nth-child(1) .ms-1")).click();
 	    driver.findElement(By.id("title")).click();
-	    driver.findElement(By.id("title")).sendKeys("Football Club - Y5");
+	    sendKeys(driver.findElement(By.id("title")), "Football Club - Y5");
 	    driver.findElement(By.id("description")).click();
-	    driver.findElement(By.id("description")).sendKeys("The Football Club for Year 6 children offers a fun and energetic environment where kids can develop their skills, teamwork, and love for the game. Whether they’re a beginner or experienced player, our sessions focus on improving technique, fitness, and understanding of the game through drills, practice matches, and friendly competition. It’s a great opportunity for children to build confidence, make new friends, and enjoy the excitement of football in a supportive and inclusive setting.");
+	    sendKeys(driver.findElement(By.id("description")), "The Football Club for Year 5 children offers a fun and energetic environment where kids can develop their skills, teamwork, and love for the game. Whether they’re a beginner or experienced player, our sessions focus on improving technique, fitness, and understanding of the game through drills, practice matches, and friendly competition. It’s a great opportunity for children to build confidence, make new friends, and enjoy the excitement of football in a supportive and inclusive setting.");
 	    driver.findElement(By.id("keywords")).click();
-	    driver.findElement(By.id("keywords")).sendKeys("Football Soccer Sport Ball Team");
-	    driver.findElement(By.id("basepriceinput")).click();
-	    
+	    sendKeys(driver.findElement(By.id("keywords")), "Football Soccer Sport Ball Team Outside");
+	    driver.findElement(By.id("basepriceinput")).click();	    
 	    driver.findElement(By.id("basepriceinput")).sendKeys("£2.50");
 	    driver.findElement(By.id("acceptsVouchers")).click();
 	    driver.findElement(By.id("year5")).click();
-	    driver.findElement(By.id("keywords")).click();
-	    driver.findElement(By.id("keywords")).sendKeys("Football Soccer Sport Outside");
 	    driver.findElement(By.name("submit")).click();
-	    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-	    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-	    {
-	      WebElement element = driver.findElement(By.cssSelector("#error > .col-sm-12"));
-	      Actions builder = new Actions(driver);
-	      builder.doubleClick(element).perform();
-	    }
-	    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-	    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-	    {
-	      WebElement element = driver.findElement(By.cssSelector("#error > .col-sm-12"));
-	      Actions builder = new Actions(driver);
-	      builder.doubleClick(element).perform();
-	    }
-	    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-	    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Created club"));
+	    WaitForTextToBeChanged(driver.findElement(By.id("error")));	    
+	    assertThat(driver.findElement(By.id("error")).getText(), is("Created club"));
 	    driver.findElement(By.cssSelector("li:nth-child(2) .ms-1")).click();
-	    driver.findElement(By.cssSelector(".row > .asc-clubtitle")).click();
-	    driver.findElement(By.cssSelector(".row > .asc-clubtitle")).click();
-	    {
-	      WebElement element = driver.findElement(By.cssSelector(".row > .asc-clubtitle"));
-	      Actions builder = new Actions(driver);
-	      builder.doubleClick(element).perform();
-	    }
-	    driver.findElement(By.cssSelector(".row > .asc-clubtitle")).click();
-	    assertThat(driver.findElement(By.cssSelector(".row > .asc-clubtitle")).getText(), is("Football Club - Y5"));
-	    driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(1)")).click();
-	    driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(1)")).click();
-	    {
-	      WebElement element = driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(1)"));
-	      Actions builder = new Actions(driver);
-	      builder.doubleClick(element).perform();
-	    }
-	    driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(1)")).click();
-	    driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(2)")).click();
-	    driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(2)")).click();
-	    {
-	      WebElement element = driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(2)"));
-	      Actions builder = new Actions(driver);
-	      builder.doubleClick(element).perform();
-	    }
-	    driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(2)")).click();
-	    driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(2)")).click();
-	    driver.findElement(By.cssSelector(".col-sm-7 > .row:nth-child(2) > .col-sm-12")).click();
-	    assertThat(driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(2)")).getText(), is("Year 5 only"));
-	    driver.findElement(By.cssSelector(".asc-clubprice")).click();
-	    assertThat(driver.findElement(By.cssSelector(".asc-clubprice")).getText(), is("£2.50"));
-	    driver.findElement(By.linkText("Edit Club...")).click();
-	    driver.findElement(By.id("description")).click();
 	    
-	    
-	    js.executeScript("arguments[0].value='The Football Club for Year 5 children offers a fun and energetic environment where kids can develop their skills, teamwork, and love for the game. Whether they’re a beginner or experienced player, our sessions focus on improving technique, fitness, and understanding of the game through drills, practice matches, and friendly competition. It’s a great opportunity for children to build confidence, make new friends, and enjoy the excitement of football in a supportive and inclusive setting.';",  driver.findElement(By.id("description")));
-	    
-//	    driver.findElement(By.id("description")).sendKeys("The Football Club for Year 5 children offers a fun and energetic environment where kids can develop their skills, teamwork, and love for the game. Whether they’re a beginner or experienced player, our sessions focus on improving technique, fitness, and understanding of the game through drills, practice matches, and friendly competition. It’s a great opportunity for children to build confidence, make new friends, and enjoy the excitement of football in a supportive and inclusive setting.");
-	    driver.findElement(By.name("submit")).click();
-	    driver.findElement(By.cssSelector(".h-auto > .col-sm-12")).click();
-	    {
-	      WebElement element = driver.findElement(By.cssSelector(".h-auto > .col-sm-12"));
-	      Actions builder = new Actions(driver);
-	      builder.moveToElement(element).clickAndHold().perform();
-	    }
-	    {
-	      WebElement element = driver.findElement(By.cssSelector(".h-auto > .col-sm-12"));
-	      Actions builder = new Actions(driver);
-	      builder.moveToElement(element).perform();
-	    }
-	    {
-	      WebElement element = driver.findElement(By.cssSelector(".h-auto > .col-sm-12"));
-	      Actions builder = new Actions(driver);
-	      builder.moveToElement(element).release().perform();
-	    }
-	    driver.findElement(By.cssSelector(".h-auto > .col-sm-12")).click();
-	    driver.findElement(By.cssSelector(".h-auto > .col-sm-12")).click();
+	    assertThat(driver.findElement(By.cssSelector(".row > .asc-clubtitle")).getText(), is("Football Club - Y5"));	  
+	    assertThat(driver.findElement(By.cssSelector(".row:nth-child(2) > .col-sm-12 > span:nth-child(2)")).getText(), is("Year 5 only"));	  
+	    assertThat(driver.findElement(By.cssSelector(".asc-clubprice")).getText(), is("£2.50"));	
 	    assertThat(driver.findElement(By.cssSelector(".h-auto > .col-sm-12")).getText(), is("The Football Club for Year 5 children offers a fun and energetic environment where kids can develop their skills, teamwork, and love for the game. Whether they’re a beginner or experienced player, our sessions focus on improving technique, fitness, and understanding of the game through drills, practice matches, and friendly competition. It’s a great opportunity for children to build confidence, make new friends, and enjoy the excitement of football in a supportive and inclusive setting."));
 	    driver.findElement(By.id("dropdownUser1")).click();
 	    driver.findElement(By.linkText("Sign out")).click();
@@ -378,18 +328,15 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(41)
   public void T041CreateClubBreakfastClub() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(1) .ms-1")).click();
     driver.findElement(By.id("title")).click();
-    driver.findElement(By.id("title")).sendKeys("Breakfast Club");
+    sendKeys(driver.findElement(By.id("title")), "Breakfast Club");
     driver.findElement(By.id("description")).click();
-    driver.findElement(By.id("description")).sendKeys("Our Breakfast Club is the perfect start to your child’s day, offering a warm, friendly environment where children can enjoy a nutritious breakfast before school. With a variety of delicious options available, kids can fuel up and socialize with friends in a relaxed setting. The club also provides fun, quiet activities to engage in, ensuring children feel energised and ready to tackle the school day ahead. It’s a great way to ensure your child starts their morning on the right note!");
+    sendKeys(driver.findElement(By.id("description")), "Our Breakfast Club is the perfect start to your child’s day, offering a warm, friendly environment where children can enjoy a nutritious breakfast before school. With a variety of delicious options available, kids can fuel up and socialize with friends in a relaxed setting. The club also provides fun, quiet activities to engage in, ensuring children feel energised and ready to tackle the school day ahead. It’s a great way to ensure your child starts their morning on the right note!");
     driver.findElement(By.id("keywords")).click();
-    driver.findElement(By.id("keywords")).sendKeys("Morning Breakfast Early");
+    sendKeys(driver.findElement(By.id("keywords")), "Morning Breakfast Early");
     driver.findElement(By.id("basepriceinput")).click();
     driver.findElement(By.id("basepriceinput")).sendKeys("£4.50");
     driver.findElement(By.id("yearR")).click();
@@ -403,13 +350,8 @@ class AfterSchoolClubApplicationTests {
     driver.findElement(By.name("submit")).click();
     driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
     driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    {
-      WebElement element = driver.findElement(By.cssSelector("#error > .col-sm-12"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Created club"));
+    WaitForTextToBeChanged(driver.findElement(By.id("error")));	    
+    assertThat(driver.findElement(By.id("error")).getText(), is("Created club"));	    	    
     driver.findElement(By.id("dropdownUser1")).click();
     driver.findElement(By.linkText("Sign out")).click();
     driver.close();
@@ -418,18 +360,15 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(42)
   public void T042CreateClubArtsClub() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(1) .ms-1")).click();
     driver.findElement(By.id("title")).click();
-    driver.findElement(By.id("title")).sendKeys("Art Club");
+    sendKeys(driver.findElement(By.id("title")), "Art Club");
     driver.findElement(By.id("description")).click();
-    driver.findElement(By.id("description")).sendKeys("Our Art Club is a creative space where children can explore their imagination and express themselves through a variety of artistic activities. From painting and drawing to sculpture and crafts, kids will have the opportunity to experiment with different materials and techniques while developing their artistic skills. With a focus on fun and creativity, Art Club is the perfect place for children to unleash their inner artist and gain confidence in their artistic abilities.");
+    sendKeys(driver.findElement(By.id("description")), "Our Art Club is a creative space where children can explore their imagination and express themselves through a variety of artistic activities. From painting and drawing to sculpture and crafts, kids will have the opportunity to experiment with different materials and techniques while developing their artistic skills. With a focus on fun and creativity, Art Club is the perfect place for children to unleash their inner artist and gain confidence in their artistic abilities.");
     driver.findElement(By.id("keywords")).click();
-    driver.findElement(By.id("keywords")).sendKeys("Art Creative Drawing Painting ");
+    sendKeys(driver.findElement(By.id("keywords")), "Art Creative Drawing Painting ");
     driver.findElement(By.id("basepriceinput")).click();
     driver.findElement(By.id("basepriceinput")).sendKeys("£2.50");
     driver.findElement(By.id("acceptsVouchers")).click();
@@ -441,14 +380,8 @@ class AfterSchoolClubApplicationTests {
     driver.findElement(By.id("year5")).click();
     driver.findElement(By.id("year6")).click();
     driver.findElement(By.name("submit")).click();
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    {
-      WebElement element = driver.findElement(By.cssSelector("#error > .col-sm-12"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("error")));	    
+    assertThat(driver.findElement(By.id("error")).getText(), is("Created club"));	
     assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Created club"));
     driver.findElement(By.id("dropdownUser1")).click();
     driver.findElement(By.linkText("Sign out")).click();
@@ -458,18 +391,15 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(43)
   public void t043CreateClubCraftClub() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(1) .ms-1")).click();
     driver.findElement(By.id("title")).click();
-    driver.findElement(By.id("title")).sendKeys("Crafts Club");
+    sendKeys(driver.findElement(By.id("title")), "Crafts Club");
     driver.findElement(By.id("description")).click();
-    driver.findElement(By.id("description")).sendKeys("Our Crafts Club offers children the chance to get creative and make unique, handmade projects using a variety of materials. From simple paper crafts to exciting DIY creations, kids will learn new techniques while having fun and expressing their individuality. It’s a great way for children to develop fine motor skills, problem-solving abilities, and their imagination, all while enjoying a hands-on, creative experience in a relaxed and friendly environment.");
+    sendKeys(driver.findElement(By.id("description")), "Our Crafts Club offers children the chance to get creative and make unique, handmade projects using a variety of materials. From simple paper crafts to exciting DIY creations, kids will learn new techniques while having fun and expressing their individuality. It’s a great way for children to develop fine motor skills, problem-solving abilities, and their imagination, all while enjoying a hands-on, creative experience in a relaxed and friendly environment.");
     driver.findElement(By.id("keywords")).click();
-    driver.findElement(By.id("keywords")).sendKeys("Creative");
+    sendKeys(driver.findElement(By.id("keywords")), "Creative");
     driver.findElement(By.id("basepriceinput")).click();
     driver.findElement(By.id("basepriceinput")).sendKeys("£2.50");
     driver.findElement(By.id("acceptsVouchers")).click();
@@ -480,15 +410,8 @@ class AfterSchoolClubApplicationTests {
     driver.findElement(By.id("year5")).click();
     driver.findElement(By.id("year6")).click();
     driver.findElement(By.name("submit")).click();
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    {
-      WebElement element = driver.findElement(By.cssSelector("#error > .col-sm-12"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Created club"));
+    WaitForTextToBeChanged(driver.findElement(By.id("error")));	    
+    assertThat(driver.findElement(By.id("error")).getText(), is("Created club"));	
     driver.findElement(By.id("dropdownUser1")).click();
     driver.findElement(By.linkText("Sign out")).click();
     driver.close();
@@ -497,18 +420,15 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(44)
   public void t044CreateClubChoirClub() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(1) .ms-1")).click();
     driver.findElement(By.id("title")).click();
-    driver.findElement(By.id("title")).sendKeys("Choir Club");
+    sendKeys(driver.findElement(By.id("title")), "Choir Club");
     driver.findElement(By.id("description")).click();
-    driver.findElement(By.id("description")).sendKeys("The Choir Club is a wonderful opportunity for children to explore their love for music and develop their singing skills in a fun, supportive environment. Through practicing a variety of songs, children will improve their vocal technique, rhythm, and confidence while learning the importance of teamwork and harmony. Whether they’re a budding singer or simply enjoy music, our Choir Club is the perfect place for children to express themselves and make beautiful music together!\\n");
+    sendKeys(driver.findElement(By.id("description")), "The Choir Club is a wonderful opportunity for children to explore their love for music and develop their singing skills in a fun, supportive environment. Through practicing a variety of songs, children will improve their vocal technique, rhythm, and confidence while learning the importance of teamwork and harmony. Whether they’re a budding singer or simply enjoy music, our Choir Club is the perfect place for children to express themselves and make beautiful music together!\\n");
     driver.findElement(By.id("keywords")).click();
-    driver.findElement(By.id("keywords")).sendKeys("Music Singing");
+    sendKeys(driver.findElement(By.id("keywords")), "Music Singing");
     driver.findElement(By.id("basepriceinput")).click();
     driver.findElement(By.id("basepriceinput")).sendKeys("£2.00");
     driver.findElement(By.id("acceptsVouchers")).click();
@@ -516,15 +436,8 @@ class AfterSchoolClubApplicationTests {
     driver.findElement(By.id("year5")).click();
     driver.findElement(By.id("year6")).click();
     driver.findElement(By.name("submit")).click();
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    {
-      WebElement element = driver.findElement(By.cssSelector("#error > .col-sm-12"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Created club"));
+    WaitForTextToBeChanged(driver.findElement(By.id("error")));	    
+    assertThat(driver.findElement(By.id("error")).getText(), is("Created club"));	
     driver.findElement(By.id("dropdownUser1")).click();
     driver.findElement(By.linkText("Sign out")).click();
     driver.close();
@@ -533,18 +446,15 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(45)
   public void t045CreateClubTennisClub() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(1) .ms-1")).click();
     driver.findElement(By.id("title")).click();
-    driver.findElement(By.id("title")).sendKeys("Tennis Club");
+    sendKeys(driver.findElement(By.id("title")), "Tennis Club");
     driver.findElement(By.id("description")).click();
-    driver.findElement(By.id("description")).sendKeys("Our Tennis Club for young children is a fun and exciting way to introduce them to the sport, focusing on basic skills like hand-eye coordination, balance, and teamwork. Through engaging games and simple drills, children will develop their confidence and love for tennis in a supportive, friendly environment. Whether they’re picking up a racket for the first time or looking to improve their skills, our sessions provide a perfect balance of fun and learning. It’s the ideal way for young kids to stay active and enjoy the game!");
+    sendKeys(driver.findElement(By.id("description")), "Our Tennis Club for young children is a fun and exciting way to introduce them to the sport, focusing on basic skills like hand-eye coordination, balance, and teamwork. Through engaging games and simple drills, children will develop their confidence and love for tennis in a supportive, friendly environment. Whether they’re picking up a racket for the first time or looking to improve their skills, our sessions provide a perfect balance of fun and learning. It’s the ideal way for young kids to stay active and enjoy the game!");
     driver.findElement(By.id("keywords")).click();
-    driver.findElement(By.id("keywords")).sendKeys("Ball Outside Sport");
+    sendKeys(driver.findElement(By.id("keywords")), "Ball Outside Sport");
     driver.findElement(By.id("basepriceinput")).click();
     driver.findElement(By.id("basepriceinput")).sendKeys("£3.00");
     driver.findElement(By.id("acceptsVouchers")).click();
@@ -552,15 +462,8 @@ class AfterSchoolClubApplicationTests {
     driver.findElement(By.id("year5")).click();
     driver.findElement(By.id("year6")).click();
     driver.findElement(By.name("submit")).click();
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    {
-      WebElement element = driver.findElement(By.cssSelector("#error > .col-sm-12"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.cssSelector("#error > .col-sm-12")).click();
-    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Created club"));
+    WaitForTextToBeChanged(driver.findElement(By.id("error")));	    
+    assertThat(driver.findElement(By.id("error")).getText(), is("Created club"));	
     driver.findElement(By.id("dropdownUser1")).click();
     driver.findElement(By.linkText("Sign out")).click();
     driver.close();
@@ -569,27 +472,17 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(50)
   public void T050CreateLocationFootballPitchLarge() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("locationTab")).click();
     driver.findElement(By.name("locationName")).click();
-    driver.findElement(By.name("locationName")).sendKeys("Football Pitch Large");
-    driver.findElement(By.name("locationDescription")).sendKeys("Large football pitch to the rear of the school");
-    driver.findElement(By.name("locationKeywords")).sendKeys("Football Outside Sport");
-    driver.findElement(By.name("locationCapacity")).sendKeys("40");
+    sendKeys(driver.findElement(By.name("locationName")), "Football Pitch Large");
+    sendKeys(driver.findElement(By.name("locationDescription")), "Large football pitch to the rear of the school");
+    sendKeys(driver.findElement(By.name("locationKeywords")), "Football Outside Sport");
+    sendKeys(driver.findElement(By.name("locationCapacity")), "40");
     driver.findElement(By.cssSelector("#locationNewRow .fa")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.id("validationMessage")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new location"));
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.id("dropdownUser1")).click();
@@ -602,27 +495,17 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(51)
   public void t051CreateLocationFootballPitchSmall() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("locationTab")).click();
     driver.findElement(By.name("locationName")).click();
-    driver.findElement(By.name("locationName")).sendKeys("Football Pitch Small");
-    driver.findElement(By.name("locationDescription")).sendKeys("Small football pitch to the left of main entrance");
-    driver.findElement(By.name("locationKeywords")).sendKeys("Football Outside Sport");
-    driver.findElement(By.name("locationCapacity")).sendKeys("40");
+    sendKeys(driver.findElement(By.name("locationName")), "Football Pitch Small");
+    sendKeys(driver.findElement(By.name("locationDescription")), "Small football pitch to the left of main entrance");
+    sendKeys(driver.findElement(By.name("locationKeywords")), "Football Outside Sport");
+    sendKeys(driver.findElement(By.name("locationCapacity")), "40");
     driver.findElement(By.cssSelector("#locationNewRow .fa")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.id("validationMessage")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new location"));
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.id("dropdownUser1")).click();
@@ -633,26 +516,17 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(52)
   public void t052CreateLocationCanteen() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("locationTab")).click();
     driver.findElement(By.name("locationName")).click();
-    driver.findElement(By.name("locationName")).sendKeys("Canteen");
-    driver.findElement(By.name("locationDescription")).sendKeys("Main canteen");
-    driver.findElement(By.name("locationKeywords")).sendKeys("food");
-    driver.findElement(By.name("locationCapacity")).sendKeys("100");
+    sendKeys(driver.findElement(By.name("locationName")), "Canteen");
+    sendKeys(driver.findElement(By.name("locationDescription")), "Main canteen");
+    sendKeys(driver.findElement(By.name("locationKeywords")), "food");
+    sendKeys(driver.findElement(By.name("locationCapacity")), "100");
     driver.findElement(By.cssSelector("#locationNewRow .fa")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
     driver.findElement(By.id("validationMessage")).click();
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new location"));
     driver.findElement(By.linkText("Back")).click();
@@ -664,26 +538,17 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(53)
   public void t053CreateLocationClassroom1() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("locationTab")).click();
     driver.findElement(By.name("locationName")).click();
-    driver.findElement(By.name("locationName")).sendKeys("Classroom 1");
-    driver.findElement(By.name("locationDescription")).sendKeys("First class room off main corridor");
-    driver.findElement(By.name("locationKeywords")).sendKeys("classroom maths ");
-    driver.findElement(By.name("locationCapacity")).sendKeys("30");
+    sendKeys(driver.findElement(By.name("locationName")), "Classroom 1");
+    sendKeys(driver.findElement(By.name("locationDescription")), "First class room off main corridor");
+    sendKeys(driver.findElement(By.name("locationKeywords")), "classroom maths ");
+    sendKeys(driver.findElement(By.name("locationCapacity")), "30");
     driver.findElement(By.cssSelector("#locationNewRow .fa")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
     driver.findElement(By.id("validationMessage")).click();
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new location"));
     driver.findElement(By.linkText("Back")).click();
@@ -696,27 +561,17 @@ class AfterSchoolClubApplicationTests {
   @Order(54)
   
   public void t054CreateLocationClassroom2() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("locationTab")).click();
     driver.findElement(By.name("locationName")).click();
-    driver.findElement(By.name("locationName")).sendKeys("Classroom 2");
-    driver.findElement(By.name("locationDescription")).sendKeys("Second class room off main corridor");
-    driver.findElement(By.name("locationKeywords")).sendKeys("classroom english");
-    driver.findElement(By.name("locationCapacity")).sendKeys("30");
+    sendKeys(driver.findElement(By.name("locationName")), "Classroom 2");
+    sendKeys(driver.findElement(By.name("locationDescription")), "Second class room off main corridor");
+    sendKeys(driver.findElement(By.name("locationKeywords")), "classroom english");
+    sendKeys(driver.findElement(By.name("locationCapacity")), "30");
     driver.findElement(By.cssSelector("#locationNewRow .fa")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.id("validationMessage")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new location"));
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.id("dropdownUser1")).click();
@@ -727,27 +582,17 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(55)
   public void t055CreateLocationMusicRoom() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("locationTab")).click();
     driver.findElement(By.name("locationName")).click();
-    driver.findElement(By.name("locationName")).sendKeys("Music Room");
-    driver.findElement(By.name("locationDescription")).sendKeys("Music room linked to main assembly hall");
-    driver.findElement(By.name("locationKeywords")).sendKeys("music classroom");
-    driver.findElement(By.name("locationCapacity")).sendKeys("100");
+    sendKeys(driver.findElement(By.name("locationName")), "Music Room");
+    sendKeys(driver.findElement(By.name("locationDescription")), "Music room linked to main assembly hall");
+    sendKeys(driver.findElement(By.name("locationKeywords")), "music classroom");
+    sendKeys(driver.findElement(By.name("locationCapacity")), "100");
     driver.findElement(By.cssSelector("#locationNewRow .fa")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.id("validationMessage")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new location"));
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.id("dropdownUser1")).click();
@@ -758,27 +603,17 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(56)
   public void t056CreateLocationSportsHall() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("locationTab")).click();
     driver.findElement(By.name("locationName")).click();
-    driver.findElement(By.name("locationName")).sendKeys("Sports Hall");
-    driver.findElement(By.name("locationDescription")).sendKeys("The gym");
-    driver.findElement(By.name("locationKeywords")).sendKeys("sport gym soccer netball basketball");
-    driver.findElement(By.name("locationCapacity")).sendKeys("50");
+    sendKeys(driver.findElement(By.name("locationName")), "Sports Hall");
+    sendKeys(driver.findElement(By.name("locationDescription")), "The gym");
+    sendKeys(driver.findElement(By.name("locationKeywords")), "sport gym soccer netball basketball");
+    sendKeys(driver.findElement(By.name("locationCapacity")), "50");
     driver.findElement(By.cssSelector("#locationNewRow .fa")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.id("validationMessage")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new location"));
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.id("dropdownUser1")).click();
@@ -791,21 +626,18 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(60)
   public void T060CreateStaffMrStockwell() {
-	    driver.get("http://afterschool-club.com/");
-	    driver.manage().window().setSize(new Dimension(1983, 1347));
-	    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-	    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
 	    driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
 	    driver.findElement(By.id("staffTab")).click();
 	    driver.findElement(By.name("staffTitle")).click();
-	    driver.findElement(By.name("staffTitle")).sendKeys("Mr");
-	    driver.findElement(By.name("staffFirstName")).sendKeys("Patrick");
-	    driver.findElement(By.name("staffSurname")).sendKeys("Stockwell");
-	    driver.findElement(By.name("staffEmail")).sendKeys("pstockwell@afterschool-club.com");
-	    driver.findElement(By.name("staffTelephoneNum")).sendKeys("01256811811");
-	    driver.findElement(By.name("staffDescription")).sendKeys("Maths Teacher");
-	    driver.findElement(By.name("staffKeywords")).sendKeys("Maths Puzzles Games");
+	    sendKeys(driver.findElement(By.name("staffTitle")), "Mr");
+	    sendKeys(driver.findElement(By.name("staffFirstName")), "Patrick");
+	    sendKeys(driver.findElement(By.name("staffSurname")), "Stockwell");
+	    sendKeys(driver.findElement(By.name("staffEmail")), "pstockwell@afterschool-club.com");
+	    sendKeys(driver.findElement(By.name("staffTelephoneNum")), "01256811811");
+	    sendKeys(driver.findElement(By.name("staffDescription")), "Maths Teacher");
+	    sendKeys(driver.findElement(By.name("staffKeywords")), "Maths Puzzles Games");
 	    driver.findElement(By.cssSelector(".col-sm-1:nth-child(9) > .btn-success > .fa")).click();	    
 	    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
 	    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded staff member"));	    
@@ -818,21 +650,18 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(61)
   public void T061TryCreateStaffMrStockwellAgain() {
-	    driver.get("http://afterschool-club.com/");
-	    driver.manage().window().setSize(new Dimension(1983, 1347));
-	    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-	    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
 	    driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
 	    driver.findElement(By.id("staffTab")).click();
 	    driver.findElement(By.name("staffTitle")).click();
-	    driver.findElement(By.name("staffTitle")).sendKeys("Mr");
-	    driver.findElement(By.name("staffFirstName")).sendKeys("Patrick");
-	    driver.findElement(By.name("staffSurname")).sendKeys("Stockwell");
-	    driver.findElement(By.name("staffEmail")).sendKeys("pstockwell@afterschool-club.com");
-	    driver.findElement(By.name("staffTelephoneNum")).sendKeys("01256811811");
-	    driver.findElement(By.name("staffDescription")).sendKeys("Maths Teacher");
-	    driver.findElement(By.name("staffKeywords")).sendKeys("Maths Puzzles Games");
+	    sendKeys(driver.findElement(By.name("staffTitle")), "Mr");
+	    sendKeys(driver.findElement(By.name("staffFirstName")), "Patrick");
+	    sendKeys(driver.findElement(By.name("staffSurname")), "Stockwell");
+	    sendKeys(driver.findElement(By.name("staffEmail")), "pstockwell@afterschool-club.com");
+	    sendKeys(driver.findElement(By.name("staffTelephoneNum")), "01256811811");
+	    sendKeys(driver.findElement(By.name("staffDescription")), "Maths Teacher");
+	    sendKeys(driver.findElement(By.name("staffKeywords")), "Maths Puzzles Games");
 	    driver.findElement(By.cssSelector(".col-sm-1:nth-child(9) > .btn-success > .fa")).click();	    
 	    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
 	    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Failed to save new staff member"));	    
@@ -845,21 +674,18 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(62)
   public void t062CreateStaffMrGunn() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1983, 1347));
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("staffTab")).click();
     driver.findElement(By.name("staffTitle")).click();
-    driver.findElement(By.name("staffTitle")).sendKeys("Mr");
-    driver.findElement(By.name("staffFirstName")).sendKeys("Vincent");
-    driver.findElement(By.name("staffSurname")).sendKeys("Gunn");
-    driver.findElement(By.name("staffEmail")).sendKeys("vgunn@afterschool-club.com");
-    driver.findElement(By.name("staffTelephoneNum")).sendKeys("01256811812");
-    driver.findElement(By.name("staffDescription")).sendKeys("PE Teacher");
-    driver.findElement(By.name("staffKeywords")).sendKeys("Sport Football fitness Rugby");
+    sendKeys(driver.findElement(By.name("staffTitle")), "Mr");
+    sendKeys(driver.findElement(By.name("staffFirstName")), "Vincent");
+    sendKeys(driver.findElement(By.name("staffSurname")), "Gunn");
+    sendKeys(driver.findElement(By.name("staffEmail")), "vgunn@afterschool-club.com");
+    sendKeys(driver.findElement(By.name("staffTelephoneNum")), "01256811812");
+    sendKeys(driver.findElement(By.name("staffDescription")), "PE Teacher");
+    sendKeys(driver.findElement(By.name("staffKeywords")), "Sport Football fitness Rugby");
     driver.findElement(By.cssSelector(".col-sm-1:nth-child(9) > .btn-success > .fa")).click();
     WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	        
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded staff member"));
@@ -872,50 +698,46 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(63)
   public void t063EditStaffMrStockwell() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1713, 1281));
-    driver.findElement(By.id("inputEmail")).click();
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("staffTab")).click();
     driver.findElement(By.id("keywords-4")).click();
     driver.findElement(By.cssSelector("#keywords-4 > .form-control")).click();
-    driver.findElement(By.cssSelector("#keywords-4 > .form-control")).sendKeys("Maths Puzzles Games Chess");
+    sendKeys(driver.findElement(By.cssSelector("#keywords-4 > .form-control")), "Maths Puzzles Games Chess");
     driver.findElement(By.name("staffTitle")).click();
-    driver.findElement(By.linkText("Back")).click();
-    driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
-    driver.findElement(By.id("staffTab")).click();
-    driver.findElement(By.id("keywords-4")).click();
-    driver.findElement(By.linkText("Back")).click();
-    driver.findElement(By.id("dropdownUser1")).click();
-    driver.findElement(By.linkText("Sign out")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	        
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully updated staff"));    
     driver.close();
   }  
 
   @Test
   @Order(70)
-  public void T070CreatandEditFootballGoalsLarge() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1713, 1281));
-    driver.findElement(By.id("inputEmail")).click();
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.cssSelector(".btn")).click();
+  public void T070CreateAndEditFootballGoalsLarge() {
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Football Goals Large");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Large Football Goal suitable for large pitch");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Football Soccer Goal");
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("4");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Football Goals Large");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Large Football Goal suitable for large pitch");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Football Soccer Goal");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "4");
     driver.findElement(By.cssSelector("#equipmentNewRow .fa")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new equipment"));    
+
+    
+    
+    
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Football Goals Small");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Small Football Goal suitbale for smaller pitch");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Football Soccer Goal");
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("8");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Football Goals Small");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Small Football Goal suitbale for smaller pitch");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Football Soccer Goal");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "8");
     driver.findElement(By.cssSelector("#equipmentNewRow .btn")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new equipment"));     
+    
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("name-11")).click();
@@ -985,29 +807,20 @@ class AfterSchoolClubApplicationTests {
     }
     driver.findElement(By.cssSelector("body")).click();
     driver.findElement(By.id("description-12")).click();
-    driver.findElement(By.cssSelector("#description-12 > .form-control")).click();
-    driver.findElement(By.cssSelector("#description-12 > .form-control")).sendKeys("Small Football Goal suitable for smaller pitch");
-    driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.id("validationMessage")).click();
+    driver.findElement(By.cssSelector("#description-12 > .form-control")).click();    
+    sendKeys(driver.findElement(By.cssSelector("#description-12 > .form-control")), "Small Football Goal suitable for smaller pitch");
+    
+    driver.findElement(By.name("equipmentName")).click();    
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully updated equipment"));
+    
+    
+    
     driver.findElement(By.cssSelector("body")).click();
     driver.findElement(By.cssSelector("#undo-12 > .fa")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.id("validationMessage")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully undone changes to equipment"));
+    
     driver.findElement(By.cssSelector("body")).click();
     driver.findElement(By.id("description-12")).click();
     driver.findElement(By.cssSelector("#description-12 > .form-control")).click();
@@ -1020,36 +833,17 @@ class AfterSchoolClubApplicationTests {
     driver.findElement(By.cssSelector("body")).click();
     driver.findElement(By.id("description-12")).click();
     driver.findElement(By.cssSelector("#description-12 > .form-control")).click();
-    driver.findElement(By.cssSelector("#description-12 > .form-control")).sendKeys("Small Football Goal suitable for smaller pitch");
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.id("validationMessage")).click();
-    driver.findElement(By.id("validationMessage")).click();
-    {
-      WebElement element = driver.findElement(By.id("validationMessage"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.id("validationMessage")).click();
+    driver.findElement(By.cssSelector("#description-12 > .form-control")).click();
+    driver.findElement(By.id("description-12")).click();
+    driver.findElement(By.cssSelector("#description-12 > .form-control")).click();    
+    sendKeys(driver.findElement(By.cssSelector("#description-12 > .form-control")), "Small Football Goal suitable for smaller pitch");
+    driver.findElement(By.name("equipmentName")).click();
+    
+
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully updated equipment"));
-    driver.findElement(By.cssSelector("body")).click();
-    driver.findElement(By.linkText("Back")).click();
-    driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
-    driver.findElement(By.id("staffTab")).click();
-    driver.findElement(By.id("equipmentTab")).click();
-    driver.findElement(By.id("description-12")).click();
-    driver.findElement(By.cssSelector("#description-12 > .form-control")).click();
-    {
-      WebElement element = driver.findElement(By.cssSelector("#description-12 > .form-control"));
-      Actions builder = new Actions(driver);
-      builder.doubleClick(element).perform();
-    }
-    driver.findElement(By.cssSelector("#description-12 > .form-control")).click();
+    
+    
     driver.findElement(By.cssSelector("body")).click();
     driver.findElement(By.id("quantity-11")).click();
     driver.findElement(By.cssSelector("#quantity-11 > .form-control")).click();
@@ -1058,9 +852,11 @@ class AfterSchoolClubApplicationTests {
       Actions builder = new Actions(driver);
       builder.doubleClick(element).perform();
     }
-    driver.findElement(By.cssSelector("#quantity-11 > .form-control")).sendKeys("2");
+    sendKeys(driver.findElement(By.cssSelector("#quantity-11 > .form-control")), "2");    
     driver.findElement(By.name("equipmentName")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully updated equipment"));
+    
     driver.findElement(By.cssSelector("body")).click();
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -1076,39 +872,35 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(71)
   public void t071CreateFootballsAndBibs() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1921, 1281));
-    driver.findElement(By.id("inputEmail")).click();
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Football Size 3");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Small fa");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Football Size 3");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Small fa");
     driver.findElement(By.name("equipmentDescription")).click();
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Football suitable for players aged 7-10");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Football Soccer Ball");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Football suitable for players aged 7-10");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Football Soccer Ball");
     driver.findElement(By.name("equipmentQuantity")).click();
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("20");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "20");
     driver.findElement(By.cssSelector("#equipmentNewRow .btn")).click();
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Football Size 4");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Football suitable for players aged 11 - 14");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Football Soccer Ball");
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("10");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Football Size 4");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Football suitable for players aged 11 - 14");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Football Soccer Ball");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "10");
     driver.findElement(By.cssSelector("#equipmentNewRow .fa")).click();
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Football Size 5");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Standard sized football");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Football Soccer Ball");
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("4");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Football Size 5");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Standard sized football");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Football Soccer Ball");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "4");
     driver.findElement(By.cssSelector("#equipmentNewRow .btn")).click();
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Football Size 2");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Midi balls typically used by players under 5 years old");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Football Soccer Balls");
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("15");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Football Size 2");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Midi balls typically used by players under 5 years old");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Football Soccer Balls");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "15");
     driver.findElement(By.cssSelector("#equipmentNewRow .fa")).click();
     {
       WebElement element = driver.findElement(By.cssSelector("#equipmentNewRow .fa"));
@@ -1121,11 +913,11 @@ class AfterSchoolClubApplicationTests {
       builder.moveToElement(element, 0, 0).perform();
     }
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Red bibs");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Bibs suitable for distinguishing teams for sports");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Sport bib red");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Red bibs");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Bibs suitable for distinguishing teams for sports");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Sport bib red");
     driver.findElement(By.name("equipmentQuantity")).click();
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("25");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "25");
     driver.findElement(By.cssSelector("#equipmentNewRow .btn")).click();
     {
       WebElement element = driver.findElement(By.cssSelector("#equipmentNewRow .btn"));
@@ -1138,16 +930,16 @@ class AfterSchoolClubApplicationTests {
       builder.moveToElement(element, 0, 0).perform();
     }
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Blue bibs");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Bibs suitable for distinguishing teams for sports");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Sport bib blue");
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("25");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Blue bibs");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Bibs suitable for distinguishing teams for sports");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Sport bib blue");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "25");
     driver.findElement(By.cssSelector("#equipmentNewRow .btn")).click();
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Grren bibs");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Bibs suitable for distinguishing teams for sports");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Sport bib green");
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("30");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Gren bibs");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Bibs suitable for distinguishing teams for sports");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Sport bib green");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "30");
     driver.findElement(By.cssSelector("#equipmentNewRow .fa")).click();
     {
       WebElement element = driver.findElement(By.cssSelector("#equipmentNewRow .fa"));
@@ -1161,37 +953,41 @@ class AfterSchoolClubApplicationTests {
     }
     driver.findElement(By.id("name-19")).click();
     driver.findElement(By.cssSelector("#name-19 > .form-control")).click();
-    driver.findElement(By.cssSelector("#name-19 > .form-control")).sendKeys("Green bibs");
+    
+    
+    sendKeys(driver.findElement(By.cssSelector("#name-19 > .form-control")),"Green bibs");
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Yellow Bibs");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("Bibs suitable for distinguishing teams for sports");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("Sport bib yellow");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Yellow Bibs");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "Bibs suitable for distinguishing teams for sports");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "Sport bib yellow");
     driver.findElement(By.name("equipmentQuantity")).click();
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("20");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "20");
     driver.findElement(By.cssSelector("#equipmentNewRow .fa")).click();
     driver.findElement(By.name("equipmentName")).click();
-    driver.findElement(By.name("equipmentName")).sendKeys("Black bibs");
-    driver.findElement(By.name("equipmentDescription")).sendKeys("entered in error and will delete");
-    driver.findElement(By.name("equipmentKeywords")).sendKeys("black bib");
-    driver.findElement(By.name("equipmentQuantity")).sendKeys("5");
+    sendKeys(driver.findElement(By.name("equipmentName")), "Black bibs");
+    sendKeys(driver.findElement(By.name("equipmentDescription")), "entered in error and will delete");
+    sendKeys(driver.findElement(By.name("equipmentKeywords")), "black bib");
+    sendKeys(driver.findElement(By.name("equipmentQuantity")), "5");
     driver.findElement(By.cssSelector("#equipmentNewRow .fa")).click();
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
     driver.findElement(By.id("filter")).click();
-    driver.findElement(By.id("filter")).sendKeys("bib");
+    sendKeys(driver.findElement(By.id("filter")), "bib");
     driver.findElement(By.cssSelector("#delete-21 > .fa")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Equipment deleted."));
     driver.findElement(By.id("name-20")).click();
     driver.findElement(By.cssSelector("#name-20 > .form-control")).click();
-    driver.findElement(By.cssSelector("#name-20 > .form-control")).sendKeys("Yellow bibs");
+    sendKeys(driver.findElement(By.cssSelector("#name-20 > .form-control")), "Yellow bibs");
     driver.findElement(By.name("equipmentName")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully updated equipment"));
     driver.findElement(By.cssSelector("#undo-20 > .fa")).click();
-    driver.findElement(By.name("equipmentName")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully undone changes to equipment"));
     driver.findElement(By.id("name-20")).click();
     driver.findElement(By.cssSelector("#name-20 > .form-control")).click();
-    driver.findElement(By.cssSelector("#name-20 > .form-control")).sendKeys("Yellow bibs");
+    sendKeys(driver.findElement(By.cssSelector("#name-20 > .form-control")), "Yellow bibs");
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.cssSelector(".mx-1")).click();
     driver.findElement(By.linkText("Sign out")).click();
@@ -1200,22 +996,18 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(80)
   public void t080CreateMenuItemsandMenu() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1921, 1281));
-    driver.findElement(By.id("inputEmail")).click();
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();
     driver.findElement(By.id("menuOptionTab")).click();
     driver.findElement(By.id("menuOptionTab")).click();
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Fruit Juice");
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("One of Orange Juice, Apple Juice or Pineapple Juice");
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("None");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£0.75");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Fruit Juice");
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "One of Orange Juice, Apple Juice or Pineapple Juice");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "None");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£0.75");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
-    driver.findElement(By.id("validationMessage")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));       
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new menu item"));
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.cssSelector(".mx-1")).click();
@@ -1226,42 +1018,49 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(81)
   public void t081CreateMoreDrinks() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1921, 1281));
-    driver.findElement(By.id("inputEmail")).click();
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();
     driver.findElement(By.id("menuOptionTab")).click();
+    
+    
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Milk");
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Glass of semi skimmed milk");
-    driver.findElement(By.name("menuOptionAllergyInformation")).click();
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("Contains dairy products");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£0.50");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Milk");
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Glass of semi skimmed milk");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "Contains dairy products");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£0.50");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new menu item"));
+    
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Water");
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Tap water");
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("None");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£0.00");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Water");
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Tap water");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "None");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£0.00");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new menu item"));
+    
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Water - bottled");
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Bottle of still mineral water ");
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("None");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£0.25");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Water - bottled");
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Bottle of still mineral water ");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "None");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£0.25");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
-    driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Squash");
-    driver.findElement(By.name("menuOptionAllergyInformation")).click();
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("Contains artificial sweeteners such as aspartame");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).click();
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£0.25");
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new menu item"));
+    
+    driver.findElement(By.name("menuOptionName")).click();    
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Squash");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "Contains artificial sweeteners such as aspartame");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£0.25");    
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Glass of orange, lemon, or blackcurrant squash");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Glass of orange, lemon, or blackcurrant squash");
-    driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new menu item"));
+    
+    
     assertThat(driver.findElement(By.id("name-5")).getText(), is("Squash"));
     assertThat(driver.findElement(By.id("additionalCost-4")).getText(), is("£0.25"));
     assertThat(driver.findElement(By.id("allergyInformation-2")).getText(), is("Contains dairy products"));
@@ -1273,55 +1072,48 @@ class AfterSchoolClubApplicationTests {
     driver.findElement(By.cssSelector(".mx-1")).click();
     driver.findElement(By.linkText("Sign out")).click();
     driver.close();
-  }  
+  } 
+  
   @Test
   @Order(82)
   public void t082CreateMoreBreakfastItems() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1921, 1281));
-    driver.findElement(By.id("inputEmail")).click();
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.cssSelector(".btn")).click();
-    driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();
+	    login();
+
+    driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();        
     driver.findElement(By.id("menuOptionTab")).click();
+    
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Cornflakes");
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Kellogs Cornflakes");
-    driver.findElement(By.name("menuOptionAllergyInformation")).click();
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("Contains gluten");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£1.10");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Kellogs Cornflakes");    
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Bowl of cornflakw with semi skimmed milf");    
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "Contains gluten");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£1.10");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new menu item"));
+    
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Weetabix");
-    driver.findElement(By.name("menuOptionDescription")).click();
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("2 Weetabix biscuits with milk");
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("Contains gluten and dairy");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).click();
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£1.10");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Weetabix");    
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "2 Weetabix biscuits with milk");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "Contains gluten and dairy");    
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£1.10");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success")).click();
-    {
-      WebElement element = driver.findElement(By.cssSelector(".col-sm-1 > .btn-success"));
-      Actions builder = new Actions(driver);
-      builder.moveToElement(element).perform();
-    }
-    {
-      WebElement element = driver.findElement(By.tagName("body"));
-      Actions builder = new Actions(driver);
-      builder.moveToElement(element, 0, 0).perform();
-    }
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new menu item"));    
+    
     driver.findElement(By.id("description-6")).click();
     driver.findElement(By.cssSelector("#description-6 > .form-control")).click();
-    driver.findElement(By.cssSelector("#description-6 > .form-control")).sendKeys("Kellogs Cornflakes with  milk");
-    driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Coco Pops");
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Kellogs Coco Pops");
-    driver.findElement(By.name("menuOptionAllergyInformation")).click();
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("Contains gluten. May contain traces of nuts. ");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).click();
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£1.10");
+    sendKeys(driver.findElement(By.cssSelector("#description-6 > .form-control")), "Kellogs Cornflakes with  milk");
+    
+    driver.findElement(By.name("menuOptionName")).click();       
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Coco Pops");
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Kellogs Coco Pops");    
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "Contains gluten. May contain traces of nuts. ");    
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£1.10");    
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));	    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully recorded new menu item"));    
+    
+    
     {
       WebElement element = driver.findElement(By.cssSelector(".col-sm-1 > .btn-success"));
       Actions builder = new Actions(driver);
@@ -1334,55 +1126,36 @@ class AfterSchoolClubApplicationTests {
     }
     driver.findElement(By.id("allergyInformation-7")).click();
     driver.findElement(By.cssSelector("#allergyInformation-7 > .form-control")).click();
-    driver.findElement(By.cssSelector("#allergyInformation-7 > .form-control")).sendKeys("Contains gluten and dairy. May contain traces of nuts. ");
+    sendKeys(driver.findElement(By.cssSelector("#allergyInformation-7 > .form-control")), "Contains gluten and dairy. May contain traces of nuts. ");
     driver.findElement(By.id("allergyInformation-6")).click();
     driver.findElement(By.cssSelector("#allergyInformation-6 > .form-control")).click();
-    driver.findElement(By.cssSelector("#allergyInformation-6 > .form-control")).sendKeys("Contains gluten. May contain traces of nuts. ");
+    sendKeys(driver.findElement(By.cssSelector("#allergyInformation-6 > .form-control")), "Contains gluten. May contain traces of nuts. ");
     driver.findElement(By.name("menuOptionAllergyInformation")).click();
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Porridge");
+    sendKeys(    driver.findElement(By.name("menuOptionName")), "Porridge");
     driver.findElement(By.name("menuOptionDescription")).click();
     driver.findElement(By.name("menuOptionAllergyInformation")).click();
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("Contains Oats");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "Contains Oats");
     driver.findElement(By.name("menuOptionDescription")).click();
     driver.findElement(By.name("menuOptionDescription")).click();
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Quakers porridge");
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Quakers porridge");
     driver.findElement(By.id("menuOptionAdditionalCostInput")).click();
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£0.95");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£0.95");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Apple");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Apple");
     driver.findElement(By.name("menuOptionDescription")).click();
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Granny Smith apple");
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("None");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£0.60");
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Granny Smith apple");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "None");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£0.60");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Orange");
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Juicy Jaffa Orange");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Orange");
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Juicy Jaffa Orange");
     driver.findElement(By.name("menuOptionAllergyInformation")).click();
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("Contains Cit s 1, Cit s 2 and Cit s 3.");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "Contains Cit s 1, Cit s 2 and Cit s 3.");
     driver.findElement(By.id("menuOptionAdditionalCostInput")).click();
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£0.70");
-    driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
-    {
-      WebElement element = driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa"));
-      Actions builder = new Actions(driver);
-      builder.moveToElement(element).perform();
-    }
-    {
-      WebElement element = driver.findElement(By.tagName("body"));
-      Actions builder = new Actions(driver);
-      builder.moveToElement(element, 0, 0).perform();
-    }
-    driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Banana");
-    driver.findElement(By.name("menuOptionAllergyInformation")).click();
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("Contains Mus a1, Mus a2");
-    driver.findElement(By.name("menuOptionDescription")).click();
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Medium sized banana");
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).click();
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£0.65");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£0.70");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
     {
       WebElement element = driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa"));
@@ -1395,12 +1168,13 @@ class AfterSchoolClubApplicationTests {
       builder.moveToElement(element, 0, 0).perform();
     }
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Grapes");
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Small tub of mixed black and green grapes");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Banana");
     driver.findElement(By.name("menuOptionAllergyInformation")).click();
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("Contains several allergenic proteins including lipid transfer protein(LPD)");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "Contains Mus a1, Mus a2");
+    driver.findElement(By.name("menuOptionDescription")).click();
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Medium sized banana");
     driver.findElement(By.id("menuOptionAdditionalCostInput")).click();
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£1.00");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£0.65");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
     {
       WebElement element = driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa"));
@@ -1413,13 +1187,31 @@ class AfterSchoolClubApplicationTests {
       builder.moveToElement(element, 0, 0).perform();
     }
     driver.findElement(By.name("menuOptionName")).click();
-    driver.findElement(By.name("menuOptionName")).sendKeys("Fruit Salad");
-    driver.findElement(By.name("menuOptionDescription")).click();
-    driver.findElement(By.name("menuOptionDescription")).sendKeys("Mixed salad bow including Strawberries, blueberries, grapes and kiwi");
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Grapes");
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Small tub of mixed black and green grapes");
     driver.findElement(By.name("menuOptionAllergyInformation")).click();
-    driver.findElement(By.name("menuOptionAllergyInformation")).sendKeys("None");
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "Contains several allergenic proteins including lipid transfer protein(LPD)");
     driver.findElement(By.id("menuOptionAdditionalCostInput")).click();
-    driver.findElement(By.id("menuOptionAdditionalCostInput")).sendKeys("£1.25");
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£1.00");
+    driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa")).click();
+    {
+      WebElement element = driver.findElement(By.cssSelector(".col-sm-1 > .btn-success > .fa"));
+      Actions builder = new Actions(driver);
+      builder.moveToElement(element).perform();
+    }
+    {
+      WebElement element = driver.findElement(By.tagName("body"));
+      Actions builder = new Actions(driver);
+      builder.moveToElement(element, 0, 0).perform();
+    }
+    driver.findElement(By.name("menuOptionName")).click();
+    sendKeys(driver.findElement(By.name("menuOptionName")), "Fruit Salad");
+    driver.findElement(By.name("menuOptionDescription")).click();
+    sendKeys(driver.findElement(By.name("menuOptionDescription")), "Mixed salad bow including Strawberries, blueberries, grapes and kiwi");
+    driver.findElement(By.name("menuOptionAllergyInformation")).click();
+    sendKeys(driver.findElement(By.name("menuOptionAllergyInformation")), "None");
+    driver.findElement(By.id("menuOptionAdditionalCostInput")).click();
+    sendKeys(driver.findElement(By.id("menuOptionAdditionalCostInput")), "£1.25");
     driver.findElement(By.cssSelector(".col-sm-1 > .btn-success")).click();
     driver.findElement(By.linkText("Back")).click();
     driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();
@@ -1437,18 +1229,15 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(83)
   public void t083EditMenuItemFruitJuice() {
-    driver.get("http://afterschool-club.com/");
-    driver.manage().window().setSize(new Dimension(1921, 1281));
-    driver.findElement(By.id("inputEmail")).click();
-    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
-    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
-    driver.findElement(By.cssSelector(".btn")).click();
+	    login();
+
     driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();
     driver.findElement(By.id("menuOptionTab")).click();
     driver.findElement(By.id("name-1")).click();
     driver.findElement(By.id("additionalCost-1")).click();
-    driver.findElement(By.cssSelector("#additionalCost-1 > .form-control")).sendKeys("£0.50");
+    sendKeys(driver.findElement(By.cssSelector("#additionalCost-1 > .form-control")), "£0.50");
     driver.findElement(By.name("menuOptionName")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
     assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully updated menu item"));
     assertThat(driver.findElement(By.id("additionalCost-1")).getText(), is("£0.50"));
     driver.findElement(By.cssSelector(".spacer")).click();
@@ -1463,4 +1252,75 @@ class AfterSchoolClubApplicationTests {
     driver.findElement(By.linkText("Sign out")).click();
     driver.close();
   }  
+  
+
+  @Test
+  @Order(90)
+  public void t090CreateBreakfastMenu() {
+	    login();
+
+    driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();
+    driver.findElement(By.name("menuGroupName")).click();
+    sendKeys(driver.findElement(By.name("menuGroupName")), "Drinks Selection");
+    driver.findElement(By.cssSelector(".accordion-button > .btn-success > .fa")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully added new menu group"));
+    driver.findElement(By.name("menuGroupName")).click();
+    sendKeys(driver.findElement(By.name("menuGroupName")), "Fruit Selection");
+    driver.findElement(By.cssSelector(".accordion-button > .btn-success > .fa")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully added new menu group"));
+    driver.findElement(By.name("menuGroupName")).click();
+    sendKeys(driver.findElement(By.name("menuGroupName")), "Cereal Selection");
+    driver.findElement(By.cssSelector(".accordion-button > .btn-success > .fa")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully added new menu group"));
+    
+    driver.findElement(By.cssSelector("#mgrow-1 .accordion-button")).click();
+    driver.findElement(By.id("add-1")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-1 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-2 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-3 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-4 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-5 input")).click();
+    driver.findElement(By.name("submit")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully added new menu item"));
+    driver.findElement(By.cssSelector("#mgrow-2 .accordion-button")).click();
+    driver.findElement(By.cssSelector("#add-2 > .fa")).click();
+    sleep();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-10 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-12 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-8 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-8 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-13 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-14 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-11 input")).click();
+    driver.findElement(By.name("submit")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully added new menu item"));
+    driver.findElement(By.cssSelector("#mgrow-3 .accordion-button")).click();
+    driver.findElement(By.cssSelector("#newItem-3 span:nth-child(3)")).click();
+    driver.findElement(By.cssSelector("#add-3 > .fa")).click();
+    driver.findElement(By.id("addFilter")).click();
+    sendKeys(driver.findElement(By.id("addFilter")), "porr");
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-9 input")).click();
+    driver.findElement(By.id("addFilter")).click();
+    sendKeys(driver.findElement(By.id("addFilter")), "Gluten");
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-8 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-6 input")).click();
+    driver.findElement(By.cssSelector("#menuOptionList2 #row-7 input")).click();
+    driver.findElement(By.name("submit")).click();
+    WaitForTextToBeChanged(driver.findElement(By.id("validationMessage")));    
+    assertThat(driver.findElement(By.id("validationMessage")).getText(), is("Successfully added new menu item"));
+    driver.findElement(By.cssSelector("#mgrow-2 .accordion-button")).click();
+    driver.findElement(By.cssSelector("#mgrow-1 .accordion-button")).click();
+    driver.findElement(By.cssSelector("#mgrow-3 .accordion-button")).click();
+    driver.findElement(By.linkText("Back")).click();
+    driver.findElement(By.cssSelector(".mx-1")).click();
+    driver.findElement(By.linkText("Sign out")).click();
+  }
+
+  
+  
 }

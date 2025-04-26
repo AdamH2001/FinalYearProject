@@ -769,7 +769,9 @@ public class MainController {
 			student.setSurname(surname);
 			student.setDateOfBirth(dateOfBirth);
 			student.setClassId(AggregateReference.to(className));	
+			
 			if (sessionBean.isParentLoggedOn()) {
+				student.setParentId(AggregateReference.to(sessionBean.getLoggedOnParent().getParentId()));				
 				student.setConsentToShare(consentToShare);				
 				student.setAllergyNoteText(allergyNote);
 				student.setHealthNoteText(healthNote);
@@ -780,8 +782,10 @@ public class MainController {
 				student.updateTimestamp();
 			}
 			
-			if (sessionBean.isParentLoggedOn()) {			
-				sessionBean.getLoggedOnUser().save();
+			if (sessionBean.isParentLoggedOn()) {	
+				student.save();
+				sessionBean.refreshLoggedOnUser();
+				//sessionBean.getLoggedOnUser().save();
 			}
 			else {
 				student.update();

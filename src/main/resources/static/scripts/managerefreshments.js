@@ -337,7 +337,7 @@ function addItems() {
 	
 	$('#myModal').hide();
 	menuGroupId = $(".accordion-collapse:visible")[0].id.replace("flush-collapse-", "");
-	templateHTML = $("#row-MENUGROUPID-MENUOPTIONID")[0].outerHTML;
+	templateHTML = $("#mgorow-MENUGROUPID-MENUOPTIONID")[0].outerHTML;
 	outerHTML = ""
 	
 	
@@ -345,12 +345,12 @@ function addItems() {
 	names = rows.find(".name")
 
 	
-	thisMenuGroup = $("#menuGroupList").find("#row-" + menuGroupId); 
+	thisMenuGroup = $("#menuGroupList").find("#mgrow-" + menuGroupId); 
 	
 	for (let i = 0;  i<rows.length; i++) {
 		name = names[i].innerText;
 		menuItemId = rows[i].id.replace("row-", "");
-		if (thisMenuGroup.find("#row-"+menuGroupId+"-"+menuItemId).length==0) { // Ensure not already Added
+		if (thisMenuGroup.find("#mgorow-"+menuGroupId+"-"+menuItemId).length==0) { // Ensure not already Added
 			outerHTML += templateHTML.replaceAll("MENUGROUPID", menuGroupId).replaceAll("MENUOPTIONID", menuItemId).replaceAll("MENUITEMNAME", name);
 		
 			newMenuItem ={
@@ -366,7 +366,7 @@ function addItems() {
 				data: JSON.stringify(newMenuItem),
 		
 				success: function(data,  textStatus, jqXHR){
-					$(".ascmenuitem[id='row-"+data.menuGroupId+"-"+data.menuOptionId+"']")[0].id="row-"+data.menuGroupOptionId;
+					$(".ascmenuitem[id='mgorow-"+data.menuGroupId+"-"+data.menuOptionId+"']")[0].id="mgorow-"+data.menuGroupOptionId;
 					$("#delete-"+data.menuGroupId+"-"+data.menuOptionId)[0].id="delete-"+data.menuGroupOptionId;
 					showValidationMessage("Successfully added new menu item");
 
@@ -405,9 +405,9 @@ function addMenuGroup(event) {
 			data: JSON.stringify(menuGroup),
 	
 			success: function(data,  textStatus, jqXHR){
-				templateHTML = $("#row-MENUGROUPID")[0].outerHTML;
+				templateHTML = $("#mgrow-MENUGROUPID")[0].outerHTML;
 				outerHTML = templateHTML.replaceAll("MENUGROUPNAME", data.name).replaceAll("MENUGROUPID", data.menuGroupId);
-				$("#row-NewMenuGroup")[0].insertAdjacentHTML("beforeBegin", outerHTML);
+				$("#mgrow-NewMenuGroup")[0].insertAdjacentHTML("beforeBegin", outerHTML);
 				value = $("input[name=menuGroupName]").val("");	
 				showValidationMessage("Successfully added new menu group");
 
@@ -427,7 +427,7 @@ function addMenuGroup(event) {
 			// Remove items already in menu
 			menuGroupId = $(".accordion-collapse:visible")[0].id.replace("flush-collapse-", "");
 			$(".accordion-collapse:visible").find(".ascmenuitem").each(function() {
-					alreadyExistingRow = this.getAttribute("orig-id").replace("row-"+menuGroupId + "-", "#row-");
+					alreadyExistingRow = this.getAttribute("orig-id").replace("mgorow-"+menuGroupId + "-", "#row-");
 					$("#menuOptionList2").find(alreadyExistingRow)[0].outerHTML="";
 				});
 
@@ -469,7 +469,7 @@ function addMenuGroup(event) {
 						method : "DELETE",
 
 						success : function(data, textStatus, jqXHR) {
-							$(".accordion-item[id='row-" + id + "']")[0].outerHTML = "";
+							$(".accordion-item[id='mgrow-" + id + "']")[0].outerHTML = "";
 
 							showValidationMessage("Successfully deleted menu group");
 
@@ -493,7 +493,7 @@ function addMenuGroup(event) {
 				method : "DELETE",
 
 				success : function(data, textStatus, jqXHR) {
-					$(".ascmenuitem[id='row-" + id + "']")[0].outerHTML=""					
+					$(".ascmenuitem[id='mgorow-" + id + "']")[0].outerHTML=""					
 					showValidationMessage("Successfully removed menu item");
 
 				},
@@ -626,7 +626,11 @@ function addMenuGroup(event) {
 
 				$('.asc-moneyinput').keydown(function(e) {
 					validateMoneyEntry(e);	
-				  });			  
+				  });	
+				$('.asc-moneyinput').on("click", function () {
+				  	   $(this).select();
+				  	});	  
+				    				  		  
 			  
 			});
 		

@@ -400,6 +400,9 @@ $('.asc-moneyinput').change(function(e) {
 $('.asc-moneyinput').keydown(function(e) {
 	validateMoneyEntry(e);	
   });
+$('.asc-moneyinput').on("click", function () {
+	   $(this).select();
+	});	  
   
 
 function activateParentTab(tabId)

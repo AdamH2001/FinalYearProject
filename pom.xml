@@ -95,7 +95,12 @@
        	<dependency>
 	        <groupId>org.seleniumhq.selenium</groupId>
 	        <artifactId>selenium-java</artifactId>
-	    </dependency>    
+	    </dependency> 
+       <dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		    <version>3.14.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

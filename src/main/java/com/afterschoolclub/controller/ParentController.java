@@ -180,7 +180,7 @@ public class ParentController {
 			String message = "Cancelled booking for ".concat(session.getClub().getTitle()).concat(" for ").concat(selectedStudent.getFirstName());
 			sessionBean.getLoggedOnParent().recordRefundForClub(cost, session.getClub(), message);			
 			sessionBean.getLoggedOnUser().save();			
-			sessionBean.setFlashMessage("Cancelled booking for ".concat(selectedStudent.getFirstName()).concat(". Account refunded."));
+			sessionBean.setFlashMessagePreserve("Cancelled booking for ".concat(selectedStudent.getFirstName()).concat(" - account refunded."));
 			returnPage = setupCalendar(model);			
 		}
 		return returnPage;

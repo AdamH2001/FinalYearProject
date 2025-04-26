@@ -6,6 +6,7 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.RandomStringUtils;
 
 @Getter
 @Setter
@@ -75,6 +76,9 @@ public class Staff {
 				resource = user.getResourceObject();
 			}
 			else {
+				String randomPassword = RandomStringUtils.random(12, 0, 20, true, true,
+		                "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!£$%^&*()_+-=:,.<>{}[]".toCharArray());				
+				
 				user = new User();
 							
 				resource = new Resource();
@@ -83,7 +87,8 @@ public class Staff {
 				user.setDateRequested(LocalDateTime.now());
 				user.setEmailVerified(true);
 				user.setAdminVerified(true);
-				user.setPassword("somecrap");	//TODO set to random value
+
+				user.setPassword(randomPassword);	
 			}
 		} 
 		else {

@@ -643,7 +643,7 @@ public String addSession(@RequestParam(name = "club") int clubId,
 				// If no resource challenges save the session 
 			Session.saveAll(allSessions);	
 			if (sessionId == 0) {
-				String message = String.format("Added %d session(s).",
+				String message = String.format("Added %d session(s)",
 						allSessions.size());
 				sessionBean.setFlashMessagePreserve(message);
 			}

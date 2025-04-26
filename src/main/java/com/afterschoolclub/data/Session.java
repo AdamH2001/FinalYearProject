@@ -154,7 +154,7 @@ public class Session {
 		LocalTime startTime = LocalTime.of(15, 30);
 		LocalTime endTime = LocalTime.of(17, 0);
 		this.startDateTime = LocalDateTime.of(tomorrow.toLocalDate(), startTime);
-		this.endDateTime = LocalDateTime.of(tomorrow.toLocalDate(), endTime);;
+		this.endDateTime = LocalDateTime.of(startDateTime.toLocalDate(), endTime);
 	}
 	
 	
@@ -199,22 +199,16 @@ public class Session {
 		
 		for (SessionResource er : session.sessionResources) {
 			this.sessionResources.add(new SessionResource(er));
-		}
-		
-		for (SessionMenu menu : session.sessionMenus) {
-			this.sessionMenus.add(new SessionMenu(menu));
-		}
-		
-		for (SessionMenu menu : session.sessionMenus) {
-			this.sessionMenus.add(new SessionMenu(menu));
 		}		
+		
+		for (SessionMenu menu : session.sessionMenus) {
+			this.sessionMenus.add(new SessionMenu(menu));
+		}
 		
 		this.menuGroups = new ArrayList<MenuGroup>();
 		for (MenuGroup menuGroup : session.getMenuGroups()) {
 			this.menuGroups.add(menuGroup);
 		}		
-		
-		
 		
 		this.sessionClub = session.sessionClub;
 		
