@@ -48,47 +48,80 @@ public class ResourceController {
     
     @GetMapping
     public List<Resource> getAllResources() {
-    	return Resource.findAllActive();
+    	List<Resource> result;    	
+    	if (sessionBean.isLoggedOn()) {      	
+    		result = Resource.findAllActive();
+    	}
+	   	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}     
+    	return result;    	
     }
 
     @GetMapping(value="/{id}")
     public Optional<Resource> getResourceById(@PathVariable long id) {
-    	Resource r = Resource.findById((int)id);
-  	
-    	r.getMaxDemand();
-    	return Optional.of(r);
+    	Optional<Resource> result;    	
+    	if (sessionBean.isLoggedOn()) {      	    	    	    	    	    		    	
+	    	Resource r = Resource.findById((int)id);	  	
+	    	r.getMaxDemand();
+	    	result = Optional.of(r);
+    	}
+	   	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}     
+    	return result;
     }
 
     @PostMapping(consumes = {"application/json"})
     public Resource createResource(@RequestBody Resource resource) {
-    	Resource r = Resource.findByNameAndType(resource.getName(), resource.getType());
-    	if (r != null) {
-			throw new ResponseStatusException(
-		           HttpStatus.BAD_REQUEST, "Already exists with same name");
-    	}    		
-    	else {
-    		resource.save();
+    	if (sessionBean.isLoggedOn()) {      	    	    	    	    	    	
+	    	Resource r = Resource.findByNameAndType(resource.getName(), resource.getType());
+	    	if (r != null) {
+				throw new ResponseStatusException(
+			           HttpStatus.BAD_REQUEST, "Already exists with same name");
+	    	}    		
+	    	else {
+	    		resource.save();
+	    	}
     	}
+	   	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}        	    	
         return resource;
     }
 
     @PutMapping(value="/{id}", consumes = {"application/json"})
-    public Resource updateResource(@PathVariable long id, @RequestBody Resource resource) {    	
-    	Resource existingResource = Resource.findByNameAndType(resource.getName(), resource.getType());
-    	if (existingResource != null && resource.getResourceId() != existingResource.getResourceId()) {
+    public Resource updateResource(@PathVariable long id, @RequestBody Resource resource) {
+    	if (sessionBean.isLoggedOn()) {      	    	    	    	    	
+	    	Resource existingResource = Resource.findByNameAndType(resource.getName(), resource.getType());
+	    	if (existingResource != null && resource.getResourceId() != existingResource.getResourceId()) {
+				throw new ResponseStatusException(
+			           HttpStatus.BAD_REQUEST, "Already exists with same name");
+	    	}        	
+	    	resource.save();
+		}
+	   	else {
 			throw new ResponseStatusException(
-		           HttpStatus.BAD_REQUEST, "Already exists with same name");
-    	}        	
-    	resource.save();
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}        	
         return resource;
     }
 
     
     @DeleteMapping(value="/{id}")
-    public void deleteResource(@PathVariable long id) {    	
-    	Resource r = Resource.findById((int) id);
-    	r.setState(State.INACTIVE);
-    	r.save();    	
+    public void deleteResource(@PathVariable long id) {
+    	if (sessionBean.isLoggedOn()) {      	    	    	    	
+	    	Resource r = Resource.findById((int) id);
+	    	r.setState(State.INACTIVE);
+	    	r.save();
+    	}
+	   	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}    	
         return;
     }
 

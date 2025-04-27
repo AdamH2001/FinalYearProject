@@ -201,7 +201,7 @@ public class Parent {
 	
 	public ParentalTransaction recordRefundForClub(int totalRefund, Club club, String description) {
 		int remaining = totalRefund;
-		int voucherBalance = this.getVoucherBalance();
+	//	int voucherBalance = this.getVoucherBalance();
 		int totalCashPaidForClub = ParentalTransaction.getCashPaidForClub(this.getParentId(), club.getClubId());
 		int cashRefund = (totalCashPaidForClub > remaining) ? remaining :totalCashPaidForClub;
 		ParentalTransaction pt = null;

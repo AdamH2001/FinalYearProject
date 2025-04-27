@@ -50,46 +50,80 @@ public class MenuGroupController {
 	
     @GetMapping
     public Iterable<SimpleMenuGroup> getAllMenuGroups() {
-    	return SimpleMenuGroup.findAll();
+    	Iterable<SimpleMenuGroup> result = null;
+    	if (sessionBean.isLoggedOn()) {
+    		result = SimpleMenuGroup.findAll();
+    	}
+    	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+    	}
+    	return result;
     }
 
     @GetMapping(value="/{id}")
     public Optional<SimpleMenuGroup> getStaffById(@PathVariable long id) {
-    	SimpleMenuGroup mg = SimpleMenuGroup.findById((int)id);
-    	return Optional.of(mg);
+    	Optional<SimpleMenuGroup> result = null;
+    	if (sessionBean.isLoggedOn()) {    	
+	    	SimpleMenuGroup mg = SimpleMenuGroup.findById((int)id);
+	    	result = Optional.of(mg);
+    	}
+    	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+    	}
+    	return result;    	
     }
 
     @PostMapping(consumes = {"application/json"})
     public SimpleMenuGroup createMenuGroup(@RequestBody SimpleMenuGroup menuGroup) {
-    	MenuGroup mg = MenuGroup.findByName(menuGroup.getName());
-    	if (mg != null) {
+    	if (sessionBean.isLoggedOn()) {     
+    		MenuGroup mg = MenuGroup.findByName(menuGroup.getName());
+	    	if (mg != null) {
+				throw new ResponseStatusException(
+			           HttpStatus.BAD_REQUEST, "Already exists with same name");
+	    	}  
+	    	else {    	
+	    		menuGroup.save();
+	    	}
+    	}
+    	else {
 			throw new ResponseStatusException(
-		           HttpStatus.BAD_REQUEST, "Already exists with same name");
-    	}  
-    	else {    	
-    		menuGroup.save();
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
     	}
         return menuGroup;
     }
 
     @PutMapping(value="/{id}", consumes = {"application/json"})
     public SimpleMenuGroup updateMenuGroup(@PathVariable long id, @RequestBody SimpleMenuGroup menuGroup) {
-    	MenuGroup mg = MenuGroup.findByName(menuGroup.getName());
-    	if (mg != null && id != mg.getMenuGroupId()) {
-			throw new ResponseStatusException(
-		           HttpStatus.BAD_REQUEST, "Already exists with same name");
-    	}  
-    	else {    	
-    		menuGroup.save();
+    	if (sessionBean.isLoggedOn()) {         	
+	    	MenuGroup mg = MenuGroup.findByName(menuGroup.getName());
+	    	if (mg != null && id != mg.getMenuGroupId()) {
+				throw new ResponseStatusException(
+			           HttpStatus.BAD_REQUEST, "Already exists with same name");
+	    	}  
+	    	else {    	
+	    		menuGroup.save();
+	    	}
     	}
+    	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+    	}    	
     	return menuGroup;
     }
     
     @DeleteMapping(value="/{id}")
-    public void deleteMenuGroup(@PathVariable long id) {    	
-    	SimpleMenuGroup menuGroup = SimpleMenuGroup.findById((int) id);
-    	menuGroup.setState(State.INACTIVE);
-    	menuGroup.save();
+    public void deleteMenuGroup(@PathVariable long id) {
+    	if (sessionBean.isLoggedOn()) {         	    	
+	    	SimpleMenuGroup menuGroup = SimpleMenuGroup.findById((int) id);
+	    	menuGroup.setState(State.INACTIVE);
+	    	menuGroup.save();
+    	}
+    	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+    	}    	
         return;
     }
 

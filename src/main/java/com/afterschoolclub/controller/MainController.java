@@ -14,6 +14,7 @@ import com.afterschoolclub.data.StudentClass;
 import com.afterschoolclub.data.User;
 import com.afterschoolclub.data.SessionDay;
 import com.afterschoolclub.data.Holiday;
+import com.afterschoolclub.data.Incident;
 import com.afterschoolclub.data.MenuGroup;
 import com.afterschoolclub.data.MenuOption;
 import com.afterschoolclub.data.RecurrenceSpecification;
@@ -22,6 +23,7 @@ import com.afterschoolclub.data.repository.ClassRepository;
 import com.afterschoolclub.data.repository.ClubRepository;
 import com.afterschoolclub.data.repository.SessionRepository;
 import com.afterschoolclub.data.repository.HolidayRepository;
+import com.afterschoolclub.data.repository.IncidentRepository;
 import com.afterschoolclub.data.repository.MenuGroupRepository;
 import com.afterschoolclub.data.repository.MenuOptionRepository;
 import com.afterschoolclub.data.repository.ParentalTransactionRepository;
@@ -79,7 +81,7 @@ public class MainController {
 			MenuGroupRepository menuGroupRepository, ResourceRepository resourceRepository,
 			ClassRepository classRepository, StudentRepository studentRepository, ParentalTransactionRepository transactionRepository, 
 			ClubRepository clubRepository, RecurrenceSpecificationRepository recurrenceSpecificationRepository, 
-			HolidayRepository holidayRepository, MenuOptionRepository menuOptionRepository, ProfilePicService profilePicService, 
+			HolidayRepository holidayRepository, MenuOptionRepository menuOptionRepository, IncidentRepository incidentRepository, ProfilePicService profilePicService, 
 			ClubPicService clubPicService, PaypalService paypalService, SessionBean sessionBean) {
 		super();		
 		Club.repository = clubRepository;
@@ -92,6 +94,7 @@ public class MainController {
         User.profilePicService = profilePicService;
         User.paypalService = paypalService;
         Club.clubPicService = clubPicService;
+        Incident.repository = incidentRepository;
 
         
 		StudentClass.repository = classRepository;
@@ -507,7 +510,7 @@ public class MainController {
 		if (returnPage == null) {
 			User user = null;
 			if (userId == 0) {
-				user = sessionBean.getLoggedOnUser();
+				user = User.findById(sessionBean.getLoggedOnUser().getUserId());
 			}
 			else {
 				user = User.findById(userId); 
@@ -625,6 +628,9 @@ public class MainController {
 				} 
 				else {
 					user.update();											
+				}
+				if (sessionBean.getLoggedOnUser() != null && user.getUserId() == sessionBean.getLoggedOnUser().getUserId()) {
+					sessionBean.setLoggedOnUser(user);
 				}
 				profilePicService.renameImage(tempFilename, user);
 				

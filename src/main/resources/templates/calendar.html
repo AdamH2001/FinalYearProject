@@ -66,41 +66,42 @@
 						<td th:each="item: ${i}" class="monthlydate">
 							<div th:if="${item != null}" th:class="${item.isHoliday() ? 'holiday':'normalday'}" th:text="${item.getDate()?.getDayOfMonth()}"></div>															
 							<div th:each="filteredSession : ${item?.getFilteredSessions()}" th:class="${filteredSession.getFilterClass()}">
-							<span th:text="${!filteredSession.getSession().hasSufficientResources() and sessionBean.isAdminLoggedOn()} ? '!' : '&nbsp;'" class="InsufficientResources">!</span>
-							<span class="dropdown" style="position:initial">
-								<a href="#"
-									th:class="'align-items-center text-blue text-decoration-none dropdown-toggle '+${filteredSession.getFilterClass()}"
-									id="dropdownUser1" data-bs-toggle="dropdown"
-									aria-expanded="false"> 
-									<span th:text="${filteredSession.getSession().getStartTime() + ' ' + filteredSession.getSession().getClub().getTitle()}"
-									class="sessionTitle d-none d-sm-inline mx-1"></span>
-								</a>
-								<ul th:if="${sessionBean.isAdminLoggedOn() }" class="dropdown-menu dropdown-menu-dark text-small shadow "
-									aria-labelledby="dropdownUser1" style="z-index:99999">
-									<li><a class="dropdown-item" th:if="${!filteredSession.getSession().endInPast()}" th:href="@{/editSession(sessionId=${filteredSession.getSession().getSessionId()})}">Edit Session</a></li>
-									<li><a class="dropdown-item" th:href="@{/adminViewSession(sessionId=${filteredSession.getSession().getSessionId()})}">View Session</a></li>
-									<li><a class="dropdown-item" th:href="@{/copySession(sessionId=${filteredSession.getSession().getSessionId()})}">Copy Session</a></li>							
-									<li><a class="dropdown-item" th:if="${!filteredSession.getSession().endInPast()}"  th:href="@{/cancelSession(sessionId=${filteredSession.getSession().getSessionId()})}">Cancel Session</a></li>
-									<li th:if="${filteredSession.getSession().isNow()} or ${filteredSession.getSession().inPast()}" ><hr/></li>
-									<li><a class="dropdown-item" th:if="${filteredSession.getSession().isNow()}"  th:href="@{/takeRegister(sessionId=${filteredSession.getSession().getSessionId()})}">Take Register</a></li>
-									<li><a class="dropdown-item" th:if="${filteredSession.getSession().inPast()}" th:href="@{/createIncident(sessionId=${filteredSession.getSession().getSessionId()})}">Record Incident</a></li>
-		
-								</ul>
-								<ul th:if="${sessionBean.isParentLoggedOn()}" class="dropdown-menu dropdown-menu-dark text-small shadow "
-									aria-labelledby="dropdownUser1" style="z-index:99999">
-									<li><a class="dropdown-item" th:href="@{/parentViewSession(sessionId=${filteredSession.getSession().getSessionId()})}">View Session</a></li>
-									<li th:if="${sessionBean.getSelectedStudent()} != null and ${!sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${filteredSession.getSession().canAttend(sessionBean.getSelectedStudent())}"><a class="dropdown-item" th:href="@{/registerForSession(sessionId=${filteredSession.getSession().getSessionId()})}">Book Attendance</a></li>
-								 	<li th:if="${sessionBean.getSelectedStudent()} != null and ${sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${!filteredSession.getSession().inPast()}"><a class="dropdown-item" th:href="@{/deregisterForSession(sessionId=${filteredSession.getSession().getSessionId()})}">Cancel Booking</a></li>
-									<li th:if="${sessionBean.getSelectedStudent()} != null and ${sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${!filteredSession.getSession().endInPast()}">
-										<hr th:if="${sessionBean.getSelectedStudent()} != null and ${filteredSession.getSession().hasOptions()} and ${sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${!filteredSession.getSession().endInPast()}" class="dropdown-divider">
-									</li>
-									<li th:if="${sessionBean.getSelectedStudent()} != null and ${filteredSession.getSession().hasOptions()} and ${sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${!filteredSession.getSession().endInPast()}"><a class="dropdown-item" th:href="@{/editSessionOptions(sessionId=${filteredSession.getSession().getSessionId()})}">Edit Options</a></li>
-								</ul>
-								<ul th:unless="${sessionBean.isLoggedOn()}" class="dropdown-menu dropdown-menu-dark text-small shadow "
-									aria-labelledby="dropdownUser1" style="z-index:99999">
-									<li><a class="dropdown-item" th:href="@{/parentViewSession(sessionId=${filteredSession.getSession().getSessionId()})}">View Session</a></li>
-								</ul>												
-								</span>
+								<div class="dropdown" style="position:initial">
+									<span th:text="${!filteredSession.getSession().hasSufficientResources() and sessionBean.isAdminLoggedOn()} ? '!' : '&nbsp;'" class="InsufficientResources">!</span>
+								
+									<a href="#"
+										th:class="'align-items-center text-blue text-decoration-none dropdown-toggle '+${filteredSession.getFilterClass()}"
+										id="dropdownUser1" data-bs-toggle="dropdown"
+										aria-expanded="false"> 
+										<span th:text="${filteredSession.getSession().getStartTime() + ' ' + filteredSession.getSession().getClub().getTitle()}"
+										class="sessionTitle d-none d-sm-inline mx-1"></span>
+									</a>
+									<ul th:if="${sessionBean.isAdminLoggedOn() }" class="dropdown-menu dropdown-menu-dark text-small shadow "
+										aria-labelledby="dropdownUser1" style="z-index:99999">
+										<li><a class="dropdown-item" th:if="${!filteredSession.getSession().endInPast()}" th:href="@{/editSession(sessionId=${filteredSession.getSession().getSessionId()})}">Edit Session</a></li>
+										<li><a class="dropdown-item" th:href="@{/adminViewSession(sessionId=${filteredSession.getSession().getSessionId()})}">View Session</a></li>
+										<li><a class="dropdown-item" th:href="@{/copySession(sessionId=${filteredSession.getSession().getSessionId()})}">Copy Session</a></li>							
+										<li><a class="dropdown-item" th:if="${!filteredSession.getSession().endInPast()}"  th:href="@{/cancelSession(sessionId=${filteredSession.getSession().getSessionId()})}">Cancel Session</a></li>
+										<li th:if="${filteredSession.getSession().isNow()} or ${filteredSession.getSession().inPast()}" ><hr/></li>
+										<li><a class="dropdown-item" th:if="${filteredSession.getSession().isNow()}"  th:href="@{/takeRegister(sessionId=${filteredSession.getSession().getSessionId()})}">Take Register</a></li>
+										<li><a class="dropdown-item" th:if="${filteredSession.getSession().inPast()}" th:href="@{/createIncident(sessionId=${filteredSession.getSession().getSessionId()})}">Record Incident</a></li>
+			
+									</ul>
+									<ul th:if="${sessionBean.isParentLoggedOn()}" class="dropdown-menu dropdown-menu-dark text-small shadow "
+										aria-labelledby="dropdownUser1" style="z-index:99999">
+										<li><a class="dropdown-item" th:href="@{/parentViewSession(sessionId=${filteredSession.getSession().getSessionId()})}">View Session</a></li>
+										<li th:if="${sessionBean.getSelectedStudent()} != null and ${!sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${filteredSession.getSession().canAttend(sessionBean.getSelectedStudent())}"><a class="dropdown-item" th:href="@{/registerForSession(sessionId=${filteredSession.getSession().getSessionId()})}">Book Attendance</a></li>
+									 	<li th:if="${sessionBean.getSelectedStudent()} != null and ${sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${!filteredSession.getSession().inPast()}"><a class="dropdown-item" th:href="@{/deregisterForSession(sessionId=${filteredSession.getSession().getSessionId()})}">Cancel Booking</a></li>
+										<li th:if="${sessionBean.getSelectedStudent()} != null and ${sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${!filteredSession.getSession().endInPast()}">
+											<hr th:if="${sessionBean.getSelectedStudent()} != null and ${filteredSession.getSession().hasOptions()} and ${sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${!filteredSession.getSession().endInPast()}" class="dropdown-divider">
+										</li>
+										<li th:if="${sessionBean.getSelectedStudent()} != null and ${filteredSession.getSession().hasOptions()} and ${sessionBean.getSelectedStudent().isAttendingSession(filteredSession.getSession())} and ${!filteredSession.getSession().endInPast()}"><a class="dropdown-item" th:href="@{/editSessionOptions(sessionId=${filteredSession.getSession().getSessionId()})}">Edit Options</a></li>
+									</ul>
+									<ul th:unless="${sessionBean.isLoggedOn()}" class="dropdown-menu dropdown-menu-dark text-small shadow "
+										aria-labelledby="dropdownUser1" style="z-index:99999">
+										<li><a class="dropdown-item" th:href="@{/parentViewSession(sessionId=${filteredSession.getSession().getSessionId()})}">View Session</a></li>
+									</ul>												
+								</div>
 							</div>
 							
 						</td>											

@@ -30,6 +30,11 @@ public class AfterSchoolClubTests {
     @Nested
     @Order(50)
     class TakeRegisterRecordIncidents extends AfterSchoolClubApplicationTests5 {}
+
+    @Nested
+    @Order(60)
+    class UtiliseVoucherAndOverdraft extends AfterSchoolClubApplicationTests6 {}
+    
     
 
 }

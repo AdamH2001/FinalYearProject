@@ -21,11 +21,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
@@ -37,14 +33,10 @@ import com.afterschoolclub.controller.MainController;
 @TestMethodOrder(OrderAnnotation.class)
 class AfterSchoolClubApplicationTests2 {
 
-	@Autowired
-	private MainController controller;
-
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	static int timeOut = 5000;
 	
 	private WebDriver driver;
-	private Map<String, Object> vars;
 	JavascriptExecutor js;
 	WebDriverWait wait;	
 
@@ -114,7 +106,6 @@ class AfterSchoolClubApplicationTests2 {
 	public void setUp() {
 		driver = new FirefoxDriver();
 		js = (JavascriptExecutor) driver;
-		vars = new HashMap<String, Object>();
 
 	    wait = new WebDriverWait(driver, java.time.Duration.ofMillis(timeOut));
 		
@@ -147,7 +138,7 @@ class AfterSchoolClubApplicationTests2 {
   
 	 @Test
 	 @Order(100)
-	  public void t100ScheduleSession() {
+	  public void T100ScheduleSession() {
 		 login();
 	    driver.findElement(By.cssSelector("li:nth-child(3) .ms-1")).click();
 	    driver.findElement(By.id("club")).click();
@@ -174,22 +165,13 @@ class AfterSchoolClubApplicationTests2 {
 	      dropdown.findElement(By.xpath("//option[. = 'Drinks Selection']")).click();
 	    }
 	    driver.findElement(By.id("equipment1")).click();
-	    {
-	      WebElement dropdown = driver.findElement(By.id("equipment1"));
-	    //  dropdown.findElement(By.xpath("#equipment1 > option[. = 'Blue bibs']")).click();
-	    }
+	 
 	    driver.findElement(By.cssSelector("#equipment1 > option:nth-child(2)")).click();
 	    driver.findElement(By.id("equipment1")).click();
-	    {
-	      WebElement dropdown = driver.findElement(By.id("equipment1"));
-	      //dropdown.findElement(By.xpath("//option[. = 'None']")).click();
-	    }
+	 
 	    driver.findElement(By.cssSelector("#equipment1 > option:nth-child(1)")).click();
 	    driver.findElement(By.id("club")).click();
-	    {
-	      WebElement dropdown = driver.findElement(By.id("club"));
-	      //dropdown.findElement(By.xpath("#equipment1 > option[. = 'Football Club - Y5']")).click();
-	    }
+	  
 	    driver.findElement(By.cssSelector("#club > option:nth-child(5)")).click();
 	    {
 	      WebElement dropdown = driver.findElement(By.id("staff"));
@@ -200,10 +182,7 @@ class AfterSchoolClubApplicationTests2 {
 	      dropdown.findElement(By.xpath("//option[. = 'Mr V Gunn']")).click();
 	    }
 	    driver.findElement(By.id("equipment1")).click();
-	    {
-	      WebElement dropdown = driver.findElement(By.id("equipment1"));
-	      //dropdown.findElement(By.xpath("#equipment1 > option[. = 'Football Goals Large']")).click();
-	    }
+	    
 	    driver.findElement(By.cssSelector("#equipment1 > option:nth-child(3)")).click();
 	    sendKeys(driver.findElement(By.id("equipmentQuantity1")), "1");
 	    driver.findElement(By.id("equipmentQuantity1")).click();
@@ -216,10 +195,7 @@ class AfterSchoolClubApplicationTests2 {
 	    }
 	    driver.findElement(By.cssSelector("#add1 > .fa")).click();
 	    driver.findElement(By.id("equipment2")).click();
-	    {
-	      WebElement dropdown = driver.findElement(By.id("equipment2"));
-	      //dropdown.findElement(By.xpath("##equipment2 > option[. = 'Football Size 4']")).click();
-	    }
+	  
 	    driver.findElement(By.cssSelector("#equipment2 > option:nth-child(7)")).click();
 	    {
 	      WebElement element = driver.findElement(By.id("equipmentQuantity2"));
@@ -259,10 +235,7 @@ class AfterSchoolClubApplicationTests2 {
 	    driver.findElement(By.id("perAttendee2")).click();
 	    driver.findElement(By.id("add2")).click();
 	    driver.findElement(By.id("equipment3")).click();
-	    {
-	      WebElement dropdown = driver.findElement(By.id("equipment3"));
-	      //dropdown.findElement(By.xpath("#equipment5 > option[. = 'Red bibs']")).click();
-	    }
+	   
 	    driver.findElement(By.cssSelector("#equipment3 > option:nth-child(10)")).click();
 	    driver.findElement(By.id("equipmentQuantity3")).click();
 	    {
@@ -284,10 +257,7 @@ class AfterSchoolClubApplicationTests2 {
 	    sendKeys(driver.findElement(By.id("equipmentQuantity3")), "10");
 	    driver.findElement(By.cssSelector("#add3 > .fa")).click();
 	    driver.findElement(By.id("equipment4")).click();
-	    {
-	      WebElement dropdown = driver.findElement(By.id("equipment4"));
-	      //dropdown.findElement(By.xpath("#equipment4 > option[. = 'Green bibs']")).click();
-	    }
+	  
 	    driver.findElement(By.cssSelector("#equipment4 > option:nth-child(9)")).click();
 	    {
 	      WebElement element = driver.findElement(By.id("equipmentQuantity4"));
@@ -310,10 +280,7 @@ class AfterSchoolClubApplicationTests2 {
 	    sendKeys(driver.findElement(By.id("equipmentQuantity4")), "10");
 	    driver.findElement(By.cssSelector("#add4 > .fa")).click();
 	    driver.findElement(By.id("equipment5")).click();
-	    {
-	      WebElement dropdown = driver.findElement(By.id("equipment5"));
-	      //dropdown.findElement(By.xpath("#equipment5 > option[. = 'Football Size 5']")).click();
-	    }
+	   
 	    driver.findElement(By.cssSelector("#equipment5 > option:nth-child(8)")).click();
 	    {
 	      WebElement element = driver.findElement(By.id("equipmentQuantity5"));
@@ -384,12 +351,7 @@ class AfterSchoolClubApplicationTests2 {
 	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 	    sleep();
 	    
-	    driver.findElement(By.id(selId)).click();
-	    {
-	    	WebElement dropdown = driver.findElement(By.id(selId));
-	    	
-	 //     dropdown.findElement(By.xpath("#equipment2 > option[. = 'Football Size 3']")).click();
-	    }
+	 
 	    driver.findElement(By.cssSelector("#".concat(selId).concat(" > option:nth-child(6)"))).click();
 	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 	    sleep();	    
@@ -425,7 +387,7 @@ class AfterSchoolClubApplicationTests2 {
 	 
 	 @Test
 	 @Order(115)	 
-	  public void t115conflictingResources() {
+	  public void T115ConflictingResources() {
 	    login();
 	    driver.findElement(By.linkText("15:30 Football Club - Y5")).click();
 	    driver.findElement(By.linkText("Copy Session")).click();
@@ -453,7 +415,7 @@ class AfterSchoolClubApplicationTests2 {
 	 
 	  @Test
 	  @Order(120)
-	  public void t120RecurringSession() {
+	  public void T120RecurringSession() {
 	    login();
 	    driver.findElement(By.cssSelector(".sessionTitle")).click();
 	    driver.findElement(By.linkText("Copy Session")).click();
@@ -488,7 +450,7 @@ class AfterSchoolClubApplicationTests2 {
 	  }
 
 
-	  public void t121DeleteRecurringSession() {
+	  public void T121DeleteRecurringSession() {
 		    login();
 		    driver.findElement(By.cssSelector(".fa-right-long")).click();
 		    driver.findElement(By.cssSelector(".days:nth-child(1) .sessionTitle")).click();
@@ -546,7 +508,7 @@ class AfterSchoolClubApplicationTests2 {
 	  
 		 @Test
 		 @Order(130)	 
-		  public void t130DeleteSession() {
+		  public void T130DeleteSession() {
 		    login();
 		    driver.findElement(By.cssSelector(".sessionTitle")).click();
 		    driver.findElement(By.linkText("Copy Session")).click();
@@ -577,7 +539,7 @@ class AfterSchoolClubApplicationTests2 {
 	  
 		  @Test
 		  @Order(135)
-		  public void tT135ScheduleBreakfastClub() {
+		  public void TT135ScheduleBreakfastClub() {
 		    driver.get("http://afterschool-club.com/");
 		    driver.manage().window().setSize(new Dimension(2575, 1407));
 		    driver.findElement(By.id("inputEmail")).click();

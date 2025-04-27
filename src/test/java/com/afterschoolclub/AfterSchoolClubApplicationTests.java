@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.TestClassOrder;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -21,11 +20,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
@@ -37,14 +32,10 @@ import com.afterschoolclub.controller.MainController;
 @TestMethodOrder(OrderAnnotation.class)
 class AfterSchoolClubApplicationTests {
 
-	@Autowired
-	private MainController controller;
-
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	static int timeOut = 5000;
 	
 	private WebDriver driver;
-	private Map<String, Object> vars;
 	JavascriptExecutor js;
 	WebDriverWait wait;	
 
@@ -114,7 +105,6 @@ class AfterSchoolClubApplicationTests {
 	public void setUp() {
 		driver = new FirefoxDriver();
 		js = (JavascriptExecutor) driver;
-		vars = new HashMap<String, Object>();
 
 	    wait = new WebDriverWait(driver, java.time.Duration.ofMillis(timeOut));
 		
@@ -390,7 +380,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(43)
-  public void t043CreateClubCraftClub() {
+  public void T043CreateClubCraftClub() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(1) .ms-1")).click();
@@ -419,7 +409,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(44)
-  public void t044CreateClubChoirClub() {
+  public void T044CreateClubChoirClub() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(1) .ms-1")).click();
@@ -445,7 +435,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(45)
-  public void t045CreateClubTennisClub() {
+  public void T045CreateClubTennisClub() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(1) .ms-1")).click();
@@ -494,7 +484,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(51)
-  public void t051CreateLocationFootballPitchSmall() {
+  public void T051CreateLocationFootballPitchSmall() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -515,7 +505,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(52)
-  public void t052CreateLocationCanteen() {
+  public void T052CreateLocationCanteen() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -537,7 +527,7 @@ class AfterSchoolClubApplicationTests {
 
   @Test
   @Order(53)
-  public void t053CreateLocationClassroom1() {
+  public void T053CreateLocationClassroom1() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -560,7 +550,7 @@ class AfterSchoolClubApplicationTests {
   @Test
   @Order(54)
   
-  public void t054CreateLocationClassroom2() {
+  public void T054CreateLocationClassroom2() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -581,7 +571,7 @@ class AfterSchoolClubApplicationTests {
 
   @Test
   @Order(55)
-  public void t055CreateLocationMusicRoom() {
+  public void T055CreateLocationMusicRoom() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -602,7 +592,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(56)
-  public void t056CreateLocationSportsHall() {
+  public void T056CreateLocationSportsHall() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -673,7 +663,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(62)
-  public void t062CreateStaffMrGunn() {
+  public void T062CreateStaffMrGunn() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -697,7 +687,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(63)
-  public void t063EditStaffMrStockwell() {
+  public void T063EditStaffMrStockwell() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -871,7 +861,7 @@ class AfterSchoolClubApplicationTests {
 
   @Test
   @Order(71)
-  public void t071CreateFootballsAndBibs() {
+  public void T071CreateFootballsAndBibs() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(6) .ms-1")).click();
@@ -995,7 +985,7 @@ class AfterSchoolClubApplicationTests {
 
   @Test
   @Order(80)
-  public void t080CreateMenuItemsandMenu() {
+  public void T080CreateMenuItemsandMenu() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();
@@ -1017,7 +1007,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(81)
-  public void t081CreateMoreDrinks() {
+  public void T081CreateMoreDrinks() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();
@@ -1076,7 +1066,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(82)
-  public void t082CreateMoreBreakfastItems() {
+  public void T082CreateMoreBreakfastItems() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();        
@@ -1228,7 +1218,7 @@ class AfterSchoolClubApplicationTests {
   
   @Test
   @Order(83)
-  public void t083EditMenuItemFruitJuice() {
+  public void T083EditMenuItemFruitJuice() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();
@@ -1256,7 +1246,7 @@ class AfterSchoolClubApplicationTests {
 
   @Test
   @Order(90)
-  public void t090CreateBreakfastMenu() {
+  public void T090CreateBreakfastMenu() {
 	    login();
 
     driver.findElement(By.cssSelector("li:nth-child(7) .ms-1")).click();

@@ -155,15 +155,13 @@ public class AdminController {
 				Incident incident = null;			
 				if (incidentId == 0) { // Need to create a new incident
 					incident = new Incident();
-					session.addIncident(incident);
+					incident.setSessionId(AggregateReference.to(session.getSessionId()));
 				}
 				else { // We are updating an existing incident
 					incident = session.getIncident(incidentId);					
 					incident.resetAttendees();
 				}		
-				
-
-				
+					
 				incident.setSummary(summary);
 				Context context = new Context();
 				context.setVariable("sessionBean", sessionBean);
@@ -191,7 +189,7 @@ public class AdminController {
 						incident.addAttendeeIncident(new AttendeeIncident(AggregateReference.to(attendeeId), attendeeNotes));
 					}
 				}
-				session.save();							
+				incident.save();							
 				try {
 					mailService.sendAllHTMLEmails(allEmails);
 					sessionBean.setFlashMessage("Incident has been recorded and all parents notified");
@@ -259,14 +257,6 @@ public class AdminController {
 		if (returnPage == null) {
 			Session session = Session.findById(sessionId);
 			if (session != null) {
-				for (Attendee attendee: session.getAttendees()) {
-					List<Student> studList = Student.findByAttendeeId(attendee.getAttendeeId());
-					
-					for (Student student: studList) {
-						logger.info("student = {}", student);
-						attendee.setStudent(student);
-					}					
-				}
 				model.addAttribute("incident", new Incident());
 				model.addAttribute("isViewing", false);
 				model.addAttribute("isEditing", false);
@@ -292,14 +282,6 @@ public class AdminController {
 			if (session != null) {
 				Incident incident = session.getIncident(incidentId);
 				if (incident !=null) {				
-					for (Attendee attendee: session.getAttendees()) {
-						List<Student> studList = Student.findByAttendeeId(attendee.getAttendeeId());
-						
-						for (Student student: studList) {
-							logger.info("student = {}", student);
-							attendee.setStudent(student);
-						}					
-					}
 					model.addAttribute("incident", new Incident());
 					model.addAttribute("isViewing", true);
 					model.addAttribute("isEditing", false);
@@ -330,14 +312,6 @@ public class AdminController {
 			if (session != null) {
 				Incident incident = session.getIncident(incidentId);
 				if (incident != null ) {
-					for (Attendee attendee: session.getAttendees()) {
-						List<Student> studList = Student.findByAttendeeId(attendee.getAttendeeId());
-						
-						for (Student student: studList) {
-							logger.info("student = {}", student);
-							attendee.setStudent(student);
-						}					
-					}
 					model.addAttribute("incident", new Incident());
 					model.addAttribute("isViewing", false);
 					model.addAttribute("isEditing", true);
@@ -1340,7 +1314,7 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	
 	
 	@GetMapping("/showFinanceSummary")
-	public String emailUserInDebt(@RequestParam(name = "show") boolean show, Model model) {
+	public String showFinanceSummary(@RequestParam(name = "show") boolean show, Model model) {
 		String returnPage = validateIsAdmin(model);
 		if (returnPage == null) {				
 			sessionBean.setFinanceSummaryVisible(show);

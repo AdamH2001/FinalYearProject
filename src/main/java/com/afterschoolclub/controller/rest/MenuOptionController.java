@@ -49,49 +49,79 @@ public class MenuOptionController {
 	
     @GetMapping
     public Iterable<MenuOption> getAllMenuOptions() {
-    	return MenuOption.findAll();
+    	Iterable<MenuOption> result = null;
+    	if (sessionBean.isLoggedOn()) {       	
+    		result = MenuOption.findAll();
+    	}
+	   	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}
+		return result;      	
     }
 
     @GetMapping(value="/{id}")
     public Optional<MenuOption> getStaffById(@PathVariable long id) {
-    	MenuOption mg = MenuOption.findById((int)id);
-    	return Optional.of(mg);
+    	Optional<MenuOption> result = null;
+    	if (sessionBean.isLoggedOn()) {       	
+    		MenuOption mg = MenuOption.findById((int)id);
+    		result = Optional.of(mg);
+    	}
+	   	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}
+		return result;       	
     }
 
     @PostMapping(consumes = {"application/json"})
     public MenuOption createMenuOption(@RequestBody MenuOption menuOption) {
-    	MenuOption o = MenuOption.findByName(menuOption.getName());
-    	if (o != null) {
-			throw new ResponseStatusException(
-		           HttpStatus.BAD_REQUEST, "Already exists with same name");
-    	}    		
-    	else {
-    		menuOption.save();
+    	if (sessionBean.isLoggedOn()) {      	
+	    	MenuOption o = MenuOption.findByName(menuOption.getName());
+	    	if (o != null) {
+				throw new ResponseStatusException(
+			           HttpStatus.BAD_REQUEST, "Already exists with same name");
+	    	}    		
+	    	else {
+	    		menuOption.save();
+	    	}	    	
     	}
-    	
-    	
-    	menuOption.save();
+	   	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}
         return menuOption;
     }
 
     @PutMapping(value="/{id}", consumes = {"application/json"})
     public MenuOption updateMenuOption(@PathVariable long id, @RequestBody MenuOption menuOption) {
-    	MenuOption o = MenuOption.findByName(menuOption.getName());
-    	if (o != null && id != o.getMenuOptionId()) {
-			throw new ResponseStatusException(
-		           HttpStatus.BAD_REQUEST, "Already exists with same name");
-    	}  
-    	else {
-    		menuOption.save();
+    	if (sessionBean.isLoggedOn()) {      	    	
+	    	MenuOption o = MenuOption.findByName(menuOption.getName());
+	    	if (o != null && id != o.getMenuOptionId()) {
+				throw new ResponseStatusException(
+			           HttpStatus.BAD_REQUEST, "Already exists with same name");
+	    	}  
+	    	else {
+	    		menuOption.save();
+	    	}
     	}
-        return menuOption;
-    }
+	   	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}
+        return menuOption;    }
     
     @DeleteMapping(value="/{id}")
-    public void deleteMenuOption(@PathVariable long id) {    	
-    	MenuOption menuOption = MenuOption.findById((int) id);
-    	menuOption.setState(State.INACTIVE);
-    	menuOption.save();
+    public void deleteMenuOption(@PathVariable long id) {
+    	if (sessionBean.isLoggedOn()) {      	    	    	
+	    	MenuOption menuOption = MenuOption.findById((int) id);
+	    	menuOption.setState(State.INACTIVE);
+	    	menuOption.save();
+    	}
+	   	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+		}	    	
         return;
     }
 

@@ -16,25 +16,18 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import com.afterschoolclub.controller.MainController;
 import com.afterschoolclub.data.Session;
-import com.afterschoolclub.data.User;
 
 
 
@@ -43,14 +36,10 @@ import com.afterschoolclub.data.User;
 @TestMethodOrder(OrderAnnotation.class)
 class AfterSchoolClubApplicationTests5 {
 
-	@Autowired
-	private MainController controller;
-
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	static int timeOut = 5000;
 	
 	private WebDriver driver;
-	private Map<String, Object> vars;
 	JavascriptExecutor js;
 	WebDriverWait wait;	
 
@@ -130,7 +119,6 @@ class AfterSchoolClubApplicationTests5 {
 	public void setUp() {
 		driver = new FirefoxDriver();
 		js = (JavascriptExecutor) driver;
-		vars = new HashMap<String, Object>();
 
 	    wait = new WebDriverWait(driver, java.time.Duration.ofMillis(timeOut));
 		
@@ -164,7 +152,7 @@ class AfterSchoolClubApplicationTests5 {
 	  @Test
 	  @Order(400)	  
 	  
-	  public void t400PrepareSessionForRegster() {
+	  public void T400PrepareSessionForRegister  () {
 		    driver.get("http://afterschool-club.com/");
 		    driver.manage().window().setSize(new Dimension(2575, 1407));
 		    driver.findElement(By.id("inputEmail")).click();
@@ -207,7 +195,7 @@ class AfterSchoolClubApplicationTests5 {
 	  
 	  @Test
 	  @Order(401)	
-	  public void t400ChangeStarDate() {
+	  public void T401ChangeStartDate  () {
 		  Session session = Session.findById(25);
 		  LocalDateTime orig = session.getStartDateTime();			  		  
 		  session.setStartDateTime(LocalDateTime.of(LocalDate.of(2025, 4, 26), orig.toLocalTime()));
@@ -219,7 +207,7 @@ class AfterSchoolClubApplicationTests5 {
 	  @Test
 	  @Order(402)	
 	  
-	  public void t402TakeandViewRegister() {
+	  public void T402TakeandViewRegister() {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.id("inputEmail")).click();
@@ -259,7 +247,7 @@ class AfterSchoolClubApplicationTests5 {
 	  
 	  @Test
 	  @Order(410)		  
-	  public void t410RecordAndViewIncident() {
+	  public void T410RecordAndViewIncident() {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");

@@ -80,7 +80,6 @@ public class PolicyService {
 	 * @return true if policy exists otherwise returns false
 	 */
 	public boolean policyExists(String filename) {
-		String url;
 		Path filePath = Paths.get(uploadDir).resolve(filename);
         File f = new File(filePath.toUri());        
         return f.isFile();

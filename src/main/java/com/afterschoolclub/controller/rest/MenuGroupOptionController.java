@@ -20,12 +20,15 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.afterschoolclub.data.State;
 
 
@@ -50,39 +53,76 @@ public class MenuGroupOptionController {
 	
     @GetMapping
     public Iterable<SimpleMenuGroupOption> getAllMenuGroups() {
-    	return SimpleMenuGroupOption.findAll();
+    	Iterable<SimpleMenuGroupOption> result = null;
+    	if (sessionBean.isLoggedOn()) {    	
+    		result = SimpleMenuGroupOption.findAll();
+    	}
+       	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+    	}
+    	return result;    	
     }
 
     @GetMapping(value="/{id}")
     public Optional<SimpleMenuGroupOption> getStaffById(@PathVariable long id) {
-    	MenuGroupOption mg = MenuGroupOption.findById((int)id);
-    	SimpleMenuGroupOption smgo = null;
-    	if (mg != null) {
-    		smgo = mg.getSimpleMenuGroupOption();
+    	Optional<SimpleMenuGroupOption> result = null;
+    	if (sessionBean.isLoggedOn()) {    	
+    	   	MenuGroupOption mg = MenuGroupOption.findById((int)id);
+	    	SimpleMenuGroupOption smgo = null;
+	    	if (mg != null) {
+	    		smgo = mg.getSimpleMenuGroupOption();
+	    	}
+    		result = Optional.of(smgo);
     	}
-    	return Optional.of(smgo);
+       	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+    	}    	
+    	return result;
     }
 
     @PostMapping(consumes = {"application/json"})
     public SimpleMenuGroupOption createMenuGroup(@RequestBody SimpleMenuGroupOption simpleMenuGroupOption) {
-    	MenuGroupOption mgo = new MenuGroupOption(simpleMenuGroupOption);
-    	mgo.save();
-    	return mgo.getSimpleMenuGroupOption();
+    	SimpleMenuGroupOption result = null;
+    	if (sessionBean.isLoggedOn()) {    	    	
+	    	MenuGroupOption mgo = new MenuGroupOption(simpleMenuGroupOption);
+	    	mgo.save();
+	    	result = mgo.getSimpleMenuGroupOption();
+    	}
+       	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+    	}    	
+    	return result;	    	
     }
 
     @PutMapping(value="/{id}", consumes = {"application/json"})
     public SimpleMenuGroupOption updateMenuGroup(@PathVariable long id, @RequestBody SimpleMenuGroupOption simpleMenuGroupOption) {
-    	MenuGroupOption mgo = new MenuGroupOption(simpleMenuGroupOption);
-    	mgo.save();
-    	return mgo.getSimpleMenuGroupOption();
+    	SimpleMenuGroupOption result = null;
+    	if (sessionBean.isLoggedOn()) {      	
+	    	MenuGroupOption mgo = new MenuGroupOption(simpleMenuGroupOption);
+	    	mgo.save();
+	    	result = mgo.getSimpleMenuGroupOption();
+    	}
+       	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+    	}    	
+    	return result;	
     }
     
     @DeleteMapping(value="/{id}")
-    public void deleteMenuGroup(@PathVariable long id) {    	
-    	MenuGroupOption mgo = MenuGroupOption.findById((int) id);    	
-    	mgo.setState(State.INACTIVE);
-    	mgo.save();
-
+    public void deleteMenuGroup(@PathVariable long id) {
+    	if (sessionBean.isLoggedOn()) {      	
+	    	MenuGroupOption mgo = MenuGroupOption.findById((int) id);    	
+	    	mgo.setState(State.INACTIVE);
+	    	mgo.save();
+    	}
+       	else {
+			throw new ResponseStatusException(
+			           HttpStatus.FORBIDDEN, "Need to be logged in");    		
+    	}    
         return;
     }
 

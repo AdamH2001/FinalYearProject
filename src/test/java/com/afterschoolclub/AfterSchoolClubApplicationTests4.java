@@ -16,22 +16,15 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import com.afterschoolclub.controller.MainController;
-
-import com.afterschoolclub.data.User;
 
 
 
@@ -40,14 +33,10 @@ import com.afterschoolclub.data.User;
 @TestMethodOrder(OrderAnnotation.class)
 class AfterSchoolClubApplicationTests4 {
 
-	@Autowired
-	private MainController controller;
-
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	static int timeOut = 5000;
 	
 	private WebDriver driver;
-	private Map<String, Object> vars;
 	JavascriptExecutor js;
 	WebDriverWait wait;	
 
@@ -122,7 +111,6 @@ class AfterSchoolClubApplicationTests4 {
 	public void setUp() {
 		driver = new FirefoxDriver();
 		js = (JavascriptExecutor) driver;
-		vars = new HashMap<String, Object>();
 
 	    wait = new WebDriverWait(driver, java.time.Duration.ofMillis(timeOut));
 		
@@ -155,7 +143,7 @@ class AfterSchoolClubApplicationTests4 {
 
 	  @Test
 	  @Order(300)
-	  public void t300RegisterForClub() {
+	  public void T300BookSessionWithClub () {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.id("inputEmail")).click();
@@ -210,9 +198,7 @@ class AfterSchoolClubApplicationTests4 {
 	    
 	    driver.findElement(By.id("email")).click();
 	    sendKeys(driver.findElement(By.id("email")),"peterjones@hattonsplace.co.uk");
-	    WebElement p = driver.findElement(By.id("password"));
-	    WebElement b1 = driver.findElement(By.id("btnLogin"));
-	    WebElement b2 = driver.findElement(By.id("btnNext"));
+
 	    
 	    sendKeys(driver.findElement(By.id("password")),"ManUtd01");
 
@@ -272,7 +258,7 @@ class AfterSchoolClubApplicationTests4 {
 	  @Test
 	  @Order(310)
 
-	  public void t310EditSessionOptionsandCancel() {
+	  public void T310EditSessionOptionsandCancel() {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.id("inputEmail")).click();
@@ -329,7 +315,7 @@ class AfterSchoolClubApplicationTests4 {
 	  @Test
 	  @Order(320)	  
 	  
-	  public void t320EditPriceofClubBookingRecurringSessionForMultipleStudents() {
+	  public void T320RecurringSessionMultipleStudents() {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");

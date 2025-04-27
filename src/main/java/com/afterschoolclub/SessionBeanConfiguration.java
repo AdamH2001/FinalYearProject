@@ -10,12 +10,16 @@ import org.springframework.context.annotation.Configuration;
 public class SessionBeanConfiguration {
     private SessionBean sessionScopeBean;
 
+    
+//	static Logger logger = LoggerFactory.getLogger(SessionBeanConfiguration.class);
+
     /**
      * @param sessionScopeBean
      */
     @Autowired
     public SessionBeanConfiguration(SessionBean sessionScopeBean) {
         this.sessionScopeBean = sessionScopeBean;
+        this.sessionScopeBean.getClass(); // Only inserted to avoid not used warning     
     }
 	
 }

@@ -183,7 +183,6 @@ public class RecurrenceSpecification {
 		logger.info("Recurrence Specfication Id = {}", getRecurrenceSpecificationId());
 
 		
-		int copiedSessions = 0;
 		LocalDate nextDate = this.startDate;
 						
 		while (session.isRecurring() && nextDate.compareTo(endDate) <= 0) {
@@ -228,7 +227,6 @@ public class RecurrenceSpecification {
 				newSession.setStartDateTime(nextDate.atTime(session.getStartDateTime().toLocalTime()));
 				newSession.setEndDateTime(nextDate.atTime(session.getEndDateTime().toLocalTime()));
 				allSessions.add(newSession);
-				copiedSessions++;						
 			}
 			nextDate = nextDate.plusDays(1);					
 		}				

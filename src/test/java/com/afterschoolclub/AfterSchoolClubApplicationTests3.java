@@ -21,11 +21,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
@@ -39,14 +35,10 @@ import com.afterschoolclub.data.User;
 @TestMethodOrder(OrderAnnotation.class)
 class AfterSchoolClubApplicationTests3 {
 
-	@Autowired
-	private MainController controller;
-
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	static int timeOut = 5000;
 	
 	private WebDriver driver;
-	private Map<String, Object> vars;
 	JavascriptExecutor js;
 	WebDriverWait wait;	
 
@@ -116,7 +108,6 @@ class AfterSchoolClubApplicationTests3 {
 	public void setUp() {
 		driver = new FirefoxDriver();
 		js = (JavascriptExecutor) driver;
-		vars = new HashMap<String, Object>();
 
 	    wait = new WebDriverWait(driver, java.time.Duration.ofMillis(timeOut));
 		
@@ -149,7 +140,7 @@ class AfterSchoolClubApplicationTests3 {
 
 	  @Test
 	  @Order(200)	  
-	  public void t200Useregistration() {
+	  public void T200UserRegistration  () {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.cssSelector(".nav-item:nth-child(4) .ms-1")).click();
@@ -214,7 +205,7 @@ class AfterSchoolClubApplicationTests3 {
 	  
 	  @Test
 	  @Order(201)	  
-	  public void t201UseregistrationWithSameEmail() {
+	  public void T201UseRegistrationWithSameEmail  () {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.cssSelector(".nav-item:nth-child(4) .ms-1")).click();
@@ -236,7 +227,7 @@ class AfterSchoolClubApplicationTests3 {
 
 	  @Test
 	  @Order(210)
-	  public void t210RegisterChildRuth() {
+	  public void T210RegisterChildRuth() {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.id("inputEmail")).click();
@@ -306,7 +297,7 @@ class AfterSchoolClubApplicationTests3 {
 	  
 	  @Test
 	  @Order(211)
-	  public void t210RegisterChildJonny() {
+	  public void T210RegisterChildJonny() {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.id("inputEmail")).click();
@@ -359,7 +350,7 @@ class AfterSchoolClubApplicationTests3 {
 	  
 	  @Test
 	  @Order(211)
-	  public void t210RegisterChildTommy() {
+	  public void T210RegisterChildTommy() {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.id("inputEmail")).click();

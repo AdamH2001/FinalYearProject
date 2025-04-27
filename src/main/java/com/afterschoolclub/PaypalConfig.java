@@ -23,7 +23,7 @@ public class PaypalConfig {
 	
 	/**
 	 * Return an api context for calling PayPal 
-	 * @return
+	 * @return APIContext
 	 */
 	
 	@Bean

@@ -21,10 +21,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +29,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import com.afterschoolclub.controller.MainController;
-import com.afterschoolclub.data.Session;
-import com.afterschoolclub.data.User;
 
 
 
@@ -42,9 +36,6 @@ import com.afterschoolclub.data.User;
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
 class AfterSchoolClubApplicationTests6 {
-
-	@Autowired
-	private MainController controller;
 
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	static int timeOut = 5000;
@@ -163,7 +154,7 @@ class AfterSchoolClubApplicationTests6 {
 
 	  @Test
 	  @Order(500)
-	  public void t500AddVoucherOverdraftandRefund() {
+	  public void T500AddVoucherOverdraftandRefund() {
 	    driver.get("http://afterschool-club.com/");
 	    driver.manage().window().setSize(new Dimension(2575, 1407));
 	    driver.findElement(By.id("inputEmail")).click();
@@ -208,4 +199,108 @@ class AfterSchoolClubApplicationTests6 {
 	    driver.close();
 	  }	
 
+	  @Test
+	  @Order(510)
+	  public void T510UtiliseVoucherAndOverdraft() {
+	    driver.get("http://afterschool-club.com/");
+	    driver.manage().window().setSize(new Dimension(2575, 1407));
+	    driver.findElement(By.id("inputEmail")).click();
+	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
+	    driver.findElement(By.id("inputEmail")).sendKeys("peterjones@hattonsplace.co.uk");
+	    driver.findElement(By.cssSelector(".btn")).click();
+	    assertThat(driver.findElement(By.cssSelector(".mb-1:nth-child(1) > .col-sm-2")).getText(), is("£0.00"));
+	    assertThat(driver.findElement(By.cssSelector(".mb-1:nth-child(2) > .col-sm-2")).getText(), is("£250.00"));
+	    driver.findElement(By.cssSelector("tbody:nth-child(1) td:nth-child(3)")).click();
+	    driver.findElement(By.cssSelector(".fa-right-long")).click();
+	    driver.findElement(By.cssSelector(".days:nth-child(2) > .monthlydate:nth-child(2) > .Available:nth-child(3) .sessionTitle")).click();
+	    driver.findElement(By.linkText("Book Attendance")).click();
+	    driver.findElement(By.id("submitButton")).click();
+	    assertThat(driver.findElement(By.cssSelector(".mb-1:nth-child(1) > .col-sm-2")).getText(), is("-£2.50"));
+	    driver.findElement(By.cssSelector(".days:nth-child(2) > .monthlydate:nth-child(3) .sessionTitle")).click();
+	    driver.findElement(By.linkText("Book Attendance")).click();
+	    
+	    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+	    sleep();
+	    
+	    driver.findElement(By.cssSelector("#submitButton > span")).click();
+	    assertThat(driver.findElement(By.cssSelector(".mb-1:nth-child(2) > .col-sm-2")).getText(), is("£247.50"));
+	    driver.findElement(By.id("dropdownUser1")).click();
+	    driver.findElement(By.linkText("Sign out")).click();
+	    driver.close();
+	  }	  
+	  
+	  @Test
+	  @Order(520)
+	  public void T520MiscAdmin() {
+	    driver.get("http://afterschool-club.com/");
+	    driver.manage().window().setSize(new Dimension(2575, 1407));
+	    driver.findElement(By.id("inputEmail")).click();
+	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
+	    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
+	    driver.findElement(By.cssSelector(".btn")).click();
+	    driver.findElement(By.cssSelector("li:nth-child(8) .ms-1")).click();
+	    assertThat(driver.findElement(By.cssSelector("tr:nth-child(7) > td:nth-child(2)")).getText(), is("£97.80"));
+	    driver.findElement(By.cssSelector(".fa-right-long")).click();
+	    driver.findElement(By.cssSelector(".fa-left-long")).click();
+	    driver.findElement(By.cssSelector("li:nth-child(9) .ms-1")).click();
+	    driver.findElement(By.cssSelector(".btn-success > .fa-solid")).click();
+	    driver.findElement(By.cssSelector("tr:nth-child(12) > td:nth-child(7) > b")).click();
+	    driver.findElement(By.cssSelector("tr:nth-child(12) > td:nth-child(7) > b")).click();
+	    {
+	      WebElement element = driver.findElement(By.cssSelector("tr:nth-child(12) > td:nth-child(7) > b"));
+	      Actions builder = new Actions(driver);
+	      builder.doubleClick(element).perform();
+	    }
+	    assertThat(driver.findElement(By.cssSelector("tr:nth-child(12) > td:nth-child(7) > b")).getText(), is("Closing: £247.50"));
+	    assertThat(driver.findElement(By.cssSelector("tr:nth-child(12) > td:nth-child(6) > b")).getText(), is("Closing: -£2.50"));
+	    driver.findElement(By.linkText("Back")).click();
+	    driver.findElement(By.linkText("Back")).click();
+	    driver.findElement(By.id("fullybooked")).click();
+	    driver.findElement(By.id("nobookings")).click();
+	    driver.findElement(By.id("insufficientResources")).click();
+	    driver.findElement(By.id("attending")).click();
+	    driver.findElement(By.id("all")).click();
+	    driver.findElement(By.id("attending")).click();
+	    driver.findElement(By.id("dropdownUser1")).click();
+	    driver.findElement(By.linkText("Update Details")).click();
+	    driver.findElement(By.id("telephoneNum")).click();
+	    driver.findElement(By.id("telephoneNum")).sendKeys("01256812733");
+	    driver.findElement(By.name("submit")).click();
+	    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Profile has been updated"));
+	    driver.findElement(By.cssSelector("li:nth-child(2) .ms-1")).click();
+	    driver.findElement(By.cssSelector("li:nth-child(10) .ms-1")).click();
+	    driver.findElement(By.linkText("Policies and Procedures")).click();
+	    driver.findElement(By.id("policy-0")).click();
+	    
+	    vars.put("window_handles", driver.getWindowHandles());
+	    driver.findElement(By.cssSelector("#ap-0 > span")).click();
+	    sleep(4000);
+	    //vars.put("win756", waitForWindow(2000));
+	    vars.put("root", driver.getWindowHandle());
+	    //driver.switchTo().window(vars.get("win756").toString());
+	    driver.switchTo().window(vars.get("root").toString());
+	    driver.findElement(By.cssSelector("div > a > img")).click();
+	    driver.findElement(By.id("dropdownUser1")).click();
+	    driver.findElement(By.linkText("Change Password")).click();
+	    driver.findElement(By.id("password")).sendKeys("ManUtd01");
+	    driver.findElement(By.id("conPassword")).sendKeys("ManUtd01");
+	    driver.findElement(By.id("password")).click();
+	    driver.findElement(By.name("submit")).click();
+	    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Password has been changed"));
+	    driver.findElement(By.id("dropdownUser1")).click();
+	    driver.findElement(By.linkText("Sign out")).click();
+	    driver.findElement(By.id("inputEmail")).click();
+	    driver.findElement(By.id("inputPassword")).sendKeys("ManUtd01");
+	    driver.findElement(By.id("inputEmail")).sendKeys("admin@afterschool-club.com");
+	    driver.findElement(By.cssSelector(".btn")).click();
+	    driver.findElement(By.id("dropdownUser1")).click();
+	    driver.findElement(By.cssSelector(".asc-header")).click();
+	    driver.findElement(By.cssSelector("li:nth-child(9) .ms-1")).click();
+	    driver.findElement(By.cssSelector(".fa-envelope-circle-check")).click();
+	    assertThat(driver.findElement(By.cssSelector("#error > .col-sm-12")).getText(), is("Email(s) sent"));
+	    driver.findElement(By.cssSelector(".mx-1")).click();
+	    driver.findElement(By.linkText("Sign out")).click();
+	    driver.close();
+
+	  }	  
 }

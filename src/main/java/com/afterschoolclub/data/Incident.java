@@ -1,12 +1,19 @@
 package com.afterschoolclub.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+
+import com.afterschoolclub.data.repository.IncidentRepository;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,10 +29,29 @@ public class Incident {
 	
 	AggregateReference<Session, Integer> sessionId;
 	
+	public static IncidentRepository repository = null;
+
+
+	
 	@MappedCollection(idColumn = "incident_id")
 	private Set<AttendeeIncident> attendeeIncidents = new HashSet<>();
 	
-		
+	
+	public static List<Incident> findAllBySessionId(int sessionId) {
+		return repository.findAllBySessionId(sessionId);
+	}
+	
+	
+	public static Incident findById(int userId) {
+		Optional<Incident> optional = repository.findById(userId);
+		Incident incident = null;
+		if (optional.isPresent()) {
+			incident = optional.get();
+		}
+		return incident;		
+	}	
+	
+	
 	
 	/**
 	 * @param sessionId
@@ -68,6 +94,8 @@ public class Incident {
         return result;
 	} 
 	
+
+	
 	public AttendeeIncident getAttendeeIncident(Attendee attendee) {
 		return getAttendeeIncident(attendee.getAttendeeId());		
 	} 	
@@ -77,6 +105,23 @@ public class Incident {
 		AttendeeIncident attendeeIncident = getAttendeeIncident(attendee);
 		return attendeeIncident.getSummary();
 	}
+	
+	
+	public List<AttendeeIncident> getAttendeeIncidents() {
+		
+		Comparator<AttendeeIncident> comparator = new Comparator<AttendeeIncident>(){
+			 
+		    @Override
+		    public int compare(final AttendeeIncident o1, final AttendeeIncident o2){
+		    	return o1.getStudent().compareTo(o2.getStudent());
+		    }
+		};
+		
+		List<AttendeeIncident> sorted = new ArrayList<AttendeeIncident>(attendeeIncidents);
+		Collections.sort(sorted, comparator);
+		return sorted;
+	
+	} 	
 	
 	
 	
@@ -101,5 +146,10 @@ public class Incident {
 	public int hashCode() {
 		return this.getIncidentId();	
 	}
+
+	public void save()
+	{
+		repository.save(this);
+	}		
 	
 }

@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.thymeleaf.context.Context;
 
 import com.afterschoolclub.SessionBean;
@@ -66,25 +68,29 @@ public class StaffController {
     }
 
     @PostMapping(consumes = {"application/json"})
-    public Staff createStaff(@RequestBody Staff staff) {
-    	//TODO whilst this works could handle it better. Should handle duplicate email address better.
-    	User user = staff.save();
-    	
-		
-		Context context = new Context();
-		context.setVariable("user", user);
-		context.setVariable("sessionBean", sessionBean);
-		String link = String.format("%s/alterPassword?userId=%d&validationKey=%d", sessionBean.getHomePage(), user.getUserId(), user.getValidationKey());
-		context.setVariable("link", link);			
-		
-		Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "After School Club New Staff Account", mailService.getHTML("email/newStaffAccount", context));
-		
-		try {
-			mailService.sendHTMLEmail(email);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        return staff;
+    public Staff createStaff(@RequestBody Staff staff) {   	
+    	try {
+    		User user = staff.save();
+    		Context context = new Context();
+    		context.setVariable("user", user);
+    		context.setVariable("sessionBean", sessionBean);
+    		String link = String.format("%s/alterPassword?userId=%d&validationKey=%d", sessionBean.getHomePage(), user.getUserId(), user.getValidationKey());
+    		context.setVariable("link", link);			
+    		
+    		Email email = new Email(user.getEmail(), sessionBean.getContactEmail(), "After School Club New Staff Account", mailService.getHTML("email/newStaffAccount", context));
+    		
+    		try {
+    			mailService.sendHTMLEmail(email);
+    		} 
+    		catch (Exception e) {
+    					//Error sending email can ignore
+			}    		
+    	}
+    	catch (Exception e) {
+			throw new ResponseStatusException(
+			           HttpStatus.BAD_REQUEST, "Already exists with same email");    		
+    	}
+    	return staff;
     }
 
     @PutMapping(value="/{id}", consumes = {"application/json"})

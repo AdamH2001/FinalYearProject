@@ -44,14 +44,21 @@ public class PolicyController {
     @PostMapping("/policies")
     public ResponseEntity<String> uploadPolicy(@RequestParam("file") MultipartFile file, 
    		 @RequestParam(name="filename", required=true) String filename) {
-    	try {
-            // Save the file to the directory
-        	String filePath;
-     		filePath = policyService.savePolicy(file, filename);        
-            return ResponseEntity.ok("Policy uploaded successfully: " + filePath);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading policy");
-        }
+    	ResponseEntity<String> response = null;    	
+    	if (sessionBean.isLoggedOn()) {       		            
+	    	try {
+	            // Save the file to the directory
+	        	String filePath;
+	     		filePath = policyService.savePolicy(file, filename);        
+	     		response = ResponseEntity.ok("Policy uploaded successfully: " + filePath);
+	        } catch (IOException e) {
+	        	response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading policy");
+	        }
+    	}
+    	else {
+    		response = ResponseEntity.status(HttpStatus.FORBIDDEN).body("Need to be logged on as administrator");    	
+    	}
+    	return response;
     }
 
 

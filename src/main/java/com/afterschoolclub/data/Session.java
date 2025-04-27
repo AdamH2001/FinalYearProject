@@ -118,9 +118,6 @@ public class Session {
 	@MappedCollection(idColumn = "session_id")
 	private Set<SessionMenu> sessionMenus = new HashSet<>();	
 	
-	@MappedCollection(idColumn = "session_id")
-	private Set<Incident> incidents = new HashSet<>();
-	
 	
 	@Transient
 	private transient Club sessionClub = null; 
@@ -615,52 +612,22 @@ public class Session {
 		return startDateTime.toLocalDate().compareTo(getRecurrenceSpecification().getEndDate()) !=0; 
 	}
 	
-	public void addIncident(Incident incident) {
-		incidents.add(incident);
-	}
-	
 	
 	public Incident getIncident(int incidentId) {
-		Incident result = null;
-		Iterator<Incident> itr = incidents.iterator();
-		
-		while (result == null && itr.hasNext()) {
-			Incident next = itr.next();
-			if (next.getIncidentId() == incidentId) {
-				result = next;
-			}
-		}
-		return result;
+		return  Incident.findById(incidentId);
 	}	
 	
-	public void removeIncident(int incidentId) {		
-		Incident incident = this.getIncident(incidentId);
-		incidents.remove(incident);
-		return;
-	}	
-	
+
 	
 
 	public List<Student> getStudentsForIncident(Incident incident) {
-		
-		Comparator<Student> comparator = new Comparator<Student>(){
-			 
-		    @Override
-		    public int compare(final Student o1, final Student o2){
-		    	String s1 = o1.getSurname().toLowerCase().concat(o1.getFirstName().toLowerCase());
-		    	String s2 = o2.getSurname().toLowerCase().concat(o2.getFirstName().toLowerCase());
-		    	return s1.compareTo(s2);
-		    }
-		};
-				
-	
 		List <Student> students = new ArrayList<>();
-		Set<AttendeeIncident> allAttendeeIncidents = incident.getAttendeeIncidents();
+		List<AttendeeIncident> allAttendeeIncidents = incident.getAttendeeIncidents();
 		for (AttendeeIncident ai : allAttendeeIncidents) {
 			Student s = this.getAttendee(ai.getAttendeeId().getId().intValue()).getStudent();
 			students.add(s);
 		}
-		Collections.sort(students, comparator);
+		Collections.sort(students);
 
 		return students;
 		
@@ -778,5 +745,8 @@ public class Session {
 
 		return result; 
 	}		
-	
+
+	public List<Incident> getIncidents() {
+		return Incident.findAllBySessionId(this.sessionId);
+	}
 }

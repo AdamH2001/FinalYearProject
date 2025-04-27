@@ -31,7 +31,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Student {
+public class Student implements Comparable<Student>{
 	
 	public static StudentRepository repository = null;
 	
@@ -65,8 +65,13 @@ public class Student {
 	private transient User user = null;
 	
 	
-	public static List<Student> findByAttendeeId(int attendeeId) {		
-		return repository.findByAttendeeId(attendeeId);
+	public static Student findByAttendeeId(int attendeeId) {		
+		List<Student> students = repository.findByAttendeeId(attendeeId);
+		Student result = null;
+		if (students.size() > 0) {
+			result = students.get(0);
+		}
+		return result;
 	}	
 	
 	public static List<Student> findAll() {
@@ -330,5 +335,11 @@ public class Student {
 	public boolean hasMedicalNotes() {
 		return getAllergyNoteText().length()>0 || getHealthNoteText().length() > 0 || getDietNoteText().length() > 0 ||
 				getCarePlanNoteText().length() > 0 || getMedicationNoteText().length()>0 || getOtherNoteText().length() > 0;
+	}
+	
+	public int compareTo(Student otherStudent) {
+    	String s1 = this.getSurname().toLowerCase().concat(this.getFirstName().toLowerCase());
+    	String s2 = otherStudent.getSurname().toLowerCase().concat(otherStudent.getFirstName().toLowerCase());
+    	return s1.compareTo(s2);		
 	}
 }
