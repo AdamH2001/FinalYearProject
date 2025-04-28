@@ -1,3 +1,4 @@
+// Confirm really want to delete a student
 
 function deleteStudent() {
 	if (!confirm("Are you sure you want to delete this student?") == true) {
@@ -5,6 +6,8 @@ function deleteStudent() {
 	}
 }
 
+
+// Sweitch tabs
 
 function activateStudentTab(tabId)
 {	
@@ -19,6 +22,8 @@ function activateStudentTab(tabId)
 	$("#" + tabId.replace("Tab", "List")).show();
 	
 }  
+
+// Show medical modal and copy information across
 
 function showMedical(button)
 {
@@ -35,6 +40,8 @@ function showMedical(button)
 
 		
 }  
+
+// Dismiss medical modal
 
 function dismissMedical()
 {	

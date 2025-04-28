@@ -1,4 +1,6 @@
 
+// Validate session form ensuring have enought staff for attendees
+// Also ensure dates make sense
 
 function validateSessionForm(event) {
 	
@@ -32,7 +34,7 @@ function validateSessionForm(event) {
 }
 
 
-
+// UPdate style when click on Abset and Present reigrstation buttons
 
 function updateRegisterButtons(button) {	
 	if (button.classList.contains("RegisterPresentButton")) {
@@ -60,7 +62,7 @@ function updateRegisterButtons(button) {
 }
 
 
-
+// Set Date and time limits for session
 function setDateLimits(){
 	
 	if ($("#viewing").length==0) {
@@ -146,6 +148,7 @@ function setDateLimits(){
 		
   };
   
+// Funtions to manage the adding of an equipment row  
   function addRow(button) {
   			
   	var index = Number(button.id.replace("add", ""));
@@ -157,7 +160,7 @@ function setDateLimits(){
   	return;	 	
   }
 
-
+  // Funtions to manage the removing of an equipment row
   function removeRow(button) {
   			
   	var index = Number(button.id.replace("remove", ""));
@@ -173,7 +176,7 @@ function setDateLimits(){
   }
   
   
-
+// copt per attendee checkbox to hidden field
   function copyPerAttendee() {
   	$('input[name="hiddenPerAttendee').each(function(i, obj) {
   			obj.value = $('input[name="perAttendee')[i].checked;

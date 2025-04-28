@@ -1,9 +1,11 @@
+// validate input and apply appropriate styles 
 
 function validateInput(data) {	
 	validateRow("#row-", data.menuOptionId);
 		
 }
 
+// get the orig-data when do an undo
 function getRestoreValue(element) {
 	value = null;
 	latestValue = element.getAttribute("latest-data");
@@ -18,6 +20,7 @@ function getRestoreValue(element) {
 	
 }
 
+// validate a row of data and apply appropriate styles
 function validateRow(rowPrefix, rowId) {
 	changed = false;
 	changed |= validateCell($("#name-" + rowId));
@@ -32,7 +35,8 @@ function validateRow(rowPrefix, rowId) {
 		$(rowPrefix+rowId).find("#undo-" + rowId).show();
 	}		 	
 }
-	           
+
+//validate an individual cell	           
 function validateCell(cell) {
 	result = true; //indicates changed or not
 	if (cell.length > 0) {
@@ -50,6 +54,7 @@ function validateCell(cell) {
 	return result;
 }
 
+// copy value from data to row
 function copyValue(fieldName, newData) {
 	id = newData.menuOptionId;
 	
@@ -64,7 +69,7 @@ function copyValue(fieldName, newData) {
 	
 }
 
-
+// get the input data from the html control
 function getDataFromControl(control)
 {
 	result =control.value;
@@ -74,7 +79,7 @@ function getDataFromControl(control)
 	return result;
 }
 
-
+// get the data from a row for a specific identifer and return json object
 function getDataFromRow(id) {
 	var data = {};
 	$("#row-" + id).find(".editable").each(function() {
@@ -93,6 +98,7 @@ function getDataFromRow(id) {
 	return data;
 }
 
+// get the original data from a row for a specific identifer and return json object
 function getOrigDataFromRow(id) {
 	var data = {};
 	$("#row-" + id).find(".editable").each(function() {
@@ -111,7 +117,7 @@ function getOrigDataFromRow(id) {
 	return data;
 }
 
-
+//Undo and changes and send PUT back to the server
 function undoChanges(button) {
 	resourceId=button.id.replace("undo-", "");
 	var data = getOrigDataFromRow(resourceId);
@@ -146,7 +152,7 @@ function undoChanges(button) {
 
 
 
-
+//User clicked on cell so need to insert appropriate edit control
 
 function insertEditControl(parent) {
 	parent.setAttribute('data-clicked', 'yes');
@@ -261,6 +267,7 @@ function insertEditControl(parent) {
     return input;
 }
 
+//set up the edit handlers for all rows of specific type
 
 function setUpEditHandlersForType(type) {
 	var cells = $("div.editable."+type);
@@ -275,7 +282,7 @@ function setUpEditHandlersForType(type) {
 }
 
 	
-
+//set up the edit handlers for all rows 
 function setUpEditHandlers() {
 	setUpEditHandlersForType('menuOption');
 	return;
@@ -284,7 +291,7 @@ function setUpEditHandlers() {
 
 
 
-
+//Update the data back on the server
 function putDataAndDisplay(resourceId, parentCell) {	
 	var data = getDataFromRow(resourceId);	
 	fieldName=parentCell.id.substring(0, parentCell.id.indexOf("-"));
@@ -323,7 +330,7 @@ function putDataAndDisplay(resourceId, parentCell) {
 }
 
 
-
+// Add new menugroupoption and POST to server
 
 function addItems() {
 	
@@ -331,8 +338,6 @@ function addItems() {
 			"menuOptionId" : 3,
 			"menuGroupId" : 1					
 		}
-	
-	
 	
 	
 	$('#myModal').hide();
@@ -387,6 +392,8 @@ function addItems() {
 	
 }
 
+// Add new menugroup and POST to server
+
 function addMenuGroup(event) {
 	event.preventDefault();
 	
@@ -421,243 +428,251 @@ function addMenuGroup(event) {
 	}		
 }
 
-		function modalShow() {
-			$("#menuOptionList2")[0].innerHTML = $("#menuOptionList")[0].innerHTML;
+// show Model dialogue and copy menuitems across
+
+function modalShow() {
+	$("#menuOptionList2")[0].innerHTML = $("#menuOptionList")[0].innerHTML;
+	
+	// Remove items already in menu
+	menuGroupId = $(".accordion-collapse:visible")[0].id.replace("flush-collapse-", "");
+	$(".accordion-collapse:visible").find(".ascmenuitem").each(function() {
+			alreadyExistingRow = this.getAttribute("orig-id").replace("mgorow-"+menuGroupId + "-", "#row-");
+			$("#menuOptionList2").find(alreadyExistingRow)[0].outerHTML="";
+		});
+
+	$("#menuOptionList2").find(".filterrow").show();	// Original list may have been filtered need to undo impact of that		
+
+
+
+	
+	$("#menuOptionList2").find(".filterrow").find("input").prop("checked", false);			
+	$("#menuOptionList2").find(".asc-menuitembutton").hide();
+	$("#menuOptionList2").find(".asc-menuitemcheckbox").show();
+	$("#menuOptionList2").find("#menuOptionNewRow").hide();			
+	$('#myModal').show();
+	
+}
+
+// Hide modal dialogue
+
+function modalHide() {
+	$('#myModal').hide();
+	
+}
+
+// User clicked to add menu item show the modal
+function addMenuItem(button) {
+
+	modalShow();
+}
+
+
+
+// Delete the menugroup adnd send to Server
+
+function deleteMenuGroup(image) {
+	window.event.cancelBubble = true;
+	window.event.preventDefault();
+	id = image.id.replace("delete-", "");
+
+	$.ajax({
+		url : "./api/menugroup/" + id,
+		method : "DELETE",
+
+		success : function(data, textStatus, jqXHR) {
+			$(".accordion-item[id='mgrow-" + id + "']")[0].outerHTML = "";
+
+			showValidationMessage("Successfully deleted menu group");
+
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			console.log("DELETE ERROR");
+			console.log(jqXHR);
+			showValidationMessage("Failed to delete menu group");
+		}
+	});
+
+}
+
+// Delete menugroupoption and send to server
+function removeMenuItemFromGroup(image) {
+	window.event.cancelBubble = true;
+	window.event.preventDefault();
+	id = image.id.replace("delete-", "")
+	
+	$.ajax({
+		url : "./api/menugroupoption/" + id,
+		method : "DELETE",
+
+		success : function(data, textStatus, jqXHR) {
+			$(".ascmenuitem[id='mgorow-" + id + "']")[0].outerHTML=""					
+			showValidationMessage("Successfully removed menu item");
+
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			console.log("DELETE ERROR");
+			console.log(jqXHR);
+			showValidationMessage("Failed to remove menu item");
+		}
+	});			
+}
+
+
+// Add new menuoptionand send to server
+
+function addNewmenuOption(event) {
+	event.preventDefault();		
+	data = {
+			"name": $("input[name='menuOptionName']").val(),					
+			"description": $("input[name='menuOptionDescription']").val(),
+			"additionalCost": $("input[name='menuOptionAdditionalCost']").val().replace(".", "").replace("£", ""),
+			"allergyInformation": $("input[name='menuOptionAllergyInformation']").val(),
+			"state": "ACTIVE"
+		}		
+
+	
+	$.ajax({
+		url:"./api/menuoption",
+		method:"POST",
+	    dataType : "json",
+	    contentType: "application/json; charset=utf-8",
+		data: JSON.stringify(data),
+
+		success: function(data,  textStatus, jqXHR){
+			console.log("POST");
+			console.log(data);
 			
-			// Remove items already in menu
-			menuGroupId = $(".accordion-collapse:visible")[0].id.replace("flush-collapse-", "");
-			$(".accordion-collapse:visible").find(".ascmenuitem").each(function() {
-					alreadyExistingRow = this.getAttribute("orig-id").replace("mgorow-"+menuGroupId + "-", "#row-");
-					$("#menuOptionList2").find(alreadyExistingRow)[0].outerHTML="";
-				});
-
-			$("#menuOptionList2").find(".filterrow").show();	// Original list may have been filtered need to undo impact of that		
-
-
-
+			outerHTML = $("#row-MENUOPTIONID")[0].outerHTML;
+			outerHTML = outerHTML.replaceAll("MENUOPTIONID", data.menuOptionId)
 			
-			$("#menuOptionList2").find(".filterrow").find("input").prop("checked", false);			
-			$("#menuOptionList2").find(".asc-menuitembutton").hide();
-			$("#menuOptionList2").find(".asc-menuitemcheckbox").show();
-			$("#menuOptionList2").find("#menuOptionNewRow").hide();			
-			$('#myModal').show();
+			
+			$("#menuOptionNewRow")[0].insertAdjacentHTML("beforeBegin", outerHTML);
+			
+			// Copy value from input fields to new row
+			
+			copyValue("name", data);
+			copyValue("description", data);
+			copyValue("additionalCost", data);
+			copyValue("allergyInformation", data);
+			
+
+			setUpEditHandlersForType("menuOption");
+			
+			//Clear input fields			
+			$(".menuOptionInput").val("");			
+			$("#row-"+data.menuOptionId).show();			
+			showValidationMessage("Successfully recorded new menu item");
+			
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("POST ERROR");
+			console.log(jqXHR);
+			showValidationMessage("Failed to record new menu item ");
+
 			
 		}
+	});			
+}
 
-		function modalHide() {
-			$('#myModal').hide();
-			
-		}
-		
 
-		function addMenuItem(button) {
+// Delete menuoption nand send to server
 
-			modalShow();
-		}
-		
-		
-		
-		
+function deleteMenuItem(button) {	
+	id=button.id.replace("delete-", "");
 
-		function deleteMenuGroup(image) {
-			window.event.cancelBubble = true;
-			window.event.preventDefault();
-			id = image.id.replace("delete-", "");
-
+	$.ajax({
+		url:"./api/menuoption/" + id,
+		method:"GET", 
+		success: function(data){
+			console.log(data);
+		
 			$.ajax({
-						url : "./api/menugroup/" + id,
-						method : "DELETE",
-
-						success : function(data, textStatus, jqXHR) {
-							$(".accordion-item[id='mgrow-" + id + "']")[0].outerHTML = "";
-
-							showValidationMessage("Successfully deleted menu group");
-
-						},
-						error : function(jqXHR, textStatus, errorThrown) {
-							console.log("DELETE ERROR");
-							console.log(jqXHR);
-							showValidationMessage("Failed to delete menu group");
-						}
-					});
-
-		}
-
-		function removeMenuItemFromGroup(image) {
-			window.event.cancelBubble = true;
-			window.event.preventDefault();
-			id = image.id.replace("delete-", "")
-			
-			$.ajax({
-				url : "./api/menugroupoption/" + id,
-				method : "DELETE",
-
-				success : function(data, textStatus, jqXHR) {
-					$(".ascmenuitem[id='mgorow-" + id + "']")[0].outerHTML=""					
-					showValidationMessage("Successfully removed menu item");
-
-				},
-				error : function(jqXHR, textStatus, errorThrown) {
-					console.log("DELETE ERROR");
-					console.log(jqXHR);
-					showValidationMessage("Failed to remove menu item");
-				}
-			});			
-		}
-
-		
-
-		
-		function addNewmenuOption(event) {
-			event.preventDefault();		
-			data = {
-					"name": $("input[name='menuOptionName']").val(),					
-					"description": $("input[name='menuOptionDescription']").val(),
-					"additionalCost": $("input[name='menuOptionAdditionalCost']").val().replace(".", "").replace("£", ""),
-					"allergyInformation": $("input[name='menuOptionAllergyInformation']").val(),
-					"state": "ACTIVE"
-				}		
-
-			
-			$.ajax({
-				url:"./api/menuoption",
-				method:"POST",
-			    dataType : "json",
-			    contentType: "application/json; charset=utf-8",
-				data: JSON.stringify(data),
-
+				url:"./api/menuoption/" +id,
+				method:"DELETE",
 				success: function(data,  textStatus, jqXHR){
-					console.log("POST");
+					console.log("DELETE");
 					console.log(data);
-					
-					outerHTML = $("#row-MENUOPTIONID")[0].outerHTML;
-					outerHTML = outerHTML.replaceAll("MENUOPTIONID", data.menuOptionId)
-					
-					
-					$("#menuOptionNewRow")[0].insertAdjacentHTML("beforeBegin", outerHTML);
-					
-					// Copy value from input fields to new row
-					
-					copyValue("name", data);
-					copyValue("description", data);
-					copyValue("additionalCost", data);
-					copyValue("allergyInformation", data);
-					
-		
-					setUpEditHandlersForType("menuOption");
-					
-					//Clear input fields			
-					$(".menuOptionInput").val("");			
-					$("#row-"+data.menuOptionId).show();			
-					showValidationMessage("Successfully recorded new menu item");
-					
+					id = this.url.substr(this.url.lastIndexOf("/")+1);
+					$("#row-"+id)[0].outerHTML="";												
+					showValidationMessage("Menu item deleted");						
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
-					console.log("POST ERROR");
-					console.log(jqXHR);
-					showValidationMessage("Failed to record new menu item ");
-
-					
+					console.log("DELETE ERROR");
+					console.log(jqXHR);						 					
+					showValidationMessage("Failed to delete menu item" );						
 				}
-			});			
-		}
-		
-		function deleteMenuItem(button) {	
-			id=button.id.replace("delete-", "");
-
-			$.ajax({
-				url:"./api/menuoption/" + id,
-				method:"GET", 
-				success: function(data){
-					console.log(data);
-				
-					$.ajax({
-						url:"./api/menuoption/" +id,
-						method:"DELETE",
-						success: function(data,  textStatus, jqXHR){
-							console.log("DELETE");
-							console.log(data);
-							id = this.url.substr(this.url.lastIndexOf("/")+1);
-							$("#row-"+id)[0].outerHTML="";												
-							showValidationMessage("Menu item deleted");						
-						},
-						error: function(jqXHR, textStatus, errorThrown) {
-							console.log("DELETE ERROR");
-							console.log(jqXHR);						 					
-							showValidationMessage("Failed to delete menu item" );						
-						}
-					});																
-					
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					console.log("GET ERROR");
-					console.log(jqXHR);
-					
-				}
-			});	
-			return;		
-		}
-		
-		$(document).ready(function(){
-			  $("#addFilter").on("keyup", function() {
-			    var words = $(this).val().toLowerCase().trim().split(/\s+/);
-			    
-			    $("#menuOptionList2").find(".filterrow").filter(function() {
-			    	$(this).toggle(shouldFilter(this, words))
-			    });			    			    
-			  });
-			  
-			  $("#mainFilter").on("keyup", function() {
-				    var words = $(this).val().toLowerCase().trim().split(/\s+/);
-				    
-				    $("#menuOptionList").find(".filterrow").filter(function() {
-				    	$(this).toggle(shouldFilter(this, words))
-				    });
-				    
-				    $("#menuGroupList").find(".filterrow").filter(function() {
-				    	$(this).toggle(shouldFilter(this, words))
-				    });
-
-				    
-				  });
-			  $('.asc-moneyinput').change(function(e) {
-					validateMoneyChange(e);			
-				  });
-
-				$('.asc-moneyinput').keydown(function(e) {
-					validateMoneyEntry(e);	
-				  });	
-				$('.asc-moneyinput').on("click", function () {
-				  	   $(this).select();
-				  	});	  
-				    				  		  
-			  
-			});
-		
-		
-		
-		function activateResourceTab(tabId)
-		{	
-			$("#mainFilter").val("");
-			$("#menuOptionList").find(".filterrow").show();
-			$("#menuGroupList").find(".filterrow").show();
-			 
-			$(".resourceTab").each(function() {
-				this.classList.remove("active");			
-			});
-
-			$("#"+tabId)[0].classList.add("active");
+			});																
 			
-			$(".resourcePane").hide();
-			
-			$("#" + tabId.replace("Tab", "List")).show();
-			
-			
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log("GET ERROR");
+			console.log(jqXHR);
 			
 		}
+	});	
+	return;		
+}
+
+// Delete stup filter functions and validation for money controls 
+
+$(document).ready(function(){
+	  $("#addFilter").on("keyup", function() {
+	    var words = $(this).val().toLowerCase().trim().split(/\s+/);
+	    
+	    $("#menuOptionList2").find(".filterrow").filter(function() {
+	    	$(this).toggle(shouldFilter(this, words))
+	    });			    			    
+	  });
+	  
+	  $("#mainFilter").on("keyup", function() {
+		    var words = $(this).val().toLowerCase().trim().split(/\s+/);
+		    
+		    $("#menuOptionList").find(".filterrow").filter(function() {
+		    	$(this).toggle(shouldFilter(this, words))
+		    });
+		    
+		    $("#menuGroupList").find(".filterrow").filter(function() {
+		    	$(this).toggle(shouldFilter(this, words))
+		    });
+
+		    
+		  });
+	  $('.asc-moneyinput').change(function(e) {
+			validateMoneyChange(e);			
+		  });
+
+		$('.asc-moneyinput').keydown(function(e) {
+			validateMoneyEntry(e);	
+		  });	
+		$('.asc-moneyinput').on("click", function () {
+		  	   $(this).select();
+		  	});	  
+	});
 
 
-
+// Switch tabs
 	
+function activateResourceTab(tabId)
+{	
+	$("#mainFilter").val("");
+	$("#menuOptionList").find(".filterrow").show();
+	$("#menuGroupList").find(".filterrow").show();
+	 
+	$(".resourceTab").each(function() {
+		this.classList.remove("active");			
+	});
 
+	$("#"+tabId)[0].classList.add("active");
 	
+	$(".resourcePane").hide();
+	
+	$("#" + tabId.replace("Tab", "List")).show();
+	
+	
+	
+}
+
+
+
+
+

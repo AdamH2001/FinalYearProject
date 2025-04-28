@@ -1,4 +1,4 @@
-
+// Currency format for GB
 let pounds = Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency: 'GBP',
@@ -42,6 +42,7 @@ function formatTime(date) {
 }
 
 
+// Resize the inernals so everything stays and tidy 
 
   function marginHeader() {
 	hasError =  $("#errorcontainer").length > 0;
@@ -73,6 +74,8 @@ function formatTime(date) {
   	  
 
   }
+  
+  // When window resizes resize internals 
 
   window.addEventListener('resize', function(event) {
     marginHeader()
@@ -83,24 +86,29 @@ function formatTime(date) {
   });
   
   
-
+// Function to see if loggedOn
   
   function isLoggedOn() {
 	return $("#loggedOnUser")[0].innerText.length>0;
 
   }
   
+  
+  // Reload all images with a given url
   async function reloadImg(url) {
   	  await fetch(url, { cache: 'reload', mode: 'no-cors' })
   	  document.body.querySelectorAll(`img[src='${url}']`)
   	    .forEach(img => img.src = url)
   	}  
   
+// Function to show validation in top middle as red text
 	function showValidationMessage(message)
 	{
 		$("#validationMessage")[0].innerText = message;
 		$(".afterschoolclubflash").show()	
 	}
+	
+// Manage the finance summary slider	
     
    function updateFinanceSummary() {
 		if ($("#financeSummary")[0].checked) {
@@ -111,7 +119,7 @@ function formatTime(date) {
 		}
    }
    
-   
+// My own  money control  entry validation
    	function validateMoneyEntry(e) {
 		switch (e.key) {
 			case "0":
@@ -154,7 +162,8 @@ function formatTime(date) {
 		}
 
      }
-	 
+
+	 // My own  money control  entry validation
 	 function validateMoneyChange(e) {		
 	     value=e.target.value.replace("£", "").trim();
 	     if(isNaN(value)){

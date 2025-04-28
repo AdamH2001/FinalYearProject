@@ -1,4 +1,4 @@
-
+// Determine whether should filter a row based on search terms and row text
 	function shouldFilter(row, words) {
 		filter = true;
 		index = 0;
@@ -11,6 +11,7 @@
 		return filter;
 	}
 
+// Need to re-apply stripes after doing a search and filtering
 	function reapplyStripes() {
 		$(".stripedrow:visible").each(function (index) {
 			  if (index % 2 == 0) {
@@ -22,6 +23,7 @@
 			});			
 	}
 
+// return an array of search terms
 	function getSearchTerms(text) {
 
 		//The parenthesis in the regex creates a captured group within the quotes
@@ -42,7 +44,7 @@
 	}
 	
 
-
+// when hit a key in search box apply filter
 	$(document).ready(function() {
 		reapplyStripes()
 		$("#filter").on("keyup", function() {

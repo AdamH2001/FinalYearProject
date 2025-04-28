@@ -1,4 +1,4 @@
-
+// Return data from row into a JSON data object
 
 function getDataFromRow(id) {
 	var data = {};
@@ -32,6 +32,8 @@ function getDataFromRow(id) {
 	return data;
 }
 
+// Get original data from row into JSON data object
+
 function getOrigDataFromRow(id) {
 	var data = {};
 	$("#row-" + id).find(".editable").each(function() {
@@ -62,6 +64,7 @@ function getOrigDataFromRow(id) {
 	return data;
 }
 
+// Set the orginal data 
 function setOrigDataFromRow(id) {
 	$("#row-" + id).find(".editable").each(function() {
 		if (this.getAttribute("editType") != "file") {
@@ -74,6 +77,7 @@ function setOrigDataFromRow(id) {
 	});		
 }
 
+// Validate input and color cells appropriately
 function validateInput(data) {	
 	if (data.resourceId!= null) {
 		validateRow("#row-", data.resourceId);
@@ -83,6 +87,7 @@ function validateInput(data) {
 	}		
 }
 
+// Undo and changes and PUT orig data back on server
 function undoChanges(button) {
 	resourceId=button.id.replace("undo-", "");
 
@@ -123,6 +128,7 @@ function undoChanges(button) {
 		
 }
 
+// Delete resource item from server
 function deleteResourceItem(data, type) {
 	$.ajax({
 		url:"./api/resources/" +id,
@@ -143,6 +149,7 @@ function deleteResourceItem(data, type) {
 	});	
 }
 
+// Delete resource item from server
 function deleteResource(button, type) {	
 	id=button.id.replace("delete-", "");
 
@@ -181,6 +188,7 @@ function deleteResource(button, type) {
 	return;		
 }
 
+// Delete staff from server
 function deleteStaff(button) {	
 	id=button.id.replace("delete-", "");
 
@@ -233,7 +241,7 @@ function deleteStaff(button) {
 }
 
 
-
+// Add new equipment and post to server
 function addNewEquipment(event) {
 	event.preventDefault();		
 	
@@ -248,7 +256,7 @@ function addNewEquipment(event) {
 	
 }
 
-
+// Add new location and post to server
 function addNewLocation(event) {
 	event.preventDefault();		
 	
@@ -264,6 +272,7 @@ function addNewLocation(event) {
 	
 }
 
+// copy value from data to html 
 function copyValue(fieldName, newData) {
 	if (newData.userId == null) {
 		prefix = "#row-";
@@ -278,7 +287,7 @@ function copyValue(fieldName, newData) {
 	
 }
 
-
+// Add new location and post to server
 function addNewStaff(event) {
 	event.preventDefault();		
 	
@@ -391,10 +400,7 @@ function addNewStaff(event) {
 }
 
 
-
-
-
-
+// User clicked on a cell insert edit control
 function insertEditControl(parent) {
 	editType =  parent.getAttribute('edittype')
 	editlength =  parent.getAttribute('editlength')
@@ -472,7 +478,7 @@ function insertEditControl(parent) {
     return input;
 }
 
-
+// Set up edit handlers for rows type 
 function setUpEditHandlersForType(type) {
 	var cells = $("div.editable."+type);
 	for (var i = 0; i < cells.length; i++) {
@@ -486,7 +492,7 @@ function setUpEditHandlersForType(type) {
 }
 
 	
-
+// Set up all edit handlers 
 function setUpEditHandlers() {
 	setUpEditHandlersForType('equipment');
 	setUpEditHandlersForType('location');
@@ -494,7 +500,7 @@ function setUpEditHandlers() {
 	return;
 }
 
-
+// Update a resource with new data
 function putResource(data, parentCell) {
 						$.ajax({
 							url: data.url,
@@ -525,6 +531,7 @@ function putResource(data, parentCell) {
 						})		
 }
 
+// Update a resource with new data and display back onscreen if successful
 
 function putDataAndDisplay(resourceId, parentCell) {	
 	
@@ -575,6 +582,7 @@ function putDataAndDisplay(resourceId, parentCell) {
 
 }
 
+// Get the original data to support uno
 function getRestoreValue(element) {
 	value = null;
 	latestValue = element.getAttribute("latest-data");
@@ -588,6 +596,8 @@ function getRestoreValue(element) {
 	return value;
 	
 }
+
+// Validate a cell and update styles
 
 function validateCell(cell) {
 	result = true; //indicates changed or not
@@ -608,6 +618,7 @@ function validateCell(cell) {
 
 
 
+// Validate a full row and update styles
 
 function validateRow(rowPrefix, rowId) {
 	changed = false;
@@ -631,7 +642,7 @@ function validateRow(rowPrefix, rowId) {
 	}		 	
 }
 	                
-
+// Post new data for new resource and perform updates on screen
 
 function postDataAndDisplay(data, type) {
 
@@ -700,7 +711,7 @@ function postDataAndDisplay(data, type) {
 
 
 
-
+// Change resource tab
 function activateResourceTab(tabId)
 {	
 	$(".resourceTab").each(function() {
@@ -716,6 +727,8 @@ function activateResourceTab(tabId)
 	
 	
 }
+
+// Upload image for staff
 
 function uploadFile(file, id) {
 	var data = new FormData();
@@ -743,6 +756,7 @@ function uploadFile(file, id) {
 		   });
 }
 
+// Upload image for existing staff
 
 function uploadImage(){
     var files = event.target.files;
@@ -751,7 +765,8 @@ function uploadImage(){
 		uploadFile(files[0], id);
     }	
   }
-  
+
+  // Upload New image for new staff
 function uploadNewImage(){
     var files = event.target.files;
     if (files.length > 0) {    	
@@ -759,6 +774,8 @@ function uploadNewImage(){
     }	
   }  
 
+  // reload img with set url 
+  
 async function reloadImg(url) {
 	  await fetch(url, { cache: 'reload', mode: 'no-cors' })
 	  document.body.querySelectorAll(`img[src='${url}']`)

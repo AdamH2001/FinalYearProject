@@ -1,3 +1,4 @@
+// Calculate the costs for options every time user changes selection
 
 function refreshBookingSummary() {
 	if (isLoggedOn()) {
@@ -107,7 +108,7 @@ function refreshBookingSummary() {
   return;
 }
 
-
+// Calculate number recurring sessions
 
 function numberRecurringSessions()
 {
@@ -162,6 +163,7 @@ function numberRecurringSessions()
 	return numBookings;
 }
 
+// Track changing attendent 
 
 function changedAttendance(element) {
 	refreshBookingSummary();
@@ -173,6 +175,7 @@ function changedAttendance(element) {
 	return true;	
 }
 
+// Initialise containers as appropriate depending on whether logged on 
 
 function initialiseStudentContainers() {
 	
@@ -185,6 +188,8 @@ function initialiseStudentContainers() {
 	return;
 }
 
+// change student tab 
+
 function activateStudent(elementId) {
 	// Update which tab is active
 	$("a.studentTab.active")[0].classList.remove("active");
@@ -195,42 +200,7 @@ function activateStudent(elementId) {
 
 
 
-
-
-
-
-
-
-
-function initialiseStudentContainersOld() {
-	var studentTabs =  document.getElementsByClassName("studentTab");
-	var elementId = "";
-
-	for (i = 0; i<studentTabs.length; i++) {
-		var tab = studentTabs[i];
-		if (tab.classList.contains("active"))
-			elementId = tab.id;		
-	}
-	
-
-	var studentContainers =  document.getElementsByClassName("studentContainer");
-
-	var containerId = elementId + "-Container";
-	for (i = 0; i<studentContainers.length; i++) {
-		var container = studentContainers[i];
-		if (container.id == containerId) {
-			container.style.display="block"
-		}
-		else
-		{
-			container.style.display="none"
-		}
-		
-	}	
-
-
-	return;
-}
+// Ensure booking form is filled in correctly if selected a recurring booking
 
 
 function validateBookingForm(event) {
