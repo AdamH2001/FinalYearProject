@@ -52,7 +52,7 @@ public interface ParentalTransactionRepository extends CrudRepository<ParentalTr
 	 * @param endDate - end date
 	 * @return list of ParentalTransactions matching search criteria 
 	 */
-	@Query("SELECT * FROM parental_transaction WHERE parent_id = :parentId AND date_time >= :startDate AND date_time < :endDate ORDER BY date_time") //TODO check is <= for endDate
+	@Query("SELECT * FROM parental_transaction WHERE parent_id = :parentId AND date_time >= :startDate AND date_time < :endDate ORDER BY date_time") 
 	List<ParentalTransaction> getTransactions(int parentId, LocalDate startDate, LocalDate endDate);
 	
 	/**

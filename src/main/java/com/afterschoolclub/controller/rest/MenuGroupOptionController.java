@@ -31,7 +31,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.afterschoolclub.data.State;
 
-
+/**
+ * CRUD Controller for MenuGroup entity
+ */
 @RestController
 @RequestMapping("api/menugroupoption")
 public class MenuGroupOptionController {
@@ -49,7 +51,10 @@ public class MenuGroupOptionController {
     }    
     
     
-    
+    /**
+     * Returns all the MenuGroupOptions
+     * @return Iterable collection of MenuGroupOptions
+     */
 	
     @GetMapping
     public Iterable<SimpleMenuGroupOption> getAllMenuGroups() {
@@ -64,6 +69,11 @@ public class MenuGroupOptionController {
     	return result;    	
     }
 
+    /**
+     * Endpoint to retrieve a MenuGroupOption
+     * @param id - primary key for the MenuGroupOption
+     * @return - MenuGroupOptions matching the primary key
+     */    
     @GetMapping(value="/{id}")
     public Optional<SimpleMenuGroupOption> getStaffById(@PathVariable long id) {
     	Optional<SimpleMenuGroupOption> result = null;
@@ -82,6 +92,11 @@ public class MenuGroupOptionController {
     	return result;
     }
 
+    /**
+     * Endpoint to create a new MenuGroupOption
+     * @param simpleMenuGroupOption - MenuGroupOption to create
+     * @return MenuGroupOption created
+     */
     @PostMapping(consumes = {"application/json"})
     public SimpleMenuGroupOption createMenuGroup(@RequestBody SimpleMenuGroupOption simpleMenuGroupOption) {
     	SimpleMenuGroupOption result = null;
@@ -96,7 +111,14 @@ public class MenuGroupOptionController {
     	}    	
     	return result;	    	
     }
-
+    
+    /**
+     * Endpoint to update a MenuGroupOption
+     * @param id - primary key of the MenuGroupOption
+     * @param simpleMenuGroupOption - object representing updated state
+     * @return - updated MenuGroupOption
+     */
+    
     @PutMapping(value="/{id}", consumes = {"application/json"})
     public SimpleMenuGroupOption updateMenuGroup(@PathVariable long id, @RequestBody SimpleMenuGroupOption simpleMenuGroupOption) {
     	SimpleMenuGroupOption result = null;
@@ -112,6 +134,10 @@ public class MenuGroupOptionController {
     	return result;	
     }
     
+    /**
+     * Endpoint to delete an MenuGroupOption
+     * @param id - primary key for the MenuGroup
+     */    
     @DeleteMapping(value="/{id}")
     public void deleteMenuGroup(@PathVariable long id) {
     	if (sessionBean.isLoggedOn()) {      	

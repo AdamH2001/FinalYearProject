@@ -52,30 +52,66 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.thymeleaf.context.Context;
 
+
+/**
+ * Controller Class that implements all the end points that are common across parents  
+ * and administrators e.g. logon, change password, view clubs 
+ */
+
+
 @Controller
 @SessionAttributes({"sessionBean"})
 
 public class MainController {
 	
+	/**
+	 * Utility service for sending emails
+	 */
 	@Autowired
 	private EmailService mailService;
 	
+	/**
+	 * Utility service for managing user profile pictures 
+	 */
 	@Autowired
 	private ProfilePicService profilePicService;	
 	
+	/**
+	 * Utility service for managing club pictures 
+	 */
 	@Autowired
 	private ClubPicService clubPicService;	
 	
+	/**
+	 * Utility logger for outputting info messages
+	 */
 	static Logger logger = LoggerFactory.getLogger(MainController.class);
 	
+    /**
+     * Bean to manage session state acorss the view and difference controllers
+     */
     private final SessionBean sessionBean;	
 	
+
 	/**
+	 * Constructor for the main controller. This initialises all the repository objects in the 
+	 * data classes. Unfortuantely cannot use dependency injection to do this.  
 	 * @param userRepository
 	 * @param sessionRepository
 	 * @param menuGroupRepository
 	 * @param resourceRepository
 	 * @param classRepository
+	 * @param studentRepository
+	 * @param transactionRepository
+	 * @param clubRepository
+	 * @param recurrenceSpecificationRepository
+	 * @param holidayRepository
+	 * @param menuOptionRepository
+	 * @param incidentRepository
+	 * @param profilePicService
+	 * @param clubPicService
+	 * @param paypalService
+	 * @param sessionBean
 	 */
 	public MainController(UserRepository userRepository, SessionRepository sessionRepository,
 			MenuGroupRepository menuGroupRepository, ResourceRepository resourceRepository,
@@ -106,6 +142,13 @@ public class MainController {
 		
 	}
 	
+	/**
+	 * Utility function to validate the user is loggedOn
+	 * Returns null if logged on otherwise returns a redirection to user and
+	 * sets appropraite error message
+	 * @param model - holder of context data from view 
+	 * @return
+	 */
 	public String validateIsLoggedOn(Model model)
 	{
 		String returnPage = null;
@@ -113,8 +156,7 @@ public class MainController {
 		
 		if (!sessionBean.isLoggedOn()) {			
 			sessionBean.setFlashMessage("Please login to perform this action.");
-			setInDialogue(false,model);
-			//returnPage = "redirect:/";
+			setInDialogue(false,model);			//
 			returnPage = sessionBean.getRedirectUrl();
 
 		}
@@ -122,6 +164,11 @@ public class MainController {
 	}
 	
 	
+	/**
+	 * Utility function to set in dialogue mode and disable links in navigation bars
+	 * @param inDialogue
+	 * @param model - holder of context data from view  - holder of context data from view 
+	 */
 	public void setInDialogue(boolean inDialogue, Model model)
 	{
 		sessionBean.setInDialogue(inDialogue);
@@ -132,18 +179,13 @@ public class MainController {
 
 
 
-	@GetMapping("/log")
-	public String log(Model model) {
-		logger.trace("A TRACE Message");
-		logger.debug("A DEBUG Message");
-		logger.info("An INFO Message");
-		logger.warn("A WARN Message");
-		logger.error("An ERROR Message");
-		this.setInDialogue(false,model);
-		return sessionBean.getRedirectUrl();
-	}
-	
-
+	/**
+	 * End point to validate an email ensuring the validation key is correct for this user
+	 * @param userId - primary key for the user
+	 * @param validationKey
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/validateEmail")
 	public String validateEmail(@RequestParam(name = "userId") Integer userId,
 			@RequestParam(name = "validationKey") Integer validationKey, Model model) {
@@ -171,6 +213,13 @@ public class MainController {
 
 	}
 	
+	/**
+	 * End point to return form to change password following a forgotten password
+	 * @param userId - primary key for the user
+	 * @param validationKey
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/alterPassword")
 	public String alterPassword(@RequestParam(name = "userId") Integer userId,
 			@RequestParam(name = "validationKey") Integer validationKey, Model model) {
@@ -204,6 +253,13 @@ public class MainController {
 	
 	
 
+	/**
+	 * End point to log the user in validting the username and password, active or inactive, verified email  and validation in the registration process
+	 * @param username
+	 * @param password
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/processlogin")
 	public String processLogin(@RequestParam(name = "username") String username,
 			@RequestParam(name = "password") String password, Model model) {
@@ -247,12 +303,22 @@ public class MainController {
 		return returnPage;
 	}
 
+	/**
+	 * End point to move back one month in calendar view
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/calendarBack")
 	public String calendarBack(Model model) {
 		sessionBean.setTimetableStartDate(sessionBean.getTimetableStartDate().minusMonths(1)) ;						
 		return setupCalendar(model);
 	}
 
+	/**
+	 * End point to move forward one month in calendar view
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/calendarForward")
 	public String calendarForward(Model model) {
 		sessionBean.setTimetableStartDate(sessionBean.getTimetableStartDate().plusMonths(1)) ;						
@@ -260,6 +326,11 @@ public class MainController {
 	}
 	
 
+	/**
+	 * End point to go return the home page
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/")
 	public String home(Model model) {
 		String returnPage = "home";
@@ -270,6 +341,11 @@ public class MainController {
 	    return returnPage;
 	}
 	
+	/**
+	 * End point to view privacy statement
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/privacypolicy")
 	public String privacypolicy(Model model) {
 		sessionBean.setReturnUrl("./privacypolicy");
@@ -277,6 +353,11 @@ public class MainController {
 	    return "privacypolicy";
 	}
 	
+	/**
+	 * End point if policy is missing
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/missingPolicy")
 	public String missingPolicy(Model model) {
 		this.setInDialogue(false,model);	  
@@ -284,6 +365,11 @@ public class MainController {
 	}
 	
 	
+	/**
+	 * End point to view terms and conditions
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/termsandconditions")
 	public String termsandconditions(Model model) {
 		sessionBean.setReturnUrl("./policiesandprocedures"); 
@@ -292,6 +378,11 @@ public class MainController {
 	    return "termsandconditions";
 	}
 	
+	/**
+	 * End point to view policies and procedures
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/policiesandprocedures")
 	public String policiesandprocedures(Model model) {
 		sessionBean.setReturnUrl("./policiesandprocedures"); 
@@ -302,6 +393,12 @@ public class MainController {
 	
 	
 
+	/**
+	 * End point to log out and remove and session state
+	 * @param model - holder of context data from view 
+	 * @param status
+	 * @return the next page for the user
+	 */
 	@GetMapping("/logout")
 	public String home(Model model, SessionStatus status) {
 		sessionBean.reset();
@@ -310,6 +407,11 @@ public class MainController {
 	}
 
 	
+	/**
+	 * Utility function to set up the data to view on the calendar
+	 * @param model - holder of context data from view 
+	 * @return the calendar page for the user
+	 */
 	public String initialiseCalendar(Model model) {		
 		LocalDate calendarMonth = sessionBean.getTimetableStartDate();
 		LocalDate calendarDay = null;
@@ -343,11 +445,23 @@ public class MainController {
 		return "calendar";
 	}
 	
+	/**
+	 * Utility function to redirect to the calendar view
+	 * @param model - holder of context data from view 
+	 * @return
+	 */
 	public String setupCalendar(Model model) {		
 		return "redirect:/calendar";
 	}
 	
 	
+	/**
+	 * End point to persist new password
+	 * @param password
+	 * @param conPassword
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/updatePassword")
 	public String updatePassword(@RequestParam( name = "password") String password, @RequestParam( name = "conPassword") String conPassword, Model model) {
 		String returnPage = validateIsLoggedOn(model);
@@ -368,6 +482,16 @@ public class MainController {
 		return returnPage;
 	}
 	
+	/**
+	 * End point to update the password after user has forgotten it
+	 * Need to ensure validation key is aligned with what we sent out
+	 * @param userId - primary key for the user
+	 * @param validationKey
+	 * @param password
+	 * @param conPassword
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/updatePasswordWithKey")
 	public String updatePasswordWithKey(@RequestParam( name = "userId") Integer userId, @RequestParam( name = "validationKey") Integer validationKey, @RequestParam( name = "password") String password, @RequestParam( name = "conPassword") String conPassword, Model model) {
 		String returnPage = null;
@@ -409,6 +533,11 @@ public class MainController {
 		return returnPage;
 	}
 	
+	/**
+	 * End point to return form to change password
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/changePassword")
 	public String changePassword(Model model) {
 		String returnPage = validateIsLoggedOn(model);
@@ -421,6 +550,12 @@ public class MainController {
 			
 	}
 
+	/**
+	 * End point to view the calendar view
+	 * @param filterClub
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/calendar")
 	public String calendar(      
             @RequestParam(name="filterClub", required=false,  defaultValue="0") int filterClub,
@@ -436,6 +571,11 @@ public class MainController {
 	}
 	
 	
+	/**
+	 * End point to return a form if forgotten password
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/forgotPassword")
 	public String forgotPassword(Model model) {
 		String returnPage = null;
@@ -450,6 +590,12 @@ public class MainController {
 		return returnPage;
 	}
 	
+	/**
+	 * End point to update  password
+	 * @param email new email
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/resetPassword")
 	public String resetPassword(@RequestParam (name="email") String email, Model model) {
 		String returnPage  = sessionBean.getRedirectUrl();
@@ -491,6 +637,11 @@ public class MainController {
 	}
 	
 
+	/**
+	 * End point to view the clubs
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/viewClubs") // complete
 	public String viewClubs(Model model) {
 		this.setInDialogue(false,model);	  
@@ -502,6 +653,12 @@ public class MainController {
 
 	
 	
+	/**
+	 * End point to retreive form to edit a user
+	 * @param model - holder of context data from view 
+	 * @param userId - primary key for the user
+	 * @return the next page for the user
+	 */
 	@GetMapping("/editUserDetails") 
 	public String editUserDetails(Model model, 
 			@RequestParam(name = "userId", required=false, defaultValue="0") int userId) {
@@ -530,6 +687,11 @@ public class MainController {
 		return returnPage;
 	}
 
+	/**
+	 * End point to retreie form to create a new user
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/createUser")
 	public String createUser(Model model) {		
 		model.addAttribute("isEditing",false);		
@@ -545,6 +707,24 @@ public class MainController {
 
     
 
+	/**
+	 * End point to save a newly created use or update an existing one with fresh details
+	 * @param userId - primary key for the user
+	 * @param title
+	 * @param firstName
+	 * @param surname
+	 * @param email
+	 * @param password
+	 * @param conPassword
+	 * @param description
+	 * @param keywords
+	 * @param telephoneNum
+	 * @param altContactName
+	 * @param altTelephoneNum
+	 * @param tempFilename
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/saveUserDetails")
 	public String saveUserDetails(
 			@RequestParam(name = "userId") int userId,			
@@ -684,6 +864,12 @@ public class MainController {
     
 
 	
+	/**
+	 * End point to move one month back in transactional view	 * 
+	 * @param userId - primary key for the user
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/transactionBack")
 	public String transactionBack(@RequestParam(name = "userId", required = false,  defaultValue="0") int userId,	
 			Model model) {
@@ -701,6 +887,12 @@ public class MainController {
 		return returnPage;			
 	}
 	
+	/**
+	 * End point to move one month forward in transactional view
+	 * @param userId - primary key for the user
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/transactionForward")
 	public String transactionForward(@RequestParam(name = "userId", required = false,  defaultValue="0") int userId,
 					Model model) {
@@ -720,6 +912,12 @@ public class MainController {
 	
 	
 
+	/**
+	 * End point to view edit screen for a student
+	 * @param userId - primary key for the student
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/editStudent")
 	public String editStudent(@RequestParam(name = "studentId") int studentId, Model model) {
 		String returnPage = validateIsLoggedOn(model);
@@ -743,6 +941,23 @@ public class MainController {
 
 
 	
+	/**
+	 * End point to store a new student or update an existing students details
+	 * @param userId - primary key for the student
+	 * @param firstName
+	 * @param surname
+	 * @param className
+	 * @param dateOfBirth
+	 * @param allergyNote
+	 * @param healthNote
+	 * @param dietNote
+	 * @param careNote
+	 * @param medicationNote
+	 * @param otherNote
+	 * @param consentToShare
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/addStudent")
 	public String addStudent(
 			@RequestParam(name = "studentId") int studentId,

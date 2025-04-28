@@ -15,11 +15,18 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ *  Class that encapsulates the data and operations for a ParentalTransaction   
+ */
+
 @Getter
 @Setter
 @ToString
 public class ParentalTransaction {
 	
+	/**
+	 * Repository to retrieve and store instances
+     */		
 	public static ParentalTransactionRepository  repository = null;
 
 	
@@ -29,17 +36,72 @@ public class ParentalTransaction {
 		REFUND, 
 		PAYMENT
 	}
+	/**
+	 * Primary key for ParentalTransaction
+	 */
+	@Id
+	private int transactionId;
+	/**
+	 * Amount in pennies
+	 */
+	private int amount;
+	/**
+	 * Time of transaction
+	 */
+	private LocalDateTime dateTime;
+	/**
+	 * Type of transaction
+	 */
+	private Type transactionType;
+	/**
+	 * VOUCHER or CASH
+	 */
+	private BalanceType balanceType;
+	/**
+	 * description of transaction
+	 */
+	private String description;
+	/**
+	 * External reference either a PayPal reference or a voucher Reference
+	 */
+	private String paymentReference;
+	/**
+	 * Foeign key to Parent
+	 */
+	AggregateReference<Parent, Integer> parentId = null;
+	/**
+	 * Foreign key to Club
+	 */
+	AggregateReference<Club, Integer> clubId = null;
+
 	
 	
+	/**
+	 * Return all transaction for a parent between two dates
+	 * @param parent - Parent
+	 * @param start = LocalDate
+	 * @param end - LocalDate
+	 * @return List of ParentalTransaction
+	 */
 	public static List<ParentalTransaction>  getTransactions(Parent parent, LocalDate start, LocalDate end) {
 		return repository.getTransactions(parent.getParentId(), start, end);		
 	}		
 	
+	/**
+	 * Return all transaction for a parent
+	 * @param parent - Parnet
+	 * @return List of ParentalTransaction
+	 */
 	public static List<ParentalTransaction> getCashTopUps(Parent parent) {
 		return repository.getCashTopUps(parent.getParentId());		
 	}		
 
 	
+	/**
+	 * Return specific trnasaction identified by voucherReference
+	 * @param voucherReference
+	 * @return ParentTransaction
+	 */
 	public static ParentalTransaction findVoucherByReferenceId(String voucherReference) {
 		ParentalTransaction trans = null;
 		List<ParentalTransaction> allTrans = repository.findVoucherByReferenceId(voucherReference);
@@ -55,8 +117,14 @@ public class ParentalTransaction {
 
 	
 	
-	public static int getBalanceOn(Parent parent, LocalDate start) {
-		Integer balance =  repository.getBalance(parent.getParentId(), start);
+	/**
+	 * Return cash balance for a parent on a specifc date 
+	 * @param parent - Parent
+	 * @param date - LocalDate
+	 * @return amount in pennies
+	 */
+	public static int getBalanceOn(Parent parent, LocalDate date) {
+		Integer balance =  repository.getBalance(parent.getParentId(), date);
 		int result = 0;
 		if (balance != null) {
 			result = balance.intValue();
@@ -67,6 +135,11 @@ public class ParentalTransaction {
 	
 	
 
+	/**
+	 * Return amount of a PayPal transaction that has not been refunded  
+	 * @param paymentReference - PayPal reference
+	 * @return amount in pennies
+	 */
 	public static int getRemainingCreditForPayment(String paymentReference) {
 		Integer balance =  repository.getRemainingCreditForPayment(paymentReference);
 		int result = 0;
@@ -79,8 +152,14 @@ public class ParentalTransaction {
 	
 	
 	
-	public static int getVoucherBalanceOn(Parent parent, LocalDate start) {
-		Integer balance =  repository.getVoucherBalance(parent.getParentId(), start);
+	/**
+	 * Return the parents voucher balance on a specific date   
+	 * @param parent - Parent
+	 * @param date - LocalDate
+	 * @return amount in pennies
+	 */
+	public static int getVoucherBalanceOn(Parent parent, LocalDate date) {
+		Integer balance =  repository.getVoucherBalance(parent.getParentId(), date);
 		int result = 0;
 		if (balance != null) {
 			result = balance.intValue();
@@ -88,6 +167,11 @@ public class ParentalTransaction {
 		return result;
 	}		
 	
+	/**
+	 * Return the parents cash balance
+	 * @param parent - Parent
+	 * @return amount in pennies
+	 */
 	public static int getBalance(Parent parent) {
 		Integer balance =  repository.getBalance(parent.getParentId());
 		int result = 0;
@@ -97,6 +181,11 @@ public class ParentalTransaction {
 		return result;
 	}			
 	
+	/**
+	 * Return the parents coucher balance
+	 * @param parent - Parent
+	 * @return amount in pennies
+	 */
 	public static int getVoucherBalance(Parent parent) {
 		Integer balance =  repository.getVoucherBalance(parent.getParentId());
 		int result = 0;
@@ -106,6 +195,13 @@ public class ParentalTransaction {
 		return result;
 	}	
 	
+	/**
+	 * Return the revenue for a Club between two dates
+	 * @param clubId - primary identifier for the CLub
+	 * @param startDate - LocalDate
+	 * @param endDate - LocalDate
+	 * @return amount in pennies
+	 */
 	public static int getRevenueForClubBetween(int clubId, LocalDate startDate, LocalDate endDate) {
 		Integer revenue = repository.getRevenueForClubBetween(clubId, startDate, endDate);		
 		int result = 0;
@@ -116,6 +212,12 @@ public class ParentalTransaction {
 		return result;
 	}	
 	
+	/**
+	 * Return the amount paid to a club by a parent
+	 * @param parentId - primary key for parent
+	 * @param clubId - primary id for a club
+	 * @return amount in pennies
+	 */
 	public static int getCashPaidForClub(int parentId, int clubId) {
 		Integer cash = repository.getCashPaidForClub(parentId, clubId);		
 		int result = 0;
@@ -128,6 +230,12 @@ public class ParentalTransaction {
 	
 	
 		
+	/**
+	 * Get the total revenue between two dates
+	 * @param startDate - LocalDate
+	 * @param endDate - LocalDate
+	 * @return amount in pennies
+	 */
 	public static int getTotalRevenueBetween(LocalDate startDate, LocalDate endDate) {
 		Integer revenue = repository.getTotalRevenueBetween(startDate, endDate);		
 		int result = 0;
@@ -138,6 +246,10 @@ public class ParentalTransaction {
 		return result;
 	}		
 	
+	/**
+	 * Get the overall voucher balance for AFTERSCHOOL CLUB 
+	 * @return amount in pennies
+	 */
 	public static int getTotalVoucherBalance() {
 		Integer balance = repository.getTotalVoucherBalance();		
 		int result = 0;
@@ -147,6 +259,11 @@ public class ParentalTransaction {
 		return result;
 	}		
 	
+	/**
+	 * Get the overall cash balance for AFTERSCHOOL CLUB 	 
+	 * @return amount in pennies	 	
+	 **/
+	 
 	public static int getTotalCashBalance() {
 		Integer balance = repository.getTotalCashBalance();		
 		int result = 0;
@@ -156,6 +273,11 @@ public class ParentalTransaction {
 		return result;
 	}		
 	
+	/**
+	 * Return the total amount owed to AFTERSCHOOL CLUB
+	 * @return amount in pennies
+	 * 	 
+	 */
 	public static int getTotalOwed() {
 		Integer balance = repository.getTotalOwed();		
 		int result = 0;
@@ -167,6 +289,11 @@ public class ParentalTransaction {
 		return result;
 	}		
 	
+	/**
+	 * Return the total Cash in AFTERSCHOOL CLUB
+	 * 
+	 * @return amount in pennies
+	 */
 	public static int getTotalCashCredit() {
 		Integer balance = repository.getTotalCashCredit();		
 		int result = 0;
@@ -184,19 +311,11 @@ public class ParentalTransaction {
 		CASH 
 	}	
 	
-	@Id
-	private int transactionId;
-	private int amount;
-	private LocalDateTime dateTime;
-	private Type transactionType;
-	private BalanceType balanceType;
-	private String description;
-	private String paymentReference;
-	AggregateReference<Parent, Integer> parentId = null;
-	AggregateReference<Club, Integer> clubId = null;
 
 
-
+	/**
+	 * Default Constructor
+	 */
 	public ParentalTransaction() {
 		super();
 
@@ -205,6 +324,8 @@ public class ParentalTransaction {
 	
 	
 	/**
+	 * Constructor for a ParentTransaction
+	 * 
 	 * @param amount
 	 * @param dateTime
 	 * @param transactionType
@@ -220,11 +341,14 @@ public class ParentalTransaction {
 		
 	}
 	
+
 	/**
-	 * @param amount
-	 * @param dateTime
-	 * @param transactionType
+	 * Constructor for a ParentTransaction
+	 * @param amount - in pennies
+	 * @param dateTime - time of transaction
+	 * @param transactionType - type 
 	 * @param description
+	 * @param club - CLub
 	 */
 	public ParentalTransaction(int amount, LocalDateTime dateTime, Type transactionType, String description, Club club) {
 		super();
@@ -238,19 +362,20 @@ public class ParentalTransaction {
 		this.clubId = AggregateReference.to(club.getClubId());
 	}
 	
+		
 	
-	
-	
-
-	
-	
-	
+	/**
+	 * @return amount of transaction according to UK Locale
+	 */
 	public String getFormattedAmount() {
 		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK); 
 		String s = n.format(amount / 100.0);
 		return s;
 	}
 	
+	/**
+	 * @return string indicatin transaction type
+	 */
 	public String getFormattedTransactionType() {
 		String s = "";
 		if (transactionType == Type.PAYMENT) {
@@ -268,19 +393,32 @@ public class ParentalTransaction {
 		return s;
 	}
 	
+	/**
+	 * @return true if is a transaction for a cash otherwise return false
+	 */
 	public boolean isCash() {
 			return balanceType == BalanceType.CASH;
 	}
 	
+	/**
+	 * @return true if is a transaction for a voucher otherwise return false
+	 */
 	public boolean isVoucher() {
 		return balanceType == BalanceType.VOUCHER;
 	}	
 	
+	/**
+	 * Save this transaction to the repository
+	 */
 	public void save()
 	{
 		repository.save(this);
 	}
 	
+	/**
+	 * Set the parent for this transaction
+	 * @param parent - Parent
+	 */
 	public void setParent(Parent parent) {
 		this.setParentId(AggregateReference.to(parent.getParentId()));		
 	}

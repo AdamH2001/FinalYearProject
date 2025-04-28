@@ -16,52 +16,123 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ *  Class that encapsulates the data and operations for a Club   
+ */
+
 @Getter
 @Setter
 @ToString
 public class Club {
 		
-	
+	/**
+	 * Repository to retrieve and store instances
+     */	
 	public static ClubRepository repository = null;
 	
+	/**
+	 * Service that manages the files for Club pictures 
+	 */
 	public static ClubPicService clubPicService = null;
 
 	
+	/**
+	 * Primary Key for Club
+	 */
 	@Id
 	private int clubId;
+	
+	/**
+	 * Title of Club 
+	 */
 	private String title;
+	
+	/**
+	 * Description of Club 
+	 */
 	private String description;
+	
+	/**
+	 * Keywords associated with Club to aid search 
+	 */
 	private String keywords;	
 
+	/**
+	 * Base price of club in pennies
+	 */
 	private int basePrice;
 	
+	/**
+	 * Can this Club accept vouchers as payment
+	 */
 	private boolean acceptsVouchers = true;
 	
+	/**
+	 * is year R student eligible to attend
+	 */
 	private boolean yearRCanAttend;
+	/**
+	 * is year 1 student eligible to attend 
+	 */
 	@Column("year_1_can_attend")
 	private boolean year1CanAttend;
+	
+	/**
+	 * is year 2 student eligible to attend
+	 */	
 	@Column("year_2_can_attend")
 	private boolean year2CanAttend;
+	/**
+	 * is year 3 student eligible to attend
+	 */
 	@Column("year_3_can_attend")
 	private boolean year3CanAttend;
+	
+	/**
+	 * is year 4 student eligible to attend
+	 **/
 	@Column("year_4_can_attend")
 	private boolean year4CanAttend;
+	
+	/**
+	 * is year 5 student eligible to attend
+	 **/
 	@Column("year_5_can_attend")
 	private boolean year5CanAttend;
+	
+	/**
+	 * is year 6 student eligible to attend 
+	 */
 	@Column("year_6_can_attend")
 	private boolean year6CanAttend;
 	
+	/**
+	 * ACTIVE or INACTIVE
+	 */
 	private State state = State.ACTIVE;
 	
 	
+	/**
+	 * Return all Clubs
+	 * @return List of Club
+	 */
 	public static List<Club> findAll() {		
 		return repository.findAll();
 	}
 	
+	/**
+	 * Return all active Clubs
+	 * @return List of Club
+	 */
 	public static List<Club> findActive() {
 		return repository.findByState(State.ACTIVE);		
 	}	
 	
+	/**
+	 * Return specific Club	  
+	 * @param title - title of Club
+	 * @return Club
+	 */
 	public static Club findByTitle(String title) {
 		List<Club> titleMatched = repository.findByTitle(title);
 		Club result = null; 
@@ -72,8 +143,13 @@ public class Club {
 	}	
 	
 	
-	public static Club findById(int sessionId) {
-		Optional<Club> optional = repository.findById(sessionId);
+	/**
+	 * Return specific Club
+	 * @param clubId - primary key for Club
+	 * @return Club
+	 */
+	public static Club findById(int clubId) {
+		Optional<Club> optional = repository.findById(clubId);
 		Club club = null;
 		if (optional.isPresent()) {
 			club = optional.get();
@@ -81,21 +157,27 @@ public class Club {
 		return club;
 	}	
 	
+	/**
+	 * Default Constructor
+	 */
 	public Club() {
 		super();	
 	}
 	
+
 	/**
+	 * Constructor 
 	 * @param title
 	 * @param description
 	 * @param basePrice
 	 * @param yearRCanAttend
-	 * @param yearOneCanAttend
-	 * @param yearTwoCanAttend
-	 * @param yearThreeCanAttend
-	 * @param yearFourCanAttend
-	 * @param yearFiveCanAttend
-	 * @param yearSixCanAttend
+	 * @param year1CanAttend
+	 * @param year2CanAttend
+	 * @param year3CanAttend
+	 * @param year4CanAttend
+	 * @param year5CanAttend
+	 * @param year6CanAttend
+	 * @param keywords
 	 */
 	public Club(String title, String description, int basePrice, boolean yearRCanAttend,
 			boolean year1CanAttend, boolean year2CanAttend, boolean year3CanAttend, boolean year4CanAttend,
@@ -115,6 +197,11 @@ public class Club {
 		
 	}
 	
+	/**
+	 * Determin if a student is elible to attend Club sessions
+	 * @param student - Student 
+	 * @return return true if eligible otherwise return false
+	 */
 	public boolean isEligible(Student student)
 	{
 		int yearGroup = student.getStudentClass().getYearGroup();
@@ -150,6 +237,10 @@ public class Club {
 		return result; 
 	}
 	
+	/**
+	 * Return UK formatedd cost
+	 * @return String
+	 */
 	public String getFormattedBasePrice() {
 		NumberFormat n = NumberFormat.getCurrencyInstance(Locale.UK);
 		return n.format(basePrice / 100.0);
@@ -157,6 +248,9 @@ public class Club {
 	
 	
 		
+	/**
+	 * Return user  friendly view of who can attend this Club
+	 * @return String	 */
 	public String getSuitableFor()
 	{
 		String result;
@@ -174,6 +268,10 @@ public class Club {
 	
 
 	
+	/**
+	 * Return a overall RecurrenceSpecification for Club
+	 * @return
+	 */
 	public RecurrenceSpecification getRegularSpecification() {
 		List<RecurrenceSpecification> allRecurring = RecurrenceSpecification.findRegularByClubId(clubId);
 		RecurrenceSpecification result = new RecurrenceSpecification();
@@ -193,6 +291,10 @@ public class Club {
 
 
 	
+	/**
+	 * Return search friendly view of who can attend this Club
+	 * @return String
+	 */
 	public String getSuitableYears()
 	{
 		String result = "";
@@ -244,15 +346,27 @@ public class Club {
 		
 	}	
 	
+	/**
+	 * Save this club to the repository
+	 */
 	public void save()
 	{
 		repository.save(this);
 	}
 	
+	/**
+	 * 
+	 * @return the url for the image associated with the club 
+	 */
 	public String getImageURL() {
 		return clubPicService.getImageURL(clubId);		
 	}
 	
+	/**
+	 * Return the revenue for this club for a specific academic year
+	 * @param startDate
+	 * @return amountin pennes
+	 */
 	public int getRevenueForYearStarting(LocalDate startDate) {
 		LocalDate endDate = startDate.plusYears(1);
 		endDate =endDate.minusDays(1);

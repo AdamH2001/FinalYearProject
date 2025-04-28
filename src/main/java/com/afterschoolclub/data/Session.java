@@ -30,42 +30,168 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ *  Class that encapsulates the data and operations for a Session   
+ */
+
 @Getter
 @Setter
 @ToString
 public class Session {
+	/**
+	 * Repository to retrieve and store instances
+	 */
 	public static SessionRepository repository = null;
 
+	
+	/**
+	 * Primary Key for the session
+	 */
+	@Id
+	private int sessionId;
+		
+	/**
+	 * Foreign key to Club
+	 */
+	AggregateReference<Club, Integer> clubId;
+	/**
+	 * Foreign key to RecurrenceSpecificaton
+	 */
+	AggregateReference<RecurrenceSpecification, Integer> recurrenceSpecificationId;
+	
+	
+	/**
+	 * start date and time
+	 */
+	private LocalDateTime startDateTime;
+	/**
+	 * end date and time
+	 */
+	private LocalDateTime endDateTime;	
+	/**
+	 * Max allowed attendees
+	 */
+	private int maxAttendees;
+	
+	
+	/**
+	 * parent notes for the session
+	 */
+	private String parentNotes="";
+
+	/**
+	 * Adminsitraotr notes for the session
+	 */
+	private String administratorNotes="";
+	
+	/**
+	 * Set of resources for this session
+	 */
+	@MappedCollection(idColumn = "session_id")
+	private Set<SessionResource> sessionResources = new HashSet<>();
+	
+	/**
+	 * Set of Attendees for this session 
+	 */
+	@MappedCollection(idColumn = "session_id")
+	private Set<Attendee> attendees = new HashSet<>();
+
+	/**
+	 * Set of SessionMenus for this session
+	 */
+	@MappedCollection(idColumn = "session_id")
+	private Set<SessionMenu> sessionMenus = new HashSet<>();	
+	
+	
+	/**
+	 * Cache of Club so don't have to keep retrieving from repository 
+	 */
+	@Transient
+	private transient Club sessionClub = null;
+	
+	/**
+	 * Cache of RecurrenceSpecificaiton so don't have to keep retrieving from repository
+	 */
+	@Transient
+	private transient RecurrenceSpecification recurrenceSpecification = null; 	
+	
+	/**
+	 * Cache of Menu Groups so don't have to keep retrieving from repository
+	 */	@Transient
+	private transient List<MenuGroup> menuGroups = null; 
+	
+	/**
+	 * Cache of required resources so don't have to keep retrieving from repository
+	 */
+	@Transient
+	private transient List<Resource> requiredResources = null; 
+	
+
+		
+	/**
+	 * Return all the sessions fo a specific month
+	 * @param date - LocalDate - date within the month 
+	 * @return List of Session
+	 */
 	public static List<Session> findForMonth(LocalDate date) {
 		LocalDate monthStart = date.withDayOfMonth(1);
 		LocalDate nextMonth = date.plusMonths(1);
 		return repository.findSessionsBetweenDates(monthStart, nextMonth);
 	}
 	
+	/**
+	 * Find all the sessions occuring on a specific date
+	 * @param date - LocalDate
+	 * @return List of Sessions
+	 */
 	public static List<Session> findForDay(LocalDate date) {
 		LocalDate dayStart = date;
 		LocalDate nextDay = date.plusDays(1);
 		return repository.findSessionsBetweenDates(dayStart, nextDay);
 	}
 		
+	/**
+	 * Find all sessions that have used or plan to use resource
+	 * @param resourceId - primary key for resource 
+	 * @return List of Session
+	 */
 	public static  List<Session> findByResourceId(int resourceId) {
 		return repository.findByResourceId(resourceId);
 	}		
 	
+	/**
+	 * Return all the sessions with incidents
+	 * @return List of Session
+	 */
 	public static  List<Session> findAllWithIncidents() {
 		return repository.findAllWithIncidents();
 	}		
 	
+	/**
+	 * Return all Sessions that have a incident for specified student
+	 * @param studentId - primary key for student
+	 * @return List of Session
+	 */
 	public static  List<Session> findAllWithIncidentsForStudent(int studentId) {
 		return repository.findAllWithIncidentsForStudent(studentId);
 	}		
 	
 	
+	/**
+	 * Return  list of sessions that have future demand on a specific resource 
+	 * @param resourceId - primary key for resource
+	 * @return List of Session
+	 */
 	public static  List<Session> findByFutureDemandOnResourceId(int resourceId) {
 		return repository.findByFutureDemandOnResourceId(resourceId);
 	}	
 	
 	
+	/**
+	 * Return Session by its identifier
+	 * @param sessionId - primary key for Session 
+	 * @return Session or null if not found
+	 */
 	public static Session findById(int sessionId) {
 		Optional<Session> optional = repository.findById(sessionId);
 		Session session = null;
@@ -75,64 +201,39 @@ public class Session {
 		return session;
 	}	
 	
+	/**
+	 * Find all the sessions with a specific recurrence specification  
+	 * @param recurringId - primary key of RecurrenceSpecification
+	 * @return List of Session
+	 */
 	public static List<Session>  findRecurringSessions(int recurringId) {
 		return repository.findByReccurenceSpecificationId(recurringId);		
 		
 	}	
 		
 	
+	/**
+	 * Save all the session to te repository
+	 * @param allSessions = List of Sessions that want to save 
+	 */
 	public static void saveAll(List<Session> allSessions) {
 		repository.saveAll(allSessions);
 		
 	}	
 	
 	
+	/**
+	 * Delte the session 
+	 * @param sessionId - primary key of session would like to delete
+	 */
 	public static void deleteById(int sessionId) {
 		repository.deleteById(sessionId);		
 	}		
 	
 	
-	
-	@Id
-	private int sessionId;
-		
-	AggregateReference<Club, Integer> clubId;
-	AggregateReference<RecurrenceSpecification, Integer> recurrenceSpecificationId;
-	
-	
-	private LocalDateTime startDateTime;
-	private LocalDateTime endDateTime;	
-	private int maxAttendees;
-	
-	
-	private String parentNotes="";
-
-	private String administratorNotes="";
-	
-	@MappedCollection(idColumn = "session_id")
-	private Set<SessionResource> sessionResources = new HashSet<>();
-	
-	@MappedCollection(idColumn = "session_id")
-	private Set<Attendee> attendees = new HashSet<>();
-
-	@MappedCollection(idColumn = "session_id")
-	private Set<SessionMenu> sessionMenus = new HashSet<>();	
-	
-	
-	@Transient
-	private transient Club sessionClub = null; 
-
-	@Transient
-	private transient RecurrenceSpecification recurrenceSpecification = null; 	
-	
-	@Transient
-	private transient List<MenuGroup> menuGroups = null; 
-	
-	@Transient
-	private transient List<Resource> requiredResources = null; 
-	
-
-	
+	/**
+	 * Default Constructor 
+	 */
 	public Session() {
 		super();			
 		this.clubId= null;
@@ -140,12 +241,19 @@ public class Session {
 		initialiseStartEndTimes();
 	}
 
+	/**
+	 * st the recurrence specificaiton for the session
+	 * @param rs RecurrenceSpecificaiton
+	 */
 	public void setRecurrenceSpecification(RecurrenceSpecification rs) {
 		this.recurrenceSpecification = rs;
 		recurrenceSpecificationId = AggregateReference.to(rs.getRecurrenceSpecificationId());
 	}
 	
 	
+	/**
+	 * Initiaise the start end times 
+	 */
 	public void initialiseStartEndTimes() {
 		LocalDateTime tomorrow =LocalDateTime.now().plusDays(1); 
 		LocalTime startTime = LocalTime.of(15, 30);
@@ -157,14 +265,12 @@ public class Session {
 	
 	
 	/**
-	 *
-	 * @param clubId
-	 * @param location
-	 * @param startDateTime
-	 * @param endDateTime
-	 * @param maxAttendees
+	 * Return a new Session given the basic feilsds required
+	 * @param clubId - primary key for the club
+	 * @param startDateTime - LocalDateTim
+	 * @param endDateTime - LocalDateTime
+	 * @param maxAttendees - max number of students that can attend
 	 */
-	
 	public Session(AggregateReference<Club, Integer> clubId, LocalDateTime startDateTime,
 			LocalDateTime endDateTime, int maxAttendees) {
 		super();
@@ -181,7 +287,8 @@ public class Session {
 	}
 	
 	/**
-	 *
+	 * Copy constructor
+	 * @param session
 	 */
 	public Session(Session session) {
 		super();
@@ -220,11 +327,19 @@ public class Session {
 		
 	}
 
+	/**
+	 * Save this session to the repository
+	 */
 	public void save()
 	{
 		repository.save(this);
 	}
 	
+	/**
+	 * Return the Attendee for the attendeeId 
+	 * @param attendeeId - primary key for the attendeeId
+	 * @return Attendee
+	 */
 	public Attendee getAttendee(int attendeeId)
 	{
 		Attendee result = null;
@@ -239,6 +354,11 @@ public class Session {
 		return result;
 	}
 	
+	/**
+	 * Return the Attendee for a specific Student
+	 * @param student
+	 * @return Attendee
+	 */
 	public Attendee getAttendee(Student student)
 	{
 		Attendee result = null;
@@ -252,6 +372,10 @@ public class Session {
 		return result;
 	}
 	
+	/**
+	 * Return all the attendees sorted by student name
+	 * @return List of Attendees
+	 */
 	public List<Attendee> getSortedAttendees()
 	{
 	
@@ -271,6 +395,10 @@ public class Session {
 		return sortedAttendees;
 	}
 
+	/**
+	 * Get the club Club for this session 
+	 * @return Club
+	 */
 	public Club getClub() {
 		if (this.sessionClub == null && clubId != null) {
 			sessionClub = Club.findById(clubId.getId());
@@ -279,6 +407,10 @@ public class Session {
 		
 	}
 	
+	/**
+	 * Return the RecurrencSpecificaiton for this session
+	 * @return RecurrenceSpecifcation
+	 */
 	public RecurrenceSpecification getRecurrenceSpecification() {
 		if (this.recurrenceSpecification == null && recurrenceSpecificationId != null) {
 			recurrenceSpecification = RecurrenceSpecification.findById(recurrenceSpecificationId.getId());
@@ -295,6 +427,10 @@ public class Session {
 	}
 	
 	
+	/**
+	 * Returns all the location resources for this session
+	 * @return List of Resource
+	 */
 	public Resource getLocation() {
 		Resource location = null;
 		List <Resource> allResources = getRequiredResources();
@@ -312,6 +448,10 @@ public class Session {
 		return location;		
 	}
 	
+	/**
+	 * Returns all the resources for this session
+	 * @return List of Resource
+	 */
 	public List<Resource> getRequiredResources() {
 		if (requiredResources == null) {
 			Iterable <Resource> allResources = Resource.findAll();
@@ -327,6 +467,10 @@ public class Session {
 		return requiredResources;
 	}
 	
+	/**
+	 * Returns all the equipment resources for this session
+	 * @return List of Resource
+	 */
 	public List<Resource> getEquipment() {
 		List<Resource> equipment = new ArrayList<Resource>();
 		List<Resource> allResources = getRequiredResources();
@@ -344,6 +488,10 @@ public class Session {
 		return equipment;
 	}
 	
+	/**
+	 * Returns all the staff resources for this session
+	 * @return List of Resource
+	 */
 	public List<Resource> getStaff() {
 		List<Resource> staff = new ArrayList<Resource>();
 		List<Resource> allResources = getRequiredResources();
@@ -361,6 +509,10 @@ public class Session {
 		return staff;
 	}
 	
+	/**
+	 * Return all the MenuGroups used by this session
+	 * @return List of MenuGroups
+	 */
 	public List<MenuGroup> getMenuGroups() {
 		if (menuGroups == null) {
 			menuGroups = MenuGroup.findBySessionId(sessionId);		
@@ -368,6 +520,11 @@ public class Session {
 		return menuGroups;
 	}
 	
+	/**
+	 * Determine whether session includes a specfic menu group
+	 * @param menuGroupId - primary key for menu group
+	 * @return true if session uses this group otherwise return false
+	 */
 	public boolean includesMenuGroup(int menuGroupId) {
 		List<MenuGroup> menuGroups = getMenuGroups();
 		boolean result = false;
@@ -384,6 +541,11 @@ public class Session {
 	
 	
 	
+	/**
+	 * Determine if session has a requirement on staff
+	 * @param resourceId - primary key for staff resource
+	 * @return true if has a requirement otherwise returns false
+	 */
 	public boolean requiresStaff(int resourceId) {
 		boolean required = false;
 		List<Resource> requiredStaff = getStaff();
@@ -395,10 +557,19 @@ public class Session {
 	}
 		
 	
+	/**
+	 * Add SessionResource as requirement for this session
+	 * @param sessionResource - SessionResource
+	 */
 	public void addResource(SessionResource sessionResource) {
 		this.sessionResources.add(sessionResource);
 	}
 	
+	/**
+	 * Determines if session uses a specific resource
+	 * @param resource - Resource to test
+	 * @return true if session has a reuirement for resource otherwise returns false
+	 */
 	public boolean usesResource(Resource resource) {
 		boolean result = false;
 		
@@ -410,36 +581,71 @@ public class Session {
 		return result; 
 	}
 	
+	/**
+	 * Add a session menu to this session
+	 * @param menu - SessionMenu to be added
+	 */
 	public void addSessionMenu(SessionMenu menu) {
 		this.sessionMenus.add(menu);
 	}	
 		
+	/**
+	 * Return start time  as a String. Suitable for  display in a list or value input field
+	 * @return String version of start time	 
+	 * */
 	public String getStartTime() {
 		return startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));		
 	}	
 	
+	/**
+	 * Return end time  as a String. Suitable for  display in a list or value input field
+	 * @return String version of end time	 
+	 * */
 	public String getEndTime() {
 		return endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));		
 	}		
 
 	
+	/**
+	 * Return start date as a String. Suitable for  display in a list
+	 * @return String version of start date	 
+	 * */
+	
 	public String getDisplayStartDate() {
 		return startDateTime.format(DateTimeFormatter.ofPattern("dd/MM/YYYY"));		
 	}	
 	
+	/**
+	 * Return end  date as a String. Suitable for  display in a list
+	 * @return String version of start date	 
+	 * 
+	 * */
 	public String getDisplayEndDate() {
 		return endDateTime.format(DateTimeFormatter.ofPattern("dd/MM/YYYY"));		
 	}	
 
 	
+	/**
+	 * Return start date as a String. Suitable for value of input field
+	 * @return String version of start date
+	 */
 	public String getStartDate() {
 		return startDateTime.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));		
 	}	
 	
+	/**
+	 * Return start date as a String. Suitable for value of input field
+	 * @return String version of end date
+	 */
 	public String getEndDate() {
 		return endDateTime.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));	}	
 		
 	
+	/**
+	 * Return whether student is elligible to attend session
+	 * @param student
+	 * @return return true if is elligible otherwise return false
+	 */
 	public boolean canAttend(Student student)
 	{
 		boolean result = this.getClub().isEligible(student);
@@ -458,26 +664,46 @@ public class Session {
 					
 	}
 	
+	/**
+	 * @return true if start of event is in the past otherwise return false 
+	 */
 	public boolean inPast()
 	{
 		return this.getStartDateTime().isBefore(LocalDateTime.now());
 	}
 	
+	/**
+	 * @return true if end of event is in the past otherwise return false
+	 */
 	public boolean endInPast()
 	{
 		return this.getEndDateTime().isBefore(LocalDateTime.now());
 	}
 	
+	/**
+	 * Is session supposed to be happening now
+	 * @return true is supposed to be happening not otherwise return false
+	 */
 	public boolean isNow()
 	{
 		return this.getStartDateTime().isBefore(LocalDateTime.now()) && this.getEndDateTime().isAfter((LocalDateTime.now()));
 	}
 	
+	/**
+	 *  Return whether student is already booked on session
+	 * @param student - student
+	 * @return true if is booked on session otherwise return false
+	 */
 	public boolean registered(Student student)
 	{
 		return getAttendee(student) != null;
 	}
 	
+	/**
+	 * Return whether a student did or did not attend the session
+	 * @param student - student 
+	 * @return true if attended false otherwise
+	 */
 	public boolean didAttend(Student student)
 	{
 		boolean result = false; 
@@ -487,16 +713,27 @@ public class Session {
 		return result;
 	}
 	
+	/**
+	 * @return number of students planning to attend
+	 */
 	public int getNumberAttendees()
 	{
 		return this.getAttendees().size();		
 	}	
 	
+	/**
+	 * @return true if session is fully booked otherwise return false
+	 */
 	public boolean isFullyBooked()
 	{
 		return this.getMaxAttendees() <= this.getNumberAttendees();
 	}
 	
+	/**
+	 * Return the cost for a specific option for this session
+	 * @param menuGroupOptionId - primary key for the option
+	 * @return cost in pence
+	 */
 	public int getOptionCost(int menuGroupOptionId)
 	{
 		int optionCost = 0;
@@ -512,31 +749,22 @@ public class Session {
 		return optionCost;
 	}
 	
-/*	
-	public int getOptionCost(int optionId)
-	{
-		int optionCost = 0;
 
-		List <MenuGroup> menuGroups = getMenuGroups();
-		for (MenuGroup menuGroup: menuGroups) {											
-			MenuOption menuOption = menuGroup.getMenuOption(optionId);
-			if (menuOption != null) {					
-				optionCost = menuOption.getAdditionalCost();
-			}
-		}														
-					
-		return optionCost;
-	}
-		*/
 	
 	
 	
+	/**
+	 * @return true if this session has refreshment options otherwise return false
+	 */
 	public boolean hasOptions()
 	{									
 		return (sessionMenus != null) && (sessionMenus.size() > 0);
 	}	
 
 	
+	/**
+	 * @return List of SessionResource for this session that are ACTIVE
+	 */
 	public List<SessionResource> getActiveEquipmentSessionResources() {
 		List<Resource> equipment = getEquipment();
 		List <SessionResource> result = new ArrayList<SessionResource>();
@@ -561,12 +789,18 @@ public class Session {
 	}
 	
 	
+	/**
+	 * @return List of Sessions who's timeline overlaps with this session
+	 */
 	public List<Session> getOverlappingSessions() {
 		return repository.findOverlappingSessions(getSessionId(), getStartDateTime(), getEndDateTime());		
 	}	
 	
 	
 	
+	/**
+	 * @return true if this session has sufficient resources otherwise return false
+	 */
 	public boolean hasSufficientResources() {
 		boolean result = true;
 		if (!endInPast()) {
@@ -581,16 +815,27 @@ public class Session {
 	}
 	
 		
+	/**
+	 * Resset the resource requirements 
+	 */
 	public void clearResources() {
 		sessionResources = new HashSet<>();		
 		requiredResources = null;				 
 	}
 	
+	/**
+	 * Reset the refreshment menu
+	 */
 	public void clearMenu() {
 		sessionMenus = new HashSet<>();			
 		menuGroups = null; 	
 	}	
 	
+	/**
+	 * Get the quantity requirements for a specific resource for this session
+	 * @param resourceId - primary key for resource
+	 * @return
+	 */
 	public int getRequiredResourceQuantity(int resourceId) {
 		int result = 0;
 		
@@ -608,11 +853,19 @@ public class Session {
 		return result; 
 	}
 	
+	/**
+	 * @return true of this session is recurring otherwise return false
+	 */
 	public boolean isRecurring() {
 		return startDateTime.toLocalDate().compareTo(getRecurrenceSpecification().getEndDate()) !=0; 
 	}
 	
 	
+	/**
+	 * Get the incident for this session given an incident Id
+	 * @param incidentId - primary key for incident
+	 * @return Incident
+	 */
 	public Incident getIncident(int incidentId) {
 		return  Incident.findById(incidentId);
 	}	
@@ -620,6 +873,11 @@ public class Session {
 
 	
 
+	/**
+	 * Return all the students for a specific incident
+	 * @param incident - Incident to return students for
+	 * @return List of Students
+	 */
 	public List<Student> getStudentsForIncident(Incident incident) {
 		List <Student> students = new ArrayList<>();
 		List<AttendeeIncident> allAttendeeIncidents = incident.getAttendeeIncidents();
@@ -634,10 +892,16 @@ public class Session {
 	}
 
 	
+	/**
+	 * Delete this session from the repository
+	 */
 	public void delete() {
 		repository.delete(this);
 	}	
 
+	/**
+	 * Cancel the session and refund all the attendees
+	 */
 	public void cancel() {
 		Set<Attendee> allAttendees = getAttendees();
 		for (Attendee attendee: allAttendees) {
@@ -651,10 +915,17 @@ public class Session {
 		delete();
 	}
 	
+	/**
+	 * @return return all the users for this session
+	 */
 	public List<User> getAllUsers() {
 		return User.repository.findAllForSession(this.sessionId);
 	}
 
+	/**
+	 * Add a list of staff as requirements for this session
+	 * @param newStaff
+	 */
 	public void addStaff(List<Integer>newStaff) {		
 		for (Integer staffMember : newStaff) {
 			SessionResource er = new SessionResource(AggregateReference.to(staffMember), 1, false);
@@ -662,6 +933,12 @@ public class Session {
 		}				
 	}
 	
+	/**
+	 * Add a list of equipment as a resource requirement for this session
+	 * @param equipment - list of equipment ids 
+	 * @param equipmentQuantity - list of corresponding quantities
+	 * @param perAttendee - list of indicators whether is required per attendee or not
+	 */
 	public void addEquipment(List<Integer>equipment, List<Integer>equipmentQuantity,  List<Boolean>perAttendee  ) {
 		int counter = 0;				
 		for (Integer item : equipment) {					
@@ -678,6 +955,10 @@ public class Session {
 		}					
 	}	
 	
+	/**
+	 * Set the menu groups for this session
+	 * @param menuGroups - List of primary keys for the MenuGroups
+	 */
 	public void setMenuGroups(List<Integer>menuGroups) {
 		clearMenu();
 		if (menuGroups != null)
@@ -690,6 +971,9 @@ public class Session {
 		}	
 	}
 	
+	/**
+	 * @return all the resource status that are a challenge for this session
+	 */
 	public List<ResourceStatus> getResourceChallenges() {
 		List<ResourceStatus> allStatus = this.getResourceStatus();
 		List<ResourceStatus> allChallenges = new ArrayList<ResourceStatus>();
@@ -704,6 +988,9 @@ public class Session {
 		return allChallenges;
 	}
 	
+	/**
+	 * @return all the status of all the resources required for this session
+	 */
 	public List<ResourceStatus> getResourceStatus() {
 		Map<Integer, Integer> resourceRequirements = new HashMap<>(); //maps resourceId to quantity
 				
@@ -746,6 +1033,9 @@ public class Session {
 		return result; 
 	}		
 
+	/**
+	 * @return all the incident for this session
+	 */
 	public List<Incident> getIncidents() {
 		return Incident.findAllBySessionId(this.sessionId);
 	}

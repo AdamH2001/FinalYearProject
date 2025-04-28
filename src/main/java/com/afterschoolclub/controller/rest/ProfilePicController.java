@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
-
+/**
+ * Class to retrieve and upload user profile pictures
+ */
 @RestController
 public class ProfilePicController {
 
@@ -41,9 +43,16 @@ public class ProfilePicController {
     }    
     
     
-	
+    /**
+     * Endpoint to upload a picture for a User
+     * @param file - the file to be uploaded
+     * @param userId - the primary key for the user
+     * @param filename - the filename it is to be saved to
+     * @return - response indicating success or not
+     */	
+    
     @PostMapping("/profilePics")
-    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file, @RequestParam(name="id", required=false, defaultValue="0") String studentId, 
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file, @RequestParam(name="id", required=false, defaultValue="0") String userId, 
     		 @RequestParam(name="filename", required=false, defaultValue="") String filename) {
     	ResponseEntity<String> response = null;
     	if (sessionBean.isLoggedOn()) {    	
@@ -54,9 +63,9 @@ public class ProfilePicController {
 	        		filePath = profilePicService.saveImage(file, filename);
 	        	}
 	        	else {
-	        		filePath = profilePicService.saveImage(file, studentId);
+	        		filePath = profilePicService.saveImage(file, userId);
 	        	}
-	            System.out.print("StudentId=".concat(String.valueOf(studentId)));
+	            System.out.print("StudentId=".concat(String.valueOf(userId)));
 	            response = ResponseEntity.ok("Image uploaded successfully: " + filePath);
 	        } catch (IOException e) {
 	        	response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading image");
@@ -68,7 +77,11 @@ public class ProfilePicController {
     	return response;
     }
 
-
+    /**
+     * Endpoint to return the associated image for a user based on the filename
+     * @param filename - filename of the image
+     * @return resource that is the image
+     */
 
     @GetMapping("/profilePics/{filename}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {

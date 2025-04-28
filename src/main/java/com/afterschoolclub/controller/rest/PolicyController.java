@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
+/**
+ * Class to retrieve and upload policy for AfterSchool CLub
+ */
 
 @RestController
 public class PolicyController {
@@ -39,8 +42,18 @@ public class PolicyController {
 
     }    
     
+
     
 	
+    /**
+     * Endpoint to upload a policy for AfterSchool CLub
+     * 
+     * @param file - the file that is the policy
+     * @param filename - filename for the policy
+     * @return - response indicating success or not
+     */
+    
+    
     @PostMapping("/policies")
     public ResponseEntity<String> uploadPolicy(@RequestParam("file") MultipartFile file, 
    		 @RequestParam(name="filename", required=true) String filename) {
@@ -63,6 +76,12 @@ public class PolicyController {
 
 
 
+    /**
+     * Endpoint to return a policy
+     * @param filename - filename of policy to retrieve
+     * @return
+     */
+    
     @GetMapping("/policies/{filename}")
     public ResponseEntity<Resource> getPolicy(@PathVariable String filename) {
         try {

@@ -16,22 +16,90 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ *  Class that encapsulates the data and operations for a RecurrenceSpecification   
+ */
+
 @Getter
 @Setter
 @ToString
 public class RecurrenceSpecification {
 	
+	/**
+	 * Utility to log info and error messages
+	 */
 	static Logger logger = LoggerFactory.getLogger(RecurrenceSpecification.class);
 	
 	
+	/**
+	 * Repository to retrieve and store instances
+	 */
 	public static RecurrenceSpecificationRepository repository = null;
 
+
 	
+	/**
+	 * Primary key for RecurrenceSpecification
+	 */
+	@Id
+	private int recurrenceSpecificationId;
+		
+	/**
+	 * Scheduling start date 
+	 */
+	private LocalDate startDate = LocalDate.now();
+	/**
+	 * Scheduling end date 
+	 */
+	private LocalDate endDate = LocalDate.now();
+	/**
+	 * True if scheduling on Mondays 
+	 */
+	boolean occursMonday = false;
+	/**
+	 * True if scheduling on Tuesdays
+	 */
+	boolean occursTuesday = false;
+	/**
+	 * True if scheduling on Wednesdays 
+	 */
+	boolean occursWednesday = false;
+	/**
+	 * True if scheduling on Thursdays 
+	 */
+	boolean occursThursday = false;
+	/**
+	 * True if scheduling on Fridays
+	 */
+	boolean occursFriday = false;
+	/**
+	 * True if scheduling on Saturdays 
+	 */
+	boolean occursSaturday = false;
+	/**
+	 * True if scheduling on Sundays 
+	 */
+	boolean occursSunday = false;
+	/**
+	 * True if term time only scheduling
+	 */
+	boolean termTimeOnly = false;
+		
+	
+	/**
+	 * Delete specific ReccurrenceSpecification
+	 * @param recurrenceSpecificationId - primary key of RecurrenceSpecification
+	 */
 	public static void deleteById(int recurrenceSpecificationId) {
 		repository.deleteById(recurrenceSpecificationId);		
 	}		
 	
 	
+	/**
+	 * Return a specific Recurrence Specification
+	 * @param recurrenceSpecificationId - primary key for RecurrenceSpecification
+	 * @return RecurrenceSpecification
+	 */
 	public static RecurrenceSpecification findById(int recurrenceSpecificationId) {
 		Optional<RecurrenceSpecification> optional = repository.findById(recurrenceSpecificationId);
 		RecurrenceSpecification recurrenceSpecification = null;
@@ -41,33 +109,29 @@ public class RecurrenceSpecification {
 		return recurrenceSpecification;
 	}	
 	
+	/**
+	 * Find the future RecurrenceSpecifcations for a specific Club 
+	 * @param clubId - primary key of Club 
+	 * @return List of RecurrenceSpecification
+	 */
 	public static List<RecurrenceSpecification> findRegularByClubId(int clubId) {
 		return repository.findRegularByClubId(clubId);
 	}		
 	
-	
-	@Id
-	private int recurrenceSpecificationId;
-		
-	private LocalDate startDate = LocalDate.now();
-	private LocalDate endDate = LocalDate.now();
-	boolean occursMonday = false;
-	boolean occursTuesday = false;
-	boolean occursWednesday = false;
-	boolean occursThursday = false;
-	boolean occursFriday = false;
-	boolean occursSaturday = false;
-	boolean occursSunday = false;
-	boolean termTimeOnly = false;
-	
 	 
 	
+	/**
+	 * Save this RecurrenceSpecification to the repository 
+	 */
 	public void save()
 	{
 		repository.save(this);
 		
 	}
 	
+	/**
+	 * Delete this RecurrenceSpecification from the repository
+	 */
 	public void delete()
 	{
 		RecurrenceSpecification.deleteById(this.getRecurrenceSpecificationId());
@@ -77,12 +141,28 @@ public class RecurrenceSpecification {
 	}	
 
 
+	/**
+	 * Default constructor
+	 */
 	public RecurrenceSpecification() {
 		super();		
 	}
 	
 	
 
+	/**
+	 * Create a new RecurrenceSpecification
+	 * @param startDate
+	 * @param endDate
+	 * @param occursMonday
+	 * @param occursTuesday
+	 * @param occursWednesday
+	 * @param occursThursday
+	 * @param occursFriday
+	 * @param occursSaturday
+	 * @param occursSunday
+	 * @param termTimeOnly
+	 */
 	public RecurrenceSpecification(LocalDate startDate, LocalDate endDate, Boolean occursMonday, Boolean occursTuesday,
 			Boolean occursWednesday, Boolean occursThursday, Boolean occursFriday, Boolean occursSaturday,
 			Boolean occursSunday, Boolean termTimeOnly) {
@@ -99,6 +179,10 @@ public class RecurrenceSpecification {
 		this.termTimeOnly = termTimeOnly == null ? false : termTimeOnly.booleanValue();
 	}
 	
+	/**
+	 *  Return user friendly  description of recurring days 
+	 *  @return String
+	 */
 	public String getRegularDaysDisplay() {
 		String result = "";
 
@@ -117,6 +201,10 @@ public class RecurrenceSpecification {
 	}	
 	
 	
+	/**
+	 *  Return search friendly  description of recurring days 
+	 *  @return String
+	 */
 	public String getRegularDays() {
 		String result = "";
 
@@ -166,10 +254,19 @@ public class RecurrenceSpecification {
 		return result;		
 	}	
 	
+	/**
+	 * Return formatted End date suitable for input fields 
+	 * @return String
+	 */
 	public String getFormattedEndDate() {
 		return endDate.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"));		
 	}	
 	
+	/**
+	 * Return all the recurring Sessions for this RecurrenceSpecification
+	 * @param session
+	 * @return List of Session
+	 */
 	public List<Session> getAllRecurringSessions(Session session) {
 		List<Holiday> allHolidays = Holiday.findAll();
 		

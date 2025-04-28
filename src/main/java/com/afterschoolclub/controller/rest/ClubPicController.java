@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
 
+/**
+ * Class to retrieve and upload club profile pictures
+ */
 @RestController
 public class ClubPicController {
 
@@ -41,6 +44,13 @@ public class ClubPicController {
     
     
 	
+    /**
+     * Endpoint to upload a picture for a Club
+     * @param file - the file to be uploaded
+     * @param id - the primary key for the club
+     * @param filename - the filename it is to be saved to
+     * @return - response indicating success or not
+     */
     @PostMapping("/clubPics")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file, @RequestParam(name="id", required=false, defaultValue="0") String id, 
    		 @RequestParam(name="filename", required=false, defaultValue="") String filename) {
@@ -69,6 +79,11 @@ public class ClubPicController {
 
 
 
+    /**
+     * Endpoint to return the associated image for a club based on the filename
+     * @param filename - filename of the image
+     * @return resource that is the image
+     */
     @GetMapping("/clubPics/{filename}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {

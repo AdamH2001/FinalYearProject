@@ -4,23 +4,36 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import org.springframework.data.annotation.Id;
-
 @Getter
 @Setter
 @ToString
 
 public class Email {
-
-	
-
-	
-	@Id
+	/**
+	 * Recipient of email 
+	 */
 	private String recipient;
+	/**
+	 * Send of email
+	 */
 	private String from;
+	/**
+	 * Subject of email 
+	 */
 	private String subject;
+	/**
+	 * HTML content for email
+	 */
 	private String htmlMessage;
 	
+	/**
+	 * Constructor for Email
+	 * @param recipient
+	 * @param from
+	 * @param subject
+	 * @param htmlMessage
+	 * 
+	 */
 	public Email(String recipient, String from, String subject, String htmlMessage) {
 		super();
 		this.recipient = recipient;

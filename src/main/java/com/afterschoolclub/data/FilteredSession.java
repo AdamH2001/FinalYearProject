@@ -5,23 +5,45 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Class that encapsultes all the logic for filtering a session based on filter setting, user, selected student
+ */
 @Getter
 @Setter
 @ToString
 public class FilteredSession {
 	
 
+	/**
+	 * Session to determine how to filter
+	 */
 	Session session;
+	/**
+	 * LoggedOnUser
+	 */
 	User user;
+	/**
+	 * Selected Student
+	 */
 	Student student;
 	
+	/**
+	 * Filter settings 
+	 */
 	private boolean isAvailable = true;
-	private boolean isAttending = false;
+	private boolean isAttending = false;	
 	private boolean isHidden = false;
 	private boolean missed = false;
 	private boolean attended = false;
 
 	
+	/**
+	 * Constructor for a FilteredSession
+	 * @param session - Session 
+	 * @param user - Logged in User
+	 * @param student - Student Selected
+	 * @param filter - Filter settings
+	 */
 	public FilteredSession(Session session, User user, Student student, Filter filter) {
 		super();
 		this.session = session;
@@ -107,6 +129,10 @@ public class FilteredSession {
 	}
 
 	
+	/**
+	 * Return the filter Class for the session
+	 * @return String
+	 */
 	public String getFilterClass() {
 		String result = "Available";
 		if (isHidden)

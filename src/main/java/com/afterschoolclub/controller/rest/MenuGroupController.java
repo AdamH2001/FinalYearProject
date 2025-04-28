@@ -31,6 +31,9 @@ import com.afterschoolclub.controller.AdminController;
 import com.afterschoolclub.data.State;
 
 
+/**
+ * CRUD Controller for MenuGroup entity
+ */
 @RestController
 @RequestMapping("api/menugroup")
 public class MenuGroupController {
@@ -41,6 +44,12 @@ public class MenuGroupController {
 	static Logger logger = LoggerFactory.getLogger(AdminController.class);
 
 	
+    /**
+     * Spring autowired constructor
+     * @param sessionBean - object that manage session state for the application
+     * @param simpleMenuGroupOptionRepository - repository for SimpleMenuGroup
+     */
+	
     @Autowired
     public MenuGroupController(SessionBean sessionBean, SimpleMenuGroupRepository simpleMenuGroupOptionRepository) {
         this.sessionBean = sessionBean;
@@ -48,6 +57,11 @@ public class MenuGroupController {
     }    
     
 	
+    /**
+     * Returns all the MenuGroups
+     * @return Iterable collection of MenuGroups
+     */
+    
     @GetMapping
     public Iterable<SimpleMenuGroup> getAllMenuGroups() {
     	Iterable<SimpleMenuGroup> result = null;
@@ -61,6 +75,11 @@ public class MenuGroupController {
     	return result;
     }
 
+    /**
+     * Endpoint to retrieve a MenuGroup
+     * @param id - primary key for the MenuGroup
+     * @return - MenuGroup matching the primary key
+     */
     @GetMapping(value="/{id}")
     public Optional<SimpleMenuGroup> getStaffById(@PathVariable long id) {
     	Optional<SimpleMenuGroup> result = null;
@@ -75,6 +94,11 @@ public class MenuGroupController {
     	return result;    	
     }
 
+    /**
+     * Endpoint to create a new MenuGroup
+     * @param menuGroup - MenuGroup to create
+     * @return MenuGroup created
+     */
     @PostMapping(consumes = {"application/json"})
     public SimpleMenuGroup createMenuGroup(@RequestBody SimpleMenuGroup menuGroup) {
     	if (sessionBean.isLoggedOn()) {     
@@ -94,6 +118,13 @@ public class MenuGroupController {
         return menuGroup;
     }
 
+    /**
+     * Endpoint to update a MenuGroup
+     * @param id - primary key of the MenuGroup
+     * @param menuGroup - object representing updated state
+     * @return - updated MenuGroup
+     */
+    
     @PutMapping(value="/{id}", consumes = {"application/json"})
     public SimpleMenuGroup updateMenuGroup(@PathVariable long id, @RequestBody SimpleMenuGroup menuGroup) {
     	if (sessionBean.isLoggedOn()) {         	
@@ -112,6 +143,11 @@ public class MenuGroupController {
     	}    	
     	return menuGroup;
     }
+    
+    /**
+     * Endpoint to delete an MenuGroup
+     * @param id - primary key for the MenuGroup
+     */
     
     @DeleteMapping(value="/{id}")
     public void deleteMenuGroup(@PathVariable long id) {

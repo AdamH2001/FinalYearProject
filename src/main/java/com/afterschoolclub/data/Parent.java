@@ -19,37 +19,72 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ *  Class that encapsulates the data and operations for a Parent   
+ */
 
 @Getter
 @Setter
 @ToString
 public class Parent {
 	
+	/**
+	 * Primary key for parent
+	 */
 	@Id
 	public int parentId;
+	/**
+	 * Alternative contact details 
+	 */
 	private String altContactName = "";
+	/**
+	 * Alternative contact details
+	 */
 	private String altTelephoneNum = "";
+	/**
+	 * Overdraft limit in pennies
+	 */
 	private int overdraftLimit = 0;
 
+	/**
+	 * Doreign key to User
+	 */
 	AggregateReference<User, Integer> userId;
 
 	
+	/**
+	 * Set of students 
+	 */
 	@MappedCollection(idColumn = "parent_id")
 	private Set<Student> students = new HashSet<>();
+	/**
+	 * Set of transactions
+	 */
 	@MappedCollection(idColumn = "parent_id")
 	private Set<ParentalTransaction> transactions = new HashSet<>();
 
+	/**
+	 * Constructor 
+	 * @param altContactName - alternative contact details
+	 * @param altTelephoneNum - alternative contact details
+	 */
 	public Parent(String altContactName, String altTelephoneNum) {
 		super();		
 		this.altContactName = altContactName;
 		this.altTelephoneNum = altTelephoneNum;
 	}
 	
+	/**
+	 * Default Constructor
+	 */
 	public Parent() {
 		super();		
 	}
 	
 	
+	/**
+	 * @return
+	 */
 	public Student getFirstStudent() {
 		List<Student> allActiveVerifiedStudents = getStudents();
 		Student result = null;
@@ -59,6 +94,10 @@ public class Parent {
 		return result;
 	}
 	
+	/**
+	 * Return students for this parent
+	 * @return List of Students
+	 */
 	public List<Student> getStudents() {
 		List<Student> allActiveVerifiedStudents = new ArrayList<Student>();
 		for (Student student : students) {
@@ -70,6 +109,10 @@ public class Parent {
 		return allActiveVerifiedStudents;
 	}
 	
+	/**
+	 * Return the overdraft limit for this parent
+	 * @return balance in pennies
+	 */
 	static public int getTotalOverdraftLmit() {		
 		Integer limit = User.repository.totalOverdraftLimit();		
 		int result = 0;
@@ -80,20 +123,37 @@ public class Parent {
 	}
 		
 	
+	/**
+	 * Add a student to this Parent
+	 * @param student - Student
+	 */
 	public void addStudent(Student student) {
 		this.students.add(student);
 	}
 	
+	/**
+	 * Add a transaction to this parents log 
+	 * @param transaction - ParentalTransaction
+	 */
 	public void addTransaction(ParentalTransaction transaction) {
 		this.transactions.add(transaction);
 	}
 	
+	/**
+	 * Return all transactions for this Parent
+	 * @return List of ParentTransactions
+	 */
 	public List<ParentalTransaction> getAllTransactions() {
 		List<ParentalTransaction> allTransactions = new ArrayList<ParentalTransaction>();
 		allTransactions.addAll(transactions);
 		return allTransactions;
 	}
 	
+	/**
+	 * Reutrn the student for this parent
+	 * @param studentId - primary key for Student
+	 * @return Student
+	 */
 	public Student getStudentFromId(int studentId) {
 		Student result = null;
 		Iterator<Student> studentIterator = students.iterator();
@@ -107,43 +167,80 @@ public class Parent {
 	}
 		
 	
+	/**
+	 * Return transactions between start and end date
+	 * @param start - LocalDate
+	 * @param end - LocalDate
+	 * @return List of ParentTransactions
+	 */
 	public List<ParentalTransaction>  getTransactions(LocalDate start, LocalDate end) {
 		return ParentalTransaction.getTransactions(this, start, end);		
 	}		
 	
+	/**
+	 * Return the cash balance for this parent 
+	 * @return balance in pennies
+	 */
 	public int getBalance() {
 		return ParentalTransaction.getBalance(this);			
 	}	
 	
+	/**
+	 * Return the voucher balance for this parent 
+	 * @return balance in pennies
+	 */
 	public int getVoucherBalance() {
 		return ParentalTransaction.getVoucherBalance(this);			
 	}		
 	
+	/**
+	 * Return the cash balance for this parent on a specific day
+	 * @param date - LocalDate
+	 * @return balance in pennies
+	 */
 	public int getBalanceOn(LocalDate date) {
 		return ParentalTransaction.getBalanceOn(this, date);			
 	}	
 	
+	/**
+	 * Return the voucher balance for this parent on a specific day
+	 * @param date - LocalDate
+	 * @return balance in pennies
+	 */
 	public int getVoucherBalanceOn(LocalDate date) {
 		return ParentalTransaction.getVoucherBalanceOn(this, date);			
 	}	
 		
 	
 	
+	/**
+	 * @return true if has children otherwise return false
+	 */
 	public boolean hasChildren() {
 		return this.getStudents().size() > 0;		
 	}
 
+	/**
+	 * @return number of future sessions this parent has paid for 
+	 */
 	public int numFutureSessionsBooked() {		
 		int result = User.repository.numFutureSessionsBooked(parentId);
 		return result;
 	}
 
+	/**
+	 * Update the details for this parent in the repository
+	 */
 	@Transactional
 	public void update()
 	{
 		User.repository.updateParent(parentId, altContactName, altTelephoneNum, overdraftLimit);
 	}
 
+	/**
+	 * Return the amount this parent is in credit
+	 * @return amount in pennies
+	 */	 
 	public int getCashCredit() {
 		int result = getBalance();
 		if (result < 0 ) {
@@ -152,6 +249,10 @@ public class Parent {
 		return result;
 	}
 	
+	/**
+	 * Return the amount this parent is in debt
+	 * @return amount in pennies
+	 */
 	public int getCashDebt() {
 		int result = getBalance();
 		if (result > 0 ) {
@@ -163,6 +264,13 @@ public class Parent {
 		return result;
 	}	
 
+	/**
+	 * Return true if this parent can afford  charge for a Club. 
+	 * Some clubs accet=pt vouchers others don't 
+	 * @param charge - amount in pennies
+	 * @param club - Club
+	 * @return true if can afford otherwise return false
+	 */
 	public boolean canAfford(int charge,Club club) {
 		int remaining = charge;
 		if (club.isAcceptsVouchers()) {
@@ -180,25 +288,40 @@ public class Parent {
 		return remaining == 0;
 	}
 	
-	public void recordPaymentForClub(int totalCost, Club club, String description) {
+	/**
+	 * Record a payment for a club
+	 * @param totalRefund - amount in pennies
+	 * @param club - Club
+	 * @param description - reason for refund
+	 * @return ParentalTransaction
+	 */
+	public ParentalTransaction recordPaymentForClub(int totalCost, Club club, String description) {
 		int remaining = totalCost;
+		ParentalTransaction pt = null;	
 		if (club.isAcceptsVouchers()) {
 			int voucherBalance = this.getVoucherBalance();
 			int voucherCharge = (voucherBalance > remaining) ? remaining :voucherBalance;
 			if (voucherCharge > 0) {
 				remaining -= voucherCharge;
-				ParentalTransaction pt = new ParentalTransaction(-voucherCharge, LocalDateTime.now(), ParentalTransaction.Type.PAYMENT, description, club);
+				pt = new ParentalTransaction(-voucherCharge, LocalDateTime.now(), ParentalTransaction.Type.PAYMENT, description, club);
 				pt.setBalanceType(BalanceType.VOUCHER);
 				addTransaction(pt);
 			}
 		}
 		if (remaining > 0) {
-			ParentalTransaction pt = new ParentalTransaction(-remaining, LocalDateTime.now(), ParentalTransaction.Type.PAYMENT, description, club);
+			pt = new ParentalTransaction(-remaining, LocalDateTime.now(), ParentalTransaction.Type.PAYMENT, description, club);
 			addTransaction(pt);
 		}
-		return;
+		return pt;
 	}
 	
+	/**
+	 * Record a refund for a club
+	 * @param totalRefund - amount in pennies
+	 * @param club - Club
+	 * @param description - reason for refund
+	 * @return ParentalTransaction
+	 */
 	public ParentalTransaction recordRefundForClub(int totalRefund, Club club, String description) {
 		int remaining = totalRefund;
 	//	int voucherBalance = this.getVoucherBalance();
@@ -220,6 +343,10 @@ public class Parent {
 		return pt;
 	}	
 
+	/**
+	 * Return all the topups for this parent
+	 * @return List of ParentalTransaction
+	 */
 	public List<ParentalTransaction> getCashTopUps() {
 		return ParentalTransaction.getCashTopUps(this);		
 	}		

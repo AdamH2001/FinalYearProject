@@ -44,30 +44,63 @@ import com.afterschoolclub.data.State;
 import com.afterschoolclub.data.Student;
 import com.afterschoolclub.data.User; 
   
+/**
+ * Controller Class that implements all the end points that are specfic  
+ * to an administrator such as creating clubs, scheduling sessions, managing resources 
+ * and menus etc. 
+ */
+
+
 @Controller
 @SessionAttributes({"sessionBean"})
 public class AdminController {
 
 		
+	/**
+	 * Utility service to retrieve / upload pictures for clubs
+	 */
 	@Autowired
     private ClubPicService clubPicService;
 	
+	/**
+	 * Reference to the maincontroller 
+	 */
 	@Autowired	
     private MainController mainController;
 
+	/**
+	 * Utility service to send emails
+	 */
 	@Autowired
 	private EmailService mailService;	
 
 	
+    /**
+     * Used to manage the session state
+     */
     private final SessionBean sessionBean;	
         
+	/**
+	 * Utility to log info messages
+	 */
 	static Logger logger = LoggerFactory.getLogger(AdminController.class);
 
 	
+    /**
+     * @param sessionBean
+     */
     @Autowired
     public AdminController(SessionBean sessionBean) {
         this.sessionBean = sessionBean;
     }    
+    
+	/**
+	 * Utility method to let the user interface know we are going into dialogue mode
+	 * This causes the links on the side navigation panel to be disabled
+	 * 
+	 * @param inDialogue - ture if inDialogue mode otherwise false
+	 * @param model - holder of context data from view  
+	 */
     
 	public void setInDialogue(boolean inDialogue, Model model)
 	{
@@ -76,11 +109,21 @@ public class AdminController {
 		return;
 	}
 	
+	/**
+	 * Utility function to return to the calendar view
+	 * @param model - holder of context data from view 
+	 * @return
+	 */
 	public String setupCalendar(Model model)
 	{
 		return mainController.setupCalendar(model);				
 	}    
     
+	/**
+	 * Utility functon to ensure logged user is an administrator
+	 * @param model - holder of context data from view 
+	 * @return null if is an admnistrator otherwise return a page with an error recorded
+	 */
 	public String validateIsAdmin(Model model)
 	{
 		String returnPage = null;
@@ -104,6 +147,11 @@ public class AdminController {
 	}
 	
 	
+    /**
+     * End point to view all incidents
+     * @param model - holder of context data from view 
+     * @return
+     */
     @GetMapping("/adminViewIncidents")
     public String updateAdminFilters(Model model) 
     {
@@ -119,6 +167,13 @@ public class AdminController {
     }   
     
     
+    /**End point to to update the admin filters
+     * @param onlyMine
+     * @param adminFilter
+     * @param filterClub - id of the club to filter on otherwise 0
+	 * @param model - holder of context data from view 
+     * @return
+     */
     @PostMapping("/updateAdminFilters")
     public String updateAdminFilters(
             @RequestParam(name="onlyMine", required=false) Boolean onlyMine,
@@ -140,6 +195,16 @@ public class AdminController {
     }   
 
 
+	/**
+	 * End point to persist an incident
+	 * @param allAttendees
+	 * @param allAttendeeNotes
+	 * @param summary
+	 * @param sessionId - primary key for the session
+	 * @param sessionId - incidentId - key for the Incident
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/addIncident")
 	public String addIncident(
 			@RequestParam(name = "attendeeId") List<Integer> allAttendees,
@@ -215,6 +280,11 @@ public class AdminController {
 	}    
 	
 	
+	/**
+	 * End point to edit / update resources
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/manageResources")
 	public String manageResources(Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -233,6 +303,11 @@ public class AdminController {
 	}    	
 	
 	
+	/**
+	 * End point to edit / update refreshments
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/manageRefreshments")
 	public String manageRefreshments(Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -251,6 +326,12 @@ public class AdminController {
 	}    		
 
 	
+	/**
+	 * End point to create an incident
+	 * @param sessionId - primary key for the session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/createIncident")
 	public String createIncident(@RequestParam (name="sessionId") int sessionId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -274,6 +355,13 @@ public class AdminController {
 		return returnPage;
 	}	
 	
+	/**
+	 * End point to view an incident
+	 * @param sessionId - primary key for the session
+	 * @param sessionId - incidentId - key for the Incident
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/adminViewIncident")
 	public String viewIncident(@RequestParam (name="sessionId") int sessionId, @RequestParam (name="incidentId") int incidentId,  Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -304,6 +392,13 @@ public class AdminController {
 		return returnPage;
 	}	
 	
+	/**
+	 * End point to edit an incident
+	 * @param sessionId - primary key for the session
+	 * @param incidentId - incidentId - key for the Incident
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/adminEditIncident")
 	public String editIncident(@RequestParam (name="sessionId") int sessionId, @RequestParam (name="incidentId") int incidentId,  Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -340,6 +435,12 @@ public class AdminController {
 	
 	
 	
+	/**
+	 * End point to persist the register
+	 * @param register - map of who attended and who is absent
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/addRegister")
 	public String addRegister(@RequestParam Map<String,String> register, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -374,6 +475,12 @@ public class AdminController {
 	
 	
 	
+	/**
+	 * End point to copy a session
+	 * @param sessionId - primary key for the session to copy
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/copySession")
 	public String copySession(@RequestParam (name="sessionId") int sessionId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -409,6 +516,12 @@ public class AdminController {
 	}
 	
 	
+	/**
+	 * End point to cancel an existing session
+	 * @param sessionId - primary key for the session to cancel
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/cancelSession")
 	@Transactional
 	public String cancelSession(@RequestParam (name="sessionId") Integer sessionId, Model model) {
@@ -648,6 +761,10 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	return returnPage;
 }
 
+	/**End point to create a new session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/createSession")
 	public String createSession(Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -670,6 +787,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		return returnPage;
 	}
 
+	/**
+	 * End point to edit a session
+	 * @param sessionId - primary key for the session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/editSession")
 	public String editSession(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -704,6 +827,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		return returnPage;
 	}	
 	
+	/**
+	 * End point to view a specific session
+	 * @param sessionId - primary key for the session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/adminViewSession")
 	public String adminViewSession(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -733,6 +862,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		return returnPage;
 	}	
 	
+	/**
+	 * End point to take the reigster for a specific session
+	 * @param sessionId - primary key for the session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/takeRegister")
 	public String takeRegister(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -764,6 +899,11 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	}	
 	
 	
+	/**
+	 * End point to return form to create a club
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/createClub")
 	public String createClub(Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -780,6 +920,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	}
 	
 	
+	/**
+	 * Ebd point to edit a club
+	 * @param clubId
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/editClub")
 	public String editClub(@RequestParam(name = "clubId") int clubId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -797,6 +943,25 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	
 	
 	
+	/**
+	 * End point to persist a new club or save the updates for an existing club
+	 * @param clubId
+	 * @param title
+	 * @param description
+	 * @param keywords
+	 * @param basePrice
+	 * @param yearRCanAttend
+	 * @param yearOneCanAttend
+	 * @param yearTwoCanAttend
+	 * @param yearThreeCanAttend
+	 * @param yearFourCanAttend
+	 * @param yearFiveCanAttend
+	 * @param yearSixCanAttend
+	 * @param acceptsVouchers
+	 * @param tempFilename
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/addClub")
 	public String addClub(
 			@RequestParam(name = "clubId") int clubId,
@@ -854,6 +1019,11 @@ public String addSession(@RequestParam(name = "club") int clubId,
 
 	}
 	
+	/**
+	 * End point to look at club revenue for the academic year
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/clubRevenue")
 	public String viewTransactions(Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -870,6 +1040,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		
 	}
 	
+	/**
+	 * End point for a view of all the users 
+	 * @param newAaccountsTab - indicator whether to go to new accounts tab
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/userAccounts")
 	public String userAccounts(@RequestParam(name = "newAccounts", required=false, defaultValue="2") int newAaccountsTab,
 			Model model) {
@@ -893,6 +1069,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		return returnPage;
 	}
 
+	/**
+	 * End point for a view for all the students 
+	 * @param newAaccountsTab - determine if go to the new accounts tab
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/students")
 	public String students(@RequestParam(name = "newAccounts", required=false, defaultValue="2") int newAaccountsTab,
 			Model model) {
@@ -919,6 +1101,11 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		
 	
 	
+	/**
+	 * Move back an academic year when looking at club revenue statements
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/clubRevenueBack")
 	public String transactionBack(Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -929,6 +1116,11 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		return returnPage;			
 	}
 	
+	/**
+	 * Move forward an academic year when looking at club revenue statements
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/clubRevenueForward")
 	public String transactionForward(Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -940,6 +1132,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	}	
 
 	
+	/**
+	 * End point to view transactions for a specific user
+	 * @param userId - primary key for the user
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/adminViewTransactions")
 	public String viewTransactions(	@RequestParam(name = "userId") int userId,
 			Model model) {
@@ -975,6 +1173,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		
 	}
 	
+	/**
+	 * End point to deactivate a user
+	 * @param userId - primary key for the user
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@Transactional
 	@GetMapping("/deleteUser")
 	public String deleteUser(	@RequestParam(name = "userId") int userId,
@@ -1003,6 +1207,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		return returnPage;				
 	}	
 	
+	/**
+	 * End point to deactivate a student
+	 * @param userId - primary key for the student
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/deleteStudent")
 	public String deleteStudent(@RequestParam(name = "studentId") int studentId,
 			Model model) {
@@ -1034,6 +1244,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	
 	
 	
+	/**
+	 * End point to validate a user as part of registration process
+	 * @param userId - primary key for the user
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/validateUser")
 	public String validateUser(	@RequestParam(name = "userId") int userId,
 			Model model) {
@@ -1068,6 +1284,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		return returnPage;				
 	}	
 	
+	/**
+	 * End point to validate a student as part of registration process
+	 * @param userId - primary key for the student
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/validateStudent")
 	public String validateStudent(	@RequestParam(name = "studentId") int studentId,
 			Model model) {
@@ -1101,6 +1323,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		return returnPage;				
 	}		
 	
+	/**
+	 * End point to reject a student as part of registration process
+	 * @param userId - primary key for the student
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/rejectStudent")
 	public String rejectStudent(	@RequestParam(name = "studentId") int studentId,
 			Model model) {
@@ -1139,6 +1367,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	
 	
 	
+	/**
+	 * End point to reject a user as part of the registration process
+	 * @param userId - primary key for the user
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/rejectUser")
 	public String rejectUser(	@RequestParam(name = "userId") int userId,
 			Model model) {
@@ -1170,6 +1404,13 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	
 	
 	
+	/**
+	 * End point to update an doverdraft
+	 * @param userId - primary key for the user
+	 * @param overdraftLimit - csh value of limit
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/updateOverdraft")
 	public String updateOverdraft(@RequestParam(name = "userId") int userId,
 			@RequestParam(name = "overdraftLimit") int overdraftLimit,
@@ -1186,6 +1427,14 @@ public String addSession(@RequestParam(name = "club") int clubId,
 		return returnPage;
 	}		
 	
+	/**
+	 * End point to register a child care voucher
+	 * @param userId - primary key for the user
+	 * @param voucherAmount - monetary value for the voucher
+	 * @param voucherReference - reference number for the voucher
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/registerVoucher")
 	public String registerVoucher(@RequestParam(name = "userId") int userId,
 			@RequestParam(name = "voucherAmount") int voucherAmount,
@@ -1215,7 +1464,7 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	/**
 	 * Refund a user their total cash balance 
 	 * @param userId - the user identifier of the user to be refunded
-	 * @param model
+	 * @param model - holder of context data from view 
 	 * @return return redirect back to the userAccounts view 
 	 */
 
@@ -1238,6 +1487,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	}	
 	
 	
+	/**
+	 * End point to email a specific user in debt
+	 * @param userId - primary key for the user
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/emailUserInDebt")
 	public String emailUserInDebt(@RequestParam(name = "userId") Integer userId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -1266,6 +1521,11 @@ public String addSession(@RequestParam(name = "club") int clubId,
 
 	}
 	
+	/**
+	 * End point to email all the user that are in debt
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/emailAllUsersInDebt")
 	public String emailAllUsersInDebt(Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -1296,6 +1556,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	}		
 	
 	
+	/**
+	 * End point to inactivate a club given a clubId
+	 * @param clubId - primary key for the club want to inactivate
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/deleteClub")
 	public String deleteClub(@RequestParam(name = "clubId") Integer clubId, Model model) {
 		String returnPage = validateIsAdmin(model);
@@ -1313,6 +1579,12 @@ public String addSession(@RequestParam(name = "club") int clubId,
 	}
 	
 	
+	/**
+	 * Called when change the view to show financial information in the header or not
+	 * @param show
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/showFinanceSummary")
 	public String showFinanceSummary(@RequestParam(name = "show") boolean show, Model model) {
 		String returnPage = validateIsAdmin(model);

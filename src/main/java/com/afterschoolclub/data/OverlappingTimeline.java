@@ -9,26 +9,44 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+
+/**
+ * Class that enable the calculation of peak resource demand over a timeline of sessions
+ */
 @Getter
 @Setter
 @ToString
 public class OverlappingTimeline {
 
-	private List <TimelineSession> timelineSessions = new ArrayList<TimelineSession>(); 
+	/**
+	 * List of TimelineEvents that make of the time points when resource demand changes
+	 */
+	private List <TimelineEvent> timelineEvents = new ArrayList<TimelineEvent>(); 
+	/**
+	 * original session 
+	 */
 	private Session originalSession;
 	
-	public enum TimelineSessionType {
+	public enum TimelineEventType {
 		START, END
 	}
 	
 	
-	class TimelineSession {
+	/**
+	 * Intenal class to track each TimelineEvent
+	 */
+	class TimelineEvent {
 		Session session;
-		TimelineSessionType type;
+		TimelineEventType type;
 		
 		
 		
-		public TimelineSession(Session session, TimelineSessionType type) {
+		/** 
+		 * Construct a TimelineEvent for a Session
+		 * @param session - Session 
+		 * @param type - START or END
+		 */
+		public TimelineEvent(Session session, TimelineEventType type) {
 			super();
 			this.session = session;
 			this.type = type;
@@ -36,9 +54,13 @@ public class OverlappingTimeline {
 
 
 
+		/**
+		 * Return the time of this TimelineEvent 
+		 * @return LocalDateTime
+		 */
 		public LocalDateTime getTime() {
 			LocalDateTime result = null;
-			if (type == TimelineSessionType.START) {
+			if (type == TimelineEventType.START) {
 				result = session.getStartDateTime();
 			}
 			else {
@@ -47,16 +69,24 @@ public class OverlappingTimeline {
 			return result;
 		}
 		
+		/** Return quantity of a specific resource demand
+		 * @param resourceId - primary key for resource 
+		 * @return - quantity
+		 */
 		public int getResourceQuantity(int resourceId)
 		{
 			int result = session.getRequiredResourceQuantity(resourceId);
-			if (type == TimelineSessionType.END) {
+			if (type == TimelineEventType.END) {
 				result *= -1;
 			}
 			return result;
 		}						
 	}
 	
+	/**
+	 * Construct an overlapping timeline for a session
+	 * @param session - Session
+	 */
 	public OverlappingTimeline(Session session) {
 		originalSession = session; 
 		
@@ -64,11 +94,11 @@ public class OverlappingTimeline {
 		
 		// create time-line session ordered by time of session
 		for (Session overlappingSession : overlappingSessions) {
-			timelineSessions.add(new TimelineSession(overlappingSession, TimelineSessionType.START));
-			timelineSessions.add(new TimelineSession(overlappingSession, TimelineSessionType.END));			
+			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.START));
+			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.END));			
 		}
-		timelineSessions.sort(new Comparator<TimelineSession>() {
-					public int compare(TimelineSession tle1, TimelineSession tle2) {
+		timelineEvents.sort(new Comparator<TimelineEvent>() {
+					public int compare(TimelineEvent tle1, TimelineEvent tle2) {
 						return tle1.getTime().compareTo(tle2.getTime());
 					}
 				}); 
@@ -76,6 +106,10 @@ public class OverlappingTimeline {
 	}
 	
 	
+	/**
+	 * Construct an overlapping timeline for a resource to determine peak demand for resource
+	 * @param resource - Resource
+	 */
 	public OverlappingTimeline(Resource resource) {
 		
 		List<Session> overlappingSessions = Session.findByFutureDemandOnResourceId(resource.getResourceId());
@@ -83,11 +117,11 @@ public class OverlappingTimeline {
 		
 		// create time-line session ordered by time of session
 		for (Session overlappingSession : overlappingSessions) {
-			timelineSessions.add(new TimelineSession(overlappingSession, TimelineSessionType.START));
-			timelineSessions.add(new TimelineSession(overlappingSession, TimelineSessionType.END));			
+			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.START));
+			timelineEvents.add(new TimelineEvent(overlappingSession, TimelineEventType.END));			
 		}
-		timelineSessions.sort(new Comparator<TimelineSession>() {
-					public int compare(TimelineSession tle1, TimelineSession tle2) {
+		timelineEvents.sort(new Comparator<TimelineEvent>() {
+					public int compare(TimelineEvent tle1, TimelineEvent tle2) {
 						return tle1.getTime().compareTo(tle2.getTime());
 					}
 				}); 
@@ -96,12 +130,17 @@ public class OverlappingTimeline {
 	
 	
 	
+	/**
+	 * Return the required quantity of resource for this timeline
+	 * @param resourceId
+	 * @return peak number of units required 
+	 */
 	public int getRequiredResourceQuantity(int resourceId) {
 		int maxResourceRequired = 0;
 		int currentRequirement = 0;
 		
 		// iterate over time-line sessions calculating maximum required instances of resource identified by resourceId
-		for (TimelineSession ts : timelineSessions) {
+		for (TimelineEvent ts : timelineEvents) {
 			currentRequirement += ts.getResourceQuantity(resourceId);
 			if (currentRequirement > maxResourceRequired) {
 				maxResourceRequired = currentRequirement;

@@ -55,11 +55,20 @@ public class StaffController {
     }    
     
 	
-	
+    /**
+     * Returns all the MenuGroups
+     * @return Iterable collection of MenuGroups
+     */	
     @GetMapping
     public List<Staff> getAllStaff() {
     	return Staff.findAllActive();
     }
+    
+    /**
+     * Endpoint to retrieve a MenuGroup
+     * @param id - primary key for the MenuGroup
+     * @return - MenuGroup matching the primary key
+     */    
 
     @GetMapping(value="/{id}")
     public Optional<Staff> getStaffById(@PathVariable long id) {
@@ -67,6 +76,11 @@ public class StaffController {
     	return Optional.of(r);
     }
 
+    /**
+     * Endpoint to create a new MenuGroup
+     * @param menuGroup - MenuGroup to create
+     * @return MenuGroup created
+     */
     @PostMapping(consumes = {"application/json"})
     public Staff createStaff(@RequestBody Staff staff) {   	
     	try {
@@ -93,17 +107,28 @@ public class StaffController {
     	return staff;
     }
 
+    /**
+     * Endpoint to update a MenuGroup
+     * @param id - primary key of the MenuGroup
+     * @param menuGroup - object representing updated state
+     * @return - updated MenuGroup
+     */
+        
     @PutMapping(value="/{id}", consumes = {"application/json"})
     public Staff updateStaff(@PathVariable long id, @RequestBody Staff staff) {
     	staff.save();
         return staff;
     }
     
+    /**
+     * Endpoint to delete an MenuGroup
+     * @param id - primary key for the MenuGroup
+     */    
 	@Transactional
     @DeleteMapping(value="/{id}")
     public void deleteStaff(@PathVariable long id) {    	
     	Staff staff = Staff.findById((int) id);
-    	User user = staff.inActivate();
+    	User user = staff.deactivate();
     	
 		try {
 			Context context = new Context();

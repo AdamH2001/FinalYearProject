@@ -16,21 +16,48 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ *  Class that encapsulates the data and operations for a MenuGroup   
+ */
+
 @Getter
 @Setter
 @ToString
 public class MenuGroup {
 
+	/**
+	 * Repository to retrieve and store instances
+     */	
 	public static MenuGroupRepository repository = null;
-
 	
+	/**
+	 * Primary Key for MenuGroup
+	 */
 	@Id
 	private int menuGroupId;
+	/**
+	 * Name of MenuGroup
+	 */
 	private String name;
 	
+	/**
+	 * ACTIVE or INACTIVE 
+	 */
 	private State state = State.ACTIVE;
 	
 
+	/**
+	 * Set of MenuGroupOptions
+	 */
+	@MappedCollection(idColumn = "menu_group_id")
+	private Set<MenuGroupOption> menuGroupOptions = new HashSet<>();
+	
+	
+	/**
+	 * Return MenuGroup By Name 
+	 * @param name - name of menu group
+	 * @return MenuGrou or NULL of cannot find matching name
+	 */
 	public static MenuGroup findByName(String name) {
 		List<MenuGroup> nameMatched  = repository.findByName(name);
 		MenuGroup result = null; 
@@ -40,25 +67,40 @@ public class MenuGroup {
 		return result;		
 	}	
 	
-	
-	@MappedCollection(idColumn = "menu_group_id")
-	private Set<MenuGroupOption> menuGroupOptions = new HashSet<>();
-	
+	/**
+	 * Return all MenuGroup of a particular state
+	 * @return List  of MenuGroup
+	 */
 	public static Iterable<MenuGroup> findAll() {		
 		return repository.findAll();
 	}	
 	
 	
-	public static Iterable<MenuGroup> findByState(State state) {		
+	/**
+	 * Return all MenuGroup of a particular state
+	 * @param state - ACTIVE or INACTIVE
+	 * @return List  of MenuGroup
+	 */
+	public static List<MenuGroup> findByState(State state) {		
 		return repository.findByState(state);
 	}	
 	
 		
 	
+	/**
+	 * Return all MenuGroup for a Session
+	 * @param sessionId - primary key for Session
+	 * @return List of MenuGroup
+	 */
 	public static List<MenuGroup> findBySessionId(int sessionId) {
 		return repository.findBySessionId(sessionId);		
 	}	
 	
+	/**
+	 * Return specific MenuGroup
+	 * @param menuGroupId - primary key for MenuGroup
+	 * @return MenuGroup
+	 */
 	public static MenuGroup findById(int menuGroupId) {
 		Optional<MenuGroup> optional = repository.findById(menuGroupId);
 		MenuGroup menuGroup = null;
@@ -68,27 +110,38 @@ public class MenuGroup {
 		return menuGroup;
 	}	
 	
+	/**
+	 * Delete the MenuGroup from the repository  
+	 * @param menuGroupId - primary key for MenuGroup
+	 */
 	public static void deleteById(int menuGroupId) {
 		repository.deleteById(menuGroupId);		
 	}		
 		
 	
 	/**
-	 * @param name
+	 * Constructor
+	 * @param name - name of MenuGroup
 	 */
 	public MenuGroup(String name) {
 		super();
 		this.name = name;
 	}
 	
+	
 	/**
-	 * @param name
+	 * Default Constructor 
 	 */
 	public MenuGroup() {
 		super();
 	
 	}	
 		
+	/**
+	 * Return the MenuOption 
+	 * @param menuOptionId - Primary key for MenuOption
+	 * @return MenuOption
+	 */
 	public MenuOption getMenuOption(int menuOptionId) {
 		MenuOption result = null;
 		Iterator<MenuGroupOption> iterator = menuGroupOptions.iterator();
@@ -101,6 +154,11 @@ public class MenuGroup {
 		return result;
 	}
 	
+	/**
+	 * Return the MenuOption
+	 * @param menuGroupOptionId - primary key for menuGroupOption
+	 * @return MenuOption
+	 */
 	public MenuOption getMenuOptionFromGroupOptionId(int menuGroupOptionId) {
 		MenuOption result = null;
 		Iterator<MenuGroupOption> iterator = menuGroupOptions.iterator();
@@ -115,6 +173,11 @@ public class MenuGroup {
 	
 	
 	
+	/**
+	 * Return the MenuOptionId
+	 * @param menuGroupOptionId - primary key for menuGroupOption
+	 * @return MenuOptionId 
+	 */
 	public int getMenuOptionId(int menuGroupOptionId) {
 		int result = 0;
 		Iterator<MenuGroupOption> iterator = menuGroupOptions.iterator();
@@ -127,6 +190,11 @@ public class MenuGroup {
 		return result;
 	}	
 	
+	/**
+	 * Return the MenuGroupOption 
+	 * @param menuOptionId - primary key for MenuOption 
+	 * @return MenGroupOption
+	 */
 	public int getMenuGroupOptionId(int menuOptionId) {
 		int result = 0;
 		Iterator<MenuGroupOption> iterator = menuGroupOptions.iterator();
@@ -142,6 +210,10 @@ public class MenuGroup {
 	
 	
 	
+	/**
+	 * Return list of all MenuOptions for this MenuGroup
+	 * @return List of MenuOption
+	 */
 	public List<MenuOption> getAllMenuOptions() {
 
 		List <MenuOption> result = new ArrayList<MenuOption>();
@@ -159,6 +231,10 @@ public class MenuGroup {
 		return result;
 	}
 	
+	/**
+	 * Return all Active MenuGroupOptions for this MenuGroup
+	 * @return List of MenuGroupOption
+	 */
 	public List<MenuGroupOption> getAllActiveMenuGroupOptions() {
 
 		List <MenuGroupOption> result = new ArrayList<MenuGroupOption>();
@@ -172,13 +248,19 @@ public class MenuGroup {
 		}
 		
 		result.sort(new Comparator<MenuGroupOption>() {
-			public int compare(MenuGroupOption mo1, MenuGroupOption mo2) {
+			public int compare(MenuGroupOption mo1, MenuGroupOption mo2) {				
 				return mo1.getMenuOption().getName().compareTo(mo2.getMenuOption().getName());
 			}});
 		return result;
 	}
 	
 	
+	/**
+	 * Return the chosen menu option given the student and session
+	 * @param student - Student
+	 * @param session - Session
+	 * @return MenuOption
+	 */
 	public MenuOption getChosenMenuOption(Student student, Session session)
 	{
 		boolean foundOption = false;
@@ -197,11 +279,17 @@ public class MenuGroup {
 	}	
 	
 	
+	/**
+	 * Save this MenuGroup to the repository
+	 */
 	public void save()
 	{
 		repository.save(this);
 	}
 	
+	/**
+	 * Update this MenuGroup in the repository
+	 */
 	public void update() {
 		repository.update(menuGroupId, name, state);
 	}

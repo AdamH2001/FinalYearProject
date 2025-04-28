@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ *  Class that encapsulates the data and operations for a SessionMenu of AfterSchool Club  
+ */
+
 @Getter
 @Setter
 @ToString

@@ -32,6 +32,9 @@ import com.afterschoolclub.data.repository.ResourceRepository;
 @RestController
 @RequestMapping("api/resources")
 
+/**
+ * CRUD Controller for MenuGroup entity
+ */
 public class ResourceController {
 
 	
@@ -46,6 +49,10 @@ public class ResourceController {
         Resource.repository = resourceRepository;
     }        
     
+    /**
+     * Returns all the Resources
+     * @return Iterable collection of Resources
+     */    
     @GetMapping
     public List<Resource> getAllResources() {
     	List<Resource> result;    	
@@ -59,6 +66,11 @@ public class ResourceController {
     	return result;    	
     }
 
+    /**
+     * Endpoint to retrieve a Resource
+     * @param id - primary key for the Resource
+     * @return - Resource  matching the primary key
+     */    
     @GetMapping(value="/{id}")
     public Optional<Resource> getResourceById(@PathVariable long id) {
     	Optional<Resource> result;    	
@@ -74,6 +86,11 @@ public class ResourceController {
     	return result;
     }
 
+    /**
+     * Endpoint to create a new Resource
+     * @param resource - MenuGroup to create
+     * @return Resource created
+     */
     @PostMapping(consumes = {"application/json"})
     public Resource createResource(@RequestBody Resource resource) {
     	if (sessionBean.isLoggedOn()) {      	    	    	    	    	    	
@@ -93,6 +110,13 @@ public class ResourceController {
         return resource;
     }
 
+    /**
+     * Endpoint to update a Resource
+     * @param id - primary key of the Resource
+     * @param resource - object representing updated state
+     * @return - updated Resource
+     */
+        
     @PutMapping(value="/{id}", consumes = {"application/json"})
     public Resource updateResource(@PathVariable long id, @RequestBody Resource resource) {
     	if (sessionBean.isLoggedOn()) {      	    	    	    	    	
@@ -110,7 +134,10 @@ public class ResourceController {
         return resource;
     }
 
-    
+    /**
+     * Endpoint to delete an Resource
+     * @param id - primary key for the Resource
+     */    
     @DeleteMapping(value="/{id}")
     public void deleteResource(@PathVariable long id) {
     	if (sessionBean.isLoggedOn()) {      	    	    	    	

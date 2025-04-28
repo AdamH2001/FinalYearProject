@@ -37,22 +37,42 @@ import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.PayPalRESTException; 
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Controller Class that implements all the end points that are specific to Parents  
+ * e.g. Book Session  
+ */ 
 
 @Controller
 @SessionAttributes({"sessionBean"})
 public class ParentController {
 
+	/**
+	 * Reference to main controller 
+	 */
 	@Autowired	
     private MainController mainController;
 	
+	/**
+	 * Utility service to take paypal payments
+	 */
 	@Autowired	
     private PaypalService paypalService;
 	
+	/**
+	 * Utility logger to record info and warning messages
+	 */
 	static Logger logger = LoggerFactory.getLogger(ParentController.class);
 
 		
+    /**
+     * 
+     */
     private final SessionBean sessionBean;
 	
+    /**
+     * Spring constructor
+     * @param sessionBean
+     */
     @Autowired
     public ParentController(SessionBean sessionBean) {
         this.sessionBean = sessionBean;
@@ -60,6 +80,12 @@ public class ParentController {
     
     
     
+	/**
+	 * Uility method to set in dialgoue mode. If is true 
+	 * then disables links on navigation base
+	 * @param inDialogue - boolean true or false
+	 * @param model - holder of context data from view 
+	 */
 	public void setInDialogue(boolean inDialogue, Model model)
 	{
 		sessionBean.setInDialogue(inDialogue);
@@ -67,6 +93,11 @@ public class ParentController {
 		return;
 	}
 	
+	/**
+	 * Uility method to redirect to calendar page
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	public String setupCalendar(Model model)
 	{
 		return mainController.setupCalendar(model);		
@@ -74,6 +105,13 @@ public class ParentController {
 	}
 	
     
+	/**
+	 * Uility function to validate logged on user is a parent
+	 * If is rturns null otherwise redirects user to a page with error recorded
+	 * 
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	public String validateIsParent(Model model)
 	{
 		String returnPage = null;
@@ -94,6 +132,11 @@ public class ParentController {
 		return returnPage;		
 	}
 	
+	/**
+	 * End point to add a student
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/createStudent")
 	public String createStudent(Model model) {
 		String returnPage = validateIsParent(model);
@@ -114,6 +157,17 @@ public class ParentController {
 
 
 
+    /**
+     * End point to update the current filters and refresh the view
+     * @param attending
+     * @param available
+     * @param unavailable
+     * @param missed
+     * @param attended
+     * @param filterClub
+     * @param model - holder of context data from view 
+     * @return
+     */
     @PostMapping("/updateFilters")
     public String updateFilters(
             @RequestParam(name="attending", required=false, defaultValue="false") Boolean attending,
@@ -137,6 +191,11 @@ public class ParentController {
     			
     }    
     
+	/**
+	 * End point to view transactions 
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/viewTransactions")
 	public String viewTransactions(Model model) {
 		String returnPage = validateIsParent(model);
@@ -169,6 +228,12 @@ public class ParentController {
 	}
 
 	
+	/**
+	 * End point to persist the cancellation of a booking and perform the appropriate refunds
+	 * @param sessionId - primary key for the session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/deregisterForSession")
 	public String deregisterForSession(@RequestParam (name="sessionId") int sessionId, Model model) {
 		String returnPage = validateIsParent(model);
@@ -187,11 +252,27 @@ public class ParentController {
 			
 	}
 
+	/**
+	 * Utility function to set up model for view a session booking
+	 * @param sessionId - primary key for the session
+	 * @param editOptions - boolean indicating whether we are editing options
+	 * @param viewOnly - indicator whether we are only viewing the options
+	 * @param model - holder of context data from view 
+	 * @return
+	 */
 	public String setUpSessionOptions(Integer sessionId, boolean editOptions, boolean viewOnly,  Model model)  {
 		
 		return setUpSessionOptions(Session.findById(sessionId), editOptions, viewOnly, model);
 	}
 	
+	/** 
+	 * Utility function to set up model for view a session booking
+	 * @param session - take a session object 
+	 * @param editOptions - boolean indicating whether we are editing options
+	 * @param viewOnly - indicator whether we are only viewing the options
+	 * @param model - holder of context data from view 
+	 * @return
+	 */
 	public String setUpSessionOptions(Session session, boolean editOptions, boolean viewOnly,  Model model)  {			
 		String returnPage;
 		
@@ -255,6 +336,12 @@ public class ParentController {
 
 	}
 	
+	/**
+	 * End point to edit booking options
+	 * @param sessionId - primary key for the session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/editSessionOptions")
 	public String editSessionOptions(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 		String returnPage = validateIsParent(model);
@@ -264,6 +351,12 @@ public class ParentController {
 		return returnPage;
 	}	
 	
+	/**
+	 * End point to book a session
+	 * @param sessionId - primary key for the session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/registerForSession")
 	public String registerForSession(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 		String returnPage = validateIsParent(model);
@@ -273,6 +366,12 @@ public class ParentController {
 		return returnPage;
 	}
 	
+	/**
+	 * End point to view a session 
+	 * @param sessionId - primary key for the session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/parentViewSession")
 	public String parentViewSession(@RequestParam (name="sessionId") Integer sessionId, Model model) {
 
@@ -280,6 +379,12 @@ public class ParentController {
 	}	
 		
 
+    /**
+     * End point to redirect to PayPal screen to capture payment 
+     * @param amount
+     * @param model - holder of context data from view 
+     * @return
+     */
     @PostMapping("/paymentcreate")
     public RedirectView createPayment(
             @RequestParam("amount") String amount,
@@ -322,6 +427,14 @@ public class ParentController {
 		return returnView;
     }
 
+    /**
+     * End point is user successfully tops up account
+     * This creates the transactions and stores reference to PayPal transaction
+     * @param paymentId
+     * @param payerId
+     * @param model - holder of context data from view 
+     * @return
+     */
     @Transactional 
     @GetMapping("/paymentsuccess")
     public String paymentSuccess(
@@ -368,6 +481,11 @@ public class ParentController {
 
  
     
+    /**
+     * End point if user cancels payment whilst in PayPal
+     * @param model - holder of context data from view 
+     * @return the next page for the user
+     */
     @GetMapping("/paymentcancel")
     public String paymentCancel(Model model) {
 		String returnPage = validateIsParent(model);
@@ -379,6 +497,11 @@ public class ParentController {
 		return returnPage;
     }
 
+    /**
+     * End point to for a payment error from PayPal
+     * @param model - holder of context data from view 
+     * @return the next page for the user
+     */
     @GetMapping("/paymenterror")
     public String paymentError(Model model) {
 		String returnPage = validateIsParent(model);
@@ -390,6 +513,11 @@ public class ParentController {
 		return returnPage;
     }
     
+	/**
+	 * End point to top up the users balance from PayPal
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user the next page for the user
+	 */
 	@GetMapping("/topUpBalance")
 	public String topUpBalance(Model model) {
 		String returnPage = validateIsParent(model);
@@ -401,20 +529,11 @@ public class ParentController {
 	}
 		
 	
-	@GetMapping("/createMedicalNote")
-	public String createMedicalNote(@RequestParam (name="studentId") int studentId, Model model) {
-		String returnPage = validateIsParent(model);
-		if (returnPage == null) {	
-			Student student = sessionBean.getLoggedOnParent().getStudentFromId(studentId);
-			model.addAttribute("student",student);
-			this.setInDialogue(true,model);
-
-			returnPage = "createmedicalnote";
-		}
-		return returnPage;
-
-	}	
-	
+	/**
+	 * End point to cancel the booking for a session
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@GetMapping("/cancelRegisterForSession")
 	public String cancelRegisterForSession(Model model) {
 		String returnPage = validateIsParent(model);
@@ -427,6 +546,21 @@ public class ParentController {
 		return returnPage;		
 	}
 	
+	/**
+	 * End point to register for a session
+	 * @param allParams
+	 * @param MonRecurring
+	 * @param TueRecurring
+	 * @param WedRecurring
+	 * @param ThurRecurring
+	 * @param FriRecurring
+	 * @param SatRecurring
+	 * @param SunRecurring
+	 * @param termTimeOnly
+	 * @param bookingEndDate
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
+	 */
 	@PostMapping("/confirmRegisterForSession")
 	public String confirmRegisterForSession(@RequestParam Map<String, String> allParams,
 			@RequestParam(name = "MonRecurring", required = false) Boolean MonRecurring,
@@ -637,10 +771,12 @@ public class ParentController {
 	
 
 	/**
+	 * End point to save the updated details for the booking for a session. 
+	 * Ensures parent has enough funds to pay for it otherwise returns an error 
 	 * 
 	 * @param allParams
-	 * @param model
-	 * @return
+	 * @param model - holder of context data from view 
+	 * @return the next page for the user
 	 */
 	@PostMapping("/confirmUpdateOptionsForSession")
 	public String confirmUpdateOptionsForSession(@RequestParam Map<String,String> allParams, Model model) {
@@ -706,11 +842,11 @@ public class ParentController {
 	}	
 	
 	/**
-	 * Updates the current selected student. This will cause default actions and
-	 * information in header to reflect the newly selected student
+	 * End point Updates the current selected student. This will cause 
+	 * default actions and 	 * information in header to reflect the newly selected student
 	 * 
 	 * @param studentId - student identifier for the newly selected student
-	 * @param model
+	 * @param model - holder of context data from view 
 	 * @return redirect to the page the user was on when selected the new student
 	 */
 	@PostMapping("/changeStudentField")
@@ -725,8 +861,9 @@ public class ParentController {
 	}	
 
     /**
-     * View all the incidents for the currently selected student  
-     * @param model
+     * End point for parent to view all 
+     * the incidents for the currently selected student  
+     * @param model - holder of context data from view 
      * @return the template to view the incidents
      */
 	
@@ -752,8 +889,9 @@ public class ParentController {
 
 	
 	/**
-	 * Refund the current logged user their total cash balance  
-	 * @param model
+	 * End point to refund the current logged user their total 
+	 * cash balance  
+	 * @param model - holder of context data from view 
 	 * @return return redirect back to the userAccounts view 
 	 */
 	@GetMapping("/refund")

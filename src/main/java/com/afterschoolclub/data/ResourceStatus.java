@@ -6,18 +6,40 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * class to encapsulate the status of a resource for a specfic session
+ */
 @Getter
 @Setter
 @ToString
 public class ResourceStatus {
 
+	/**
+	 * The already committed demand for the resource
+	 */
 	int committedDemand;
+	/**
+	 * The new session demand for this resource
+	 */
 	int sessionDemand;
+	/**
+	 * Resource we a re gathering a status for
+	 */
 	Resource resource;
 	
+    /**
+     * the timeline we are considering 
+     */
     @ToString.Exclude
 	OverlappingTimeline overlapTimeline;
 	
+	/**
+	 * Create a resource status
+	 * @param r - Resource
+	 * @param committedDemand - already committed demand
+	 * @param sessionDemand - session demand 
+	 * @param overlapTimeline - overlapping timeline
+	 */
 	public ResourceStatus(Resource r, int committedDemand, int sessionDemand, OverlappingTimeline overlapTimeline) {		
 		this.resource = r;
 		this.committedDemand = committedDemand;
@@ -25,11 +47,17 @@ public class ResourceStatus {
 		this.overlapTimeline = overlapTimeline;
 	}
 	
+	/**
+	 * @return true if there are sufficient resources otherwise return false
+	 */
 	public boolean isSufficient()
 	{
 		return getTotalDemand() <= resource.getQuantity();
 	}
 	
+	/**
+	 * @return message for user summarising resource status
+	 */
 	public String getMessage()
 	{
 		String result = null; 
@@ -76,6 +104,9 @@ public class ResourceStatus {
 		return result;	
 	}
 	
+	/**
+	 * @return the total demand for the resource
+	 */
 	public int getTotalDemand() {
 		return committedDemand + sessionDemand;
 	}

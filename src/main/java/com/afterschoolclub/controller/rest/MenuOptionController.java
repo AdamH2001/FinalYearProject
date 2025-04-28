@@ -29,7 +29,9 @@ import com.afterschoolclub.SessionBean;
 import com.afterschoolclub.controller.AdminController;
 import com.afterschoolclub.data.State;
 
-
+/**
+ * CRUD Controller for MenuGroup entity
+ */
 @RestController
 @RequestMapping("api/menuoption")
 public class MenuOptionController {
@@ -46,7 +48,10 @@ public class MenuOptionController {
         MenuOption.repository = menuOptionRepository;
     }    
     
-	
+    /**
+     * Returns all the MenuOption
+     * @return Iterable collection of MenuOption
+     */	
     @GetMapping
     public Iterable<MenuOption> getAllMenuOptions() {
     	Iterable<MenuOption> result = null;
@@ -60,6 +65,11 @@ public class MenuOptionController {
 		return result;      	
     }
 
+    /**
+     * Endpoint to retrieve a MenuOption
+     * @param id - primary key for the MenuOption
+     * @return - MenuGroup matching the primary key
+     */    
     @GetMapping(value="/{id}")
     public Optional<MenuOption> getStaffById(@PathVariable long id) {
     	Optional<MenuOption> result = null;
@@ -74,6 +84,11 @@ public class MenuOptionController {
 		return result;       	
     }
 
+    /**
+     * Endpoint to create a new MenuOption
+     * @param menuOption - MenuOption to create
+     * @return MenuOption created
+     */    
     @PostMapping(consumes = {"application/json"})
     public MenuOption createMenuOption(@RequestBody MenuOption menuOption) {
     	if (sessionBean.isLoggedOn()) {      	
@@ -93,6 +108,13 @@ public class MenuOptionController {
         return menuOption;
     }
 
+    /**
+     * Endpoint to update a MenuOption
+     * @param id - primary key of the MenuOption
+     * @param menuOption - object representing updated state
+     * @return - updated MenuOption
+     */
+        
     @PutMapping(value="/{id}", consumes = {"application/json"})
     public MenuOption updateMenuOption(@PathVariable long id, @RequestBody MenuOption menuOption) {
     	if (sessionBean.isLoggedOn()) {      	    	
@@ -111,6 +133,10 @@ public class MenuOptionController {
 		}
         return menuOption;    }
     
+    /**
+     * Endpoint to delete an MenuOption
+     * @param id - primary key for the MenuOption
+     */    
     @DeleteMapping(value="/{id}")
     public void deleteMenuOption(@PathVariable long id) {
     	if (sessionBean.isLoggedOn()) {      	    	    	

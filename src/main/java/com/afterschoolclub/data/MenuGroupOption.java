@@ -14,41 +14,73 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ *  Class that encapsulates the data and operations for a MenuGroupOption   
+ */
+
 @Getter
 @Setter
 @ToString
 public class MenuGroupOption {
+	/**
+	 * Repository to retrieve and store instances
+	 */
+	static public MenuGroupOptionRepository repository;
+	
 
-
+	/**
+	 * Primary key for MenuGroupOption
+	 */
 	@Id
 	private int menuGroupOptionId;
 	
+	/**
+	 * Foreign key to MenuOption
+	 */
 	AggregateReference<MenuOption, Integer> menuOptionId;
+	/**
+	 * Foreign key to MenuGroup
+	 */
 	AggregateReference<MenuGroup, Integer> menuGroupId;
 	
 	
+	/**
+	 * ACTIVE or INACTIVE
+	 */
 	private State state = State.ACTIVE;
 	
+	/**
+	 * Cached MenuOption to avoid repeatedly retrieving from the repository
+	 */
 	@Transient
 	private transient MenuOption menuOption = null; 
 	
-	static public MenuGroupOptionRepository repository;
-	
+
 		
+	/**
+	 * Return the associated MenuOption
+	 * @return MenuOption
+	 */
 	public MenuOption getMenuOption() {		
 		if (menuOption == null) {
 			menuOption = MenuOption.findById(menuOptionId.getId().intValue());
 		}
-		return menuOption;
-		
+		return menuOption;		
 	}	
 	
+	/**
+	 * Default Constructor
+	 */
 	public MenuGroupOption()
 	{
 		super();
 					
 	}
 	
+	/**
+	 * Copy Constructor taking a SimpleMenuGroupOption
+	 * @param smgo - SimpleMenuGroupOption
+	 */
 	public MenuGroupOption(SimpleMenuGroupOption smgo)
 	{
 		super();
@@ -58,33 +90,58 @@ public class MenuGroupOption {
 		this.setMenuGroupOptionId(smgo.getMenuGroupOptionId());				
 	}
 	
+	/**
+	 * Return a Simpe version of object
+	 * @return SimpleMenuGroupOption
+	 */
 	public SimpleMenuGroupOption getSimpleMenuGroupOption() {
 		return new SimpleMenuGroupOption(this);
 	}
 
+	/**
+	 * Return all MenuGroupOption
+	 * @return List of MenuGroupOption
+	 */
 	public static List<MenuGroupOption> findAll() {
 		return  new ArrayList<>((Collection<? extends MenuGroupOption>) repository.findAll());		
 	}	
 	
+	/**
+	 * Return specific MenuGroupOption
+	 * @param id - primary key of MenuGroupOption
+	 * @return MenuGroupOption
+	 */
 	public static MenuGroupOption findById(int id) {
 		Optional<MenuGroupOption> o = repository.findById(Integer.valueOf(id)); 
 		return o.isPresent() ? o.get() : null;
 	}
 	
 	
+	/**
+	 * @return true if is ACTIVE otherwise return false
+	 */
 	public boolean isActive() {
 		return state == State.ACTIVE;
 	}
 	
+	/**
+	 * Save this MenuGroupOption to the repository
+	 */
 	public void save()
 	{
 		repository.save(this);
 	}
 	
+	/**
+	 * @return
+	 */
 	public int getMenuOptionIdAsInt() {
 		return menuOptionId.getId().intValue();
 	}
 	
+	/**
+	 * @return
+	 */
 	public int getMenuGroupIdAsInt() {
 		return menuGroupId.getId().intValue();
 	}	
