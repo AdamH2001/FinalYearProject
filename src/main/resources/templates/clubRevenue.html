@@ -24,7 +24,7 @@
 		</div>
 		<div class="row mb-2"></div>
 
-		<div class="row">
+		<div class="row mb-4">
 			<div class="col-sm-5" style="text-align: right;"> <a class="prev" href="./clubRevenueBack"><i class="fa-solid fa-left-long"></i></a> </div>
 			<div class="col-sm-2" style="text-align: center;"> 
 				<h2 align="center" class="asc-orange" th:text="'Academic Year' +  ${sessionBean.getFinanceStartDate().getYear} + '/' + ${sessionBean.getFinanceEndDate().getYear()}"></h2>
@@ -32,32 +32,32 @@
 			<div class="col-sm-5" style="text-align: left;"> <a class="next" href="./clubRevenueForward"><i class="fa-solid fa-right-long"></i></a> </div>								
 		</div>
 
-		<div class="row" >
-		<div class="col-sm-1" align="center"></div>
-		
-		<div class="col-sm-10" align="center">
-
-			<table>
-				<thead>
-					<tr>
-						<td style="text-align: left;"><b>Club</b></td>
-						<td style="text-align: left;"><b>Amount</b></td>
+		<div class="row mb-4" >
+			<div class="col-sm-3" align="center"></div>
+			
+			<div class="col-sm-6" align="center">
+	
+				<table>
+					<thead>
+						<tr>
+							<td style="text-align: left;width:50%"><b>Club</b></td>
+							<td style="text-align: right;"><b>Amount</b></td>
+						</tr>
+					</thead>
+	
+	
+					<tr th:each="club: ${clubs}">
+						<td style="text-align: left;"><a th:text="${club.getTitle()}" th:href="@{./editClub(clubId=${club.getClubId()})}"></a></td>
+						<td style="text-align: right;"	th:text="${sessionBean.formatMoney(club.getRevenueForYearStarting(sessionBean.getFinanceStartDate()))}" />
 					</tr>
-				</thead>
-
-
-				<tr th:each="club: ${clubs}">
-					<td style="text-align: left;"><a th:text="${club.getTitle()}" th:href="@{./editClub(clubId=${club.getClubId()})}"></a></td>
-					<td style="text-align: left;"	th:text="${sessionBean.formatMoney(club.getRevenueForYearStarting(sessionBean.getFinanceStartDate()))}" />
-				</tr>
-				<tr>
-					<td style="text-align: right;"><b>Total: &nbsp;</b></td>
-					<td style="text-align: left;" th:text="${sessionBean.formatMoney(totalRevenue)}" />
-				</tr>				
-			</table>
+					<tr>
+						<td style="text-align: right;font-weight:bold;">Total:</td>
+						<td style="text-align: right;font-weight:bold;" th:text="${sessionBean.formatMoney(totalRevenue)}" />
+					</tr>				
+				</table>
+			</div>
+	
 		</div>
-
-	</div>
 	<div class="row mb-2">
 		<div class="col-sm-12" align="center">
 			<a th:href="${sessionBean.getPreviousReturnUrl()}" class="btn btn-secondary" role="button">Back</a>

@@ -65,9 +65,7 @@ function formatTime(date) {
     $("#main").css({top: mainTop , left: $("#leftnav").outerWidth()});
   $("#leftnav").css({top: $("#header").outerHeight()});	
   $(".main").show();
-  if ($(".spacer").length==0) {
-	window.alert("Missing Spacer"); //TODO remove
-  }
+
    newPaddingHeight =  $("#footer").outerHeight() - $(".spacer").outerHeight() + parseFloat($(".spacer").css("padding-bottom").replace("px", ""))
   $(".spacer").css("padding-bottom",  newPaddingHeight);
   if ( $("#calendarTable")> 0)  
