@@ -20,7 +20,7 @@
 		</th:block>		
 		<th:block th:if="${resourceStatus}">
 			<div th:each="status : ${resourceStatus}" th:unless="${status.isSufficient()}" class="afterschoolclubflash col">
-				<div class="col-sm-12" th:text="${sessionBean.formatMessage(status.getMessage())}" align="center">FlashMessage</div>
+				<div class="col-sm-12" th:text="${status.getMessage()}" align="center">FlashMessage</div>
 			</div>						
 		</th:block>
 		<div class="afterschoolclubflash col mb-2"  style="display: none" id="validationContainer">					

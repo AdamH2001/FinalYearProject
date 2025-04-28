@@ -67,30 +67,30 @@ public class ResourceStatus {
 			case EQUIPMENT:
 				if (resource.isActive()) {
 					if (resource.getQuantity() <= committedDemand) {
-						result = String.format("Requested %d %s on %s but none available - please choose an alternative.", sessionDemand, resource.getName().toLowerCase(), date);
+						result = String.format("Requested %d %s on %s but none available - please choose an alternative", sessionDemand, resource.getName().toLowerCase(), date);
 					}
 					else {
-						result = String.format("Requested %d %s on %s but only %d available - please choose an alternative.", sessionDemand, resource.getName().toLowerCase(), date, resource.getQuantity() - committedDemand);	
+						result = String.format("Requested %d %s on %s but only %d available - please choose an alternative", sessionDemand, resource.getName().toLowerCase(), date, resource.getQuantity() - committedDemand);	
 					}								
 				}
 				else {
-					result = String.format("Requested %d %s but equipment is no longer available - please choose an alternative.", sessionDemand, resource.getName());
+					result = String.format("Requested %d %s but equipment is no longer available - please choose an alternative", sessionDemand, resource.getName());
 				}
 				break;
 			case STAFF:
 				if (resource.isActive()) {				
-					result = String.format("Staff member %s is already booked on %s - please choose an alternative.", resource.getName(), date);
+					result = String.format("Staff member %s is already booked on %s - please choose an alternative", resource.getName(), date);
 				}
 				else {
-					result = String.format("Staff member %s is no longer available - please choose an alternative.", resource.getName(), date);
+					result = String.format("Staff member %s is no longer available - please choose an alternative", resource.getName(), date);
 				}
 				break;
 			case LOCATION:
 				if (resource.isActive()) {
-					result = String.format("Location %s is already booked on %s - please choose an alternative.", resource.getName(), date);	
+					result = String.format("Location %s is already booked on %s - please choose an alternative", resource.getName(), date);	
 				}
 				else {
-					result = String.format("Location %s is no longer available - please choose an alternative.", resource.getName());
+					result = String.format("Location %s is no longer available - please choose an alternative", resource.getName());
 				}
 								
 				break;
